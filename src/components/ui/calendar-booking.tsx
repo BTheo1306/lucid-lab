@@ -134,7 +134,7 @@ function CustomCalendarWidget() {
             <span className="inline-block h-2 w-2 rounded-full ring-2 ring-zinc-900" /> Aujourd&apos;hui
           </span>
           <span className="flex items-center gap-1.5 text-[11px] text-zinc-400">
-             <span className="inline-block h-2 w-2 rounded-full bg-zinc-900" /> S\u00e9lectionn\u00e9
+             <span className="inline-block h-2 w-2 rounded-full bg-zinc-900" /> Sélectionné
           </span>
         </div>
         <a 
