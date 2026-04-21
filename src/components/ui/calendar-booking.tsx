@@ -4,7 +4,8 @@ import React, { useState, useMemo } from "react"
 
 const TIDYCAL_URL = "https://tidycal.com/lucid-lab/audit-flash-30-minutes"
 
-const DAY_NAMES = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
+const DAY_NAMES_MOBILE = ["D", "L", "M", "M", "J", "V", "S"]
+const DAY_NAMES_DESKTOP = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
 
 // Simple fetching mock or placeholder for dynamic TidyCal fetching. 
 // Since TidyCal has no public API for free accounts without OAuth tokens, 
@@ -62,18 +63,23 @@ function CustomCalendarWidget() {
     : null
 
   return (
-    <div className="rounded-2xl border border-[#e5e5e5] bg-white p-5 md:p-6 shadow-sm w-full relative">
+    <div className="rounded-2xl border border-[#e5e5e5] bg-white p-3 sm:p-5 md:p-6 shadow-sm w-full relative">
       <div className="flex items-center justify-between mb-5">
         <button onClick={prevMonth} disabled={isCurrentMonth} className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-100 disabled:opacity-30 disabled:cursor-not-allowed">‹</button>
         <span className="text-sm font-semibold text-zinc-800 capitalize">{monthLabel} {viewYear}</span>
         <button onClick={nextMonth} className="flex h-7 w-7 items-center justify-center rounded-lg text-zinc-400 hover:bg-zinc-100">›</button>
       </div>
 
-      <div className="grid grid-cols-7 gap-1 mb-1">
-        {DAY_NAMES.map(d => <div key={d} className="text-center text-[10px] font-semibold uppercase tracking-wide text-zinc-400 py-1">{d}</div>)}
+      <div className="grid grid-cols-7 gap-0.5 mb-1">
+        {DAY_NAMES_MOBILE.map((d, i) => (
+          <div key={i} className="text-center py-1">
+            <span className="sm:hidden text-[9px] font-semibold uppercase text-zinc-400">{d}</span>
+            <span className="hidden sm:inline text-[10px] font-semibold uppercase tracking-wide text-zinc-400">{DAY_NAMES_DESKTOP[i]}</span>
+          </div>
+        ))}
       </div>
 
-      <div className="grid grid-cols-7 gap-1">
+      <div className="grid grid-cols-7 gap-0.5">
         {Array(firstDayOfWeek).fill(null).map((_, i) => <div key={`empty-${i}`} />)}
         {Array(daysInMonth).fill(null).map((_, i) => {
           const day = i + 1
@@ -81,7 +87,7 @@ function CustomCalendarWidget() {
           const isSelected = day === selectedDay
           const selectable = isSelectable(day)
 
-          let cls = "flex h-8 w-8 mx-auto items-center justify-center rounded-lg text-xs font-medium transition-colors "
+          let cls = "flex h-7 w-full mx-auto items-center justify-center rounded-md text-[11px] sm:text-xs font-medium transition-colors "
           if (isSelected && selectable) cls += "bg-zinc-900 text-white"
           else if (isToday && !isSelected) cls += "ring-2 ring-zinc-900 text-zinc-900 cursor-pointer hover:bg-zinc-100"
           else if (!selectable) cls += "text-zinc-300 cursor-not-allowed"
@@ -171,7 +177,7 @@ export function BookingSection() {
                 sur votre projet.
               </h2>
 
-              <p className="text-[16px] leading-[1.65] text-zinc-500 max-w-sm">
+              <p className="text-[16px] leading-[1.65] text-zinc-500">
                 Audit, stratégie ou construction : partagez votre contexte. On identifie ensemble ce qui fait sens pour vous.
               </p>
 
@@ -184,18 +190,18 @@ export function BookingSection() {
                 ))}
               </ul>
 
-              <div className="flex flex-wrap items-center gap-3">
+              <div className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-3">
                 <a
                   href={TIDYCAL_URL}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="inline-flex h-[44px] items-center rounded-[10px] bg-zinc-900 px-6 text-[14px] font-medium text-white transition-colors hover:bg-zinc-800"
+                  className="inline-flex w-full sm:w-auto h-[44px] items-center justify-center rounded-[10px] bg-zinc-900 px-6 text-[14px] font-medium text-white transition-colors hover:bg-zinc-800"
                 >
                   Voir les disponibilités
                 </a>
                 <a
                   href="mailto:info@lucid-lab.fr"
-                  className="inline-flex h-[44px] items-center rounded-[10px] border border-[#e5e5e5] bg-white/50 px-6 text-[14px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+                  className="inline-flex w-full sm:w-auto h-[44px] items-center justify-center rounded-[10px] border border-[#e5e5e5] bg-white/50 px-6 text-[14px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
                 >
                   Envoyer un email
                 </a>

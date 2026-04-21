@@ -126,7 +126,7 @@ function PillarCards() {
           transition={{ duration: 0.6 }}
           className="mb-16 grid gap-8 md:grid-cols-[1fr_1fr] md:items-center"
         >
-          <h2 className="text-[32px] font-semibold leading-[1.15] tracking-[-0.02em] text-[#000] sm:text-[40px]">
+          <h2 className="text-[24px] font-semibold leading-[1.15] tracking-[-0.02em] text-[#000] sm:text-[32px] md:text-[40px]">
             Stratégie Opérationnelle.
             <br />
             Développement &amp; Déploiement.
