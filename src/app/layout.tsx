@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Syne } from "next/font/google";
+import { ChatWidget } from "@/components/chat-widget/ChatWidget";
 import "./globals.css";
 
 const inter = Inter({
@@ -230,6 +231,7 @@ export default function RootLayout({
           <div className="mx-auto h-full max-w-[1264px] border-x border-[#e5e5e5]" />
         </div>
         {children}
+        <ChatWidget />
       </body>
     </html>
   );

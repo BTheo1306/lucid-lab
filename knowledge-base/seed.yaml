@@ -1,0 +1,370 @@
+# Lucid-Lab knowledge base seed (bilingual FR/EN)
+# Categories: services, methodology, case_studies, pricing, faq, about, tech_stack
+# Schema (per entry): category, topic, content, language
+
+entries:
+  # ---------- SERVICES ----------
+  - category: services
+    topic: Automatisation de processus
+    language: fr
+    content: |
+      Nous automatisons les processus répétitifs et chronophages qui ralentissent vos équipes :
+      qualification de leads, onboarding client, relances, reporting, synchronisation d'outils.
+      Exemples concrets : scoring automatique de prospects entrants, génération de devis à la
+      volée, agents conversationnels qui traitent le support niveau 1, pipelines de données
+      connectant CRM, facturation et outils internes. Résultat typique : 30 à 70 % de temps
+      libéré sur les tâches visées.
+
+  - category: services
+    topic: Process automation
+    language: en
+    content: |
+      We automate the repetitive, time-draining workflows slowing your team down: lead
+      qualification, client onboarding, follow-ups, reporting, tool synchronisation. Concrete
+      examples: automatic scoring of inbound prospects, on-the-fly quote generation,
+      conversational agents handling tier-1 support, data pipelines connecting CRM, billing
+      and internal tools. Typical outcome: 30–70% of the targeted workload reclaimed.
+
+  - category: services
+    topic: Agents IA & chatbots
+    language: fr
+    content: |
+      Nous concevons des agents conversationnels IA branchés sur vos données (CRM, docs
+      internes, catalogue, calendrier). Ils qualifient des leads, répondent aux FAQ, prennent
+      des RDV, escaladent vers un humain quand il faut. Canaux : site web, WhatsApp, Slack,
+      e-mail. Modèles : Claude, GPT-4, Gemini, Mistral selon le cas d'usage et le budget.
+
+  - category: services
+    topic: AI agents & chatbots
+    language: en
+    content: |
+      We build AI conversational agents plugged into your data (CRM, internal docs, catalog,
+      calendar). They qualify leads, answer FAQs, book meetings, and escalate to humans when
+      needed. Channels: website, WhatsApp, Slack, email. Models: Claude, GPT-4, Gemini,
+      Mistral — chosen per use case and budget.
+
+  - category: services
+    topic: Intégrations & pipelines de données
+    language: fr
+    content: |
+      Nous connectons vos outils entre eux (CRM, ERP, marketing, facturation, support) pour
+      qu'ils échangent en temps réel. Architecture type : webhooks, files d'attente, Supabase
+      ou Postgres, fonctions serverless sur Vercel/Cloudflare. Observabilité intégrée (logs
+      structurés, alertes). Zéro vendor lock-in : vous gardez le code.
+
+  - category: services
+    topic: Integrations & data pipelines
+    language: en
+    content: |
+      We connect your tools (CRM, ERP, marketing, billing, support) so they exchange data in
+      real time. Typical stack: webhooks, queues, Supabase or Postgres, serverless functions
+      on Vercel/Cloudflare. Built-in observability (structured logs, alerts). Zero vendor
+      lock-in — you own the code.
+
+  - category: services
+    topic: Conseil & audit IA
+    language: fr
+    content: |
+      Audit 2 à 4 semaines pour identifier où l'IA et l'automatisation apportent le plus de
+      valeur dans votre opération. Livrables : cartographie des processus, shortlist de cas
+      d'usage priorisés par ROI, roadmap d'implémentation, estimation budgétaire. Pas de
+      promesses hors-sol : chaque recommandation est chiffrée.
+
+  - category: services
+    topic: AI advisory & audit
+    language: en
+    content: |
+      A 2–4 week audit to map where AI and automation deliver the most value in your
+      operation. Deliverables: process mapping, shortlist of use cases prioritised by ROI,
+      implementation roadmap, budget estimate. No hand-waving — every recommendation is
+      quantified.
+
+  # ---------- METHODOLOGY ----------
+  - category: methodology
+    topic: Phase 1 — Diagnostic
+    language: fr
+    content: |
+      Phase 1 (1 à 2 semaines). Nous cartographions vos processus actuels, identifions les
+      points de friction et les gisements de valeur. Entretiens avec les équipes, observation
+      terrain, analyse de vos outils. Livrable : un rapport clair avec 3 à 5 cas d'usage
+      chiffrés (temps gagné, euros économisés, risques réduits).
+
+  - category: methodology
+    topic: Phase 1 — Diagnostic
+    language: en
+    content: |
+      Phase 1 (1–2 weeks). We map your current processes, identify friction points and
+      value pools. Team interviews, on-site observation, tool review. Deliverable: a clear
+      report with 3–5 quantified use cases (time saved, euros recovered, risk reduced).
+
+  - category: methodology
+    topic: Phase 2 — Prototype
+    language: fr
+    content: |
+      Phase 2 (2 à 4 semaines). Nous construisons un prototype fonctionnel du cas d'usage
+      prioritaire, testé sur vos vraies données (ou un échantillon anonymisé). Objectif :
+      prouver la valeur avant d'investir davantage. Critères de succès définis en amont,
+      mesurés en aval. Si ça ne marche pas, on s'arrête là — honnêtement.
+
+  - category: methodology
+    topic: Phase 2 — Prototype
+    language: en
+    content: |
+      Phase 2 (2–4 weeks). We build a working prototype of the top-priority use case,
+      tested against real data (or an anonymised sample). Goal: prove value before further
+      investment. Success criteria are defined upfront and measured at the end. If it
+      doesn't pan out, we stop — honestly.
+
+  - category: methodology
+    topic: Phase 3 — Industrialisation
+    language: fr
+    content: |
+      Phase 3 (4 à 12 semaines). Le prototype devient un produit : code propre, tests,
+      sécurité, monitoring, documentation. Déploiement progressif avec vos équipes. Formation
+      sur le fonctionnement pour autonomiser vos utilisateurs et vos devs internes.
+
+  - category: methodology
+    topic: Phase 3 — Production rollout
+    language: en
+    content: |
+      Phase 3 (4–12 weeks). The prototype becomes a product: clean code, tests, security,
+      monitoring, documentation. Progressive rollout with your teams. Training so your
+      users and in-house devs become autonomous.
+
+  - category: methodology
+    topic: Phase 4 — Opération & amélioration continue
+    language: fr
+    content: |
+      Phase 4 (en continu). Support et évolution. Suivi des métriques business, ajustements
+      des prompts/modèles, extension à de nouveaux cas d'usage. Options : forfait support
+      mensuel, transfert complet à vos équipes, ou modèle hybride.
+
+  - category: methodology
+    topic: Phase 4 — Operations & continuous improvement
+    language: en
+    content: |
+      Phase 4 (ongoing). Support and iteration. Business-metric tracking, prompt/model
+      tuning, extension to new use cases. Options: monthly support retainer, full handover
+      to your team, or hybrid model.
+
+  # ---------- CASE STUDIES ----------
+  - category: case_studies
+    topic: Cabinet de conseil RH — qualification de leads
+    language: fr
+    content: |
+      Un cabinet RH recevait ~150 demandes entrantes/mois, perdait 6h/jour à les trier. Nous
+      avons déployé un agent IA sur leur site qui qualifie, collecte le brief, propose un
+      créneau. Résultat en 8 semaines : 92 % des demandes qualifiées sans intervention
+      humaine, temps commercial réinvesti sur les comptes stratégiques, +28 % de taux de
+      conversion prospect → rendez-vous.
+
+  - category: case_studies
+    topic: HR consultancy — inbound lead qualification
+    language: en
+    content: |
+      An HR consultancy received ~150 inbound requests/month and burned 6h/day triaging
+      them. We deployed an AI agent on their site that qualifies, collects the brief, and
+      books a slot. Outcome in 8 weeks: 92% of requests qualified with zero human touch,
+      sales time redirected to strategic accounts, +28% prospect-to-meeting conversion.
+
+  - category: case_studies
+    topic: E-commerce B2B — support niveau 1
+    language: fr
+    content: |
+      Un e-commerçant B2B (~800 tickets/semaine) voyait son support saturé. Agent IA
+      connecté à leur ERP et leur doc produit : 71 % des tickets traités automatiquement
+      (statut commande, délais, retours, FAQ). Les agents humains se concentrent désormais
+      sur les cas complexes. NPS support : +18 points en 3 mois.
+
+  - category: case_studies
+    topic: B2B e-commerce — tier-1 support
+    language: en
+    content: |
+      A B2B e-commerce outfit (~800 tickets/week) was drowning in support load. An AI agent
+      wired to their ERP and product docs handles 71% of tickets automatically (order
+      status, delivery, returns, FAQ). Human agents now focus on complex cases. Support
+      NPS: +18 points in 3 months.
+
+  - category: case_studies
+    topic: SaaS B2B — onboarding automatisé
+    language: fr
+    content: |
+      Un éditeur SaaS avait un onboarding manuel de 3 semaines par client (emails,
+      configuration, formation). Nous avons construit un pipeline automatisé : provisioning,
+      import des données du client, sessions de formation personnalisées via agent IA.
+      Temps d'onboarding : passé de 3 semaines à 4 jours. Charge sur l'équipe CSM divisée
+      par 3.
+
+  - category: case_studies
+    topic: B2B SaaS — automated onboarding
+    language: en
+    content: |
+      A B2B SaaS vendor ran a 3-week manual onboarding per customer (emails, setup,
+      training). We built an automated pipeline: provisioning, customer data import,
+      personalised training sessions via AI agent. Onboarding time: from 3 weeks to 4
+      days. CSM team load divided by 3.
+
+  # ---------- PRICING ----------
+  - category: pricing
+    topic: Modèles tarifaires
+    language: fr
+    content: |
+      Trois modèles selon votre besoin :
+      1) **Audit & conseil** — forfait fixe de 6 000 à 15 000 € HT, 2 à 4 semaines.
+      2) **Projet au forfait** — devis fixe après diagnostic, typiquement 15 000 à
+         80 000 € HT pour un cas d'usage de bout en bout.
+      3) **Retainer / régie** — jour-homme à 900 € HT, équipe dédiée pour les roadmaps
+         pluri-mensuelles.
+      Tous les livrables incluent le code source, la documentation et la formation. Aucun
+      vendor lock-in.
+
+  - category: pricing
+    topic: Pricing models
+    language: en
+    content: |
+      Three models depending on your need:
+      1) **Audit & advisory** — fixed fee €6,000–€15,000, 2–4 weeks.
+      2) **Fixed-price project** — quoted after diagnosis, typically €15,000–€80,000 for
+         an end-to-end use case.
+      3) **Retainer / time-and-materials** — €900/day, dedicated team for multi-month
+         roadmaps.
+      All deliverables include source code, documentation and training. Zero vendor
+      lock-in.
+
+  # ---------- FAQ ----------
+  - category: faq
+    topic: Délai de réalisation
+    language: fr
+    content: |
+      Un premier prototype fonctionnel sort en général en 4 à 6 semaines. Un produit en
+      production, avec tests et monitoring, en 2 à 4 mois selon la complexité. Nous
+      privilégions toujours un livrable tôt, utilisable, quitte à étendre ensuite.
+
+  - category: faq
+    topic: Delivery timeline
+    language: en
+    content: |
+      A first working prototype typically ships in 4–6 weeks. A production-ready product
+      with tests and monitoring takes 2–4 months depending on complexity. We always ship
+      something early and usable, then extend.
+
+  - category: faq
+    topic: Données & confidentialité
+    language: fr
+    content: |
+      Vos données restent chez vous : on travaille dans votre cloud (AWS, GCP, Azure) ou
+      sur des infra européennes (Scaleway, OVH). RGPD-ready par défaut. Pour les modèles
+      IA, on peut utiliser des versions "entreprise" (Azure OpenAI, Anthropic via AWS
+      Bedrock) avec zéro rétention et données hors training.
+
+  - category: faq
+    topic: Data & privacy
+    language: en
+    content: |
+      Your data stays with you: we work in your cloud (AWS, GCP, Azure) or on European
+      infra (Scaleway, OVH). GDPR-ready by default. For AI models, we can use enterprise
+      flavours (Azure OpenAI, Anthropic via AWS Bedrock) with zero-retention and
+      out-of-training guarantees.
+
+  - category: faq
+    topic: Quels outils utilisez-vous ?
+    language: fr
+    content: |
+      Côté IA : Claude (Anthropic), GPT-4/5 (OpenAI), Gemini (Google), Mistral. Côté stack :
+      TypeScript, Python, Next.js, Supabase/Postgres, Vercel, Cloudflare. Côté intégrations :
+      tout ce qui a une API (HubSpot, Salesforce, Pipedrive, Stripe, Notion, Slack, Gmail,
+      etc.). Choix dicté par votre contexte, pas par nos préférences.
+
+  - category: faq
+    topic: Which tools do you use?
+    language: en
+    content: |
+      AI: Claude (Anthropic), GPT-4/5 (OpenAI), Gemini (Google), Mistral. Stack: TypeScript,
+      Python, Next.js, Supabase/Postgres, Vercel, Cloudflare. Integrations: anything with an
+      API (HubSpot, Salesforce, Pipedrive, Stripe, Notion, Slack, Gmail, etc.). Choice
+      driven by your context, not our preferences.
+
+  - category: faq
+    topic: Travaillez-vous à l'international ?
+    language: fr
+    content: |
+      Oui. Notre équipe est basée en France mais nous intervenons en français et en anglais,
+      pour des clients en Europe, au Royaume-Uni et en Amérique du Nord. Réunions en
+      distanciel, déplacements possibles sur projet.
+
+  - category: faq
+    topic: Do you work internationally?
+    language: en
+    content: |
+      Yes. Our team is France-based but we operate in French and English for clients across
+      Europe, the UK and North America. Meetings remote by default, on-site visits
+      available per project.
+
+  - category: faq
+    topic: Et si le projet n'aboutit pas ?
+    language: fr
+    content: |
+      On préfère s'arrêter après la Phase 2 (prototype) plutôt que de livrer un produit qui
+      ne sert personne. Nos contrats incluent des go/no-go entre chaque phase, avec
+      critères mesurables. Si ça ne marche pas, vous ne payez que ce qui a été livré.
+
+  - category: faq
+    topic: What if the project doesn't pan out?
+    language: en
+    content: |
+      We'd rather stop after Phase 2 (prototype) than ship something no one uses. Our
+      contracts include go/no-go checkpoints between phases with measurable criteria. If it
+      doesn't work, you only pay for what was delivered.
+
+  # ---------- ABOUT ----------
+  - category: about
+    topic: Qui est Lucid-Lab ?
+    language: fr
+    content: |
+      Lucid-Lab est une agence française indépendante spécialisée en IA appliquée et
+      automatisation sur mesure. Équipe d'ingénieurs et de consultants qui construit pour
+      des PME, ETI et grands comptes. Notre conviction : l'IA n'est pas une fin — c'est un
+      levier. On ne conseille pas. On construit.
+
+  - category: about
+    topic: Who is Lucid-Lab?
+    language: en
+    content: |
+      Lucid-Lab is an independent French agency focused on applied AI and custom
+      automation. A team of engineers and consultants building for SMBs, mid-caps and
+      enterprises. Our take: AI isn't a goal — it's a lever. We don't just advise. We build.
+
+  - category: about
+    topic: Contact
+    language: fr
+    content: |
+      Par e-mail : info@lucid-lab.fr. Pour un rendez-vous découverte (30 min, gratuit) :
+      https://tidycal.com/lucid-lab. Site web : https://lucid-lab.fr.
+
+  - category: about
+    topic: Contact
+    language: en
+    content: |
+      Email: info@lucid-lab.fr. Discovery call (30 min, free):
+      https://tidycal.com/lucid-lab. Website: https://lucid-lab.fr.
+
+  # ---------- TECH STACK ----------
+  - category: tech_stack
+    topic: Stack technique
+    language: fr
+    content: |
+      Langages : TypeScript, Python. Frontend : Next.js, React, Tailwind. Backend :
+      Node.js, Python (FastAPI). Bases : Postgres, Supabase, Redis. Infra : Vercel,
+      Cloudflare, AWS, GCP. IA : Anthropic, OpenAI, Google, Mistral, modèles open-source
+      (Llama, Mistral self-hosted). Observabilité : Sentry, Datadog, OpenTelemetry.
+      Tests : Vitest, Pytest, Playwright.
+
+  - category: tech_stack
+    topic: Technical stack
+    language: en
+    content: |
+      Languages: TypeScript, Python. Frontend: Next.js, React, Tailwind. Backend: Node.js,
+      Python (FastAPI). Databases: Postgres, Supabase, Redis. Infra: Vercel, Cloudflare,
+      AWS, GCP. AI: Anthropic, OpenAI, Google, Mistral, open-source (Llama, self-hosted
+      Mistral). Observability: Sentry, Datadog, OpenTelemetry. Testing: Vitest, Pytest,
+      Playwright.
