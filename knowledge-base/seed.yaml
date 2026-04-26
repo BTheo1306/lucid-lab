@@ -12,8 +12,9 @@ entries:
       qualification de leads, onboarding client, relances, reporting, synchronisation d'outils.
       Exemples concrets : scoring automatique de prospects entrants, génération de devis à la
       volée, agents conversationnels qui traitent le support niveau 1, pipelines de données
-      connectant CRM, facturation et outils internes. Résultat typique : 30 à 70 % de temps
-      libéré sur les tâches visées.
+      connectant CRM, facturation et outils internes. L'objectif : libérer du temps,
+      réduire les coûts opérationnels et améliorer les conversions, sans promettre un
+      résultat chiffré avant diagnostic.
 
   - category: services
     topic: Process automation
@@ -23,7 +24,8 @@ entries:
       qualification, client onboarding, follow-ups, reporting, tool synchronisation. Concrete
       examples: automatic scoring of inbound prospects, on-the-fly quote generation,
       conversational agents handling tier-1 support, data pipelines connecting CRM, billing
-      and internal tools. Typical outcome: 30–70% of the targeted workload reclaimed.
+      and internal tools. The goal: save time, reduce operational costs and improve
+      conversion without promising a quantified outcome before diagnosis.
 
   - category: services
     topic: Agents IA & chatbots
@@ -65,71 +67,65 @@ entries:
     topic: Conseil & audit IA
     language: fr
     content: |
-      Audit 2 à 4 semaines pour identifier où l'IA et l'automatisation apportent le plus de
-      valeur dans votre opération. Livrables : cartographie des processus, shortlist de cas
-      d'usage priorisés par ROI, roadmap d'implémentation, estimation budgétaire. Pas de
-      promesses hors-sol : chaque recommandation est chiffrée.
+      Diagnostic pour identifier où l'IA et l'automatisation apportent le plus de valeur
+      dans votre opération. On clarifie les processus, les cas d'usage prioritaires, les
+      systèmes à intégrer et l'ordre de grandeur budgétaire. La stratégie n'est jamais un
+      livrable isolé : elle doit mener à une exécution concrète.
 
   - category: services
     topic: AI advisory & audit
     language: en
     content: |
-      A 2–4 week audit to map where AI and automation deliver the most value in your
-      operation. Deliverables: process mapping, shortlist of use cases prioritised by ROI,
-      implementation roadmap, budget estimate. No hand-waving — every recommendation is
-      quantified.
+      A diagnostic to map where AI and automation can create the most value in your
+      operation. We clarify workflows, priority use cases, systems to integrate and budget
+      order of magnitude. Strategy is never isolated from execution: it must lead to a
+      concrete build.
 
   # ---------- METHODOLOGY ----------
   - category: methodology
     topic: Phase 1 — Diagnostic
     language: fr
     content: |
-      Phase 1 (1 à 2 semaines). Nous cartographions vos processus actuels, identifions les
-      points de friction et les gisements de valeur. Entretiens avec les équipes, observation
-      terrain, analyse de vos outils. Livrable : un rapport clair avec 3 à 5 cas d'usage
-      chiffrés (temps gagné, euros économisés, risques réduits).
+      Phase 1. Nous cartographions vos processus actuels, identifions les points de friction
+      et les gisements de valeur. On cherche surtout le cas d'usage qui a un vrai impact
+      business, pas une démo IA décorative.
 
   - category: methodology
     topic: Phase 1 — Diagnostic
     language: en
     content: |
-      Phase 1 (1–2 weeks). We map your current processes, identify friction points and
-      value pools. Team interviews, on-site observation, tool review. Deliverable: a clear
-      report with 3–5 quantified use cases (time saved, euros recovered, risk reduced).
+      Phase 1. We map your current processes, identify friction points and value pools. The
+      goal is to find the use case with real business impact, not build a decorative AI demo.
 
   - category: methodology
     topic: Phase 2 — Prototype
     language: fr
     content: |
-      Phase 2 (2 à 4 semaines). Nous construisons un prototype fonctionnel du cas d'usage
-      prioritaire, testé sur vos vraies données (ou un échantillon anonymisé). Objectif :
-      prouver la valeur avant d'investir davantage. Critères de succès définis en amont,
-      mesurés en aval. Si ça ne marche pas, on s'arrête là — honnêtement.
+      Phase 2. Nous construisons une première version fonctionnelle du cas d'usage prioritaire,
+      testée sur vos vraies données ou un échantillon anonymisé. Objectif : valider l'intérêt
+      avant d'investir davantage. Si ça ne sert pas le business, on le dit.
 
   - category: methodology
     topic: Phase 2 — Prototype
     language: en
     content: |
-      Phase 2 (2–4 weeks). We build a working prototype of the top-priority use case,
-      tested against real data (or an anonymised sample). Goal: prove value before further
-      investment. Success criteria are defined upfront and measured at the end. If it
-      doesn't pan out, we stop — honestly.
+      Phase 2. We build a first working version of the priority use case, tested against real
+      data or an anonymised sample. Goal: validate the value before further investment. If it
+      does not serve the business, we say so.
 
   - category: methodology
     topic: Phase 3 — Industrialisation
     language: fr
     content: |
-      Phase 3 (4 à 12 semaines). Le prototype devient un produit : code propre, tests,
-      sécurité, monitoring, documentation. Déploiement progressif avec vos équipes. Formation
-      sur le fonctionnement pour autonomiser vos utilisateurs et vos devs internes.
+      Phase 3. La première version devient un système utilisable : code propre, sécurité,
+      monitoring, documentation et déploiement progressif avec vos équipes.
 
   - category: methodology
     topic: Phase 3 — Production rollout
     language: en
     content: |
-      Phase 3 (4–12 weeks). The prototype becomes a product: clean code, tests, security,
-      monitoring, documentation. Progressive rollout with your teams. Training so your
-      users and in-house devs become autonomous.
+      Phase 3. The first version becomes a usable system: clean code, security, monitoring,
+      documentation and progressive rollout with your teams.
 
   - category: methodology
     topic: Phase 4 — Opération & amélioration continue
@@ -149,104 +145,56 @@ entries:
 
   # ---------- CASE STUDIES ----------
   - category: case_studies
-    topic: Cabinet de conseil RH — qualification de leads
+    topic: Références citables
     language: fr
     content: |
-      Un cabinet RH recevait ~150 demandes entrantes/mois, perdait 6h/jour à les trier. Nous
-      avons déployé un agent IA sur leur site qui qualifie, collecte le brief, propose un
-      créneau. Résultat en 8 semaines : 92 % des demandes qualifiées sans intervention
-      humaine, temps commercial réinvesti sur les comptes stratégiques, +28 % de taux de
-      conversion prospect → rendez-vous.
+      Références pouvant être citées : Turismo et Periscope. Ne pas inventer de résultats,
+      chiffres, délais ou détails de mission associés à ces références tant qu'ils ne sont
+      pas fournis explicitement.
 
   - category: case_studies
-    topic: HR consultancy — inbound lead qualification
+    topic: References that can be named
     language: en
     content: |
-      An HR consultancy received ~150 inbound requests/month and burned 6h/day triaging
-      them. We deployed an AI agent on their site that qualifies, collects the brief, and
-      books a slot. Outcome in 8 weeks: 92% of requests qualified with zero human touch,
-      sales time redirected to strategic accounts, +28% prospect-to-meeting conversion.
-
-  - category: case_studies
-    topic: E-commerce B2B — support niveau 1
-    language: fr
-    content: |
-      Un e-commerçant B2B (~800 tickets/semaine) voyait son support saturé. Agent IA
-      connecté à leur ERP et leur doc produit : 71 % des tickets traités automatiquement
-      (statut commande, délais, retours, FAQ). Les agents humains se concentrent désormais
-      sur les cas complexes. NPS support : +18 points en 3 mois.
-
-  - category: case_studies
-    topic: B2B e-commerce — tier-1 support
-    language: en
-    content: |
-      A B2B e-commerce outfit (~800 tickets/week) was drowning in support load. An AI agent
-      wired to their ERP and product docs handles 71% of tickets automatically (order
-      status, delivery, returns, FAQ). Human agents now focus on complex cases. Support
-      NPS: +18 points in 3 months.
-
-  - category: case_studies
-    topic: SaaS B2B — onboarding automatisé
-    language: fr
-    content: |
-      Un éditeur SaaS avait un onboarding manuel de 3 semaines par client (emails,
-      configuration, formation). Nous avons construit un pipeline automatisé : provisioning,
-      import des données du client, sessions de formation personnalisées via agent IA.
-      Temps d'onboarding : passé de 3 semaines à 4 jours. Charge sur l'équipe CSM divisée
-      par 3.
-
-  - category: case_studies
-    topic: B2B SaaS — automated onboarding
-    language: en
-    content: |
-      A B2B SaaS vendor ran a 3-week manual onboarding per customer (emails, setup,
-      training). We built an automated pipeline: provisioning, customer data import,
-      personalised training sessions via AI agent. Onboarding time: from 3 weeks to 4
-      days. CSM team load divided by 3.
+      References that can be named: Turismo and Periscope. Do not invent outcomes, numbers,
+      timelines or project details linked to those references unless explicitly provided.
 
   # ---------- PRICING ----------
   - category: pricing
     topic: Modèles tarifaires
     language: fr
     content: |
-      Trois modèles selon votre besoin :
-      1) **Audit & conseil** — forfait fixe de 6 000 à 15 000 € HT, 2 à 4 semaines.
-      2) **Projet au forfait** — devis fixe après diagnostic, typiquement 15 000 à
-         80 000 € HT pour un cas d'usage de bout en bout.
-      3) **Retainer / régie** — jour-homme à 900 € HT, équipe dédiée pour les roadmaps
-         pluri-mensuelles.
-      Tous les livrables incluent le code source, la documentation et la formation. Aucun
-      vendor lock-in.
+      Nous proposons des accompagnements sur mesure, soit sous forme de projets ponctuels,
+      soit via des collaborations long terme en retainer. Les investissements varient selon
+      les enjeux business, le niveau d'automatisation souhaité et les systèmes à intégrer.
+      Si le prospect insiste, donner uniquement un ordre de grandeur large : environ 500 €
+      à 25k€ selon le périmètre. Toujours recommander un audit avant devis.
 
   - category: pricing
     topic: Pricing models
     language: en
     content: |
-      Three models depending on your need:
-      1) **Audit & advisory** — fixed fee €6,000–€15,000, 2–4 weeks.
-      2) **Fixed-price project** — quoted after diagnosis, typically €15,000–€80,000 for
-         an end-to-end use case.
-      3) **Retainer / time-and-materials** — €900/day, dedicated team for multi-month
-         roadmaps.
-      All deliverables include source code, documentation and training. Zero vendor
-      lock-in.
+      We offer custom engagements, either one-off projects or long-term retainer
+      collaborations. Investment depends on business stakes, automation depth and systems to
+      integrate. If the prospect pushes for a number, give only a broad range: roughly €500
+      to €25k depending on scope. Always recommend an audit before a quote.
 
   # ---------- FAQ ----------
   - category: faq
     topic: Délai de réalisation
     language: fr
     content: |
-      Un premier prototype fonctionnel sort en général en 4 à 6 semaines. Un produit en
-      production, avec tests et monitoring, en 2 à 4 mois selon la complexité. Nous
-      privilégions toujours un livrable tôt, utilisable, quitte à étendre ensuite.
+      Les délais dépendent du périmètre, des intégrations et de l'accès aux données. Le bot
+      ne doit pas promettre de délai ferme dans le chat. Le plus sérieux est de cadrer le
+      besoin en audit, puis de proposer un calendrier réaliste.
 
   - category: faq
     topic: Delivery timeline
     language: en
     content: |
-      A first working prototype typically ships in 4–6 weeks. A production-ready product
-      with tests and monitoring takes 2–4 months depending on complexity. We always ship
-      something early and usable, then extend.
+      Timelines depend on scope, integrations and data access. The bot should not promise a
+      firm timeline in chat. The serious next step is to scope the need in an audit, then
+      propose a realistic timeline.
 
   - category: faq
     topic: Données & confidentialité
@@ -339,14 +287,16 @@ entries:
     language: fr
     content: |
       Par e-mail : info@lucid-lab.fr. Pour un rendez-vous découverte (30 min, gratuit) :
-      https://tidycal.com/lucid-lab. Site web : https://lucid-lab.fr.
+      https://tidycal.com/lucid-lab/audit-flash-30-minutes. Pour une urgence : WhatsApp au
+      +33 7 59 56 38 47. Site web : https://lucid-lab.fr.
 
   - category: about
     topic: Contact
     language: en
     content: |
       Email: info@lucid-lab.fr. Discovery call (30 min, free):
-      https://tidycal.com/lucid-lab. Website: https://lucid-lab.fr.
+      https://tidycal.com/lucid-lab/audit-flash-30-minutes. For urgent requests: WhatsApp
+      +33 7 59 56 38 47. Website: https://lucid-lab.fr.
 
   # ---------- TECH STACK ----------
   - category: tech_stack

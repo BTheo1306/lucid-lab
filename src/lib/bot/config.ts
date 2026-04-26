@@ -40,7 +40,7 @@ export const config = {
   tidycalApiKey: process.env['TIDYCAL_API_KEY'] ?? '',
   tidycalBookingTypeId: process.env['TIDYCAL_BOOKING_TYPE_ID'] ?? '',
   /** Public TidyCal booking URL — used as fallback when the API key isn't available. */
-  tidycalPublicUrl: optionalEnv('TIDYCAL_PUBLIC_URL', 'https://tidycal.com/lucid-lab'),
+  tidycalPublicUrl: optionalEnv('TIDYCAL_PUBLIC_URL', 'https://tidycal.com/lucid-lab/audit-flash-30-minutes'),
 
   // Email (SMTP)
   smtpHost: process.env['SMTP_HOST'] ?? '',

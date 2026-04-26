@@ -8,7 +8,7 @@ import { InputBox } from './InputBox';
 
 const TEASER_DELAY_MS = 4000;
 const TEASER_DISMISS_KEY = 'll-chat-teaser-dismissed';
-const TEASER_TEXT = 'Bonjour \u{1F44B} Une question sur Lucid-Lab\u00A0? Je suis là pour y répondre.';
+const TEASER_TEXT = 'Bonjour. Une question sur Lucid-Lab\u00A0? Je suis là pour y répondre.';
 
 /**
  * Lucid-Lab chat widget — floating bubble bottom-right.
@@ -90,14 +90,14 @@ export function ChatWidget() {
         <div className="ll-chat-panel" role="dialog" aria-label="Assistant Lucid-Lab">
           <header className="ll-chat-header">
             <div>
-              <strong>Lucid-Lab</strong>
-              <span className="ll-chat-sub">Assistant IA</span>
+              <strong>Lucid</strong>
+              <span className="ll-chat-sub">Assistant Lucid-Lab</span>
             </div>
             <button type="button" onClick={() => setOpen(false)} aria-label="Fermer">
               ✕
             </button>
           </header>
-          <MessageList messages={messages} sending={sending} />
+          <MessageList messages={messages} sending={sending} onChipClick={sendMessage} />
           {error ? <div className="ll-chat-error">⚠ {error}</div> : null}
           <InputBox disabled={!sessionReady || sending} onSend={sendMessage} />
           <footer className="ll-chat-footer">
@@ -202,8 +202,11 @@ const widgetStyles = `
 .ll-chat-msg { display: flex; }
 .ll-chat-msg-user { justify-content: flex-end; }
 .ll-chat-msg-assistant { justify-content: flex-start; }
+.ll-chat-bubble-wrap { display: flex; flex-direction: column; gap: 6px; max-width: 85%; }
+.ll-chat-msg-user .ll-chat-bubble-wrap { align-items: flex-end; }
+.ll-chat-msg-assistant .ll-chat-bubble-wrap { align-items: flex-start; }
 .ll-chat-bubble {
-  max-width: 85%; padding: 9px 12px; border-radius: 14px;
+  max-width: 100%; padding: 9px 12px; border-radius: 14px;
   font-size: 14px; line-height: 1.45;
 }
 .ll-chat-msg-user .ll-chat-bubble { background: #0a0a0a; color: #fff; border-bottom-right-radius: 4px; }
@@ -211,6 +214,29 @@ const widgetStyles = `
 .ll-chat-bubble p { margin: 0; }
 .ll-chat-bubble p + p { margin-top: 6px; }
 .ll-chat-bubble a { color: inherit; text-decoration: underline; }
+
+.ll-chat-booking-btn {
+  display: flex; align-items: center; gap: 10px;
+  padding: 11px 14px; margin-top: 2px;
+  background: #fff; color: #0a0a0a;
+  border: 1.5px solid #0a0a0a; border-radius: 12px;
+  text-decoration: none; cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+  max-width: 85%;
+}
+.ll-chat-booking-btn:hover { background: #0a0a0a; color: #fff; }
+.ll-chat-booking-icon {
+  display: flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px; border-radius: 8px;
+  background: #f1f1f1; flex-shrink: 0; transition: background 0.15s ease;
+}
+.ll-chat-booking-btn:hover .ll-chat-booking-icon { background: #222; }
+.ll-chat-booking-text {
+  display: flex; flex-direction: column; gap: 1px; flex: 1;
+}
+.ll-chat-booking-text strong { font-size: 13px; font-weight: 600; }
+.ll-chat-booking-text span { font-size: 11px; opacity: 0.6; }
+.ll-chat-booking-arrow { font-size: 16px; opacity: 0.5; flex-shrink: 0; }
 
 .ll-chat-typing { display: inline-flex; gap: 4px; padding: 11px 14px; }
 .ll-chat-typing span {
@@ -239,4 +265,13 @@ const widgetStyles = `
 
 .ll-chat-footer { padding: 8px 12px; font-size: 11px; color: #888; text-align: center; background: #fafafa; border-top: 1px solid #f0f0f0; }
 .ll-chat-footer a { color: #555; }
+
+.ll-chat-chips { display: flex; flex-direction: column; gap: 7px; margin-top: 4px; }
+.ll-chat-chip {
+  display: block; width: 100%; padding: 9px 13px;
+  background: #fff; border: 1px solid #e0e0e0; border-radius: 10px;
+  font-family: inherit; font-size: 13px; color: #222; text-align: left;
+  cursor: pointer; transition: background 0.15s ease, border-color 0.15s ease;
+}
+.ll-chat-chip:hover { background: #f5f5f5; border-color: #bbb; }
 `;
