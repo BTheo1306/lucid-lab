@@ -170,6 +170,45 @@ function ConversationStatusForm({ conversation }: { conversation: AdminConversat
   );
 }
 
+function auditEventLabel(eventType: string, details: Record<string, unknown>): string {
+  switch (eventType) {
+    case 'admin_access': {
+      const route = String(details.route ?? '');
+      if (route === 'admin/login') return 'Admin signed in';
+      if (route === 'admin/lead-status') return `Lead marked ${details.status ?? 'updated'}`;
+      if (route === 'admin/conversation-status') return `Conversation marked ${details.status ?? 'updated'}`;
+      return `Admin: ${route}`;
+    }
+    case 'admin_unauthorized': return 'Unauthorized admin access attempt';
+    case 'cron_unauthorized': return 'Unauthorized cron job access';
+    case 'rate_limit_breach': return 'Rate limit exceeded';
+    case 'origin_rejected': return 'Blocked invalid origin';
+    case 'turnstile_failed': return 'Bot verification failed';
+    case 'erasure_requested': return 'Data erasure requested';
+    case 'erasure_completed': return 'Data erasure completed';
+    case 'budget_exceeded': return 'AI daily budget exceeded';
+    default: return eventType;
+  }
+}
+
+function auditEventBadgeClass(eventType: string): string {
+  switch (eventType) {
+    case 'admin_unauthorized':
+    case 'cron_unauthorized':
+    case 'rate_limit_breach':
+    case 'origin_rejected':
+    case 'turnstile_failed':
+      return 'bg-rose-50 text-rose-700 ring-1 ring-rose-200';
+    case 'budget_exceeded':
+    case 'erasure_requested':
+      return 'bg-amber-50 text-amber-700 ring-1 ring-amber-200';
+    case 'erasure_completed':
+      return 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200';
+    default:
+      return 'bg-zinc-100 text-zinc-600 ring-1 ring-zinc-200';
+  }
+}
+
 function EmptyState({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-lg border border-dashed border-zinc-200 px-4 py-10 text-center text-sm text-zinc-500">
@@ -181,7 +220,10 @@ function EmptyState({ children }: { children: React.ReactNode }) {
 export default async function AdminDashboardPage() {
   const data = await getAdminDashboardData();
   const maxSpend = Math.max(...data.budgetHistory.map((day) => day.spentEur), 0.001);
-  const MAX_BAR_PX = 90;
+  const MAX_BAR_PX = 96;
+  const totalSpend = data.budgetHistory.reduce((sum, d) => sum + d.spentEur, 0);
+  const totalTokens = data.budgetHistory.reduce((sum, d) => sum + d.tokensUsed, 0);
+  const totalRequests = data.budgetHistory.reduce((sum, d) => sum + d.requestsCount, 0);
 
   return (
     <div className="grid gap-6">
@@ -341,7 +383,7 @@ export default async function AdminDashboardPage() {
           )}
         </Section>
 
-        <Section title="Bot health" description="Spend, message volume and security events.">
+        <Section title="Bot health" description="AI cost tracking, message volume and admin activity log.">
           <div className="grid gap-5">
             <div>
               <div className="flex items-center justify-between text-sm">
@@ -356,41 +398,56 @@ export default async function AdminDashboardPage() {
 
             <div>
               <div className="mb-3 flex items-center justify-between text-sm">
-                <span className="font-medium">AI spend trend</span>
-                <span className="text-zinc-500">14 days</span>
+                <span className="font-medium">AI spend — last 14 days</span>
+                <span className="font-medium text-zinc-700">{formatCurrency(totalSpend)}</span>
               </div>
-              <div className="flex h-36 items-end gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
+              <div className="flex h-40 gap-1.5 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
                 {data.budgetHistory.length === 0 ? (
                   <div className="grid h-full w-full place-items-center text-sm text-zinc-500">No budget records yet.</div>
                 ) : data.budgetHistory.map((day) => {
                   const barPx = Math.max((day.spentEur / maxSpend) * MAX_BAR_PX, day.spentEur > 0 ? 8 : 2);
                   return (
-                    <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1">
+                    <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center">
+                      <div className="flex-1" />
+                      <span className="mb-1 text-[9px] font-semibold leading-none text-zinc-700">
+                        {day.spentEur > 0 ? formatCurrency(day.spentEur) : <span className="text-zinc-300">—</span>}
+                      </span>
                       <div
-                        className="w-full rounded-t bg-zinc-950"
+                        className="w-full rounded-sm bg-zinc-950"
                         style={{ height: `${barPx}px` }}
-                        title={`${formatDate(day.date)} - ${formatCurrency(day.spentEur)}`}
+                        title={`${day.date} · ${formatCurrency(day.spentEur)} · ${day.tokensUsed.toLocaleString('fr-FR')} tokens · ${day.requestsCount} req`}
                       />
-                      <span className="truncate text-[10px] text-zinc-500">{formatDate(day.date)}</span>
+                      <span className="mt-1 truncate text-[10px] text-zinc-400">{formatDate(day.date)}</span>
                     </div>
                   );
                 })}
               </div>
+              <p className="mt-2 text-xs text-zinc-400">
+                {totalTokens.toLocaleString('fr-FR')} tokens · {totalRequests} requests over {data.budgetHistory.length} day{data.budgetHistory.length !== 1 ? 's' : ''}
+              </p>
             </div>
 
             <div>
-              <div className="mb-3 flex items-center gap-2 text-sm font-medium">
-                <Bot className="size-4" />
-                Recent audit events
+              <div className="mb-3 flex items-center justify-between text-sm">
+                <span className="flex items-center gap-2 font-medium">
+                  <Bot className="size-4" />
+                  Security &amp; activity log
+                </span>
+                <span className="text-xs text-zinc-400">Admin actions &amp; bot security events</span>
               </div>
               {data.auditEvents.length === 0 ? (
-                <EmptyState>No audit events yet.</EmptyState>
+                <EmptyState>No activity recorded yet.</EmptyState>
               ) : (
-                <div className="grid gap-2">
+                <div className="grid gap-1.5">
                   {data.auditEvents.map((event) => (
                     <div key={event.id} className="flex items-center justify-between gap-3 rounded-lg bg-zinc-50 px-3 py-2 text-sm">
-                      <span className="font-medium text-zinc-700">{event.eventType}</span>
-                      <span className="text-xs text-zinc-500">{formatDateTime(event.createdAt)}</span>
+                      <div className="flex min-w-0 items-center gap-2">
+                        <span className={cn('shrink-0 rounded-full px-2 py-0.5 text-[10px] font-medium', auditEventBadgeClass(event.eventType))}>
+                          {event.eventType.replace(/_/g, '\u00a0')}
+                        </span>
+                        <span className="truncate text-zinc-600">{auditEventLabel(event.eventType, event.details)}</span>
+                      </div>
+                      <span className="shrink-0 text-xs text-zinc-400">{formatDateTime(event.createdAt)}</span>
                     </div>
                   ))}
                 </div>
