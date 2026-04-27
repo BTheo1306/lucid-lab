@@ -180,7 +180,8 @@ function EmptyState({ children }: { children: React.ReactNode }) {
 
 export default async function AdminDashboardPage() {
   const data = await getAdminDashboardData();
-  const maxSpend = Math.max(...data.budgetHistory.map((day) => day.spentEur), 1);
+  const maxSpend = Math.max(...data.budgetHistory.map((day) => day.spentEur), 0.001);
+  const MAX_BAR_PX = 90;
 
   return (
     <div className="grid gap-6">
@@ -361,16 +362,19 @@ export default async function AdminDashboardPage() {
               <div className="flex h-36 items-end gap-2 rounded-lg border border-zinc-200 bg-zinc-50 p-3">
                 {data.budgetHistory.length === 0 ? (
                   <div className="grid h-full w-full place-items-center text-sm text-zinc-500">No budget records yet.</div>
-                ) : data.budgetHistory.map((day) => (
-                  <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-2">
-                    <div
-                      className="w-full rounded-t bg-zinc-950"
-                      style={{ height: `${Math.max((day.spentEur / maxSpend) * 100, day.spentEur > 0 ? 8 : 2)}%` }}
-                      title={`${formatDate(day.date)} - ${formatCurrency(day.spentEur)}`}
-                    />
-                    <span className="truncate text-[10px] text-zinc-500">{formatDate(day.date)}</span>
-                  </div>
-                ))}
+                ) : data.budgetHistory.map((day) => {
+                  const barPx = Math.max((day.spentEur / maxSpend) * MAX_BAR_PX, day.spentEur > 0 ? 8 : 2);
+                  return (
+                    <div key={day.date} className="flex min-w-0 flex-1 flex-col items-center gap-1">
+                      <div
+                        className="w-full rounded-t bg-zinc-950"
+                        style={{ height: `${barPx}px` }}
+                        title={`${formatDate(day.date)} - ${formatCurrency(day.spentEur)}`}
+                      />
+                      <span className="truncate text-[10px] text-zinc-500">{formatDate(day.date)}</span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
