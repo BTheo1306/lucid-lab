@@ -6,6 +6,7 @@ import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
 import { supabase } from '@/lib/bot/db/supabase';
 import type { BlogLocale, BlogStatus } from '@/lib/admin/blog';
+import { generateBlogContent, slugify } from '@/lib/admin/blog-content-generator';
 
 const STATUSES: readonly BlogStatus[] = ['idea', 'draft', 'scheduled', 'published', 'archived'];
 const LOCALES: readonly BlogLocale[] = ['fr', 'en'];
@@ -117,6 +118,11 @@ export async function createPostAction(formData: FormData): Promise<void> {
   await requireAdminAction();
   const input = readPostInput(formData);
 
+  // Auto-slug if missing and not staying as 'idea'
+  if (input.status !== 'idea' && !input.slug) {
+    input.slug = slugify(input.title);
+  }
+
   // If publishing now and no published_at provided, set it.
   if (input.status === 'published' && !input.published_at) {
     input.published_at = new Date().toISOString();
@@ -142,6 +148,39 @@ export async function updatePostAction(formData: FormData): Promise<void> {
 
   const input = readPostInput(formData);
 
+  // Auto-generate content via AI when:
+  //   - status is/was 'idea'
+  //   - OR content is empty and we have at least a title
+  // The action then flips status to 'draft' so the post leaves the idea bucket.
+  const needsGeneration = !input.content || input.content.trim().length < 200;
+  if (needsGeneration) {
+    try {
+      const generated = await generateBlogContent({
+        title: input.title,
+        description: input.description,
+        category: input.category,
+        tags: input.tags,
+        funnelStage: input.funnel_stage,
+        locale: input.locale,
+        notes: input.notes,
+        isPillar: input.is_pillar,
+      });
+      input.content = generated.content;
+      if (!input.description) input.description = generated.description;
+      input.content_updated_at = new Date().toISOString();
+      // Move from 'idea' to 'draft' once we have AI-generated content
+      if (input.status === 'idea') input.status = 'draft';
+    } catch (err) {
+      // Surface the error so the user sees it instead of silently failing
+      throw new Error(`AI generation failed: ${(err as Error).message}`);
+    }
+  }
+
+  // Auto-generate slug from title when leaving idea stage without one
+  if (input.status !== 'idea' && !input.slug) {
+    input.slug = slugify(input.title);
+  }
+
   if (input.status === 'published' && !input.published_at) {
     input.published_at = new Date().toISOString();
   }
@@ -152,6 +191,7 @@ export async function updatePostAction(formData: FormData): Promise<void> {
   revalidatePath('/admin/blog');
   revalidatePath(`/admin/blog/${id}/edit`);
   revalidatePublicBlog(input.locale, input.slug);
+  redirect(`/admin/blog/${id}/edit?saved=1`);
 }
 
 export async function deletePostAction(formData: FormData): Promise<void> {
