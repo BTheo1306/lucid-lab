@@ -53,8 +53,9 @@ export function PostForm({ post }: PostFormProps) {
   const labelCls = 'block text-xs font-semibold uppercase tracking-wide text-zinc-500';
 
   return (
-    <form action={action} className="grid gap-6">
-      {isEdit ? <input type="hidden" name="id" value={post.id} /> : null}
+    <div className="grid gap-6">
+      <form id="blog-post-form" action={action} className="grid gap-6">
+        {isEdit ? <input type="hidden" name="id" value={post.id} /> : null}
 
       <div className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm md:grid-cols-2">
         <label className="md:col-span-2">
@@ -257,6 +258,7 @@ export function PostForm({ post }: PostFormProps) {
           />
         </label>
       </div>
+      </form>
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
         <Link
@@ -268,49 +270,50 @@ export function PostForm({ post }: PostFormProps) {
 
         <div className="flex flex-wrap items-center gap-2">
           {isEdit && post?.status !== 'published' ? (
-            <button
-              type="submit"
-              formAction={publishNowAction}
-              name="id"
-              value={post.id}
-              className="inline-flex h-10 items-center rounded-lg border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 hover:bg-emerald-100"
-            >
-              Publier maintenant
-            </button>
+            <form action={publishNowAction}>
+              <input type="hidden" name="id" value={post.id} />
+              <button
+                type="submit"
+                className="inline-flex h-10 items-center rounded-lg border border-emerald-200 bg-emerald-50 px-4 text-sm font-semibold text-emerald-700 hover:bg-emerald-100"
+              >
+                Publier maintenant
+              </button>
+            </form>
           ) : null}
           {isEdit && post?.status !== 'archived' ? (
-            <button
-              type="submit"
-              formAction={archivePostAction}
-              name="id"
-              value={post.id}
-              className="inline-flex h-10 items-center rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
-            >
-              Archiver
-            </button>
+            <form action={archivePostAction}>
+              <input type="hidden" name="id" value={post.id} />
+              <button
+                type="submit"
+                className="inline-flex h-10 items-center rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
+              >
+                Archiver
+              </button>
+            </form>
           ) : null}
           {isEdit ? (
-            <button
-              type="submit"
-              formAction={deletePostAction}
-              name="id"
-              value={post.id}
-              className="inline-flex h-10 items-center rounded-lg border border-red-200 bg-white px-4 text-sm font-medium text-red-600 hover:bg-red-50"
-              onClick={(e) => {
-                if (!confirm('Supprimer définitivement ?')) e.preventDefault();
-              }}
-            >
-              Supprimer
-            </button>
+            <form action={deletePostAction}>
+              <input type="hidden" name="id" value={post.id} />
+              <button
+                type="submit"
+                className="inline-flex h-10 items-center rounded-lg border border-red-200 bg-white px-4 text-sm font-medium text-red-600 hover:bg-red-50"
+                onClick={(e) => {
+                  if (!confirm('Supprimer définitivement ?')) e.preventDefault();
+                }}
+              >
+                Supprimer
+              </button>
+            </form>
           ) : null}
           <button
             type="submit"
+            form="blog-post-form"
             className="inline-flex h-10 items-center rounded-lg bg-zinc-950 px-5 text-sm font-semibold text-white hover:bg-zinc-800"
           >
             {isEdit ? 'Enregistrer' : 'Créer'}
           </button>
         </div>
       </div>
-    </form>
+    </div>
   );
 }
