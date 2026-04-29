@@ -11,7 +11,7 @@ export function postUrl(slug: string): string {
 export function generatePostMetadata(post: Post): Metadata {
   const { frontmatter, slug } = post;
   const url = postUrl(slug);
-  const ogImage = frontmatter.ogImage ?? `/blog/${slug}/opengraph-image`;
+  const ogImage = frontmatter.ogImage ?? `${SITE_URL}/blog/${slug}/opengraph-image`;
 
   return {
     title: frontmatter.title,
