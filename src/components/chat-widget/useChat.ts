@@ -54,12 +54,17 @@ export function useChat(opts: UseChatOptions = {}): UseChatApi {
   const [error, setError] = useState<string | null>(null);
   const [sessionId, setSessionId] = useState<string | null>(null);
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const initOnce = useRef(false);
+  const lastLanguage = useRef<string | null>(null);
 
-  // Initialise session on mount
+  // Initialise session on mount, and re-init when language changes
   useEffect(() => {
-    if (initOnce.current) return;
-    initOnce.current = true;
+    if (lastLanguage.current === (opts.language ?? 'fr')) return;
+    lastLanguage.current = opts.language ?? 'fr';
+
+    // Reset conversation state for the new language
+    setMessages([]);
+    setSessionId(null);
+    setConversationId(null);
 
     const existing = storageGet(STORAGE_KEY);
     const parsed = existing ? (JSON.parse(existing) as { session_id?: string }) : null;

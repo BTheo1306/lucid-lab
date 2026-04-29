@@ -2,6 +2,7 @@
 
 import Image from 'next/image';
 import { useEffect, useState } from 'react';
+import { usePathname } from 'next/navigation';
 import { useChat } from './useChat';
 import { MessageList } from './MessageList';
 import { InputBox } from './InputBox';
@@ -45,10 +46,12 @@ type Lang = 'fr' | 'en';
  * Mount once in app/layout.tsx via next/dynamic({ ssr: false }).
  */
 export function ChatWidget({ lang = 'fr' }: { lang?: Lang }) {
-  const t = COPY[lang];
+  const pathname = usePathname();
+  const activeLang: Lang = pathname?.startsWith('/en') ? 'en' : lang;
+  const t = COPY[activeLang];
   const [open, setOpen] = useState(false);
   const [teaserVisible, setTeaserVisible] = useState(false);
-  const { messages, sending, error, sessionReady, sendMessage } = useChat({ language: lang });
+  const { messages, sending, error, sessionReady, sendMessage } = useChat({ language: activeLang });
 
   // Show the teaser bubble after a delay, unless the user has already dismissed it this session.
   useEffect(() => {
@@ -128,9 +131,9 @@ export function ChatWidget({ lang = 'fr' }: { lang?: Lang }) {
               ✕
             </button>
           </header>
-          <MessageList messages={messages} sending={sending} onChipClick={sendMessage} lang={lang} />
+          <MessageList messages={messages} sending={sending} onChipClick={sendMessage} lang={activeLang} />
           {error ? <div className="ll-chat-error">⚠ {error}</div> : null}
-          <InputBox disabled={!sessionReady || sending} onSend={sendMessage} lang={lang} />
+          <InputBox disabled={!sessionReady || sending} onSend={sendMessage} lang={activeLang} />
           <footer className="ll-chat-footer">
             {t.poweredBy}<a href={t.legalHref}>{t.legalLink}</a>
           </footer>
