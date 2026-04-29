@@ -3,7 +3,6 @@ import { Inter, Syne } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ChatWidget } from "@/components/chat-widget/ChatWidget";
-import { getLocale } from "@/lib/i18n";
 import "./globals.css";
 
 const inter = Inter({
@@ -19,9 +18,8 @@ const syne = Syne({
   display: "swap",
 });
 
-export async function generateMetadata(): Promise<Metadata> {
-  const locale = await getLocale();
-  const isEn = locale === 'en';
+export function generateMetadata(): Metadata {
+  const isEn = false;
 
   const description = isEn
     ? "Lucid-Lab is the Full-Stack Transformation Engine that turns your operational chaos into autonomous systems running in production. Operational Strategy, Software Dev and AI Engineering for startups, SMEs and enterprise organizations. We don't advise. We build."
@@ -224,16 +222,14 @@ const metadataPlaceholder: Metadata = {
 };
 void metadataPlaceholder;
 
-export default async function RootLayout({
+export default function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const locale = await getLocale();
-  const isEn = locale === 'en';
   return (
     <html
-      lang={locale}
+      lang="fr"
       className={`${inter.variable} ${syne.variable} antialiased`}
       suppressHydrationWarning
     >
@@ -296,7 +292,7 @@ export default async function RootLayout({
                   url: "https://lucid-lab.fr",
                   name: "Lucid-Lab",
                   publisher: { "@id": "https://lucid-lab.fr/#organization" },
-                  inLanguage: isEn ? "en-US" : "fr-FR",
+                  inLanguage: "fr-FR",
                 },
                 {
                   "@type": "ProfessionalService",
@@ -366,7 +362,7 @@ export default async function RootLayout({
           <div className="mx-auto h-full max-w-[1264px] border-x border-[#e5e5e5]" />
         </div>
         {children}
-        <ChatWidget lang={locale} />
+        <ChatWidget lang="fr" />
         <Analytics />
         <SpeedInsights />
       </body>
