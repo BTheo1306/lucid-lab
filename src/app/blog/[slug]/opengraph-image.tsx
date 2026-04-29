@@ -98,7 +98,7 @@ export default async function Image({ params }: { params: { slug: string } }) {
               fontWeight: 500,
             }}
           >
-            Anthony · CEO Lucid-Lab · {post.readingTimeMinutes} min de lecture
+            Théo · CTO Lucid-Lab · {post.readingTimeMinutes} min de lecture
           </div>
         </div>
       </div>

@@ -21,7 +21,7 @@ export function PostHeader({ post }: { post: Post }) {
     : null;
   const updatedLabel = locale === "en" ? `Updated ${updated}` : `Mis à jour le ${updated}`;
   const readingLabel = locale === "en" ? `${readingTimeMinutes} min read` : `${readingTimeMinutes} min de lecture`;
-  const ceoLabel = locale === "en" ? "Anthony · CEO Lucid-Lab" : "Anthony · CEO Lucid-Lab";
+  const ceoLabel = locale === "en" ? "Théo · CTO Lucid-Lab" : "Théo · CTO Lucid-Lab";
 
   return (
     <header className="not-prose mb-10 border-b border-zinc-200 pb-8">
@@ -41,8 +41,8 @@ export function PostHeader({ post }: { post: Post }) {
         <div className="flex items-center gap-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/team/anthony.png"
-            alt="Anthony"
+            src="/team/theo.png"
+            alt="Théo"
             className="size-7 rounded-full object-cover"
           />
           <span className="text-zinc-700">{ceoLabel}</span>

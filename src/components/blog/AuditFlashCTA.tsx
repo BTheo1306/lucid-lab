@@ -26,8 +26,8 @@ const COPY = {
     blockBullet2: "→ Vous repartez avec une estimation claire (faisabilité, coût, délai).",
     blockBullet3: "→ Pas de slide, pas de relance commerciale lourde.",
     blockCta: "Réserver l'Audit Flash gratuit",
-    ceoLine: "Anthony, CEO — France & Belgique",
-    ceoAlt: "Anthony, CEO de Lucid-Lab",
+    ceoLine: "Théo, CTO — France & Belgique",
+    ceoAlt: "Théo, CTO de Lucid-Lab",
   },
   en: {
     inlineTopicFallback: "this topic",
@@ -41,8 +41,8 @@ const COPY = {
     blockBullet2: "→ You leave with a clear estimate (feasibility, cost, timeline).",
     blockBullet3: "→ No slides, no heavy sales follow-up.",
     blockCta: "Book the free Audit Flash",
-    ceoLine: "Anthony, CEO — France & Belgium",
-    ceoAlt: "Anthony, CEO of Lucid-Lab",
+    ceoLine: "Théo, CTO — France & Belgium",
+    ceoAlt: "Théo, CTO of Lucid-Lab",
   },
 };
 
@@ -85,13 +85,13 @@ export function AuditFlashCTA({
         <div className="flex shrink-0 items-center gap-4">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/team/anthony.png"
+            src="/team/theo.png"
             alt={t.ceoAlt}
             className="size-16 rounded-full object-cover"
           />
           <div className="md:hidden">
-            <p className="text-[14px] font-semibold text-zinc-900">Anthony</p>
-            <p className="text-[12px] text-zinc-500">CEO, Lucid-Lab</p>
+            <p className="text-[14px] font-semibold text-zinc-900">Théo</p>
+            <p className="text-[12px] text-zinc-500">CTO, Lucid-Lab</p>
           </div>
         </div>
 
