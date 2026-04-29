@@ -114,7 +114,7 @@ export default async function Image() {
                 fontWeight: "600",
               }}
             >
-              +50 entreprises accompagnées
+              +10 entreprises accompagnées
             </div>
             <div
               style={{

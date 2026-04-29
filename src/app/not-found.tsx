@@ -54,6 +54,31 @@ export default function NotFound() {
     }
   }, [])
 
+  // Forward mouse → Spline (full-page mouse follow)
+  useEffect(() => {
+    const forward = (e: MouseEvent) => {
+      const canvas = canvasRef.current
+      if (!canvas) return
+      const rect = canvas.getBoundingClientRect()
+      // Map the cursor's position within the viewport into the canvas rect,
+      // so the robot tracks the mouse across the entire page.
+      const rawX = rect.left + (e.clientX / window.innerWidth) * rect.width
+      const rawY = rect.top + (e.clientY / window.innerHeight) * rect.height
+      canvas.dispatchEvent(
+        new PointerEvent('pointermove', {
+          clientX: Math.max(rect.left, Math.min(rect.right, rawX)),
+          clientY: Math.max(rect.top, Math.min(rect.bottom, rawY)),
+          bubbles: true,
+          cancelable: true,
+          pointerType: 'mouse',
+          isPrimary: true,
+        }),
+      )
+    }
+    window.addEventListener('mousemove', forward, { passive: true })
+    return () => window.removeEventListener('mousemove', forward)
+  }, [])
+
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden bg-[#F7F5F1] px-6">
       {/* Robot canvas — fills half the viewport height */}

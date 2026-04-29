@@ -28,8 +28,15 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   }
 
   const logoBuffer = readFileSync(join(process.cwd(), "public", "logo.png"));
+  const robotBuffer = readFileSync(join(process.cwd(), "public", "robot-poster.png"));
   const logoSrc = `data:image/png;base64,${logoBuffer.toString("base64")}`;
+  const robotSrc = `data:image/png;base64,${robotBuffer.toString("base64")}`;
   const category = CATEGORIES[post.frontmatter.category];
+
+  // Truncate long titles so the OG card stays readable
+  const title = post.frontmatter.title.length > 95
+    ? post.frontmatter.title.slice(0, 92).trimEnd() + "…"
+    : post.frontmatter.title;
 
   return new ImageResponse(
     (
@@ -38,80 +45,149 @@ export default async function Image({ params }: { params: Promise<{ slug: string
           width: "100%",
           height: "100%",
           display: "flex",
-          flexDirection: "column",
           background: "#F7F5F1",
           fontFamily: "system-ui, -apple-system, sans-serif",
-          padding: "72px",
           position: "relative",
         }}
       >
+        {/* Hero radial gradient — same as homepage OG */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             background:
-              "radial-gradient(84% 84% at 51% 100%, #FFB451 0%, #EFC680 24%, #B4D8FF 48%, #D2E8FF 75%, #FAFDFF 100%)",
-            opacity: 0.5,
+              "radial-gradient(84.42% 84.32% at 51.63% 100%, #FFB451 0%, #EFC680 24.76%, #B4D8FF 47.6%, #D2E8FF 75%, #FAFDFF 100%)",
           }}
         />
 
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            gap: "12px",
-            position: "relative",
-          }}
-        >
-          <img src={logoSrc} style={{ width: 32, height: 32 }} />
-          <span style={{ fontSize: 20, fontWeight: 700, color: "#0A0A0A" }}>
-            Lucid-Lab
-          </span>
-        </div>
-
+        {/* LEFT — article copy */}
         <div
           style={{
             display: "flex",
             flexDirection: "column",
-            justifyContent: "flex-end",
-            flex: 1,
+            justifyContent: "space-between",
+            padding: "60px 32px 60px 72px",
+            width: "640px",
+            flexShrink: 0,
             position: "relative",
           }}
         >
+          {/* Logo + wordmark */}
           <div
             style={{
-              fontSize: 18,
-              fontWeight: 600,
-              color: "#666",
-              textTransform: "uppercase",
-              letterSpacing: "0.06em",
-              marginBottom: 18,
+              display: "flex",
+              alignItems: "center",
+              gap: "12px",
             }}
           >
-            {category.title}
+            <img
+              src={logoSrc}
+              style={{ width: "36px", height: "36px", objectFit: "contain" }}
+            />
+            <span
+              style={{
+                fontSize: "22px",
+                fontWeight: 700,
+                color: "#0A0A0A",
+                letterSpacing: "-0.01em",
+              }}
+            >
+              Lucid-Lab
+            </span>
+            <span
+              style={{
+                marginLeft: "8px",
+                fontSize: "13px",
+                color: "#666",
+                fontWeight: 500,
+              }}
+            >
+              · Blog
+            </span>
           </div>
+
+          {/* Headline block */}
+          <div style={{ display: "flex", flexDirection: "column" }}>
+            {/* Category pill */}
+            <div
+              style={{
+                display: "flex",
+                alignSelf: "flex-start",
+                background: "rgba(0,0,0,0.08)",
+                color: "#0A0A0A",
+                padding: "6px 12px",
+                borderRadius: "999px",
+                fontSize: "12px",
+                fontWeight: 700,
+                letterSpacing: "0.08em",
+                textTransform: "uppercase",
+                marginBottom: "20px",
+              }}
+            >
+              {category.title}
+            </div>
+
+            {/* Title */}
+            <div
+              style={{
+                display: "flex",
+                fontSize: title.length > 60 ? "44px" : "52px",
+                fontWeight: 800,
+                color: "#0A0A0A",
+                lineHeight: 1.05,
+                letterSpacing: "-0.03em",
+                marginBottom: "24px",
+              }}
+            >
+              {title}
+            </div>
+
+            {/* Author + reading time */}
+            <div
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: "10px",
+                fontSize: "16px",
+                color: "#444",
+                fontWeight: 500,
+              }}
+            >
+              <span>Théo · CTO Lucid-Lab</span>
+              <span style={{ color: "#999" }}>·</span>
+              <span>{post.readingTimeMinutes} min de lecture</span>
+            </div>
+          </div>
+
+          {/* Domain */}
           <div
             style={{
-              fontSize: 56,
-              fontWeight: 800,
-              color: "#0A0A0A",
-              lineHeight: 1.05,
-              letterSpacing: "-0.02em",
-              maxWidth: 1000,
+              fontSize: "13px",
+              color: "#888",
             }}
           >
-            {post.frontmatter.title}
+            lucid-lab.fr/blog
           </div>
-          <div
+        </div>
+
+        {/* RIGHT — robot poster */}
+        <div
+          style={{
+            display: "flex",
+            flex: "1 1 0",
+            height: "630px",
+            position: "relative",
+          }}
+        >
+          <img
+            src={robotSrc}
             style={{
-              marginTop: 32,
-              fontSize: 20,
-              color: "#333",
-              fontWeight: 500,
+              width: "100%",
+              height: "100%",
+              objectFit: "cover",
+              objectPosition: "center top",
             }}
-          >
-            Théo · CTO Lucid-Lab · {post.readingTimeMinutes} min de lecture
-          </div>
+          />
         </div>
       </div>
     ),
