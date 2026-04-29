@@ -36,6 +36,9 @@ export const config = {
   googleAiApiKey: process.env['GOOGLE_AI_API_KEY'] ?? '',
   mistralApiKey: process.env['MISTRAL_API_KEY'] ?? '',
 
+  // Apollo.io (lead data enrichment)
+  apolloApiKey: process.env['APOLLO_API_KEY'] ?? '',
+
   // TidyCal
   tidycalApiKey: process.env['TIDYCAL_API_KEY'] ?? '',
   tidycalBookingTypeId: process.env['TIDYCAL_BOOKING_TYPE_ID'] ?? '',

@@ -1,41 +1,40 @@
 "use client"
 
 import React, { useState, useMemo } from "react"
+import { getDictionary, type Locale } from "@/lib/i18n/client"
 
 const TIDYCAL_URL = "https://tidycal.com/lucid-lab/audit-flash-30-minutes"
 
-const DAY_NAMES_MOBILE = ["D", "L", "M", "M", "J", "V", "S"]
-const DAY_NAMES_DESKTOP = ["Dim", "Lun", "Mar", "Mer", "Jeu", "Ven", "Sam"]
-
-// Simple fetching mock or placeholder for dynamic TidyCal fetching. 
-// Since TidyCal has no public API for free accounts without OAuth tokens, 
-// we map it to match your typical availability, then direct users to the actual tool.
-const WEEKDAY_SLOTS = [
-  { label: "09:00", sub: "Matin" },
-  { label: "09:30", sub: "Matin" },
-  { label: "10:00", sub: "Matin" },
-  { label: "10:30", sub: "Matin" },
-  { label: "11:00", sub: "Matin" },
-  { label: "14:00", sub: "Aprem" },
-  { label: "14:30", sub: "Aprem" },
-  { label: "15:00", sub: "Aprem" },
-  { label: "15:30", sub: "Aprem" },
-  { label: "16:00", sub: "Aprem" },
-  { label: "16:30", sub: "Aprem" },
-  { label: "17:00", sub: "Aprem" },
-]
-
-function CustomCalendarWidget() {
+function CustomCalendarWidget({ lang = 'fr' }: { lang?: Locale }) {
+  const t = getDictionary(lang).booking
+  const localeTag = lang === 'en' ? 'en-US' : 'fr-FR'
   const NOW = useMemo(() => new Date(), [])
+  const WEEKDAY_SLOTS = useMemo(() => [
+    { label: "09:00", sub: t.morning },
+    { label: "09:30", sub: t.morning },
+    { label: "10:00", sub: t.morning },
+    { label: "10:30", sub: t.morning },
+    { label: "11:00", sub: t.morning },
+    { label: "14:00", sub: t.afternoon },
+    { label: "14:30", sub: t.afternoon },
+    { label: "15:00", sub: t.afternoon },
+    { label: "15:30", sub: t.afternoon },
+    { label: "16:00", sub: t.afternoon },
+    { label: "16:30", sub: t.afternoon },
+    { label: "17:00", sub: t.afternoon },
+  ], [t.morning, t.afternoon])
+  const DAY_NAMES_MOBILE = t.daysShort
+  const DAY_NAMES_DESKTOP = t.daysLong
+  const liveOn = lang === 'en' ? 'Live on TidyCal' : 'En direct sur TidyCal'
   const [viewYear, setViewYear] = useState(NOW.getFullYear())
   const [viewMonth, setViewMonth] = useState(NOW.getMonth())
   const [selectedDay, setSelectedDay] = useState(NOW.getDate())
 
   const { monthLabel, firstDayOfWeek, daysInMonth } = useMemo(() => ({
-    monthLabel: new Date(viewYear, viewMonth, 1).toLocaleString("fr-FR", { month: "long" }),
+    monthLabel: new Date(viewYear, viewMonth, 1).toLocaleString(localeTag, { month: "long" }),
     firstDayOfWeek: new Date(viewYear, viewMonth, 1).getDay(),
     daysInMonth: new Date(viewYear, viewMonth + 1, 0).getDate(),
-  }), [viewYear, viewMonth])
+  }), [viewYear, viewMonth, localeTag])
 
   const isCurrentMonth = viewYear === NOW.getFullYear() && viewMonth === NOW.getMonth()
   const getDow = (day: number) => new Date(viewYear, viewMonth, day).getDay()
@@ -59,7 +58,7 @@ function CustomCalendarWidget() {
   // Display slots if it's a selectable weekday. Avoid saturdays unless you specifically enabled them.
   const slots = isSelectable(selectedDay) ? WEEKDAY_SLOTS : []
   const selDayLabel = selectedDay
-    ? new Date(viewYear, viewMonth, selectedDay).toLocaleDateString("fr-FR", { weekday: "long", day: "numeric" })
+    ? new Date(viewYear, viewMonth, selectedDay).toLocaleDateString(localeTag, { weekday: "long", day: "numeric" })
     : null
 
   return (
@@ -104,13 +103,13 @@ function CustomCalendarWidget() {
       <div className="mt-5 border-t border-[#e5e5e5] pt-5">
         <div className="flex justify-between items-center mb-3">
            <p className="text-[11px] font-semibold uppercase tracking-wide text-zinc-800 capitalize">
-             {selDayLabel ?? "Sélectionnez un jour"}
+             {selDayLabel ?? t.selectDay}
            </p>
-           {slots.length > 0 && <p className="text-[9px] text-zinc-400">En direct sur TidyCal</p>}
+           {slots.length > 0 && <p className="text-[9px] text-zinc-400">{liveOn}</p>}
         </div>
         
         {slots.length === 0 ? (
-          <p className="text-[13px] text-zinc-400 py-2">Aucun créneau ce jour</p>
+          <p className="text-[13px] text-zinc-400 py-2">{t.noSlots}</p>
         ) : (
           <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
             {slots.map((s) => (
@@ -131,10 +130,10 @@ function CustomCalendarWidget() {
       <div className="mt-5 pt-4 flex flex-col sm:flex-row items-center justify-between border-t border-zinc-100">
         <div className="flex items-center gap-3">
           <span className="flex items-center gap-1.5 text-[11px] text-zinc-400">
-            <span className="inline-block h-2 w-2 rounded-full ring-2 ring-zinc-900" /> Aujourd&apos;hui
+            <span className="inline-block h-2 w-2 rounded-full ring-2 ring-zinc-900" /> {t.today}
           </span>
           <span className="flex items-center gap-1.5 text-[11px] text-zinc-400">
-             <span className="inline-block h-2 w-2 rounded-full bg-zinc-900" /> Sélectionné
+             <span className="inline-block h-2 w-2 rounded-full bg-zinc-900" /> {t.selected}
           </span>
         </div>
         <a 
@@ -143,14 +142,15 @@ function CustomCalendarWidget() {
           rel="noopener noreferrer"
           className="text-[11px] font-medium text-blue-600 hover:text-blue-800 mt-3 sm:mt-0"
         >
-          Ouvrir le calendrier complet ↗
+          {t.openCalendar}
         </a>
       </div>
     </div>
   )
 }
 
-export function BookingSection() {
+export function BookingSection({ lang = 'fr' }: { lang?: Locale } = {}) {
+  const t = getDictionary(lang).booking
   return (
     <section id="booking" className="w-full border-b border-[#e5e5e5]">
       <div
@@ -169,20 +169,20 @@ export function BookingSection() {
 
             {/* ── Left: copy ── */}
             <div className="flex flex-col gap-6">
-              <p className="text-sm font-medium text-zinc-400">Prendre rendez-vous</p>
+              <p className="text-sm font-medium text-zinc-400">{t.label}</p>
 
               <h2 className="text-[28px] font-semibold tracking-tight text-zinc-900 leading-[1.1] md:text-[40px]">
-                Échangeons 30 minutes
+                {t.headlineLine1}
                 <br />
-                sur votre projet.
+                {t.headlineLine2}
               </h2>
 
               <p className="text-[16px] leading-[1.65] text-zinc-500">
-                Audit, stratégie ou construction : partagez votre contexte. On identifie ensemble ce qui fait sens pour vous.
+                {t.subtitle}
               </p>
 
               <ul className="flex flex-col gap-2.5 mt-2 mb-2">
-                {["Appel de découverte gratuit", "Réponse et confirmation immédiate"].map((item) => (
+                {t.checklist.map((item) => (
                   <li key={item} className="flex items-center gap-2.5 text-[13.5px] text-zinc-600">
                     <span className="flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-zinc-900 text-white text-[9px] font-bold">✓</span>
                     {item}
@@ -197,20 +197,20 @@ export function BookingSection() {
                   rel="noopener noreferrer"
                   className="inline-flex w-full sm:w-auto h-[44px] items-center justify-center rounded-[10px] bg-zinc-900 px-6 text-[14px] font-medium text-white transition-colors hover:bg-zinc-800"
                 >
-                  Voir les disponibilités
+                  {t.ctaCalendar}
                 </a>
                 <a
                   href="mailto:info@lucid-lab.fr"
                   className="inline-flex w-full sm:w-auto h-[44px] items-center justify-center rounded-[10px] border border-[#e5e5e5] bg-white/50 px-6 text-[14px] font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
                 >
-                  Envoyer un email
+                  {t.ctaEmail}
                 </a>
               </div>
             </div>
 
             {/* ── Right: Custom Calendar UI ── */}
             <div className="w-full flex justify-center">
-              <CustomCalendarWidget />
+              <CustomCalendarWidget lang={lang} />
             </div>
 
           </div>

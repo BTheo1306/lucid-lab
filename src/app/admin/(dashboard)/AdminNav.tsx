@@ -2,14 +2,16 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, CalendarClock, MessageSquare, Users } from 'lucide-react';
+import { BarChart3, CalendarClock, FileText, MessageSquare, Search, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/admin', label: 'Overview', icon: BarChart3, exact: true },
+  { href: '/admin/lead-engine', label: 'Lead Engine', icon: Search },
   { href: '/admin/leads', label: 'Leads', icon: Users },
   { href: '/admin/conversations', label: 'Conversations', icon: MessageSquare },
   { href: '/admin/bookings', label: 'Bookings', icon: CalendarClock },
+  { href: '/admin/blog', label: 'Blog', icon: FileText },
 ];
 
 export function AdminNav() {

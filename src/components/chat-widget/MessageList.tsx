@@ -28,21 +28,45 @@ function extractBookingUrls(text: string): { bookingUrls: string[]; cleanText: s
   return { bookingUrls: [...new Set(bookingUrls)], cleanText };
 }
 
-const QUICK_CHIPS = [
-  { label: '📅 Réserver l\'audit gratuit', text: 'Je voudrais réserver un audit gratuit.' },
-  { label: '⚙️ J\'ai un process à automatiser', text: 'J\'ai un process manuel que je veux automatiser.' },
-  { label: '🔍 Vos services en 2 min', text: 'Pouvez-vous me présenter vos services rapidement ?' },
-];
+type Lang = 'fr' | 'en';
+
+const QUICK_CHIPS_BY_LANG = {
+  fr: [
+    { label: '📅 Réserver l\'audit gratuit', text: 'Je voudrais réserver un audit gratuit.' },
+    { label: '⚙️ J\'ai un process à automatiser', text: 'J\'ai un process manuel que je veux automatiser.' },
+    { label: '🔍 Vos services en 2 min', text: 'Pouvez-vous me présenter vos services rapidement ?' },
+  ],
+  en: [
+    { label: '📅 Book the free audit', text: 'I would like to book a free audit.' },
+    { label: '⚙️ I have a process to automate', text: 'I have a manual process I want to automate.' },
+    { label: '🔍 Your services in 2 min', text: 'Can you walk me through your services quickly?' },
+  ],
+} as const;
+
+const WELCOME_COPY = {
+  fr: { hello: 'Bonjour', body: 'Posez une question sur nos services, notre méthode, ou demandez un RDV découverte.' },
+  en: { hello: 'Hi there', body: 'Ask a question about our services, our method, or request a discovery call.' },
+} as const;
+
+const BOOKING_COPY = {
+  fr: { title: 'Réserver mon audit gratuit', sub: '30 min • Appel découverte' },
+  en: { title: 'Book my free audit', sub: '30 min • Discovery call' },
+} as const;
 
 export function MessageList({
   messages,
   sending,
   onChipClick,
+  lang = 'fr',
 }: {
   messages: ChatMessage[];
   sending: boolean;
   onChipClick?: (text: string) => void;
+  lang?: Lang;
 }) {
+  const QUICK_CHIPS = QUICK_CHIPS_BY_LANG[lang];
+  const welcome = WELCOME_COPY[lang];
+  const booking = BOOKING_COPY[lang];
   const endRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -54,8 +78,8 @@ export function MessageList({
       {messages.length === 0 && !sending ? (
         <>
           <div className="ll-chat-welcome">
-            <strong>Bonjour</strong>
-            <p>Posez une question sur nos services, notre méthode, ou demandez un RDV découverte.</p>
+            <strong>{welcome.hello}</strong>
+            <p>{welcome.body}</p>
           </div>
           {onChipClick ? (
             <div className="ll-chat-chips">
@@ -109,8 +133,8 @@ export function MessageList({
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
                   </span>
                   <span className="ll-chat-booking-text">
-                    <strong>Réserver mon audit gratuit</strong>
-                    <span>30 min &bull; Appel découverte</span>
+                    <strong>{booking.title}</strong>
+                    <span>{booking.sub}</span>
                   </span>
                   <span className="ll-chat-booking-arrow">→</span>
                 </a>

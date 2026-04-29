@@ -1,0 +1,90 @@
+---
+title: "Combien coûte l'automatisation d'un processus métier en 2026 ?"
+description: "Coût réel d'un projet d'automatisation pour une PME : Zapier, n8n, code custom. Fourchettes, exemples chiffrés, erreurs à éviter."
+publishedAt: "2026-04-28"
+category: "automatisation"
+tags: ["automatisation", "ROI", "PME", "coût"]
+funnelStage: "BOFU"
+locale: "fr"
+---
+
+La question revient sur chaque appel : *"Concrètement, ça coûte combien d'automatiser un processus ?"*
+
+Réponse courte : **entre 1 500€ et 30 000€**, selon ce qu'on automatise et avec quoi. La fourchette est large parce que "automatiser un processus" peut vouloir dire copier 3 lignes de Google Sheets vers Notion, ou orchestrer 12 systèmes critiques avec règles métier complexes et reprise sur erreur.
+
+Voici comment on chiffre, vraiment.
+
+## Les 3 grandes fourchettes de coût
+
+### 1. Automatisation simple — 1 500 à 5 000€
+
+Quelques étapes, des outils déjà en place, données structurées, faible volume.
+
+**Exemples typiques :**
+- Synchroniser les nouveaux leads d'un formulaire vers un CRM
+- Envoyer un email de relance automatique 48h après un devis
+- Créer une facture dans QuickBooks dès qu'un paiement Stripe arrive
+
+**Stack typique :** Zapier ou Make (plans payants), parfois un peu de code dans Google Apps Script.
+
+**Délai :** 5 à 10 jours.
+
+### 2. Automatisation intermédiaire — 5 000 à 15 000€
+
+Plusieurs systèmes à connecter, logique conditionnelle, données semi-structurées (PDFs, emails, formulaires libres). Souvent avec une touche d'IA pour comprendre du texte.
+
+**Exemples typiques :**
+- Extraire les infos de factures fournisseurs reçues par email et les intégrer dans la compta
+- Qualifier automatiquement les leads entrants (scoring + routage commercial)
+- Générer des comptes-rendus de réunion à partir d'enregistrements
+
+**Stack typique :** n8n ou Make pro, GPT-4 ou Claude pour le NLP, base de données dédiée.
+
+**Délai :** 2 à 4 semaines.
+
+<AuditFlashCTA topic="chiffrer votre projet" />
+
+### 3. Automatisation lourde — 15 000 à 30 000€+
+
+Systèmes critiques, fort volume, intégrations complexes (ERP, outils internes anciens), exigences de fiabilité (SLA, monitoring, reprise sur erreur).
+
+**Exemples typiques :**
+- Reconstruire un workflow de gestion de commandes B2B avec règles tarifaires
+- Automatiser la production de devis personnalisés à partir d'un catalogue de 5 000 SKU
+- Industrialiser un processus de réponse à appel d'offres avec base documentaire IA
+
+**Stack typique :** code custom (TypeScript, Python), base de données dédiée, infrastructure cloud, monitoring.
+
+**Délai :** 4 à 12 semaines.
+
+## Ce qui fait vraiment varier le prix
+
+Trois variables comptent, dans cet ordre :
+
+1. **L'état des données en entrée.** Si vos données sont propres et accessibles via API, on gagne 50% du temps. Si elles sont dans des PDFs scannés ou des Excel partagés sur SharePoint, prévoyez +30%.
+2. **Le nombre de systèmes à intégrer.** Chaque système ajoute du temps : auth, gestion d'erreurs, tests. Passer de 2 à 4 systèmes double rarement le coût, mais le multiplie par 1,5x à 1,8x.
+3. **La criticité.** Une automatisation interne sans impact direct client peut tomber 1h sans drame. Une automatisation qui touche la facturation client doit avoir alertes, reprise sur erreur, monitoring. C'est facilement +40% de budget.
+
+## Les fausses économies à éviter
+
+**"On va le faire avec Zapier, ça coûte 30€/mois."** Vrai, jusqu'à ce que vous ayez 12 zaps interdépendants impossibles à debugger. À partir de 5-6 automatisations connectées, n8n ou un peu de code custom est plus économique.
+
+**"Notre stagiaire peut le faire."** Sauf qu'à son départ, plus personne ne sait comment ça marche. Documentez. Versionnez. Sinon vous payez deux fois.
+
+**"On attendra que ce soit critique pour automatiser."** À ce moment-là, c'est 3x plus cher parce que vous automatisez sous pression et sans pouvoir refondre le processus.
+
+## Comment on chiffre chez Lucid-Lab
+
+On regarde 4 choses pendant l'Audit Flash de 30 minutes :
+
+1. **Le volume** : combien de fois ça tourne par semaine
+2. **Le coût manuel actuel** : combien d'heures × taux horaire
+3. **Le risque d'erreur** : qu'est-ce qui se passe si ça rate
+4. **Les données disponibles** : où elles sont, sous quel format
+
+À la sortie, on donne :
+- Une fourchette de coût (avec les hypothèses)
+- Un délai
+- Un ROI estimé sur 12 mois
+
+Pas de devis sur 14 pages. Pas de "ça dépend". Si on ne peut pas chiffrer en 20 min, c'est qu'on n'a pas compris le problème.

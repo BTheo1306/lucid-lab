@@ -1,6 +1,9 @@
 import type { Metadata } from "next";
 import { Inter, Syne } from "next/font/google";
+import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { ChatWidget } from "@/components/chat-widget/ChatWidget";
+import { getLocale } from "@/lib/i18n";
 import "./globals.css";
 
 const inter = Inter({
@@ -16,7 +19,136 @@ const syne = Syne({
   display: "swap",
 });
 
-export const metadata: Metadata = {
+export async function generateMetadata(): Promise<Metadata> {
+  const locale = await getLocale();
+  const isEn = locale === 'en';
+
+  const description = isEn
+    ? "Lucid-Lab is the Full-Stack Transformation Engine that turns your operational chaos into autonomous systems running in production. Operational Strategy, Software Dev and AI Engineering for startups, SMEs and enterprise organizations. We don't advise. We build."
+    : "Lucid-Lab est la Full-Stack Transformation Engine qui prend votre chaos opérationnel et livre des systèmes autonomes en production. Stratégie Opérationnelle, Software Dev et IA Engineering pour startups, PMEs et paquebots industriels. On ne conseille pas, on construit.";
+
+  const ogTitle = isEn
+    ? "Lucid-Lab — We don't advise. We build."
+    : "Lucid-Lab — On ne conseille pas. On construit.";
+
+  const ogDescription = isEn
+    ? "Full-Stack Transformation Engine. We take your operational chaos, map it, and ship autonomous systems to production. Free 30-min Audit Flash."
+    : "Full-Stack Transformation Engine. On prend votre chaos opérationnel, on le map, on livre des systèmes autonomes en production. Audit Flash gratuit en 30 min.";
+
+  const twitterDescription = isEn
+    ? "Full-Stack Transformation Engine. Strategy, Software & AI Engineering. From operational chaos to autonomous systems in production."
+    : "Full-Stack Transformation Engine. Stratégie, Software & IA Engineering. Du chaos opérationnel à des systèmes autonomes en production.";
+
+  const canonical = isEn ? "https://lucid-lab.fr/en" : "https://lucid-lab.fr";
+
+  return {
+    title: {
+      default: isEn
+        ? "Lucid-Lab — AI Agency & Full-Stack Transformation Engine"
+        : "Lucid-Lab — Agence IA & Full-Stack Transformation Engine",
+      template: "%s | Lucid-Lab",
+    },
+    description,
+    metadataBase: new URL("https://lucid-lab.fr"),
+    verification: {
+      google: "SjhOjbbRpjhrmHAaolDpyzdDc_WaT_pLRU9jH1ExWtU",
+    },
+    keywords: isEn
+      ? [
+          "Operational Strategists",
+          "Full-Stack Transformation Engine",
+          "Process Mapping",
+          "Systemic Automation",
+          "Scalability Framework",
+          "Execution Roadmap",
+          "AI Audit Flash",
+          "AI Engineering",
+          "autonomous AI agents",
+          "autonomous Lead Gen",
+          "enterprise process automation",
+          "AI Roadmap SME",
+          "n8n workflows",
+          "custom OpenAI",
+          "operational transformation",
+          "AI deployment to production",
+          "AI tenders",
+          "AI governance",
+          "Lucid-Lab",
+          "AI agency Paris",
+          "France",
+        ]
+      : [
+          "Operational Strategists",
+          "Full-Stack Transformation Engine",
+          "Process Mapping",
+          "Systemic Automation",
+          "Scalability Framework",
+          "Roadmap d'Exécution",
+          "Audit Flash IA",
+          "IA Engineering",
+          "agents IA autonomes",
+          "Lead Gen autonome",
+          "automatisation processus paquebot industriel",
+          "IA Roadmap PME",
+          "workflows n8n",
+          "OpenAI sur-mesure",
+          "transformation opérationnelle",
+          "déploiement IA production",
+          "appels d'offres IA",
+          "gouvernance IA",
+          "Lucid-Lab",
+          "agence IA Paris",
+          "France",
+        ],
+    authors: [{ name: "Lucid-Lab", url: "https://lucid-lab.fr" }],
+    creator: "Lucid-Lab",
+    publisher: "Lucid-Lab",
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        "max-video-preview": -1,
+        "max-image-preview": "large",
+        "max-snippet": -1,
+      },
+    },
+    openGraph: {
+      type: "website",
+      locale: isEn ? "en_US" : "fr_FR",
+      url: canonical,
+      siteName: "Lucid-Lab",
+      title: ogTitle,
+      description: ogDescription,
+      images: [
+        {
+          url: "/opengraph-image",
+          width: 1200,
+          height: 630,
+          alt: ogTitle,
+        },
+      ],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: ogTitle,
+      description: twitterDescription,
+      images: ["/opengraph-image"],
+    },
+    alternates: {
+      canonical,
+      languages: {
+        'fr-FR': 'https://lucid-lab.fr',
+        'en-US': 'https://lucid-lab.fr/en',
+        'x-default': 'https://lucid-lab.fr',
+      },
+    },
+    category: "technology",
+  };
+}
+
+const metadataPlaceholder: Metadata = {
   title: {
     default: "Lucid-Lab",
     template: "%s | Lucid-Lab",
@@ -90,15 +222,18 @@ export const metadata: Metadata = {
   },
   category: "technology",
 };
+void metadataPlaceholder;
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getLocale();
+  const isEn = locale === 'en';
   return (
     <html
-      lang="fr"
+      lang={locale}
       className={`${inter.variable} ${syne.variable} antialiased`}
       suppressHydrationWarning
     >
@@ -151,7 +286,7 @@ export default function RootLayout({
                     "@type": "ContactPoint",
                     email: "info@lucid-lab.fr",
                     contactType: "customer service",
-                    availableLanguage: ["French"],
+                    availableLanguage: ["French", "English"],
                   },
                   sameAs: ["https://linkedin.com/company/lucid-lab"],
                 },
@@ -161,7 +296,7 @@ export default function RootLayout({
                   url: "https://lucid-lab.fr",
                   name: "Lucid-Lab",
                   publisher: { "@id": "https://lucid-lab.fr/#organization" },
-                  inLanguage: "fr-FR",
+                  inLanguage: isEn ? "en-US" : "fr-FR",
                 },
                 {
                   "@type": "ProfessionalService",
@@ -231,7 +366,9 @@ export default function RootLayout({
           <div className="mx-auto h-full max-w-[1264px] border-x border-[#e5e5e5]" />
         </div>
         {children}
-        <ChatWidget />
+        <ChatWidget lang={locale} />
+        <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );

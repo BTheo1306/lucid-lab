@@ -1,0 +1,90 @@
+---
+title: "How much does business process automation cost in 2026?"
+description: "Real cost of an automation project for an SME: Zapier, n8n, custom code. Ranges, worked examples, mistakes to avoid."
+publishedAt: "2026-04-28"
+category: "automatisation"
+tags: ["automation", "ROI", "SME", "cost"]
+funnelStage: "BOFU"
+locale: "en"
+---
+
+The question comes up on every call: *"Concretely, how much does it cost to automate a process?"*
+
+Short answer: **between €1,500 and €30,000**, depending on what we automate and with what. The range is wide because "automating a process" can mean copying 3 lines from Google Sheets to Notion, or orchestrating 12 critical systems with complex business rules and error recovery.
+
+Here is how we actually price the work.
+
+## The 3 main cost ranges
+
+### 1. Simple automation — €1,500 to €5,000
+
+A few steps, tools already in place, structured data, low volume.
+
+**Typical examples:**
+- Sync new leads from a form to a CRM
+- Send an automatic follow-up email 48h after a quote
+- Create an invoice in QuickBooks as soon as a Stripe payment lands
+
+**Typical stack:** Zapier or Make (paid plans), sometimes a bit of code in Google Apps Script.
+
+**Timeline:** 5 to 10 days.
+
+### 2. Intermediate automation — €5,000 to €15,000
+
+Several systems to connect, conditional logic, semi-structured data (PDFs, emails, free-form forms). Often with a touch of AI to understand text.
+
+**Typical examples:**
+- Extract info from supplier invoices received by email and post them to accounting
+- Automatically qualify inbound leads (scoring + sales routing)
+- Generate meeting notes from recordings
+
+**Typical stack:** n8n or Make Pro, GPT-4 or Claude for NLP, dedicated database.
+
+**Timeline:** 2 to 4 weeks.
+
+<AuditFlashCTA topic="quantifying your project" />
+
+### 3. Heavy automation — €15,000 to €30,000+
+
+Critical systems, high volume, complex integrations (ERP, legacy internal tools), reliability requirements (SLA, monitoring, error recovery).
+
+**Typical examples:**
+- Rebuild a B2B order management workflow with pricing rules
+- Automate the production of personalised quotes from a 5,000-SKU catalogue
+- Industrialise a tender response process with an AI document base
+
+**Typical stack:** custom code (TypeScript, Python), dedicated database, cloud infrastructure, monitoring.
+
+**Timeline:** 4 to 12 weeks.
+
+## What really drives the price
+
+Three variables matter, in this order:
+
+1. **The state of the input data.** If your data is clean and accessible via API, we save 50% of the time. If it's in scanned PDFs or shared Excel files on SharePoint, expect +30%.
+2. **The number of systems to integrate.** Each system adds time: auth, error handling, tests. Going from 2 to 4 systems rarely doubles the cost, but multiplies it by 1.5x to 1.8x.
+3. **Criticality.** An internal automation with no direct customer impact can go down for an hour without drama. An automation that touches client billing needs alerts, error recovery, monitoring. That's easily +40% of budget.
+
+## The false economies to avoid
+
+**"We'll do it with Zapier, it costs €30/month."** True, until you have 12 interdependent zaps that are impossible to debug. From 5–6 connected automations onward, n8n or some custom code is more economical.
+
+**"Our intern can do it."** Except when they leave, no one knows how it works. Document. Version. Otherwise you'll pay twice.
+
+**"We'll wait until it's critical to automate."** By then, it's 3x more expensive because you're automating under pressure with no chance to redesign the process.
+
+## How we price things at Lucid-Lab
+
+We look at 4 things during the 30-minute Audit Flash:
+
+1. **Volume**: how many times it runs per week
+2. **Current manual cost**: how many hours × hourly rate
+3. **Risk of error**: what happens if it fails
+4. **Available data**: where it is, in what format
+
+Output:
+- A cost range (with assumptions)
+- A timeline
+- An estimated ROI over 12 months
+
+No 14-page proposal. No "it depends". If we can't quantify it in 20 minutes, we haven't understood the problem.

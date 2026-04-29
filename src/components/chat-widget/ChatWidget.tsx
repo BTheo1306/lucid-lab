@@ -8,16 +8,47 @@ import { InputBox } from './InputBox';
 
 const TEASER_DELAY_MS = 4000;
 const TEASER_DISMISS_KEY = 'll-chat-teaser-dismissed';
-const TEASER_TEXT = 'Bonjour. Une question sur Lucid-Lab\u00A0? Je suis là pour y répondre.';
+
+const COPY = {
+  fr: {
+    teaser: 'Bonjour. Une question sur Lucid-Lab\u00A0? Je suis là pour y répondre.',
+    closeMessage: 'Fermer le message',
+    closeChat: 'Fermer le chat',
+    openChat: 'Ouvrir le chat',
+    dialogLabel: 'Assistant Lucid-Lab',
+    title: 'Lucid',
+    subtitle: 'Assistant Lucid-Lab',
+    closeAria: 'Fermer',
+    poweredBy: 'Powered by Lucid-Lab · ',
+    legalLink: 'Mentions légales',
+    legalHref: '/mentions-legales',
+  },
+  en: {
+    teaser: 'Hi there. A question about Lucid-Lab\u00A0? I\u2019m here to help.',
+    closeMessage: 'Close message',
+    closeChat: 'Close chat',
+    openChat: 'Open chat',
+    dialogLabel: 'Lucid-Lab Assistant',
+    title: 'Lucid',
+    subtitle: 'Lucid-Lab Assistant',
+    closeAria: 'Close',
+    poweredBy: 'Powered by Lucid-Lab · ',
+    legalLink: 'Legal notice',
+    legalHref: '/en/legal-notice',
+  },
+} as const;
+
+type Lang = 'fr' | 'en';
 
 /**
  * Lucid-Lab chat widget — floating bubble bottom-right.
  * Mount once in app/layout.tsx via next/dynamic({ ssr: false }).
  */
-export function ChatWidget() {
+export function ChatWidget({ lang = 'fr' }: { lang?: Lang }) {
+  const t = COPY[lang];
   const [open, setOpen] = useState(false);
   const [teaserVisible, setTeaserVisible] = useState(false);
-  const { messages, sending, error, sessionReady, sendMessage } = useChat({ language: 'fr' });
+  const { messages, sending, error, sessionReady, sendMessage } = useChat({ language: lang });
 
   // Show the teaser bubble after a delay, unless the user has already dismissed it this session.
   useEffect(() => {
@@ -48,7 +79,7 @@ export function ChatWidget() {
           <button
             type="button"
             className="ll-chat-teaser-close"
-            aria-label="Fermer le message"
+            aria-label={t.closeMessage}
             onClick={(e) => {
               e.stopPropagation();
               dismissTeaser();
@@ -61,7 +92,7 @@ export function ChatWidget() {
             className="ll-chat-teaser-body"
             onClick={handleToggle}
           >
-            {TEASER_TEXT}
+            {t.teaser}
           </button>
         </div>
       ) : null}
@@ -69,7 +100,7 @@ export function ChatWidget() {
       <button
         type="button"
         className={`ll-chat-toggle${teaserVisible && !open ? ' ll-chat-toggle-pulse' : ''}`}
-        aria-label={open ? 'Fermer le chat' : 'Ouvrir le chat'}
+        aria-label={open ? t.closeChat : t.openChat}
         onClick={handleToggle}
       >
         {open ? (
@@ -87,21 +118,21 @@ export function ChatWidget() {
       </button>
 
       {open ? (
-        <div className="ll-chat-panel" role="dialog" aria-label="Assistant Lucid-Lab">
+        <div className="ll-chat-panel" role="dialog" aria-label={t.dialogLabel}>
           <header className="ll-chat-header">
             <div>
-              <strong>Lucid</strong>
-              <span className="ll-chat-sub">Assistant Lucid-Lab</span>
+              <strong>{t.title}</strong>
+              <span className="ll-chat-sub">{t.subtitle}</span>
             </div>
-            <button type="button" onClick={() => setOpen(false)} aria-label="Fermer">
+            <button type="button" onClick={() => setOpen(false)} aria-label={t.closeAria}>
               ✕
             </button>
           </header>
-          <MessageList messages={messages} sending={sending} onChipClick={sendMessage} />
+          <MessageList messages={messages} sending={sending} onChipClick={sendMessage} lang={lang} />
           {error ? <div className="ll-chat-error">⚠ {error}</div> : null}
-          <InputBox disabled={!sessionReady || sending} onSend={sendMessage} />
+          <InputBox disabled={!sessionReady || sending} onSend={sendMessage} lang={lang} />
           <footer className="ll-chat-footer">
-            Powered by Lucid-Lab · <a href="/mentions-legales">Mentions légales</a>
+            {t.poweredBy}<a href={t.legalHref}>{t.legalLink}</a>
           </footer>
         </div>
       ) : null}

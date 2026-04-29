@@ -3,6 +3,7 @@ import { Bot, LogOut, ShieldCheck } from 'lucide-react';
 import { requireAdmin } from '@/lib/admin/auth';
 import { logoutAdmin } from '../actions';
 import { AdminNav } from './AdminNav';
+import { AdminThemeToggle } from './AdminThemeToggle';
 
 export const metadata: Metadata = {
   title: 'Admin',
@@ -16,7 +17,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   await requireAdmin();
 
   return (
-    <div className="relative z-10 min-h-[100dvh] bg-[#f5f6f2] text-zinc-950">
+    <div data-admin-root className="relative z-10 min-h-[100dvh] bg-[#f5f6f2] text-zinc-950">
       <style>{`.ll-chat-toggle,.ll-chat-panel,.ll-chat-teaser{display:none!important}`}</style>
       <div className="grid min-h-[100dvh] lg:grid-cols-[252px_1fr]">
         <aside className="border-b border-zinc-200 bg-white/90 px-5 py-5 lg:border-b-0 lg:border-r">
@@ -42,15 +43,18 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
                 <p className="truncate text-xs text-zinc-500">Leads, conversations, bookings and bot health</p>
               </div>
             </div>
-            <form action={logoutAdmin}>
-              <button
-                type="submit"
-                className="inline-flex h-9 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
-              >
-                <LogOut className="size-4" />
-                Logout
-              </button>
-            </form>
+            <div className="flex items-center gap-2">
+              <AdminThemeToggle />
+              <form action={logoutAdmin}>
+                <button
+                  type="submit"
+                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+                >
+                  <LogOut className="size-4" />
+                  Logout
+                </button>
+              </form>
+            </div>
           </header>
 
           <main className="mx-auto w-full max-w-7xl px-5 py-6 md:px-8 md:py-8">

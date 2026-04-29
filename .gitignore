@@ -43,3 +43,6 @@ next-env.d.ts
 # Env
 .env.local
 .env*.local
+
+# Local Lead Engine sandbox data
+.lead-engine-sandbox/

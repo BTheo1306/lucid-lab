@@ -2,13 +2,23 @@
 
 import { useState, type FormEvent, type KeyboardEvent } from 'react';
 
+type Lang = 'fr' | 'en';
+
+const COPY = {
+  fr: { placeholder: 'Votre message…', label: 'Message', send: 'Envoyer' },
+  en: { placeholder: 'Your message…', label: 'Message', send: 'Send' },
+} as const;
+
 export function InputBox({
   disabled,
   onSend,
+  lang = 'fr',
 }: {
   disabled: boolean;
   onSend: (text: string) => void;
+  lang?: Lang;
 }) {
+  const t = COPY[lang];
   const [value, setValue] = useState('');
 
   const submit = (e: FormEvent) => {
@@ -30,13 +40,13 @@ export function InputBox({
       <textarea
         value={value}
         disabled={disabled}
-        placeholder="Votre message…"
+        placeholder={t.placeholder}
         onChange={(e) => setValue(e.target.value)}
         onKeyDown={onKey}
         rows={1}
-        aria-label="Message"
+        aria-label={t.label}
       />
-      <button type="submit" disabled={disabled || !value.trim()} aria-label="Envoyer">
+      <button type="submit" disabled={disabled || !value.trim()} aria-label={t.send}>
         ➤
       </button>
     </form>

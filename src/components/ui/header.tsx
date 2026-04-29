@@ -1,25 +1,38 @@
 'use client'
 
 import React from 'react'
+import { usePathname } from 'next/navigation'
 import { cn } from '@/lib/utils'
 import { MenuToggleIcon } from '@/components/ui/menu-toggle-icon'
 import { useScroll } from '@/components/ui/use-scroll'
 import { createPortal } from 'react-dom'
+import { detectLocale, getDictionary, localizeHref } from '@/lib/i18n/client'
 
 export function Header() {
   const [open, setOpen] = React.useState(false)
   const scrolled = useScroll(10)
+  const pathname = usePathname() ?? '/'
+  const lang = detectLocale(pathname)
+  const t = getDictionary(lang).header
+  const homePrefix = lang === 'en' ? '/en' : ''
+  const switchHref = localizeHref(pathname, lang === 'en' ? 'fr' : 'en')
 
   const links = [
-    { label: 'Cas clients', href: '#cas-clients' },
-    { label: 'Méthode', href: '#solutions' },
-    { label: 'Contact', href: '#booking' },
+    { label: t.nav.cases, href: `${homePrefix}/#cas-clients` },
+    { label: t.nav.method, href: `${homePrefix}/#solutions` },
+    { label: t.nav.blog, href: `${homePrefix === '' ? '/blog' : '/en/blog'}` },
+    { label: t.nav.contact, href: `${homePrefix}/#booking` },
   ]
 
   const nav = (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
-    if (href.startsWith('#')) {
+    // Only intercept hash links that target the *current* page.
+    const onSamePage = href.startsWith('#') ||
+      (lang === 'en' && href.startsWith('/en/#') && (pathname === '/en' || pathname === '/en/')) ||
+      (lang === 'fr' && href.startsWith('/#') && pathname === '/')
+    if (onSamePage) {
       e.preventDefault()
-      const id = href.slice(1)
+      const hashIndex = href.indexOf('#')
+      const id = hashIndex >= 0 ? href.slice(hashIndex + 1) : ''
       if (!id) {
         window.scrollTo({ top: 0, behavior: 'smooth' })
       } else {
@@ -51,7 +64,7 @@ export function Header() {
     >
       <nav className="mx-auto flex h-[68px] w-full max-w-[1264px] items-center justify-between border-x border-[#e5e5e5] px-[48px] max-lg:px-6">
         {/* Wordmark */}
-        <a href="#" onClick={nav('#')} className="flex items-center gap-2 transition-opacity hover:opacity-70">
+        <a href={lang === 'en' ? '/en' : '/'} onClick={nav(lang === 'en' ? '/en/#' : '/#')} className="flex items-center gap-2 transition-opacity hover:opacity-70">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/logo.png" alt="Lucid-Lab" className="h-6 w-auto" />
           <span
@@ -76,14 +89,24 @@ export function Header() {
           ))}
         </div>
 
-        {/* Right CTA */}
+        {/* Right CTA + language switcher */}
         <div className="hidden items-center gap-5 md:flex">
           <a
-            href="#booking"
-            onClick={nav('#booking')}
+            href={switchHref}
+            className="group flex h-[32px] w-[32px] items-center justify-center rounded-full border border-[#e5e5e5] bg-white transition-all hover:border-[#ccc] hover:bg-[#f9f9f9]"
+            aria-label={t.languageLabel}
+            title={lang === 'en' ? t.switchToFrench : t.switchToEnglish}
+          >
+            <span className="text-[14px] leading-none opacity-80 transition-opacity group-hover:opacity-100">
+              {lang === 'en' ? '🇫🇷' : '🇬🇧'}
+            </span>
+          </a>
+          <a
+            href={`${homePrefix}/#booking`}
+            onClick={nav(`${homePrefix}/#booking`)}
             className="flex h-[40px] items-center rounded-[10px] bg-black px-5 text-[14px] font-medium text-white transition-colors hover:bg-[#333]"
           >
-            Réserver l&apos;Audit Flash
+            {t.cta}
           </a>
         </div>
 
@@ -114,11 +137,20 @@ export function Header() {
         </div>
         <div className="flex flex-col gap-3 pb-8 px-4">
           <a
-            href="#booking"
-            onClick={nav('#booking')}
+            href={switchHref}
+            className="flex h-[44px] w-full items-center justify-center gap-2 rounded-[10px] border border-[#e5e5e5] text-[14px] font-medium text-[#444] transition-colors hover:bg-zinc-50"
+          >
+            <span className="text-[16px] leading-none">
+              {lang === 'en' ? '🇫🇷' : '🇬🇧'}
+            </span>
+            {lang === 'en' ? t.switchToFrench : t.switchToEnglish}
+          </a>
+          <a
+            href={`${homePrefix}/#booking`}
+            onClick={nav(`${homePrefix}/#booking`)}
             className="flex h-[48px] w-full items-center justify-center rounded-[10px] bg-black text-[15px] font-semibold text-white"
           >
-            Réserver l&apos;Audit Flash
+            {t.cta}
           </a>
         </div>
       </MobileMenu>

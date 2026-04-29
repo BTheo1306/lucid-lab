@@ -3,6 +3,17 @@
 import { useEffect, useRef, useState } from 'react'
 import { LogoCloud } from '@/components/ui/logo-cloud'
 import { LucidRobot } from '@/components/ui/lucid-robot'
+import { getDictionary, type Locale } from '@/lib/i18n/client'
+
+// Render text containing **bold** markers as a fragment with <span>s.
+function renderBold(text: string, className: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((p, i) =>
+    p.startsWith('**') && p.endsWith('**')
+      ? <span key={i} className={className}>{p.slice(2, -2)}</span>
+      : <span key={i}>{p}</span>
+  )
+}
 
 // ─── Camera target: full-body view (captured from the scene's final rest state) ──
 const CAM_POS = { x: 0, y: 147, z: 1000 } as const
@@ -14,7 +25,9 @@ const OVERRIDE_DURATION = 6000
 // so the ~100 KB JS is fetched in parallel with React hydration.
 const runtimePromise = import('@splinetool/runtime')
 
-export function HeroSection() {
+export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
+  const t = getDictionary(lang).hero
+  const homePrefix = lang === 'en' ? '/en' : ''
   const sectionRef = useRef<HTMLElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -192,31 +205,31 @@ export function HeroSection() {
         <div className="flex flex-col gap-8 px-6 py-12 sm:px-[48px] sm:py-[100px] sm:max-w-[50%]">
           {/* Headline */}
           <h1 className="text-[40px] font-bold leading-[1.1] tracking-[-0.03em] text-[#000] sm:text-[48px] lg:text-[56px]">
-            On ne conseille pas.
+            {t.titleLine1}
             <br />
-            On construit.
+            {t.titleLine2}
           </h1>
 
           {/* Subtitle */}
           <p className="max-w-[480px] text-[17px] leading-[1.65] text-[#555]">
-            Lucid-Lab est le <span className="font-semibold text-black">Full-Stack Transformation Engine</span> qui détermine votre chaos opérationnel, le cartographie et le transforme en des systèmes autonomes de productivité.
+            {renderBold(t.subtitle, 'font-semibold text-black')}
             <br />
-            Stratégie. Software. IA Engineering. <span className="text-black">Zéro PowerPoint.</span>
+            {renderBold(t.subtitleLine2, 'text-black')}
           </p>
 
           {/* CTAs */}
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href="#booking"
+              href={`${homePrefix}/#booking`}
               className="flex h-[40px] items-center rounded-[10px] bg-black px-6 text-[14px] font-medium text-white transition-colors hover:bg-[#222]"
             >
-              Réserver l&apos;Audit Flash
+              {t.ctaPrimary}
             </a>
             <a
-              href="#cas-clients"
+              href={`${homePrefix}/#cas-clients`}
               className="flex h-[40px] items-center rounded-[10px] border border-[#d4d4d4] bg-[#F7F5F1] px-6 text-[14px] font-medium text-[#333] transition-colors hover:bg-[#edeae4]"
             >
-              Voir les cas clients
+              {t.ctaSecondary}
             </a>
           </div>
         </div>
@@ -259,7 +272,8 @@ export function HeroSection() {
   )
 }
 
-export function LogosSection() {
+export function LogosSection({ lang: _lang = 'fr' }: { lang?: Locale } = {}) {
+  void _lang
   return (
     <section className="border-y border-[#e5e5e5] bg-[#F7F5F1]" aria-hidden>
       <div className="mx-auto max-w-[1264px] border-x border-[#e5e5e5] py-[40px] max-sm:py-6">

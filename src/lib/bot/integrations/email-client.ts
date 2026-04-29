@@ -189,8 +189,8 @@ function buildFollowupTemplate(
       case 2:
         return {
           subject: 'Cas concret qui pourrait vous intéresser',
-          text: `Bonjour ${name},\n\nPour info — on a récemment déployé un workflow qui a économisé ~15h/semaine à une équipe marketing. Ce genre de transformation est souvent plus simple qu'il n'y paraît.\n\nSi cela résonne, prenons 20 min : ${bookingUrl}\n\nCordialement,\nL'équipe Lucid-Lab`,
-          html: `<p>Bonjour ${escapeHtml(name)},</p><p>Pour info — on a récemment déployé un workflow qui a économisé ~15h/semaine à une équipe marketing. Ce genre de transformation est souvent plus simple qu'il n'y paraît.</p><p>Si cela résonne, prenons 20 min : <a href="${escapeHtml(bookingUrl)}">réserver un créneau</a></p><p>Cordialement,<br>L'équipe Lucid-Lab</p>`,
+          text: `Bonjour ${name},\n\nPour info — on a récemment déployé un workflow qui a économisé ~15h/semaine à une équipe marketing. Ce genre de transformation est souvent plus simple qu'il n'y paraît.\n\nSi cela résonne, prenons 30 min : ${bookingUrl}\n\nCordialement,\nL'équipe Lucid-Lab`,
+          html: `<p>Bonjour ${escapeHtml(name)},</p><p>Pour info — on a récemment déployé un workflow qui a économisé ~15h/semaine à une équipe marketing. Ce genre de transformation est souvent plus simple qu'il n'y paraît.</p><p>Si cela résonne, prenons 30 min : <a href="${escapeHtml(bookingUrl)}">réserver un créneau</a></p><p>Cordialement,<br>L'équipe Lucid-Lab</p>`,
         };
       case 3:
         return {
@@ -210,8 +210,8 @@ function buildFollowupTemplate(
       case 2:
         return {
           subject: 'A concrete case that might interest you',
-          text: `Hi ${name},\n\nQuick note — we recently shipped a workflow that saved a marketing team ~15h/week. This kind of transformation is often simpler than it looks.\n\nIf it resonates, grab 20 min: ${bookingUrl}\n\nBest,\nThe Lucid-Lab team`,
-          html: `<p>Hi ${escapeHtml(name)},</p><p>Quick note — we recently shipped a workflow that saved a marketing team ~15h/week. This kind of transformation is often simpler than it looks.</p><p>If it resonates, grab 20 min: <a href="${escapeHtml(bookingUrl)}">book a slot</a></p><p>Best,<br>The Lucid-Lab team</p>`,
+          text: `Hi ${name},\n\nQuick note — we recently shipped a workflow that saved a marketing team ~15h/week. This kind of transformation is often simpler than it looks.\n\nIf it resonates, grab 30 min: ${bookingUrl}\n\nBest,\nThe Lucid-Lab team`,
+          html: `<p>Hi ${escapeHtml(name)},</p><p>Quick note — we recently shipped a workflow that saved a marketing team ~15h/week. This kind of transformation is often simpler than it looks.</p><p>If it resonates, grab 30 min: <a href="${escapeHtml(bookingUrl)}">book a slot</a></p><p>Best,<br>The Lucid-Lab team</p>`,
         };
       case 3:
         return {

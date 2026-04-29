@@ -1,0 +1,78 @@
+.admin-dark {
+  color-scheme: dark;
+  background-color: #09090b;
+  color: #f4f4f5;
+}
+
+/* bg utilities */
+.admin-dark .bg-\[\#f5f6f2\] { background-color: #09090b !important; }
+.admin-dark .bg-white { background-color: #18181b !important; }
+.admin-dark .bg-zinc-50 { background-color: #18181b !important; }
+.admin-dark .bg-zinc-100 { background-color: #27272a !important; }
+.admin-dark .bg-zinc-200 { background-color: #3f3f46 !important; }
+
+/* bg with opacity modifier */
+.admin-dark .bg-white\/90 { background-color: rgba(24, 24, 27, 0.9) !important; }
+.admin-dark .bg-\[\#f5f6f2\]\/90 { background-color: rgba(9, 9, 11, 0.9) !important; }
+
+/* text utilities */
+.admin-dark .text-zinc-950 { color: #fafafa !important; }
+.admin-dark .text-zinc-900 { color: #f4f4f5 !important; }
+.admin-dark .text-zinc-800 { color: #e4e4e7 !important; }
+.admin-dark .text-zinc-700 { color: #d4d4d8 !important; }
+.admin-dark .text-zinc-600 { color: #a1a1aa !important; }
+.admin-dark .text-zinc-500 { color: #71717a !important; }
+.admin-dark .text-zinc-400 { color: #52525b !important; }
+
+/* border / divide / ring */
+.admin-dark .border-zinc-100 { border-color: #27272a !important; }
+.admin-dark .border-zinc-200 { border-color: #27272a !important; }
+.admin-dark .border-zinc-300 { border-color: #3f3f46 !important; }
+.admin-dark .divide-zinc-100 > :not([hidden]) ~ :not([hidden]) { border-color: #27272a !important; }
+.admin-dark .ring-zinc-200 { --tw-ring-color: #3f3f46 !important; }
+
+/* hover variants */
+.admin-dark .hover\:bg-zinc-50:hover { background-color: #27272a !important; }
+.admin-dark .hover\:bg-zinc-100:hover { background-color: #3f3f46 !important; }
+.admin-dark .hover\:bg-zinc-200:hover { background-color: #52525b !important; }
+.admin-dark .hover\:text-zinc-950:hover { color: #fafafa !important; }
+
+/* Primary pills — invert */
+.admin-dark .bg-zinc-950 { background-color: #fafafa !important; }
+.admin-dark .bg-zinc-950 * { color: #18181b !important; }
+.admin-dark .hover\:bg-zinc-800:hover { background-color: #e4e4e7 !important; }
+
+/* Status palettes */
+.admin-dark .bg-amber-50 { background-color: rgba(120, 53, 15, 0.35) !important; }
+.admin-dark .text-amber-700,
+.admin-dark .text-amber-800 { color: #fde68a !important; }
+.admin-dark .border-amber-200 { border-color: rgba(217, 119, 6, 0.45) !important; }
+
+.admin-dark .bg-rose-50 { background-color: rgba(159, 18, 57, 0.3) !important; }
+.admin-dark .text-rose-700,
+.admin-dark .text-rose-800,
+.admin-dark .text-rose-950 { color: #fecaca !important; }
+.admin-dark .border-rose-200 { border-color: rgba(225, 29, 72, 0.45) !important; }
+.admin-dark .hover\:bg-rose-100:hover { background-color: rgba(159, 18, 57, 0.45) !important; }
+
+.admin-dark .bg-emerald-50 { background-color: rgba(6, 95, 70, 0.3) !important; }
+.admin-dark .text-emerald-700 { color: #6ee7b7 !important; }
+.admin-dark .ring-emerald-200 { --tw-ring-color: rgba(16, 185, 129, 0.45) !important; }
+
+/* Inputs */
+.admin-dark input,
+.admin-dark textarea,
+.admin-dark select {
+  background-color: #18181b !important;
+  border-color: #3f3f46 !important;
+  color: #fafafa !important;
+}
+.admin-dark input::placeholder,
+.admin-dark textarea::placeholder { color: #71717a !important; }
+
+/* Toggle button itself adapts in dark */
+.admin-dark .admin-theme-toggle {
+  background-color: #27272a !important;
+  border-color: #3f3f46 !important;
+  color: #fafafa !important;
+}

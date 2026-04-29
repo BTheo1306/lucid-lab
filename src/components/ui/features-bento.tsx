@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react"
 import { Area, AreaChart, CartesianGrid, XAxis, YAxis, Tooltip } from "recharts"
 import DottedMap from "dotted-map"
+import { getDictionary, type Locale } from "@/lib/i18n/client"
 
 
 // ─── Dotted Map ────────────────────────────────────────────────────────────────
@@ -264,12 +265,7 @@ function TerminalWidget({ active }: { active: boolean }) {
 
 // ─── Area Chart ─────────────────────────────────────────────────────────────────
 
-const workflowData = [
-  { month: "Jan", workflows: 860, automations: 430 },
-  { month: "Fév", workflows: 1020, automations: 510 },
-  { month: "Mar", workflows: 1340, automations: 670 },
-  { month: "Avr", workflows: 1580, automations: 790 },
-]
+// Top-level workflowData removed — defined inside <ActivityChart /> per-locale.
 
 const chartConfig = {
   workflows: {
@@ -282,7 +278,14 @@ const chartConfig = {
   },
 }
 
-function ActivityChart() {
+function ActivityChart({ lang }: { lang: Locale }) {
+  const t = getDictionary(lang).bento
+  const workflowData = [
+    { month: t.chartMonths[0], workflows: 860, automations: 430 },
+    { month: t.chartMonths[1], workflows: 1020, automations: 510 },
+    { month: t.chartMonths[2], workflows: 1340, automations: 670 },
+    { month: t.chartMonths[3], workflows: 1580, automations: 790 },
+  ]
   // Measure container first, then render AreaChart with explicit width/height.
   // This bypasses ResponsiveContainer's internal -1 initial state that triggers a warning.
   const containerRef = useRef<HTMLDivElement>(null)
@@ -351,26 +354,16 @@ function ActivityChart() {
 
 // ─── Chat Widget ───────────────────────────────────────────────────────────────
 
-const chatMessages = [
-  {
-    from: "client",
-    text: "On a 200 emails support / semaine et ma Lead Gen LinkedIn tourne au ralenti. Vous prenez les deux ?",
-  },
-  {
-    from: "agent",
-    text: "Oui : agent IA pour qualifier/router le support + bot LinkedIn autonome qui scrape, score et engage. Roadmap chiffrée en 30 min.",
-  },
-  {
-    from: "client",
-    text: "Et si ça explose en volume comme chez Turismo ?",
-  },
-  {
-    from: "agent",
-    text: "On scale sans gonfler la masse salariale. C\u2019est exactement notre Scalability Framework.",
-  },
-]
+// Chat messages are built per-locale inside <ChatWidget />.
 
-function ChatWidget({ active }: { active: boolean }) {
+function ChatWidget({ active, lang }: { active: boolean; lang: Locale }) {
+  const tChat = getDictionary(lang).bento.chat
+  const chatMessages = [
+    { from: "client", text: tChat.msg1 },
+    { from: "agent", text: tChat.msg2 },
+    { from: "client", text: tChat.msg3 },
+    { from: "agent", text: tChat.msg4 },
+  ]
   const [visibleCount, setVisibleCount] = useState(0)
 
   useEffect(() => {
@@ -463,7 +456,8 @@ function useCountUp(target: number, duration = 1400, active = false) {
 
 // ─── Main Component ─────────────────────────────────────────────────────────────
 
-export function FeaturesBento() {
+export function FeaturesBento({ lang = 'fr' }: { lang?: Locale } = {}) {
+  const t = getDictionary(lang).bento
   const sectionRef = useRef<HTMLElement>(null)
   const inView = useInView(sectionRef, 0.35)
   const [animActive, setAnimActive] = useState(false)
@@ -482,12 +476,12 @@ export function FeaturesBento() {
       <div className="mx-auto max-w-[1264px] border-x border-[#e5e5e5] px-6 py-16 md:px-[48px] md:py-[100px]">
         {/* Header */}
         <div className="mb-14">
-          <p className="text-sm font-medium text-zinc-400 mb-3">Preuve par l&apos;action</p>
+          <p className="text-sm font-medium text-zinc-400 mb-3">{t.label}</p>
           <h2 className="text-[28px] font-semibold tracking-tight text-zinc-900 leading-[1.1] max-w-2xl md:text-[40px]">
-            Turismo, Universal, Périscope · et 10+ autres en production.
+            {t.headline}
           </h2>
           <p className="mt-4 max-w-xl text-[15px] leading-[1.65] text-zinc-500">
-            Full Scaling opérationnel, Lead Gen autonome, monitoring data temps réel, micro-business de niche, website &amp; e-commerce. Si un début de process «&#8239;existe&#8239;», on le systématise, on l&apos;automatise et on rend les clefs du succès à vos équipes.
+            {t.subtitle}
           </p>
         </div>
 
@@ -505,49 +499,49 @@ export function FeaturesBento() {
             <div aria-hidden className="pointer-events-none absolute inset-y-0 right-0 w-[18%] bg-gradient-to-l from-white to-transparent" style={{ zIndex: 5 }} />
             <div className="absolute bottom-3 right-3 md:bottom-5 md:right-5" style={{ zIndex: 10 }}>
               <div className="rounded-full bg-zinc-900/90 px-3 py-1.5 text-[11px] font-medium text-white backdrop-blur-sm">
-                Dernier dépl. · Paris 🇫🇷
+                {t.mapBadge}
               </div>
             </div>
             <div className="absolute left-3 top-3 md:left-5 md:top-5" style={{ zIndex: 10 }}>
-              <p className="text-sm font-semibold text-zinc-800">Multi-sectoriel · multi-tailles</p>
-              <p className="text-xs text-zinc-400 mt-0.5">Startups, PMEs, paquebots industriels & niches</p>
+              <p className="text-sm font-semibold text-zinc-800">{t.mapTitle}</p>
+              <p className="text-xs text-zinc-400 mt-0.5">{t.mapSubtitle}</p>
             </div>
           </div>
 
           {/* Top-right : Chat */}
           <div className="relative min-h-[200px] overflow-hidden rounded-xl border border-[#e5e5e5] bg-zinc-50 flex flex-col md:h-full">
             <div className="px-5 pt-5 pb-3 border-b border-[#e5e5e5]">
-              <p className="text-sm font-semibold text-zinc-800">Lucid · votre Strategist en direct</p>
-              <p className="text-xs text-zinc-400 mt-0.5">WhatsApp branché, réponse en 2h ouvrées</p>
+              <p className="text-sm font-semibold text-zinc-800">{t.chatHeaderTitle}</p>
+              <p className="text-xs text-zinc-400 mt-0.5">{t.chatHeaderSubtitle}</p>
             </div>
             <div className="flex-1 overflow-hidden px-4 py-3">
-              <ChatWidget active={animActive} />
+              <ChatWidget active={animActive} lang={lang} />
             </div>
           </div>
 
           {/* Bottom-left : Stat 1 — Systèmes déployés */}
           <div className="flex flex-col justify-between rounded-xl border border-[#e5e5e5] bg-zinc-900 p-6 text-white">
             <div>
-              <p className="text-[13px] text-zinc-400 font-medium">Systèmes autonomes en production</p>
+              <p className="text-[13px] text-zinc-400 font-medium">{t.statDeployedLabel}</p>
             </div>
             <div>
               <p className="text-[48px] font-bold tracking-tight leading-none md:text-[72px]">
                 +{deployedCount}
               </p>
-              <p className="text-sm text-zinc-400 mt-2">déploiements live · du paquebot industriel à la niche</p>
+              <p className="text-sm text-zinc-400 mt-2">{t.statDeployedSub}</p>
             </div>
           </div>
 
-          {/* Bottom-right : Stat 2 — Taux de livraison */}
+          {/* Bottom-right : Stat 2 */}
           <div className="flex flex-col justify-between rounded-xl border border-[#e5e5e5] bg-white p-6">
             <div>
-              <p className="text-[13px] text-zinc-500 font-medium">Roadmap → Production</p>
+              <p className="text-[13px] text-zinc-500 font-medium">{t.statRoadmapLabel}</p>
             </div>
             <div>
               <p className="text-[48px] font-bold tracking-tight leading-none text-zinc-900 md:text-[72px]">
                 {satisfactionCount}%
               </p>
-              <p className="text-sm text-zinc-400 mt-2">des Roadmaps d&apos;Exécution livrées en production dans les délais</p>
+              <p className="text-sm text-zinc-400 mt-2">{t.statRoadmapSub}</p>
             </div>
           </div>
 
@@ -555,22 +549,22 @@ export function FeaturesBento() {
           <div className="h-[300px] rounded-xl border border-[#e5e5e5] bg-white p-6 flex flex-col md:h-full">
             <div className="mb-4 flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
               <div>
-                <p className="text-sm font-semibold text-zinc-800">Volume traité par les agents IA</p>
-                <p className="text-xs text-zinc-400 mt-0.5">Exécutions mensuelles · cas Turismo, Universal & autres</p>
+                <p className="text-sm font-semibold text-zinc-800">{t.chartTitle}</p>
+                <p className="text-xs text-zinc-400 mt-0.5">{t.chartSubtitle}</p>
               </div>
               <div className="flex items-center gap-3 text-[11px] text-zinc-500">
                 <span className="flex items-center gap-1.5">
                   <span className="inline-block h-2 w-2 rounded-full bg-zinc-900" />
-                  Workflows
+                  {t.chartLegendShortWorkflows}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <span className="inline-block h-2 w-2 rounded-full bg-zinc-400" />
-                  Automations
+                  {t.chartLegendShortAutomations}
                 </span>
               </div>
             </div>
             <div className="flex-1" style={{ minHeight: 80 }}>
-              <ActivityChart />
+              <ActivityChart lang={lang} />
             </div>
           </div>
 
