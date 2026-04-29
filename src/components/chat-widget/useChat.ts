@@ -14,7 +14,7 @@ interface UseChatOptions {
   language?: 'fr' | 'en';
 }
 
-const STORAGE_KEY = 'lucidlab_chat_session_v1';
+const STORAGE_KEY = 'lucidlab_chat_session_v2';
 
 function storageGet(key: string): string | null {
   try {
@@ -61,13 +61,23 @@ export function useChat(opts: UseChatOptions = {}): UseChatApi {
     if (lastLanguage.current === (opts.language ?? 'fr')) return;
     lastLanguage.current = opts.language ?? 'fr';
 
+    const existing = storageGet(STORAGE_KEY);
+    const parsed = existing
+      ? (JSON.parse(existing) as { session_id?: string; conversation_id?: string; language?: string })
+      : null;
+
+    // If we already have a session for this language, resume it without hitting the API.
+    // This avoids burning the 20 req/hr rate-limit on every page navigation or remount.
+    if (parsed?.session_id && parsed?.conversation_id && parsed?.language === (opts.language ?? 'fr')) {
+      setSessionId(parsed.session_id);
+      setConversationId(parsed.conversation_id);
+      return;
+    }
+
     // Reset conversation state for the new language
     setMessages([]);
     setSessionId(null);
     setConversationId(null);
-
-    const existing = storageGet(STORAGE_KEY);
-    const parsed = existing ? (JSON.parse(existing) as { session_id?: string }) : null;
 
     fetch('/api/bot/session', {
       method: 'POST',
@@ -80,12 +90,19 @@ export function useChat(opts: UseChatOptions = {}): UseChatApi {
     })
       .then(async (r) => {
         if (!r.ok) throw new Error(`session ${r.status}`);
-        return r.json() as Promise<{ session_id: string; conversation_id: string }>;
+        return r.json() as Promise<{ session_id: string; conversation_id: string; language: string }>;
       })
       .then((data) => {
         setSessionId(data.session_id);
         setConversationId(data.conversation_id);
-        storageSet(STORAGE_KEY, JSON.stringify({ session_id: data.session_id }));
+        storageSet(
+          STORAGE_KEY,
+          JSON.stringify({
+            session_id: data.session_id,
+            conversation_id: data.conversation_id,
+            language: opts.language ?? 'fr',
+          }),
+        );
       })
       .catch((err) => {
         setError((err as Error).message);

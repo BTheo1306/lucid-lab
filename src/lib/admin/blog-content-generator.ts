@@ -55,6 +55,7 @@ Format obligatoire (markdown) :
 - Les promesses chiffrées non vérifiables ("multipliez par 10 votre productivité")
 - Les emojis dans le corps du texte
 - Le name-dropping d'outils sans justification
+- Les tirets longs (—) ou demi-tirets (–) : utilise des deux-points (:), des virgules ou des points à la place
 
 Réponds UNIQUEMENT avec le markdown du contenu, rien avant, rien après.`;
 
@@ -80,6 +81,7 @@ Avoid:
 - Unverifiable quantified promises ("10x your productivity")
 - Emojis in body text
 - Tool name-dropping without justification
+- Em-dashes (—) or en-dashes (–): use colons (:), commas, or full stops instead
 
 Respond ONLY with the markdown content, nothing before, nothing after.`;
 
@@ -132,8 +134,14 @@ export async function generateBlogContent(input: BlogGenerationInput): Promise<B
 
   if (!text) throw new Error('AI returned empty content');
 
-  // If description is missing, generate one from the first paragraph
-  const description = input.description ?? text.split('\n').find((l) => l.trim())?.slice(0, 180).trim() ?? input.title;
+  // Strip em-dashes and en-dashes — replace with colon or comma depending on context
+  const cleaned = text
+    .replace(/ \u2014 /g, ': ')   // " — " → ": "
+    .replace(/\u2014/g, ', ')     // bare em-dash → ", "
+    .replace(/ \u2013 /g, ': ')   // " – " → ": "
+    .replace(/\u2013/g, ', ')     // bare en-dash → ", "
+    .trim();
+  const description = input.description ?? cleaned.split('\n').find((l) => l.trim())?.slice(0, 180).trim() ?? input.title;
 
-  return { content: text, description };
+  return { content: cleaned, description };
 }

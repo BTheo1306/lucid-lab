@@ -31,7 +31,7 @@ export function PostHeader({ post }: { post: Post }) {
       >
         {categoryTitle}
       </Link>
-      <h1 className="mb-4 text-[36px] font-semibold leading-[1.1] tracking-[-0.02em] text-zinc-900 sm:text-[44px]">
+      <h1 className="mb-4 text-[36px] font-bold leading-[1.1] tracking-[-0.03em] text-zinc-900 sm:text-[44px]">
         {frontmatter.title}
       </h1>
       <p className="mb-6 text-[17px] leading-[1.55] text-zinc-600">

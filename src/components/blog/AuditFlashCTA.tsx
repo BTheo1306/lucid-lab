@@ -26,7 +26,7 @@ const COPY = {
     blockBullet2: "→ Vous repartez avec une estimation claire (faisabilité, coût, délai).",
     blockBullet3: "→ Pas de slide, pas de relance commerciale lourde.",
     blockCta: "Réserver l'Audit Flash gratuit",
-    ceoLine: "Théo, CTO — France & Belgique",
+    ceoLine: "Théo, CTO · France & Belgique",
     ceoAlt: "Théo, CTO de Lucid-Lab",
   },
   en: {
@@ -41,7 +41,7 @@ const COPY = {
     blockBullet2: "→ You leave with a clear estimate (feasibility, cost, timeline).",
     blockBullet3: "→ No slides, no heavy sales follow-up.",
     blockCta: "Book the free Audit Flash",
-    ceoLine: "Théo, CTO — France & Belgium",
+    ceoLine: "Théo, CTO · France & Belgium",
     ceoAlt: "Théo, CTO of Lucid-Lab",
   },
 };

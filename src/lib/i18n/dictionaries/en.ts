@@ -127,12 +127,12 @@ export const en: typeof fr = {
       {
         num: '02',
         title: 'Execution Roadmap.',
-        desc: 'The audit. Process fully mapped, target architecture (Tool A + Tool B + AI), costed cost/benefit, and a clear, defined Roadmap. An actionable blueprint — not a PowerPoint, not promises, a real lever for action.',
+        desc: 'The audit. Process fully mapped, target architecture (Tool A + Tool B + AI), costed cost/benefit, and a clear, defined Roadmap. Not a PowerPoint, not promises: a real lever for action.',
       },
       {
         num: '03',
         title: 'Build & Run.',
-        desc: 'We code, integrate, and deploy. AI agents, n8n workflows, APIs, scrapers. Production rollout on your infrastructure with regular monitoring to track operational impact alongside you and your teams. Coaching, training, knowledge transfer — we are present at every step of your transition.',
+        desc: 'We code, integrate, and deploy. AI agents, n8n workflows, APIs, scrapers. Production rollout on your infrastructure with regular monitoring. Coaching, training, knowledge transfer: we are present at every step of your transition.',
       },
       {
         num: '04',
@@ -148,11 +148,11 @@ export const en: typeof fr = {
     items: [
       {
         q: 'What exactly is a Full-Stack Transformation Engine?',
-        a: 'A single value chain covering the three links of transformation: Operational Strategy (Process Mapping, Execution Roadmap), Software Dev (APIs, scrapers, integrations), and AI Engineering (autonomous agents, n8n workflows, data pipelines). We solve your bottlenecks through a precise architecture to guarantee a measurable result — not three prompts and a PowerPoint.',
+        a: 'A single value chain covering the three links of transformation: Operational Strategy (Process Mapping, Execution Roadmap), Software Dev (APIs, scrapers, integrations), and AI Engineering (autonomous agents, n8n workflows, data pipelines). We solve your bottlenecks through a precise architecture to guarantee a measurable result. Not three prompts and a PowerPoint.',
       },
       {
         q: "How are you different from a consulting firm or a no-code shop?",
-        a: "We don't advise — we build. We are Operational Strategists: we take the chaos, map it, and deliver autonomous systems in production on your infrastructure. Code, workflows and docs are 100\u00a0% yours. No lock-in.",
+        a: "We don't advise. We build. We are Operational Strategists: we take the chaos, map it, and deliver autonomous systems in production on your infrastructure. Code, workflows and docs are 100\u00a0% yours. No lock-in.",
       },
       {
         q: 'What kind of companies do you work with?',
@@ -202,8 +202,8 @@ export const en: typeof fr = {
     contactEmail: 'info@lucid-lab.fr',
     copyright: '© 2026 Lucid-Lab. All rights reserved.',
     legalLinks: [
-      { label: 'Legal notice', href: '/legal-notice' },
-      { label: 'Privacy', href: '/privacy' },
+      { label: 'Legal notice', href: '/en/legal-notice' },
+      { label: 'Privacy', href: '/en/privacy' },
     ],
     location: 'Paris, France 🇫🇷',
   },
@@ -230,7 +230,7 @@ export const en: typeof fr = {
     aiCustom: 'Custom AI',
     chatbots: {
       title: 'Automated chatbots',
-      desc: 'WhatsApp Business, Messenger, web chat — your customers get instant answers 24/7 without human intervention.',
+      desc: 'WhatsApp Business, Messenger, web chat. Your customers get instant answers 24/7 without human intervention.',
     },
     roi: {
       title: 'Measurable ROI',
@@ -238,11 +238,11 @@ export const en: typeof fr = {
     },
     n8n: {
       title: 'n8n automation',
-      desc: 'Slack, CRM, ERP, e-commerce — we connect all your tools into intelligent workflows running continuously.',
+      desc: 'Slack, CRM, ERP, e-commerce: we connect all your tools into intelligent workflows running continuously.',
     },
     web: {
       title: 'Websites & landing pages',
-      desc: 'Conversion sites, funnels, landing pages with built-in AI — optimized to capture and qualify your prospects.',
+      desc: 'Conversion sites, funnels and landing pages with built-in AI, optimized to capture and qualify your prospects.',
     },
   },
   bento: {

@@ -33,7 +33,7 @@ export default async function BlogIndex() {
           Blog Lucid-Lab
         </p>
         <h1
-          className="mb-4 text-[40px] font-semibold leading-[1.05] tracking-tight text-zinc-900 sm:text-[56px]"
+          className="mb-4 text-[40px] font-bold leading-[1.05] tracking-[-0.03em] text-zinc-900 sm:text-[56px]"
         >
           Ce qu&apos;on apprend en construisant.
         </h1>
@@ -70,7 +70,7 @@ export default async function BlogIndex() {
                 {CATEGORIES[featured.frontmatter.category as PostCategory].title}
                 {featured.frontmatter.isPillar ? " · Guide pillar" : ""}
               </p>
-              <h2 className="mb-3 text-[28px] font-semibold leading-[1.1] tracking-[-0.02em] text-zinc-900 sm:text-[36px]">
+              <h2 className="mb-3 text-[28px] font-bold leading-[1.1] tracking-[-0.03em] text-zinc-900 sm:text-[36px]">
                 {featured.frontmatter.title}
               </h2>
               <p className="mb-4 text-[15px] leading-[1.6] text-zinc-600 sm:text-[16px]">
@@ -93,7 +93,7 @@ export default async function BlogIndex() {
                   <p className="mb-2 text-[11px] uppercase tracking-wider text-zinc-500">
                     {CATEGORIES[p.frontmatter.category as PostCategory].title}
                   </p>
-                  <h3 className="mb-2 text-[20px] font-semibold leading-snug text-zinc-900 group-hover:text-black">
+                  <h3 className="mb-2 text-[20px] font-bold leading-snug tracking-[-0.02em] text-zinc-900 group-hover:text-black">
                     {p.frontmatter.title}
                   </h3>
                   <p className="mb-3 line-clamp-2 text-[14px] leading-[1.55] text-zinc-600">

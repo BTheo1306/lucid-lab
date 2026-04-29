@@ -22,20 +22,27 @@ export async function POST(req: Request) {
   const ip = getClientIp(req);
   const ipHash = hashIp(ip);
 
-  const rate = await checkRateLimit(`ip:${ipHash}:session`, {
-    limit: 20,
-    windowSec: 3600,
-    ipHash,
-  });
-  if (!rate.allowed) {
-    return NextResponse.json({ error: 'Too many sessions' }, { status: 429, headers: corsHeaders(origin) });
-  }
-
   let body: { session_id?: string; turnstile_token?: string; language?: string } = {};
   try {
     body = await req.json();
   } catch {
     // empty body allowed
+  }
+
+  // Rate-limit only NEW session creation, not resumptions.
+  // A resumption is when session_id is provided and the contact exists in DB.
+  let contact = body.session_id ? await findContactBySessionId(body.session_id) : null;
+  const isResumption = !!contact;
+
+  if (!isResumption) {
+    const rate = await checkRateLimit(`ip:${ipHash}:session`, {
+      limit: 20,
+      windowSec: 3600,
+      ipHash,
+    });
+    if (!rate.allowed) {
+      return NextResponse.json({ error: 'Too many sessions' }, { status: 429, headers: corsHeaders(origin) });
+    }
   }
 
   const ok = await verifyTurnstile(body.turnstile_token ?? null, ip);
@@ -44,7 +51,6 @@ export async function POST(req: Request) {
   }
 
   let sessionId = body.session_id;
-  let contact = sessionId ? await findContactBySessionId(sessionId) : null;
 
   if (!contact) {
     sessionId = randomUUID();

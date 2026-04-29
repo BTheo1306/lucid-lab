@@ -213,7 +213,7 @@ export const fr = {
     aiCustom: 'IA sur-mesure',
     chatbots: {
       title: 'Chatbots automatisés',
-      desc: "WhatsApp Business, Messenger, chat web — vos clients reçoivent des réponses instantanées 24/7 sans intervention humaine.",
+      desc: "WhatsApp Business, Messenger, chat web. Vos clients reçoivent des réponses instantanées 24/7 sans intervention humaine.",
     },
     roi: {
       title: 'ROI mesurable',
@@ -221,11 +221,11 @@ export const fr = {
     },
     n8n: {
       title: 'Automatisation n8n',
-      desc: 'Slack, CRM, ERP, e-commerce — on connecte tous vos outils dans des workflows intelligents qui tournent en continu.',
+      desc: 'Slack, CRM, ERP, e-commerce : on connecte tous vos outils dans des workflows intelligents qui tournent en continu.',
     },
     web: {
       title: 'Sites web & landing pages',
-      desc: "Sites de conversion, funnels, landing pages avec IA intégrée — optimisés pour capturer et qualifier vos prospects.",
+      desc: "Sites de conversion, funnels et landing pages avec IA intégrée, optimisés pour capturer et qualifier vos prospects.",
     },
   },
   bento: {
@@ -331,7 +331,7 @@ export const fr = {
       bullet2: 'Vous repartez avec une estimation claire (faisabilité, coût, délai).',
       bullet3: 'Pas de slide, pas de relance commerciale lourde.',
       blockButton: "Réserver l'Audit Flash gratuit",
-      tagline: 'Anthony, CEO — France & Belgique',
+      tagline: 'Théo, CTO · France & Belgique',
     },
     readingMeta: 'Mis à jour le',
     byline: 'Anthony · CEO Lucid-Lab',
