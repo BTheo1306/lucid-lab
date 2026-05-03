@@ -2,6 +2,7 @@ import 'server-only';
 
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from '@/lib/bot/config';
+import { getAllPosts } from '@/lib/blog/posts';
 
 export interface BlogGenerationInput {
   title: string;
@@ -50,6 +51,11 @@ Format obligatoire (markdown) :
 - Conclusion courte qui résume + un CTA implicite vers l'Audit Flash gratuit (sans le nommer ainsi de manière forcée)
 - Mentions de cas concrets de Lucid-Lab quand c'est naturel (Universal pour la lead gen, Turismo pour le scaling, Périscope pour le monitoring)
 
+Liens internes :
+- Si une liste d'articles existants t'est fournie, intègre 2 à 4 liens internes là où c'est naturellement pertinent
+- Syntaxe : [texte anchor](/blog/slug) — jamais le titre exact comme anchor, mais une formulation naturelle dans la prose
+- Ne force pas les liens, intègre-les dans des phrases qui ont déjà un sens sans eux
+
 À éviter absolument :
 - Le ton "guide ultime" ou listicle pompeux
 - Les promesses chiffrées non vérifiables ("multipliez par 10 votre productivité")
@@ -76,6 +82,11 @@ Required format (markdown):
 - Short conclusion summarising + an implicit CTA towards the free Audit Flash
 - Mention concrete Lucid-Lab cases when natural (Universal for lead gen, Turismo for scaling, Périscope for monitoring)
 
+Internal links:
+- If a list of existing posts is provided, weave in 2-4 internal links where naturally relevant
+- Syntax: [anchor text](/en/blog/slug) — never use the exact post title as anchor; write natural prose instead
+- Don't force links; they should make sense even without the hyperlink
+
 Avoid:
 - "Ultimate guide" tone or pompous listicles
 - Unverifiable quantified promises ("10x your productivity")
@@ -85,7 +96,14 @@ Avoid:
 
 Respond ONLY with the markdown content, nothing before, nothing after.`;
 
-function buildUserPrompt(input: BlogGenerationInput): string {
+interface ExistingPost {
+  slug: string;
+  title: string;
+  description: string;
+  category: string;
+}
+
+function buildUserPrompt(input: BlogGenerationInput, existingPosts: ExistingPost[]): string {
   const lang = input.locale === 'fr' ? 'français' : 'anglais';
   const lines = [
     `Rédige un article de blog en ${lang}.`,
@@ -104,26 +122,65 @@ function buildUserPrompt(input: BlogGenerationInput): string {
   }
   if (input.isPillar) lines.push('Type : article PILIER (plus exhaustif, ~1800 mots, vise à devenir une référence sur le sujet)');
   if (input.notes) lines.push('', `Notes éditoriales : ${input.notes}`);
+
+  if (existingPosts.length > 0) {
+    const blogBase = input.locale === 'fr' ? '/blog' : '/en/blog';
+    lines.push('');
+    lines.push('Articles déjà publiés sur le blog (à lier si pertinent) :');
+    for (const p of existingPosts) {
+      lines.push(`- ${blogBase}/${p.slug} | "${p.title}" | ${p.category} | ${p.description}`);
+    }
+  }
+
   return lines.join('\n');
 }
 
 /**
+ * Fetch published posts for the same locale.
+ * Excludes the post currently being generated (matched by title).
+ * Capped at 20 to keep the prompt concise.
+ */
+async function getExistingPostsForLinking(
+  locale: 'fr' | 'en',
+  currentTitle: string,
+): Promise<ExistingPost[]> {
+  try {
+    const posts = await getAllPosts(locale);
+    return posts
+      .filter((p) => p.frontmatter.title.trim() !== currentTitle.trim())
+      .map((p) => ({
+        slug: p.slug,
+        title: p.frontmatter.title,
+        description: p.frontmatter.description,
+        category: p.frontmatter.category,
+      }))
+      .slice(0, 20);
+  } catch {
+    return [];
+  }
+}
+
+/**
  * Generate full markdown blog content from an idea row.
- * Uses Anthropic directly (separate from chat client) to allow higher max_tokens.
+ * Fetches existing published posts first so the AI can add internal links.
  */
 export async function generateBlogContent(input: BlogGenerationInput): Promise<BlogGenerationOutput> {
   if (!config.anthropicApiKey) {
     throw new Error('ANTHROPIC_API_KEY missing — cannot generate content');
   }
 
-  const client = new Anthropic({ apiKey: config.anthropicApiKey });
+  const [client, existingPosts] = await Promise.all([
+    Promise.resolve(new Anthropic({ apiKey: config.anthropicApiKey })),
+    getExistingPostsForLinking(input.locale, input.title),
+  ]);
+
   const systemPrompt = input.locale === 'fr' ? SYSTEM_PROMPT_FR : SYSTEM_PROMPT_EN;
 
   const response = await client.messages.create({
     model: config.aiModel,
     max_tokens: 8000,
     system: systemPrompt,
-    messages: [{ role: 'user', content: buildUserPrompt(input) }],
+    messages: [{ role: 'user', content: buildUserPrompt(input, existingPosts) }],
   });
 
   const text = response.content
