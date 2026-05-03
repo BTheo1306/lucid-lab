@@ -23,19 +23,19 @@ export function generateMetadata(): Metadata {
 
   const description = isEn
     ? "Lucid-Lab is the Full-Stack Transformation Engine that turns your operational chaos into autonomous systems running in production. Operational Strategy, Software Dev and AI Engineering for startups, SMEs and enterprise organizations. We don't advise. We build."
-    : "Lucid-Lab est la Full-Stack Transformation Engine qui prend votre chaos opérationnel et livre des systèmes autonomes en production. Stratégie Opérationnelle, Software Dev et IA Engineering pour startups, PMEs et paquebots industriels. On ne conseille pas, on construit.";
+    : "On conçoit et livre vos systèmes IA en production : lead gen automatisée, agents conversationnels, dashboards métier et plus. Diagnostic gratuit en 30 min.";
 
   const ogTitle = isEn
     ? "Lucid-Lab — We don't advise. We build."
-    : "Lucid-Lab — On ne conseille pas. On construit.";
+    : "Lucid-Lab — Agence IA sur-mesure : Agents, Automatisations & Web";
 
   const ogDescription = isEn
     ? "Full-Stack Transformation Engine. We take your operational chaos, map it, and ship autonomous systems to production. Free 30-min Audit Flash."
-    : "Full-Stack Transformation Engine. On prend votre chaos opérationnel, on le map, on livre des systèmes autonomes en production. Audit Flash gratuit en 30 min.";
+    : "On conçoit et livre vos systèmes IA en production : lead gen automatisée, agents conversationnels, dashboards métier et plus. Diagnostic gratuit en 30 min.";
 
   const twitterDescription = isEn
     ? "Full-Stack Transformation Engine. Strategy, Software & AI Engineering. From operational chaos to autonomous systems in production."
-    : "Full-Stack Transformation Engine. Stratégie, Software & IA Engineering. Du chaos opérationnel à des systèmes autonomes en production.";
+    : "Agence IA sur-mesure pour PMEs et ETIs. Agents IA, automatisations métier, apps web — livrés en production en 4 à 8 semaines.";
 
   const canonical = isEn ? "https://lucid-lab.fr/en" : "https://lucid-lab.fr";
 
@@ -43,7 +43,7 @@ export function generateMetadata(): Metadata {
     title: {
       default: isEn
         ? "Lucid-Lab — AI Agency & Full-Stack Transformation Engine"
-        : "Lucid-Lab — Agence IA & Full-Stack Transformation Engine",
+        : "Lucid-Lab — Agence IA sur-mesure : Agents, Automatisations & Web",
       template: "%s | Lucid-Lab",
     },
     description,
@@ -152,7 +152,7 @@ const metadataPlaceholder: Metadata = {
     template: "%s | Lucid-Lab",
   },
   description:
-    "Lucid-Lab est la Full-Stack Transformation Engine qui prend votre chaos opérationnel et livre des systèmes autonomes en production. Stratégie Opérationnelle, Software Dev et IA Engineering pour startups, PMEs et paquebots industriels. On ne conseille pas, on construit.",
+    "On conçoit et livre vos systèmes IA en production : lead gen automatisée, agents conversationnels, dashboards métier et plus. Diagnostic gratuit en 30 min.",
   metadataBase: new URL("https://lucid-lab.fr"),
   keywords: [
     "Operational Strategists",
