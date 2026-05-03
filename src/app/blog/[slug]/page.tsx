@@ -64,7 +64,13 @@ export default async function PostPage({ params }: RouteParams) {
             [&_strong]:text-zinc-900
             [&_blockquote]:my-6 [&_blockquote]:border-l-2 [&_blockquote]:border-zinc-300 [&_blockquote]:pl-4 [&_blockquote]:text-zinc-600 [&_blockquote]:italic
             [&_code]:rounded [&_code]:bg-zinc-100 [&_code]:px-1.5 [&_code]:py-0.5 [&_code]:text-[14px]
-            [&_pre]:my-6 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-zinc-900 [&_pre]:p-4 [&_pre]:text-[14px] [&_pre_code]:bg-transparent [&_pre_code]:text-zinc-100"
+            [&_pre]:my-6 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:bg-zinc-900 [&_pre]:p-4 [&_pre]:text-[14px] [&_pre_code]:bg-transparent [&_pre_code]:text-zinc-100
+            [&_table]:my-6 [&_table]:w-full [&_table]:border-collapse [&_table]:text-[15px]
+            [&_thead]:border-b [&_thead]:border-zinc-200
+            [&_th]:py-2.5 [&_th]:px-4 [&_th]:text-left [&_th]:text-[13px] [&_th]:font-semibold [&_th]:uppercase [&_th]:tracking-wide [&_th]:text-zinc-500
+            [&_td]:py-2.5 [&_td]:px-4 [&_td]:text-zinc-700 [&_td]:align-top
+            [&_tbody_tr]:border-b [&_tbody_tr]:border-zinc-100 [&_tbody_tr:last-child]:border-0
+            [&_tbody_tr:nth-child(even)]:bg-zinc-50"
         >
           <MDXRemote
             source={post.content}
