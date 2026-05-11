@@ -47,7 +47,7 @@ Format obligatoire (markdown) :
 - Hook d'introduction en 2-3 phrases qui pose le problème concret
 - Structure claire avec H2 et H3
 - Listes à puces, exemples chiffrés, mini-tableaux quand pertinent
-- Tableaux : utilise la syntaxe GFM standard avec séparateurs `|` et ligne de séparation `|---|---|` — chaque colonne doit avoir un en-tête, aligne bien les pipes, 3 colonnes maximum pour rester lisible sur mobile
+- Tableaux : utilise la syntaxe GFM standard avec séparateurs \`|\` et ligne de séparation \`|---|---|\` — chaque colonne doit avoir un en-tête, aligne bien les pipes, 3 colonnes maximum pour rester lisible sur mobile
 - 1200 à 1800 mots
 - Conclusion courte qui résume + un CTA implicite vers l'Audit Flash gratuit (sans le nommer ainsi de manière forcée)
 - Mentions de cas concrets de Lucid-Lab quand c'est naturel (Universal pour la lead gen, Turismo pour le scaling, Périscope pour le monitoring)
@@ -79,7 +79,7 @@ Required format (markdown):
 - 2-3 sentence hook intro that frames the concrete problem
 - Clear structure with H2 / H3
 - Bullet lists, quantified examples, small tables when relevant
-- Tables: use standard GFM pipe syntax with a separator row `|---|---|` — every column must have a header, align pipes properly, max 3 columns to stay readable on mobile
+- Tables: use standard GFM pipe syntax with a separator row \`|---|---|\` — every column must have a header, align pipes properly, max 3 columns to stay readable on mobile
 - 1200-1800 words
 - Short conclusion summarising + an implicit CTA towards the free Audit Flash
 - Mention concrete Lucid-Lab cases when natural (Universal for lead gen, Turismo for scaling, Périscope for monitoring)

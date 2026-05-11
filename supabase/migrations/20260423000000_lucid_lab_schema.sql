@@ -124,6 +124,9 @@ CREATE TABLE daily_ai_budget (
 -- INDEXES
 -- =============================================
 
+-- Required for trigram indexes
+CREATE EXTENSION IF NOT EXISTS pg_trgm;
+
 CREATE INDEX idx_contacts_session_id ON contacts(session_id);
 CREATE INDEX idx_contacts_email ON contacts(email) WHERE email IS NOT NULL;
 CREATE INDEX idx_conversations_contact ON conversations(contact_id, started_at DESC);
@@ -137,9 +140,6 @@ CREATE INDEX idx_kb_content_trgm ON ai_knowledge_base USING gin (content gin_trg
 CREATE INDEX idx_rate_limit_lookup ON rate_limit_buckets(bucket_key, window_start DESC);
 CREATE INDEX idx_tidycal_contact ON tidycal_bookings(contact_id);
 CREATE INDEX idx_audit_event_date ON security_audit_log(event_type, created_at);
-
--- Required for trigram indexes
-CREATE EXTENSION IF NOT EXISTS pg_trgm;
 
 -- =============================================
 -- TRIGGERS
@@ -168,7 +168,7 @@ BEGIN
   NEW.updated_at = now();
   RETURN NEW;
 END;
-$$ LANGUAGE plpgsql;
+$$ LANGUAGE plpgsql SET search_path = '';
 
 CREATE TRIGGER contacts_updated_at
   BEFORE UPDATE ON contacts

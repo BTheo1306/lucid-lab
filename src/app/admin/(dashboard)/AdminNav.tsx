@@ -2,11 +2,12 @@
 
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { BarChart3, CalendarClock, FileText, MessageSquare, Search, Users } from 'lucide-react';
+import { BarChart3, CalendarClock, FileText, Globe2, MessageSquare, Search, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 const navItems = [
   { href: '/admin', label: 'Overview', icon: BarChart3, exact: true },
+  { href: '/admin/lucid-os', label: 'Lucid OS', icon: Globe2 },
   { href: '/admin/lead-engine', label: 'Lead Engine', icon: Search },
   { href: '/admin/leads', label: 'Leads', icon: Users },
   { href: '/admin/conversations', label: 'Conversations', icon: MessageSquare },

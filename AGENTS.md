@@ -113,6 +113,18 @@ Agents should communicate through shared state, events, artifacts, tasks, handof
 - Ingest selected Obsidian/Markdown knowledge into Supabase as indexed documents/chunks with metadata, permissions, and freshness tracking.
 - Do not dump the entire company brain into every prompt. Build scoped context packs based on client, project, task, permissions, and recency.
 
+## Significant Work Knowledge Update Protocol
+
+Every agent must update durable knowledge after significant work. Significant work includes architecture decisions, schema changes, new agents or workflows, client delivery patterns, provider/infrastructure changes, incidents and root-cause learnings, production runbooks, major business decisions, and changes to approval/security/audit behavior.
+
+When significant work changes human business knowledge, update Obsidian. Follow the vault rules exactly: read `~/Documents/Vault /Vault/index.md` first, read `~/Documents/Vault /Vault/CLAUDE.md` before writing, only touch `#business` and `#shared` pages unless explicitly asked otherwise, never modify `raw/`, cite source pages, update `index.md`, and append to `log.md` after every write.
+
+When significant work changes agent-retrievable operational knowledge, update Supabase `knowledge_documents` and `knowledge_chunks` with organization/client/project scope, source links, freshness metadata, concise summaries, and retrieval-ready chunks. Do not store secrets or raw sensitive client data.
+
+Every significant knowledge update should create an `audit_events` record. If the update depends on publishing, outreach, CRM edits, DNS, deployments, production data mutation, or payments, create an `agent_approvals` record before execution.
+
+Keep knowledge updates concise. Store decisions, constraints, source links, and next actions, not full transcripts or giant prompt dumps.
+
 ## AI Agent Rules
 
 - Prefer Vercel AI SDK for straightforward tool-calling agents in this TypeScript/Next.js codebase.

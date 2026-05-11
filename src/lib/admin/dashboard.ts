@@ -342,7 +342,8 @@ export async function getAdminDashboardData(): Promise<AdminDashboardData> {
       .limit(12)),
     selectRows<unknown>(supabase
       .from('conversations')
-      .select('id, contact_id, status, escalation_reason, started_at, last_message_at, escalated_at, closed_at, contact:contacts(id, email, first_name, last_name, company, source, language, marketing_consent, created_at)')
+      .select('id, contact_id, status, escalation_reason, started_at, last_message_at, escalated_at, closed_at, contact:contacts(id, email, first_name, last_name, company, source, language, marketing_consent, created_at), messages!inner(direction)')
+      .eq('messages.direction', 'inbound')
       .order('last_message_at', { ascending: false })
       .limit(10)),
     selectRows<unknown>(supabase
@@ -454,7 +455,8 @@ export async function getAdminLeadsPageData(): Promise<AdminLeadsPageData> {
 export async function getAdminConversationsPageData(): Promise<AdminConversationsPageData> {
   const rows = await selectRows<unknown>(supabase
     .from('conversations')
-    .select('id, contact_id, status, escalation_reason, started_at, last_message_at, escalated_at, closed_at, contact:contacts(id, email, first_name, last_name, company, source, language, marketing_consent, created_at)')
+    .select('id, contact_id, status, escalation_reason, started_at, last_message_at, escalated_at, closed_at, contact:contacts(id, email, first_name, last_name, company, source, language, marketing_consent, created_at), messages!inner(direction)')
+    .eq('messages.direction', 'inbound')
     .order('last_message_at', { ascending: false })
     .limit(100));
 

@@ -44,6 +44,8 @@ export interface PostFrontmatter {
   draft?: boolean;
   /** Locale of the post. Defaults to 'fr'. */
   locale?: PostLocale;
+  /** Slug of the translated version of the post. */
+  translationSlug?: string;
 }
 
 export interface Post {
