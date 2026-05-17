@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Proposition valant bon de commande et contrat</title>
+    <style>
+      @page { size: A4; margin: 22mm 16mm 18mm 16mm; }
+      body { font-family: Helvetica, Arial, sans-serif; color: #111111; font-size: 11pt; line-height: 1.45; margin: 0; }
+      h1 { font-size: 23pt; margin: 0 0 8px 0; letter-spacing: -0.02em; }
+      h2 { font-size: 17pt; margin: 24px 0 8px 0; letter-spacing: -0.015em; }
+      h3 { font-size: 13pt; margin: 0 0 6px 0; }
+      p { margin: 0 0 8px 0; }
+      .muted { color: #5e5e66; }
+      .label { font-weight: 700; }
+      .line { border-bottom: 1px solid #8e8e98; min-height: 26px; }
+      .line-field { width: 100%; min-height: 20px; display: inline-block; }
+      .box { border: 1px solid #d4d6db; border-radius: 10px; padding: 12px; margin-top: 6px; }
+      .box-field { width: 100%; min-height: 86px; display: inline-block; }
+      .box-field.large { min-height: 124px; }
+      .section { margin-top: 14px; }
+      .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+      .checks { margin-top: 8px; }
+      .check-row { margin: 6px 0; font-size: 12pt; }
+      .mark { display: inline-block; width: 20px; text-align: center; font-weight: 700; }
+      .signature-block { border-top: 1px solid #d4d6db; margin-top: 24px; padding-top: 14px; }
+      .signature-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+      .sig-area { border: 1px solid #d4d6db; border-radius: 10px; min-height: 90px; padding: 8px; margin-top: 8px; }
+      .sig-field { width: 100%; min-height: 70px; display: inline-block; }
+      .manual-field { width: 100%; min-height: 40px; display: inline-block; margin-top: 6px; }
+      .page-break { page-break-before: always; }
+    </style>
+  </head>
+  <body>
+    <h1>Proposition commerciale valant Bon de commande</h1>
+    <p class="muted">Document contractuel genere pour signature electronique via DocuSeal</p>
+
+    <div class="section">
+      <p><span class="label">Reference :</span> <text-field name="Document Number" role="Client" readonly="true" style="width: 210px; height: 20px; display: inline-block;"></text-field>
+      <span class="label" style="margin-left: 14px;">Date d'emission :</span> <text-field name="Issued Date" role="Client" readonly="true" style="width: 130px; height: 20px; display: inline-block;"></text-field></p>
+      <p><span class="label">Client :</span> <text-field name="Client Name" role="Client" readonly="true" style="width: 390px; height: 20px; display: inline-block;"></text-field></p>
+      <p><span class="label">Signataire :</span> <text-field name="Signer Name" role="Client" readonly="true" style="width: 240px; height: 20px; display: inline-block;"></text-field>
+      <span class="label" style="margin-left: 14px;">Email :</span> <text-field name="Signer Email" role="Client" readonly="true" style="width: 220px; height: 20px; display: inline-block;"></text-field></p>
+    </div>
+
+    <div class="section">
+      <h2>Objet et perimetre de la prestation</h2>
+      <p><span class="label">Intitule :</span></p>
+      <div class="line"><text-field name="Opportunity Title" role="Client" readonly="true" style="width: 100%; height: 20px; display: inline-block;" class="line-field"></text-field></div>
+
+      <p style="margin-top: 10px;"><span class="label">Description synthetique :</span></p>
+      <div class="box"><text-field name="Synthetic Description" role="Client" readonly="true" valign="top" style="width: 100%; height: 96px; display: inline-block;" class="box-field"></text-field></div>
+
+      <p style="margin-top: 10px;"><span class="label">Livrables attendus :</span></p>
+      <div class="box"><text-field name="Deliverables" role="Client" readonly="true" valign="top" style="width: 100%; height: 116px; display: inline-block;" class="box-field large"></text-field></div>
+
+      <p style="margin-top: 10px;"><span class="label">Calendrier</span></p>
+      <div class="box"><text-field name="Calendar Timeline" role="Client" readonly="true" valign="top" style="width: 100%; height: 96px; display: inline-block;" class="box-field"></text-field></div>
+
+      <p style="margin-top: 10px;"><span class="label">Prochaines etapes</span></p>
+      <div class="box"><text-field name="Next Steps" role="Client" readonly="true" valign="top" style="width: 100%; height: 96px; display: inline-block;" class="box-field"></text-field></div>
+    </div>
+
+    <div class="section page-break">
+      <h2>Conditions financieres</h2>
+      <p><span class="label">Montant HT :</span> <text-field name="Amount HT EUR" role="Client" readonly="true" style="width: 140px; height: 20px; display: inline-block;"></text-field></p>
+      <p><span class="label">TVA :</span> <text-field name="VAT Rate" role="Client" readonly="true" style="width: 80px; height: 20px; display: inline-block;"></text-field>
+      <span class="label" style="margin-left: 10px;">Montant TVA :</span> <text-field name="VAT Amount EUR" role="Client" readonly="true" style="width: 120px; height: 20px; display: inline-block;"></text-field></p>
+      <p><span class="label">Montant TTC :</span> <text-field name="Amount TTC EUR" role="Client" readonly="true" style="width: 140px; height: 20px; display: inline-block;"></text-field></p>
+      <p><span class="label">Setup :</span> <text-field name="Setup Amount EUR" role="Client" readonly="true" style="width: 120px; height: 20px; display: inline-block;"></text-field>
+      <span class="label" style="margin-left: 10px;">Mensuel :</span> <text-field name="Monthly Amount EUR" role="Client" readonly="true" style="width: 120px; height: 20px; display: inline-block;"></text-field></p>
+
+      <div class="checks">
+        <div class="check-row"><span class="label">Modalite retenue :</span></div>
+        <div class="check-row"><span class="mark"><text-field name="Billing One-Shot Mark" role="Client" readonly="true" style="width: 20px; height: 18px; display: inline-block;"></text-field></span> One-shot</div>
+        <div class="check-row"><span class="mark"><text-field name="Billing Mensuel Mark" role="Client" readonly="true" style="width: 20px; height: 18px; display: inline-block;"></text-field></span> Mensuel 12 mois</div>
+      </div>
+
+      <p style="margin-top: 14px;"><span class="label">Mention manuscrite obligatoire :</span></p>
+      <p class="muted">"Lu et approuve - Bon pour accord et commande ferme - Prix : [Total TTC] - Modalite : [one-shot / mensuel 12 mois]"</p>
+      <text-field name="Mention manuscrite" role="Client" required="true" style="width: 100%; height: 42px; display: inline-block; border: 1px solid #d4d6db; border-radius: 8px;" class="manual-field"></text-field>
+
+      <div class="signature-block">
+        <h2>Signature</h2>
+        <div class="signature-grid">
+          <div>
+            <p><span class="label">Lieu :</span> <text-field name="Client Signing Place" role="Client" required="true" style="width: 220px; height: 20px; display: inline-block;"></text-field></p>
+            <p><span class="label">Date :</span> <date-field name="Signed Date" role="Client" required="true" format="DD/MM/YYYY" style="width: 140px; height: 20px; display: inline-block;"></date-field></p>
+            <p class="label" style="margin-top: 8px;">Signature client</p>
+            <div class="sig-area"><signature-field name="Client Signature" role="Client" required="true" style="width: 100%; height: 72px; display: inline-block;" class="sig-field"></signature-field></div>
+          </div>
+          <div>
+            <p><span class="label">Representant Lucid-Lab :</span> <text-field name="Lucid-Lab Signature" role="Client" readonly="true" style="width: 230px; height: 20px; display: inline-block;"></text-field></p>
+            <p><span class="label">Date :</span> <text-field name="Contract Signed Date" role="Client" readonly="true" style="width: 140px; height: 20px; display: inline-block;"></text-field></p>
+            <p class="label" style="margin-top: 8px;">Signature prestataire</p>
+            <div class="sig-area"><text-field name="Lucid-Lab Signature" role="Client" readonly="true" style="width: 100%; height: 72px; display: inline-block;" class="sig-field"></text-field></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

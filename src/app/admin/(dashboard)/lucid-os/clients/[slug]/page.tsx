@@ -805,10 +805,20 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
                 {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}{contact.email ? ` - ${contact.email}` : ''}</option>)}
               </select>
             </label>
+            <label className="grid gap-2 text-sm font-medium text-zinc-700">
+              Modalité de paiement
+              <select name="billing_mode" defaultValue="auto" className={inputClassName}>
+                <option value="auto">Auto (mensuel si montant mensuel &gt; 0, sinon one-shot)</option>
+                <option value="one_shot">One-shot</option>
+                <option value="mensuel">Mensuel (12 mois)</option>
+              </select>
+            </label>
             {textInput('Google Drive folder id', 'google_drive_folder_id', 'Optional: folder id for this client')}
             {textareaInput('Périmètre de la prestation', 'scope_perimeter', 'Ex: Agent IA de qualification des réservations, automatisation des avis Google...', 4)}
             {textareaInput('Description synthétique', 'synthetic_description', 'Décrivez le contexte, les objectifs et le fonctionnement prévu...', 5)}
             {textareaInput('Livrables attendus', 'deliverables', 'Ex: Agent opérationnel, formation équipe, documentation technique...', 4)}
+            {textareaInput('Calendrier', 'calendar_timeline', 'Ex: Semaine 1..., Semaines 2-3..., Semaine 4...', 4)}
+            {textareaInput('Prochaines étapes', 'next_steps', 'Ex: Confirmer les accès, valider le compte Meta Ads, signer le BDC...', 4)}
             {textareaInput('Internal notes', 'document_notes', 'Special payment terms, assumptions, or review notes...', 3)}
             <div className="flex justify-end"><ActionButton icon={FileText}>Create draft</ActionButton></div>
           </form>

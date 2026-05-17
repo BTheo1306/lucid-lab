@@ -277,6 +277,9 @@ export async function createBonDeCommandeDraftAction(formData: FormData): Promis
     scopePerimeter: formString(formData, 'scope_perimeter') || null,
     syntheticDescription: formString(formData, 'synthetic_description') || null,
     deliverables: formString(formData, 'deliverables') || null,
+    calendarTimeline: formString(formData, 'calendar_timeline') || null,
+    nextSteps: formString(formData, 'next_steps') || null,
+    billingMode: (formString(formData, 'billing_mode') as 'one_shot' | 'mensuel' | 'auto' | null) || 'auto',
     notes: formString(formData, 'document_notes') || null,
   });
 

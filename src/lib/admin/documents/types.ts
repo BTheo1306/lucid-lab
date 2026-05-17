@@ -90,6 +90,9 @@ export interface CreateBonDeCommandeDraftInput {
   scopePerimeter?: string | null;
   syntheticDescription?: string | null;
   deliverables?: string | null;
+  calendarTimeline?: string | null;
+  nextSteps?: string | null;
+  billingMode?: 'one_shot' | 'mensuel' | 'auto' | null;
   notes?: string | null;
 }
 

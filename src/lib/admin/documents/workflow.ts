@@ -149,6 +149,23 @@ const DEFAULT_BON_DE_COMMANDE_DELIVERABLES = [
   'Tests, mise en production, documentation de passation et ajustements prevus au perimetre.',
 ].join('\n');
 
+const DEFAULT_BON_DE_COMMANDE_CALENDAR = [
+  'Semaine 1 : cadrage, acces, audit initial.',
+  'Semaines 2-3 : implementation, automatisations et validation intermediaire.',
+  'Semaine 4 : finalisation, transfert et mise en production.',
+].join('\n');
+
+const DEFAULT_BON_DE_COMMANDE_NEXT_STEPS = [
+  'Confirmer les acces necessaires (Drive, emails, outils).',
+  'Valider la modalite de paiement et le demarrage.',
+  'Signer le Bon de Commande et proceder au premier paiement.',
+].join('\n');
+
+function resolveBillingMode(inputMode: string | null, monthlyAmountEur: number | null | undefined): 'one_shot' | 'mensuel' {
+  if (inputMode === 'one_shot' || inputMode === 'mensuel') return inputMode;
+  return (typeof monthlyAmountEur === 'number' && monthlyAmountEur > 0) ? 'mensuel' : 'one_shot';
+}
+
 function buildBonDeCommandeFieldValues(document: UnknownRecord, recipient: UnknownRecord, generationPayload: UnknownRecord): Record<string, string> {
   const client = asRecord(generationPayload.client) ?? {};
   const opportunity = asRecord(generationPayload.opportunity) ?? {};
@@ -161,6 +178,9 @@ function buildBonDeCommandeFieldValues(document: UnknownRecord, recipient: Unkno
     ?? asString(payloadDocument.notes)
     ?? asString(opportunity.notes);
   const deliverables = asString(document.deliverables) ?? asString(payloadDocument.deliverables) ?? DEFAULT_BON_DE_COMMANDE_DELIVERABLES;
+  const calendarTimeline = asString(payloadDocument.calendar_timeline) ?? DEFAULT_BON_DE_COMMANDE_CALENDAR;
+  const nextSteps = asString(payloadDocument.next_steps) ?? DEFAULT_BON_DE_COMMANDE_NEXT_STEPS;
+  const billingMode = resolveBillingMode(asString(payloadDocument.billing_mode), asNumber(document.monthly_amount_eur) ?? asNumber(opportunity.monthly_value_eur));
 
   return compactFieldValues({
     'Document Number': asString(document.document_number) ?? asString(payloadDocument.number),
@@ -173,6 +193,11 @@ function buildBonDeCommandeFieldValues(document: UnknownRecord, recipient: Unkno
     'Scope Perimeter': scopePerimeter,
     'Synthetic Description': syntheticDescription,
     'Deliverables': deliverables,
+    'Calendar Timeline': calendarTimeline,
+    'Next Steps': nextSteps,
+    'Billing One-Shot Mark': billingMode === 'one_shot' ? '☑' : '☐',
+    'Billing Mensuel Mark': billingMode === 'mensuel' ? '☑' : '☐',
+    'Billing Mode Label': billingMode === 'mensuel' ? 'mensuel 12 mois' : 'one-shot',
     'Setup Amount EUR': formatEuro(asNumber(document.setup_amount_eur) ?? asNumber(opportunity.setup_value_eur)),
     'Monthly Amount EUR': formatEuro(asNumber(document.monthly_amount_eur) ?? asNumber(opportunity.monthly_value_eur)),
     'Amount HT EUR': formatEuro(asNumber(document.amount_ht_eur) ?? asNumber(payloadDocument.amount_ht_eur)),
@@ -338,6 +363,9 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
   const scopePerimeter = asString(input.scopePerimeter);
   const syntheticDescription = asString(input.syntheticDescription);
   const deliverables = asString(input.deliverables);
+  const calendarTimeline = asString(input.calendarTimeline);
+  const nextSteps = asString(input.nextSteps);
+  const billingMode = resolveBillingMode(asString(input.billingMode), monthlyAmountEur);
   const generationPayload = {
     client: {
       id: input.clientId,
@@ -370,6 +398,9 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
       scope_perimeter: scopePerimeter,
       synthetic_description: syntheticDescription,
       deliverables,
+      calendar_timeline: calendarTimeline,
+      next_steps: nextSteps,
+      billing_mode: billingMode,
       notes: asString(input.notes),
     },
   };
@@ -385,8 +416,8 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
       status,
       title,
       document_number: documentNumber,
-      template_key: 'lucid_lab_bdc_contract_docuseal_pdf',
-      template_version: '2026-05-17-bdc-contract-v3',
+      template_key: 'lucid_lab_bdc_contract_docuseal_html',
+      template_version: '2026-05-17-bdc-contract-v4-html',
       amount_ht_eur: amountHtEur,
       setup_amount_eur: setupAmountEur,
       monthly_amount_eur: monthlyAmountEur,
