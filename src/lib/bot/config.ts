@@ -1,11 +1,18 @@
 /**
  * Lucid-Lab chat bot configuration.
  * Reads from process.env at module load time. Throws if required vars missing.
+ *
+ * During the Next.js static-generation build phase (NEXT_PHASE=phase-production-build),
+ * runtime secrets (SUPABASE_*, SMTP_*, …) are not injected by Vercel.
+ * We return an empty string for missing required vars during the build phase only;
+ * the actual runtime checks in each integration will catch truly missing values.
  */
 
 function requiredEnv(name: string): string {
   const value = process.env[name];
   if (!value || value.length === 0) {
+    // Don't throw during the Next.js build phase — secrets are runtime-only on Vercel.
+    if (process.env['NEXT_PHASE'] === 'phase-production-build') return '';
     throw new Error(`Missing required environment variable: ${name}`);
   }
   return value;
@@ -64,6 +71,26 @@ export const config = {
   // Admin + cron
   adminApiKey: process.env['ADMIN_API_KEY'] ?? '',
   cronSecret: process.env['CRON_SECRET'] ?? '',
+
+  // DocuSeal document automation
+  docusealApiBaseUrl: process.env['DOCUSEAL_API_BASE_URL'] ?? '',
+  docusealApiKey: process.env['DOCUSEAL_API_KEY'] ?? '',
+  docusealWebhookSecret: process.env['DOCUSEAL_WEBHOOK_SECRET'] ?? '',
+  docusealBonDeCommandeTemplateId: process.env['DOCUSEAL_BON_DE_COMMANDE_TEMPLATE_ID'] ?? '',
+  docusealCompletedRedirectUrl: process.env['DOCUSEAL_COMPLETED_REDIRECT_URL'] ?? '',
+
+  // Google Drive document archive — service account (legacy)
+  googleDriveClientEmail: process.env['GOOGLE_DRIVE_CLIENT_EMAIL'] ?? process.env['GOOGLE_DRIVE_SERVICE_ACCOUNT_EMAIL'] ?? '',
+  googleDrivePrivateKey: process.env['GOOGLE_DRIVE_PRIVATE_KEY'] ?? process.env['GOOGLE_DRIVE_SERVICE_ACCOUNT_PRIVATE_KEY'] ?? '',
+  googleDriveImpersonatedUser: process.env['GOOGLE_DRIVE_IMPERSONATED_USER'] ?? '',
+  googleDriveRootFolderId: process.env['GOOGLE_DRIVE_ROOT_FOLDER_ID'] ?? '',
+  // Google Drive document archive — OAuth2 (preferred)
+  googleDriveClientId: process.env['GOOGLE_DRIVE_CLIENT_ID'] ?? '',
+  googleDriveClientSecret: process.env['GOOGLE_DRIVE_CLIENT_SECRET'] ?? '',
+  googleDriveRefreshToken: process.env['GOOGLE_DRIVE_REFRESH_TOKEN'] ?? '',
+
+  // Billing defaults
+  billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '20')),
 
   // Budget + rate limit
   dailyAiBudgetEur: parseFloat(optionalEnv('DAILY_AI_BUDGET_EUR', '5')),
