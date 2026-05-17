@@ -1,13 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { isAdminAuthenticated } from '@/lib/admin/auth';
+import { isAdminAuthenticated, isValidAdminKey } from '@/lib/admin/auth';
 import { sendBonDeCommandeForSignature } from '@/lib/admin/documents/workflow';
 
 /**
  * Temporary debug endpoint — remove after root cause is identified.
  * POST /api/admin/debug-send-bdc?document_id=<uuid>
+ * Auth: session cookie OR Authorization: Bearer <ADMIN_API_KEY>
  */
 export async function POST(req: NextRequest) {
-  if (!(await isAdminAuthenticated())) {
+  const bearerToken = req.headers.get('authorization')?.replace(/^Bearer\s+/i, '') ?? '';
+  const authed = bearerToken ? isValidAdminKey(bearerToken) : await isAdminAuthenticated();
+  if (!authed) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
