@@ -175,6 +175,36 @@ function getDocuSealAppUrl(): string {
   return getDocuSealApiBaseUrl().replace(/\/api\/?$/i, '');
 }
 
+/**
+ * Normalise a phone number to E.164 (required by DocuSeal).
+ * Returns null when the value is absent or cannot be normalised.
+ * Examples handled:
+ *   "0612345678"  → "+33612345678"  (French local format)
+ *   "+33612345678" → "+33612345678" (already E.164)
+ *   "33612345678"  → "+33612345678" (missing leading +)
+ */
+function normalizePhoneE164(raw: string | null | undefined): string | null {
+  if (!raw) return null;
+  const stripped = raw.replace(/[\s\-().]/g, ''); // remove common separators
+  if (!stripped) return null;
+
+  // Already E.164
+  if (/^\+\d{7,15}$/.test(stripped)) return stripped;
+
+  // Has digits-only country code without "+" (e.g. "33612345678")
+  if (/^\d{10,15}$/.test(stripped)) {
+    // French local: 10 digits starting with 0 → replace leading 0 with +33
+    if (stripped.length === 10 && stripped.startsWith('0')) {
+      return `+33${stripped.slice(1)}`;
+    }
+    // Assume it already has a country code, just prepend "+"
+    return `+${stripped}`;
+  }
+
+  // Cannot normalise → omit rather than send an invalid value
+  return null;
+}
+
 function buildDocuSealSigningUrl(submitter: UnknownRecord | null): string | null {
   const slug = asString(submitter?.slug);
   if (slug) return `${getDocuSealAppUrl()}/s/${encodeURIComponent(slug)}`;
@@ -459,7 +489,7 @@ export async function sendBonDeCommandeForSignature(documentId: string): Promise
       role: asString(recipient.role) ?? 'Client',
       name: asString(recipient.name),
       email: asString(recipient.email),
-      phone: asString(recipient.phone),
+      phone: normalizePhoneE164(asString(recipient.phone)) ?? undefined,
       external_id: asString(recipient.external_id) ?? `${documentId}:client`,
       values: fieldValues,
       fields: Object.entries(fieldValues).map(([name, defaultValue]) => ({ name, default_value: defaultValue, readonly: true })),
