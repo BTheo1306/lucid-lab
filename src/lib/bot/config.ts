@@ -1,18 +1,13 @@
 /**
  * Lucid-Lab chat bot configuration.
- * Reads from process.env at module load time. Throws if required vars missing.
- *
- * During the Next.js static-generation build phase (NEXT_PHASE=phase-production-build),
- * runtime secrets (SUPABASE_*, SMTP_*, …) are not injected by Vercel.
- * We return an empty string for missing required vars during the build phase only;
- * the actual runtime checks in each integration will catch truly missing values.
+ * Reads from process.env at module load time.
+ * Required vars throw at runtime if missing; during Next.js build phase the
+ * Supabase client creation is guarded in supabase.ts.
  */
 
 function requiredEnv(name: string): string {
   const value = process.env[name];
   if (!value || value.length === 0) {
-    // Don't throw during the Next.js build phase — secrets are runtime-only on Vercel.
-    if (process.env['NEXT_PHASE'] === 'phase-production-build') return '';
     throw new Error(`Missing required environment variable: ${name}`);
   }
   return value;
