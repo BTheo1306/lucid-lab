@@ -22,9 +22,10 @@ export const config = {
   // Runtime
   nodeEnv: optionalEnv('NODE_ENV', 'development'),
 
-  // Supabase
-  supabaseUrl: requiredEnv('SUPABASE_URL'),
-  supabaseServiceRoleKey: requiredEnv('SUPABASE_SERVICE_ROLE_KEY'),
+  // Supabase — lazy getters so this module can be imported at Next.js build time
+  // without throwing (Vercel injects runtime secrets only at runtime).
+  get supabaseUrl(): string { return requiredEnv('SUPABASE_URL'); },
+  get supabaseServiceRoleKey(): string { return requiredEnv('SUPABASE_SERVICE_ROLE_KEY'); },
 
   // AI provider
   aiProvider: optionalEnv('AI_PROVIDER', 'anthropic') as
