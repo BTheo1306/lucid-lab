@@ -1,0 +1,32 @@
+import { NextRequest } from 'next/server';
+import { proxyDocuSeal } from './[...path]/route';
+
+export const dynamic = 'force-dynamic';
+
+export async function GET(request: NextRequest): Promise<Response> {
+  return proxyDocuSeal(request, []);
+}
+
+export async function HEAD(request: NextRequest): Promise<Response> {
+  return proxyDocuSeal(request, []);
+}
+
+export async function OPTIONS(request: NextRequest): Promise<Response> {
+  return proxyDocuSeal(request, []);
+}
+
+export async function POST(request: NextRequest): Promise<Response> {
+  return proxyDocuSeal(request, []);
+}
+
+export async function PUT(request: NextRequest): Promise<Response> {
+  return proxyDocuSeal(request, []);
+}
+
+export async function PATCH(request: NextRequest): Promise<Response> {
+  return proxyDocuSeal(request, []);
+}
+
+export async function DELETE(request: NextRequest): Promise<Response> {
+  return proxyDocuSeal(request, []);
+}

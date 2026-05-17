@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Lucid-Lab - Proposition commerciale valant bon de commande</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #fff;
+      color: #111;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      font-size: 9.2pt;
+      line-height: 1.34;
+    }
+    .page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      padding: 25mm 24mm 18mm;
+      overflow: hidden;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 12mm;
+      margin-bottom: 18mm;
+    }
+    .brand { display: flex; align-items: center; gap: 5mm; min-width: 0; }
+    .logo { width: 11mm; height: 11mm; object-fit: contain; }
+    .wordmark { font-family: Syne, Inter, Arial, sans-serif; font-size: 20pt; font-weight: 800; letter-spacing: 0; }
+    .header-label { font-size: 11pt; font-style: italic; color: #555; white-space: nowrap; }
+    h1 {
+      margin: 0 0 7mm;
+      font-size: 26pt;
+      line-height: 1.12;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+    h2 { margin: 7mm 0 3mm; font-size: 15pt; line-height: 1.2; font-weight: 800; letter-spacing: 0; }
+    p { margin: 0 0 3mm; }
+    .intro { color: #555; font-size: 11.2pt; font-style: italic; line-height: 1.45; margin-bottom: 7mm; }
+    .meta { color: #555; font-size: 10.5pt; margin-bottom: 7mm; }
+    .strong { font-weight: 800; }
+    .legal-copy { text-align: justify; }
+    .field-line {
+      display: inline-block;
+      min-height: 5.1mm;
+      border-bottom: 0.25mm solid #777;
+      vertical-align: -0.8mm;
+    }
+    .w-ref { width: 40mm; }
+    .w-date { width: 34mm; }
+    .w-client { width: 76mm; }
+    .w-signer { width: 50mm; }
+    .w-email { width: 52mm; }
+    .w-title { width: 112mm; }
+    .w-id { width: 34mm; }
+    .w-money { width: 34mm; }
+    .note-box { border: 0.25mm solid #d0d0d0; min-height: 16mm; padding: 2.4mm; margin: 2mm 0 4mm; }
+    ul { margin: 1mm 0 4mm 6mm; padding: 0; }
+    li { margin-bottom: 1.2mm; }
+    table { width: 100%; border-collapse: collapse; margin: 2mm 0 4mm; }
+    td, th { border: 0.25mm solid #d0d0d0; padding: 1.8mm 2.2mm; vertical-align: top; }
+    th { background: #f3f3f3; text-align: left; font-weight: 800; }
+    .amount-cell { width: 50mm; text-align: right; }
+    .payment-table td:first-child { width: 43mm; font-weight: 800; background: #fafafa; }
+    .page-3 .header { margin-bottom: 13mm; }
+    .page-3 h2 { margin-top: 5mm; }
+    .page-3 ul { margin-bottom: 3mm; }
+    .acceptance-box {
+      border: 0.3mm solid #111;
+      padding: 2.6mm 4mm 2.8mm 11mm;
+      margin-top: 3.5mm;
+      min-height: 12mm;
+      position: relative;
+    }
+    .check-space { position: absolute; left: 4mm; top: 4mm; width: 5mm; height: 5mm; border: 0.25mm solid #777; }
+    .signature-table { margin-top: 3mm; }
+    .signature-table td { height: 16mm; width: 50%; }
+    .signature-box { height: 8mm; border-bottom: 0.25mm solid #777; margin-top: 1.5mm; }
+    .footer {
+      position: absolute;
+      left: 24mm;
+      right: 24mm;
+      bottom: 10mm;
+      color: #777;
+      font-size: 7.4pt;
+      border-top: 0.25mm solid #ddd;
+      padding-top: 1.8mm;
+    }
+  </style>
+</head>
+<body>
+  <main class="page page-1">
+    <header class="header">
+      <div class="brand">
+        <img class="logo" src="../../../public/logo.png" alt="Lucid-Lab" />
+        <div class="wordmark">Lucid-Lab</div>
+      </div>
+      <div class="header-label">Proposition valant Bon de commande</div>
+    </header>
+
+    <h1>Proposition commerciale<br />valant bon de commande</h1>
+    <p class="meta">Référence : <span class="field-line w-ref"></span> &nbsp; · &nbsp; Date d'émission : <span class="field-line w-date"></span> &nbsp; · &nbsp; Valable 30 jours</p>
+    <p class="intro">La signature de la présente Proposition par le Client vaut acceptation pleine et entière de l'offre, formation du Contrat et engagement ferme de payer aux conditions ci-dessous.</p>
+
+    <h2>Parties</h2>
+    <p class="legal-copy"><span class="strong">Le Prestataire</span> — Lucid-Lab, Société par actions simplifiée (SAS) au capital de 999 euros, siège social : 47 rue Vivienne, 75002 Paris, France, immatriculée au 104 672 050 R.C.S. Paris, numéro de TVA intracommunautaire FR 02 104 672 050, représentée par son Président, Periscope-X SARL, elle-même représentée par Monsieur Anthony Poirier dûment habilité.</p>
+    <p class="legal-copy"><span class="strong">Le Client</span> — <span class="field-line w-client"></span>, représenté par <span class="field-line w-signer"></span>, contact e-mail <span class="field-line w-email"></span>. Les informations légales complémentaires du Client (forme juridique, capital, siège social, RCS, SIREN et TVA intracommunautaire) pourront être complétées dans le dossier client lorsque nécessaire.</p>
+
+    <h2>Objet et périmètre de la prestation</h2>
+    <p><span class="strong">Intitulé :</span> <span class="field-line w-title"></span>.</p>
+    <p><span class="strong">Référence interne Lucid-Lab :</span> <span class="field-line w-id"></span></p>
+    <p><span class="strong">Description synthétique :</span></p>
+    <div class="note-box"></div>
+    <p class="strong">Livrables attendus :</p>
+    <ul>
+      <li>Cadrage du besoin, des accès, des contraintes opérationnelles et des indicateurs de réussite.</li>
+      <li>Conception, configuration ou développement des systèmes convenus avec le Client.</li>
+      <li>Tests, mise en production, documentation de passation et ajustements prévus au périmètre.</li>
+    </ul>
+    <p>Calendrier indicatif : démarrage à compter de la signature du présent Bon de Commande et de la réception du premier paiement.</p>
+
+    <div class="footer">Lucid-Lab · Document contractuel généré pour signature électronique via DocuSeal · Données commerciales pré-remplies depuis Lucid OS.</div>
+  </main>
+
+  <main class="page page-2">
+    <header class="header">
+      <div class="brand">
+        <img class="logo" src="../../../public/logo.png" alt="Lucid-Lab" />
+        <div class="wordmark">Lucid-Lab</div>
+      </div>
+      <div class="header-label">Proposition valant Bon de commande</div>
+    </header>
+
+    <h2>Conditions financières</h2>
+    <table>
+      <tbody>
+        <tr><td>Prestation initiale / mise en place</td><td class="amount-cell"><span class="field-line w-money"></span></td></tr>
+        <tr><td>Abonnement mensuel ou accompagnement récurrent, le cas échéant</td><td class="amount-cell"><span class="field-line w-money"></span></td></tr>
+        <tr><td><strong>Prix HT total</strong></td><td class="amount-cell"><span class="field-line w-money"></span></td></tr>
+        <tr><td>TVA <span class="field-line" style="width: 18mm;"></span></td><td class="amount-cell"><span class="field-line w-money"></span></td></tr>
+        <tr><td><strong>Prix TTC total</strong></td><td class="amount-cell"><span class="field-line w-money"></span></td></tr>
+        <tr><td>Modalité retenue</td><td>One-shot — paiement intégral avant démarrage, sauf accord écrit contraire.</td></tr>
+        <tr><td>Échéancier</td><td>Facture pro forma émise après signature, règlement par virement SEPA avant démarrage des Prestations.</td></tr>
+      </tbody>
+    </table>
+    <p>Moyen de paiement : virement SEPA exclusivement, sur le compte ci-après.</p>
+    <table class="payment-table">
+      <tbody>
+        <tr><td>Titulaire</td><td>Lucid-Lab</td></tr>
+        <tr><td>IBAN</td><td>FR76 1732 8844 0043 2662 8862 178</td></tr>
+        <tr><td>BIC</td><td>SWNBFR22</td></tr>
+        <tr><td>Banque</td><td>Swan</td></tr>
+        <tr><td>Référence à indiquer</td><td>BC-<span class="field-line w-ref"></span> / <span class="field-line w-client"></span></td></tr>
+      </tbody>
+    </table>
+
+    <h2>Pénalités de retard et frais de recouvrement</h2>
+    <p class="legal-copy">Conformément à l'article 6 des Conditions Générales de Vente, tout retard de paiement entraîne de plein droit, dès le jour suivant la date d'exigibilité, l'application :</p>
+    <ul>
+      <li>d'intérêts moratoires au taux de la BCE majoré de 10 points, conformément à l'article L. 441-10 du Code de commerce ;</li>
+      <li>d'une indemnité forfaitaire légale de quarante (40) euros pour frais de recouvrement, conformément à l'article D. 441-5 du Code de commerce ;</li>
+      <li>d'une indemnité forfaitaire contractuelle de deux cent cinquante (250) euros par facture en retard, à titre de clause pénale couvrant les frais administratifs internes de traitement du retard.</li>
+    </ul>
+    <p class="legal-copy">Ces trois pénalités sont cumulables. En cas de retard supérieur à dix (10) jours, Lucid-Lab pourra suspendre l'exécution des Prestations et, pour la modalité mensuelle 12 mois, prononcer la déchéance du terme.</p>
+
+    <div class="footer">Lucid-Lab · Document contractuel généré pour signature électronique via DocuSeal · Données commerciales pré-remplies depuis Lucid OS.</div>
+  </main>
+
+  <main class="page page-3">
+    <header class="header">
+      <div class="brand">
+        <img class="logo" src="../../../public/logo.png" alt="Lucid-Lab" />
+        <div class="wordmark">Lucid-Lab</div>
+      </div>
+      <div class="header-label">Proposition valant Bon de commande</div>
+    </header>
+
+    <h2>Conditions Générales de Vente</h2>
+    <p class="legal-copy">Le présent Bon de Commande est régi par les Conditions Générales de Vente de Lucid-Lab — Version 1.0, en vigueur au 15 mai 2026, accessibles à l'adresse https://lucid-lab.fr/cgv et jointes en annexe. Le Client reconnaît en avoir pris connaissance et les accepter sans réserve avant la signature.</p>
+    <p class="legal-copy">Sauf accord écrit exprès, les présentes CGV prévalent sur tout document du Client, en particulier ses conditions générales d'achat.</p>
+
+    <h2>Acceptation valant commande ferme</h2>
+    <p>Le Client déclare avoir pris connaissance et accepter sans réserve :</p>
+    <ul>
+      <li>le périmètre, les livrables et le calendrier décrits ci-dessus ;</li>
+      <li>la modalité tarifaire retenue et l'engagement de durée associé ;</li>
+      <li>les Conditions Générales de Vente Lucid-Lab v1.0 jointes en annexe et accessibles sur lucid-lab.fr/cgv ;</li>
+      <li>l'obligation de paiement préalable au démarrage des Prestations ;</li>
+      <li>le caractère ferme et irrévocable de la commande, sous réserve du droit de retrait prévu à l'article L. 121-21 du Code de la consommation lorsqu'il est applicable.</li>
+    </ul>
+    <p class="legal-copy">La signature de la présente Proposition par le Client vaut acceptation de l'offre, formation du Contrat et commande ferme, et déclenche l'émission d'une facture pro forma puis l'exécution des Prestations à compter de la réception effective du premier paiement.</p>
+    <p><span class="strong">Mention manuscrite obligatoire du Client :</span> « Lu et approuvé — Bon pour accord et commande ferme — Prix : <span class="field-line w-money"></span> — Modalité : one-shot ».</p>
+
+    <div class="acceptance-box">
+      <div class="check-space"></div>
+      <p><span class="strong">Bon pour accord.</span> En cochant cette case et en signant, le Client confirme son accord sur le périmètre, les conditions financières et le démarrage de la prestation.</p>
+    </div>
+
+    <table class="signature-table">
+      <tbody>
+        <tr><th>Pour le Client</th><th>Pour Lucid-Lab</th></tr>
+        <tr><td>Date : <span class="field-line w-date"></span></td><td>Date :</td></tr>
+        <tr><td>Lieu :</td><td>Lieu : Paris</td></tr>
+        <tr>
+          <td>Signature précédée de la mention « Lu et approuvé, bon pour accord » :<div class="signature-box"></div></td>
+          <td>Signature précédée de la mention « Lu et approuvé, bon pour accord » :<div class="signature-box"></div></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Annexes</h2>
+    <ul>
+      <li>Annexe 1 — Conditions Générales de Vente Lucid-Lab — https://lucid-lab.fr/cgv</li>
+      <li>Annexe 2 — RIB Lucid-Lab</li>
+      <li>Annexe 3 — Attestation RCP — sur demande</li>
+    </ul>
+
+    <div class="footer">Lucid-Lab · Document contractuel généré pour signature électronique via DocuSeal · Données commerciales pré-remplies depuis Lucid OS.</div>
+  </main>
+</body>
+</html>

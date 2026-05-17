@@ -172,6 +172,97 @@ export async function sendMorningDigest(input: {
   });
 }
 
+export async function sendDocumentSignatureRequest(input: {
+  to: string;
+  signerName?: string | null;
+  documentNumber?: string | null;
+  documentTitle: string;
+  signingUrl: string;
+  replyTo?: string | null;
+}): Promise<void> {
+  const signerName = input.signerName?.trim();
+  const greeting = signerName ? `Bonjour ${signerName},` : 'Bonjour,';
+  const documentLabel = input.documentNumber || input.documentTitle;
+  const subject = `Signature des documents Lucid-Lab ${documentLabel}`;
+  const safeSigningUrl = escapeHtml(input.signingUrl);
+
+  if (!isSmtpConfigured()) {
+    throw new Error('SMTP not configured (SMTP_HOST / SMTP_USER / SMTP_PASS missing)');
+  }
+
+  await sendEmail({
+    to: input.to,
+    subject,
+    replyTo: input.replyTo ?? undefined,
+    text: `${greeting}\n\nVotre bon de commande et votre contrat de prestation Lucid-Lab sont prêts à être signés : ${input.signingUrl}\n\nBien à vous,\nL'équipe Lucid-Lab`,
+    html: `
+      <p>${escapeHtml(greeting)}</p>
+      <p>Votre bon de commande et votre contrat de prestation Lucid-Lab sont prêts à être signés.</p>
+      <p><a href="${safeSigningUrl}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:6px;">Signer les documents</a></p>
+      <p>Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><a href="${safeSigningUrl}">${safeSigningUrl}</a></p>
+      <p>Bien à vous,<br>L'équipe Lucid-Lab</p>
+    `,
+  });
+}
+
+export async function sendDocumentSignedNotification(input: {
+  to?: string | null;
+  clientName?: string | null;
+  signerName?: string | null;
+  documentNumber?: string | null;
+  documentTitle: string;
+  signedAt?: string | null;
+  signedPdfUrl?: string | null;
+  googleDriveUrl?: string | null;
+  googleDriveFolderUrl?: string | null;
+  auditLogUrl?: string | null;
+  adminUrl?: string | null;
+  driveStatus?: string | null;
+}): Promise<void> {
+  const documentLabel = input.documentNumber || input.documentTitle;
+  const signedAt = input.signedAt ? new Intl.DateTimeFormat('fr-FR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(input.signedAt)) : 'date inconnue';
+  const lines = [
+    `Document: ${documentLabel}`,
+    `Client: ${input.clientName ?? 'non renseigné'}`,
+    `Signataire: ${input.signerName ?? 'non renseigné'}`,
+    `Signé le: ${signedAt}`,
+    input.googleDriveUrl ? `PDF Drive: ${input.googleDriveUrl}` : null,
+    input.signedPdfUrl ? `PDF DocuSeal: ${input.signedPdfUrl}` : null,
+    input.auditLogUrl ? `Audit log: ${input.auditLogUrl}` : null,
+    input.adminUrl ? `Admin: ${input.adminUrl}` : null,
+    input.driveStatus ? `Drive: ${input.driveStatus}` : null,
+  ].filter(Boolean).join('\n');
+
+  const links = [
+    input.googleDriveUrl ? `<li><a href="${escapeHtml(input.googleDriveUrl)}">PDF signé dans Google Drive</a></li>` : null,
+    input.googleDriveFolderUrl ? `<li><a href="${escapeHtml(input.googleDriveFolderUrl)}">Dossier client Google Drive</a></li>` : null,
+    input.signedPdfUrl ? `<li><a href="${escapeHtml(input.signedPdfUrl)}">PDF signé DocuSeal</a></li>` : null,
+    input.auditLogUrl ? `<li><a href="${escapeHtml(input.auditLogUrl)}">Journal d'audit DocuSeal</a></li>` : null,
+    input.adminUrl ? `<li><a href="${escapeHtml(input.adminUrl)}">Fiche client Lucid OS</a></li>` : null,
+  ].filter(Boolean).join('');
+
+  await sendEmail({
+    to: input.to ?? config.teamNotificationEmail,
+    subject: `Document signé - ${documentLabel}`,
+    text: `Le bon de commande et le contrat ont été signés.\n\n${lines}`,
+    html: `
+      <h2>Documents signés</h2>
+      <p>Le bon de commande et le contrat de prestation ont été signés.</p>
+      <ul>
+        <li><strong>Document:</strong> ${escapeHtml(documentLabel)}</li>
+        <li><strong>Client:</strong> ${escapeHtml(input.clientName ?? 'non renseigné')}</li>
+        <li><strong>Signataire:</strong> ${escapeHtml(input.signerName ?? 'non renseigné')}</li>
+        <li><strong>Signé le:</strong> ${escapeHtml(signedAt)}</li>
+        ${input.driveStatus ? `<li><strong>Drive:</strong> ${escapeHtml(input.driveStatus)}</li>` : ''}
+      </ul>
+      ${links ? `<h3>Liens</h3><ul>${links}</ul>` : ''}
+    `,
+  });
+}
+
 function buildFollowupTemplate(
   name: string,
   lang: 'fr' | 'en',

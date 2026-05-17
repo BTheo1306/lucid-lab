@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Lucid-Lab - Contrat de prestation de services</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #fff;
+      color: #111;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      font-size: 8.55pt;
+      line-height: 1.28;
+    }
+    .page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      padding: 21mm 22mm 17mm;
+      overflow: hidden;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10mm;
+      margin-bottom: 10mm;
+    }
+    .brand { display: flex; align-items: center; gap: 4mm; min-width: 0; }
+    .logo { width: 10mm; height: 10mm; object-fit: contain; }
+    .wordmark { font-family: Syne, Inter, Arial, sans-serif; font-size: 18pt; font-weight: 800; letter-spacing: 0; }
+    .header-label { font-size: 10pt; font-style: italic; color: #555; white-space: nowrap; }
+    h1 {
+      margin: 0 0 6mm;
+      font-size: 23pt;
+      line-height: 1.1;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+    h2 { margin: 5.2mm 0 2.1mm; font-size: 12.8pt; line-height: 1.18; font-weight: 800; letter-spacing: 0; }
+    h3 { margin: 3.2mm 0 1.5mm; font-size: 9.3pt; line-height: 1.2; font-weight: 800; letter-spacing: 0; }
+    p { margin: 0 0 2.2mm; }
+    ul { margin: 0.8mm 0 2.4mm 5.5mm; padding: 0; }
+    li { margin-bottom: 0.9mm; }
+    table { width: 100%; border-collapse: collapse; margin: 1.5mm 0 3mm; }
+    td, th { border: 0.25mm solid #d0d0d0; padding: 1.6mm 2mm; vertical-align: top; }
+    th { background: #f3f3f3; text-align: left; font-weight: 800; }
+    .meta { color: #555; font-size: 9.8pt; margin-bottom: 5mm; }
+    .intro { color: #555; font-size: 10.5pt; font-style: italic; line-height: 1.4; margin-bottom: 5mm; }
+    .strong { font-weight: 800; }
+    .legal-copy { text-align: justify; }
+    .small { font-size: 7.95pt; line-height: 1.23; }
+    .field-line {
+      display: inline-block;
+      min-height: 4.9mm;
+      border-bottom: 0.25mm solid #777;
+      vertical-align: -0.8mm;
+    }
+    .w-ref { width: 40mm; }
+    .w-date { width: 34mm; }
+    .w-client { width: 74mm; }
+    .w-signer { width: 50mm; }
+    .w-email { width: 51mm; }
+    .w-title { width: 110mm; }
+    .w-money { width: 34mm; }
+    .w-short { width: 26mm; }
+    .note-box { border: 0.25mm solid #d0d0d0; min-height: 13mm; padding: 2mm; margin: 1.5mm 0 3mm; }
+    .amount-cell { width: 47mm; text-align: right; }
+    .payment-table td:first-child { width: 42mm; font-weight: 800; background: #fafafa; }
+    .acceptance-box {
+      border: 0.3mm solid #111;
+      padding: 2.6mm 4mm 2.8mm 11mm;
+      margin-top: 3mm;
+      min-height: 13mm;
+      position: relative;
+    }
+    .check-space { position: absolute; left: 4mm; top: 4mm; width: 5mm; height: 5mm; border: 0.25mm solid #777; }
+    .signature-table { margin-top: 3mm; }
+    .signature-table td { height: 19mm; width: 50%; }
+    .signature-box { height: 11mm; border-bottom: 0.25mm solid #777; margin-top: 1.5mm; }
+    .footer {
+      position: absolute;
+      left: 22mm;
+      right: 22mm;
+      bottom: 9mm;
+      color: #777;
+      font-size: 7.2pt;
+      border-top: 0.25mm solid #ddd;
+      padding-top: 1.5mm;
+    }
+  </style>
+</head>
+<body>
+  <main class="page page-1">
+    <header class="header">
+      <div class="brand">
+        <img class="logo" src="../../../public/logo.png" alt="Lucid-Lab" />
+        <div class="wordmark">Lucid-Lab</div>
+      </div>
+      <div class="header-label">Contrat de prestation de services</div>
+    </header>
+
+    <h1>Contrat de prestation<br />de services</h1>
+    <p class="meta">Référence : <span class="field-line w-ref" data-docuseal-field="Document Number"></span> &nbsp; · &nbsp; Date : <span class="field-line w-date" data-docuseal-field="Issued Date"></span></p>
+    <p class="intro">Le présent contrat encadre les prestations confiées à Lucid-Lab et complète le Bon de Commande signé par le Client.</p>
+
+    <h2>Entre les soussignés</h2>
+    <p class="legal-copy"><span class="strong">Lucid-Lab</span>, Société par actions simplifiée (SAS) au capital de 999 euros, dont le siège social est situé 47 rue Vivienne, 75002 Paris, France, immatriculée au 104 672 050 R.C.S. Paris, numéro de TVA intracommunautaire FR 02 104 672 050, représentée par son Président, Periscope-X SARL, elle-même représentée par Monsieur Anthony Poirier dûment habilité, ci-après dénommée le « Prestataire » ou « Lucid-Lab ».</p>
+    <p class="legal-copy"><span class="strong">Le Client</span> — <span class="field-line w-client" data-docuseal-field="Client Name"></span>, représenté par <span class="field-line w-signer" data-docuseal-field="Signer Name"></span>, contact e-mail <span class="field-line w-email" data-docuseal-field="Signer Email"></span>. Les informations légales complémentaires du Client pourront être complétées dans le dossier client lorsque nécessaire.</p>
+    <p>Ensemble dénommés les « Parties ».</p>
+
+    <h2>Préambule</h2>
+    <p class="legal-copy">Lucid-Lab est une agence indépendante spécialisée dans la conception, le développement et l'intégration d'agents d'intelligence artificielle, d'automatisations métier, de sites web, de campagnes publicitaires en ligne et de contenus, au bénéfice de PME et ETI.</p>
+    <p class="legal-copy">Le Client souhaite confier à Lucid-Lab la réalisation des prestations détaillées ci-après. C'est dans ces conditions que les Parties se sont rapprochées et ont arrêté les présentes.</p>
+
+    <h2>Article 1 — Documents contractuels</h2>
+    <p>Le présent Contrat est constitué :</p>
+    <ul>
+      <li>des présentes Conditions Particulières ;</li>
+      <li>du Bon de Commande référencé ci-dessus ;</li>
+      <li>des Conditions Générales de Vente de Lucid-Lab — Version 1.0 en vigueur au 15 mai 2026, jointes en Annexe 1 ;</li>
+      <li>de la Proposition Commerciale annexée ou référencée au Bon de Commande ;</li>
+      <li>de l'Accord de sous-traitance des données personnelles (DPA), joint en Annexe 3 le cas échéant.</li>
+    </ul>
+    <p class="legal-copy">En cas de contradiction entre ces documents, l'ordre de prévalence est : (1) Bon de Commande, (2) Conditions Particulières, (3) Proposition Commerciale, (4) DPA, (5) CGV.</p>
+
+    <div class="footer">Lucid-Lab · Contrat de prestation de services · Document signé électroniquement via DocuSeal.</div>
+  </main>
+
+  <main class="page page-2">
+    <header class="header">
+      <div class="brand"><img class="logo" src="../../../public/logo.png" alt="Lucid-Lab" /><div class="wordmark">Lucid-Lab</div></div>
+      <div class="header-label">Contrat de prestation de services</div>
+    </header>
+
+    <h2>Article 2 — Objet et périmètre de la prestation</h2>
+    <p><span class="strong">Intitulé de la mission :</span> <span class="field-line w-title" data-docuseal-field="Opportunity Title"></span></p>
+    <p><span class="strong">Périmètre des Prestations :</span></p>
+    <div class="note-box" data-docuseal-field="Commercial Notes"></div>
+    <p>Livrables attendus : tels que précisément définis dans la Proposition Commerciale et le Bon de Commande.</p>
+    <p class="legal-copy">Hors périmètre : toute prestation non explicitement listée dans la Proposition Commerciale, notamment les refontes graphiques, nouveaux services, intégrations supplémentaires, contenus ou développements non prévus.</p>
+
+    <h2>Article 3 — Calendrier et conditions de démarrage</h2>
+    <p>Conditions suspensives cumulatives au démarrage effectif des travaux :</p>
+    <ul>
+      <li>signature du présent Contrat et du Bon de Commande par les deux Parties ;</li>
+      <li>réception effective du premier paiement sur le compte bancaire de Lucid-Lab ;</li>
+      <li>transmission par le Client des accès, comptes et éléments nécessaires listés à l'Article 5.</li>
+    </ul>
+    <p class="legal-copy">Durée : pour la modalité mensuelle 12 mois, le Contrat est conclu pour une durée ferme et irrévocable de douze (12) mois à compter du démarrage effectif. Pour la modalité one-shot, le Contrat prend fin à la livraison définitive et à l'acceptation de l'ensemble des Livrables.</p>
+
+    <h2>Article 4 — Prix et modalités de paiement</h2>
+    <table>
+      <tbody>
+        <tr><td>Prix total HT</td><td class="amount-cell"><span class="field-line w-money" data-docuseal-field="Amount HT EUR"></span></td></tr>
+        <tr><td>TVA <span class="field-line w-short" data-docuseal-field="VAT Rate"></span></td><td class="amount-cell"><span class="field-line w-money" data-docuseal-field="VAT Amount EUR"></span></td></tr>
+        <tr><td><strong>Prix TTC</strong></td><td class="amount-cell"><span class="field-line w-money" data-docuseal-field="Amount TTC EUR"></span></td></tr>
+        <tr><td>Abonnement mensuel, le cas échéant</td><td class="amount-cell"><span class="field-line w-money" data-docuseal-field="Monthly Amount EUR"></span></td></tr>
+      </tbody>
+    </table>
+    <p>Modalité retenue : one-shot par défaut, paiement intégral en une fois à la signature et avant démarrage, sauf accord écrit contraire.</p>
+
+    <div class="footer">Lucid-Lab · Contrat de prestation de services · Document signé électroniquement via DocuSeal.</div>
+  </main>
+
+  <main class="page page-3">
+    <header class="header">
+      <div class="brand"><img class="logo" src="../../../public/logo.png" alt="Lucid-Lab" /><div class="wordmark">Lucid-Lab</div></div>
+      <div class="header-label">Contrat de prestation de services</div>
+    </header>
+
+    <h2>Article 4 — Prix et modalités de paiement (suite)</h2>
+    <p class="legal-copy">Le prix ci-dessus rémunère exclusivement le travail de Lucid-Lab. Sont expressément exclus du forfait et restent à la charge du Client, en sus du prix de la Prestation : les coûts de consommation des services d'IA tiers, les budgets publicitaires, les abonnements et licences d'outils tiers, les frais de déplacement engagés avec accord préalable écrit, et toute prestation tierce sous-traitée à la demande du Client.</p>
+    <p class="legal-copy">Aucune Prestation n'est engagée ni livrée tant que la fraction de prix correspondante n'a pas été effectivement créditée sur le compte de Lucid-Lab.</p>
+    <table class="payment-table">
+      <tbody>
+        <tr><td>Moyen de paiement</td><td>Virement SEPA exclusivement</td></tr>
+        <tr><td>Titulaire</td><td>Lucid-Lab</td></tr>
+        <tr><td>IBAN</td><td>FR76 1732 8844 0043 2662 8862 178</td></tr>
+        <tr><td>BIC</td><td>SWNBFR22</td></tr>
+        <tr><td>Banque</td><td>Swan</td></tr>
+      </tbody>
+    </table>
+    <p class="legal-copy">Retard de paiement : application de plein droit des pénalités prévues à l'article 6 des CGV : intérêts moratoires au taux BCE + 10 points, indemnité forfaitaire légale de 40 euros et indemnité contractuelle de 250 euros par facture en retard. Déchéance du terme pour la modalité mensuelle après dix (10) jours de retard.</p>
+
+    <h2>Article 5 — Obligations du Client</h2>
+    <p>Pour permettre l'exécution des Prestations, le Client s'engage à fournir à Lucid-Lab, dans les délais convenus :</p>
+    <ul>
+      <li>les accès administrateurs aux outils et plateformes concernés ;</li>
+      <li>les contenus, fichiers, images, textes et données nécessaires ;</li>
+      <li>les validations dans les délais raisonnables convenus ;</li>
+      <li>le budget média pour les campagnes publicitaires, distinct du prix de la Prestation.</li>
+    </ul>
+    <p>Interlocuteur unique : <span class="field-line w-signer" data-docuseal-field="Signer Name"></span> · <span class="field-line w-email" data-docuseal-field="Signer Email"></span></p>
+    <p class="legal-copy">Tout retard imputable au Client suspend de plein droit les délais d'exécution sans engager la responsabilité de Lucid-Lab.</p>
+
+    <h2>Article 6 — Propriété intellectuelle</h2>
+    <p class="legal-copy">Sous condition suspensive du paiement intégral du prix HT et conformément aux articles L. 131-3 et suivants du Code de la propriété intellectuelle, Lucid-Lab cède au Client, à titre exclusif et pour la durée légale de protection, les droits patrimoniaux suivants sur les Livrables spécifiques créés dans le cadre du présent Contrat : reproduction, représentation et mise à disposition au public, adaptation et modification, traduction, exploitation commerciale interne. La cession est consentie pour le monde entier.</p>
+
+    <div class="footer">Lucid-Lab · Contrat de prestation de services · Document signé électroniquement via DocuSeal.</div>
+  </main>
+
+  <main class="page page-4">
+    <header class="header">
+      <div class="brand"><img class="logo" src="../../../public/logo.png" alt="Lucid-Lab" /><div class="wordmark">Lucid-Lab</div></div>
+      <div class="header-label">Contrat de prestation de services</div>
+    </header>
+
+    <h2>Article 6 — Propriété intellectuelle (suite)</h2>
+    <p class="legal-copy">La cession est strictement limitée à l'usage et à la destination définis dans le Bon de Commande. Tout usage hors de cette destination — notamment la revente, la sous-licence à un tiers, l'intégration dans un produit commercialisé par le Client à des tiers, ou l'exploitation au profit d'une activité concurrente — est expressément exclu et nécessite un avenant écrit signé par Lucid-Lab moyennant rémunération complémentaire.</p>
+    <p class="legal-copy">Lucid-Lab conserve l'intégralité de ses droits sur ses outils, méthodes, scripts génériques, briques logicielles réutilisables, prompts système, configurations d'agents et savoir-faire préexistants ou indépendants. Aucune cession ni licence n'est consentie sur ces éléments.</p>
+    <p class="legal-copy">Les composants tiers (logiciels open source, bibliothèques, services SaaS, API) restent régis par leurs licences propres dont le Client est tenu de respecter les termes.</p>
+
+    <h2>Article 7 — Confidentialité</h2>
+    <p class="legal-copy">Chacune des Parties s'engage à ne pas divulguer à des tiers les informations confidentielles communiquées par l'autre Partie. Cet engagement s'applique pendant toute la durée du Contrat et pendant une période de cinq (5) ans suivant sa cessation.</p>
+
+    <h2>Article 8 — Protection des données personnelles</h2>
+    <p class="legal-copy">Pour les données personnelles dont le Client détermine les finalités et les moyens du traitement, le Client est responsable de traitement et Lucid-Lab agit en qualité de sous-traitant. L'accord de sous-traitance des données (DPA) annexé précise les engagements respectifs des Parties au titre du RGPD.</p>
+    <p>Lucid-Lab notifie au Client toute violation de données dans les 72 heures suivant sa détection.</p>
+
+    <h2>Article 9 — Limitation de responsabilité et assurance</h2>
+    <p class="legal-copy">La responsabilité de Lucid-Lab, toutes causes confondues, est expressément limitée au montant HT effectivement perçu au titre du présent Contrat au cours des douze (12) mois précédant le fait générateur du dommage.</p>
+    <p class="legal-copy">Conformément à la jurisprudence Chronopost et à l'article 1170 du Code civil, cette limite peut être écartée si elle privait de sa substance une obligation essentielle du Contrat. Dans cette hypothèse, les Parties conviennent que la responsabilité totale de Lucid-Lab demeurera limitée au plafond effectif de la couverture d'assurance RC Pro souscrite par Lucid-Lab, soit cent mille euros (100 000 euros) par période d'assurance.</p>
+    <p class="legal-copy">Sont exclus de toute indemnisation les pertes d'exploitation, le manque à gagner, l'atteinte à la réputation, la perte de clientèle, la perte de données et tout dommage indirect ou immatériel non consécutif.</p>
+
+    <div class="footer">Lucid-Lab · Contrat de prestation de services · Document signé électroniquement via DocuSeal.</div>
+  </main>
+
+  <main class="page page-5">
+    <header class="header">
+      <div class="brand"><img class="logo" src="../../../public/logo.png" alt="Lucid-Lab" /><div class="wordmark">Lucid-Lab</div></div>
+      <div class="header-label">Contrat de prestation de services</div>
+    </header>
+
+    <h2>Article 9 — Limitation de responsabilité et assurance (suite)</h2>
+    <p class="legal-copy">Lucid-Lab a souscrit auprès de Hiscox SA, via le courtier LegalPlace, un contrat de Responsabilité Civile Professionnelle sous le numéro RCPLP 3695175450, plafond 100 000 euros par période d'assurance pour la RC Pro, 10 000 000 euros par sinistre pour la RC Exploitation et Employeur, couverture monde entier hors USA/Canada.</p>
+    <p class="legal-copy">Le Client reconnaît que les services d'IA générative reposent sur des technologies probabilistes pouvant produire des résultats imprévisibles. Le Client demeure seul responsable des décisions et communications réalisées sur la base des Livrables IA et s'engage à mettre en place les contrôles humains appropriés avant toute publication en production.</p>
+    <p>Les limitations du présent Article ne s'appliquent pas en cas de dol, de faute lourde caractérisée ou de dommages corporels imputables à Lucid-Lab.</p>
+
+    <h2>Article 10 — Résiliation et conséquences</h2>
+    <p class="legal-copy">En cas de manquement grave non régularisé dans les quinze (15) jours suivant mise en demeure restée sans effet, chaque Partie peut résilier le Contrat de plein droit, sans indemnité au profit de l'autre.</p>
+    <p class="legal-copy">Résiliation anticipée par le Client en modalité mensuelle 12 mois : la totalité des mensualités restant dues jusqu'au terme du Contrat devient immédiatement exigible, à titre de clause pénale au sens de l'article 1231-5 du Code civil.</p>
+    <p>À la cessation, Lucid-Lab remet les Livrables payés et conserve les codes d'accès non payés. Les obligations de confidentialité, de propriété intellectuelle et de RGPD survivent à la cessation.</p>
+
+    <h2>Article 11 — Force majeure</h2>
+    <p class="legal-copy">Aucune des Parties n'est responsable d'un manquement résultant d'un cas de force majeure au sens de l'article 1218 du Code civil, incluant notamment l'indisponibilité prolongée d'un service tiers essentiel. Si l'événement perdure plus de soixante (60) jours, chaque Partie pourra résilier le Contrat de plein droit, sans indemnité.</p>
+
+    <h2>Article 12 — Non-sollicitation</h2>
+    <p class="legal-copy">Pendant la durée du Contrat et pendant les vingt-quatre (24) mois suivant son terme, chaque Partie s'interdit de débaucher tout collaborateur ou sous-traitant de l'autre Partie ayant participé activement à l'exécution du Contrat. La violation entraîne une indemnité forfaitaire égale à douze (12) mois de rémunération brute ou de facturation HT du collaborateur concerné.</p>
+
+    <div class="footer">Lucid-Lab · Contrat de prestation de services · Document signé électroniquement via DocuSeal.</div>
+  </main>
+
+  <main class="page page-6">
+    <header class="header">
+      <div class="brand"><img class="logo" src="../../../public/logo.png" alt="Lucid-Lab" /><div class="wordmark">Lucid-Lab</div></div>
+      <div class="header-label">Contrat de prestation de services</div>
+    </header>
+
+    <h2>Article 13 — Droit applicable et juridiction compétente</h2>
+    <p class="legal-copy">Le présent Contrat est régi par le droit français. À défaut de résolution amiable dans un délai de trente (30) jours, tout litige relèvera de la compétence exclusive du Tribunal des activités économiques de Paris. Tout élément qui ne trouverait pas de réponse dans ce contrat sera régi par les mentions légales et les Conditions Générales de Vente du site https://lucid-lab.fr/.</p>
+
+    <h2>Article 14 — Stipulations diverses</h2>
+    <p class="legal-copy">Le présent Contrat, ses annexes et le Bon de Commande constituent l'intégralité de l'accord entre les Parties. Toute modification fera l'objet d'un avenant écrit signé. La nullité éventuelle d'une stipulation n'affecte pas la validité des autres.</p>
+
+    <h2>Acceptation du contrat</h2>
+    <div class="acceptance-box">
+      <div class="check-space" data-docuseal-field="Contract Accepted"></div>
+      <p><span class="strong">Bon pour accord sur le contrat de prestation.</span> En cochant cette case et en signant, le Client confirme avoir lu et accepté le présent Contrat, le Bon de Commande associé et les annexes applicables.</p>
+    </div>
+
+    <h2>Signatures</h2>
+    <p>Fait électroniquement, chaque Partie conservant un exemplaire signé.</p>
+    <table class="signature-table">
+      <tbody>
+        <tr><th>Pour le Client</th><th>Pour Lucid-Lab</th></tr>
+        <tr><td>Date : <span class="field-line w-date" data-docuseal-field="Contract Signed Date"></span></td><td>Date :</td></tr>
+        <tr><td>Lieu :</td><td>Lieu : Paris</td></tr>
+        <tr>
+          <td>Signature précédée de la mention « Lu et approuvé, bon pour accord » :<div class="signature-box" data-docuseal-field="Contract Signature"></div></td>
+          <td>Signature précédée de la mention « Lu et approuvé, bon pour accord » :<div class="signature-box"></div></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Annexes</h2>
+    <ul>
+      <li>Annexe 1 — Conditions Générales de Vente Lucid-Lab v1.0</li>
+      <li>Annexe 2 — Proposition Commerciale / Bon de Commande référencé <span class="field-line w-ref" data-docuseal-field="Document Number"></span></li>
+      <li>Annexe 3 — Accord de sous-traitance des données personnelles (DPA) — le cas échéant</li>
+    </ul>
+
+    <div class="footer">Lucid-Lab · Contrat de prestation de services · Document signé électroniquement via DocuSeal.</div>
+  </main>
+</body>
+</html>

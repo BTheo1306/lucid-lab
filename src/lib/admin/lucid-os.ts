@@ -945,7 +945,7 @@ async function getLucidOrganizationId(): Promise<string | null> {
   return organization?.id ?? null;
 }
 
-async function ensureLucidOrganizationId(): Promise<string> {
+export async function ensureLucidOrganizationId(): Promise<string> {
   const existingOrganizationId = await getLucidOrganizationId();
   if (existingOrganizationId) return existingOrganizationId;
 

@@ -7,6 +7,13 @@ import type { NextRequest } from 'next/server';
  * the active locale and set `<html lang>` accordingly.
  */
 export function proxy(request: NextRequest) {
+  const host = request.headers.get('host')?.toLowerCase();
+  if (host === 'sign.lucid-lab.fr' && !request.nextUrl.pathname.startsWith('/api/docuseal-proxy')) {
+    const proxiedUrl = request.nextUrl.clone();
+    proxiedUrl.pathname = `/api/docuseal-proxy${request.nextUrl.pathname}`;
+    return NextResponse.rewrite(proxiedUrl);
+  }
+
   const requestHeaders = new Headers(request.headers);
   requestHeaders.set('x-pathname', request.nextUrl.pathname);
 
@@ -16,6 +23,6 @@ export function proxy(request: NextRequest) {
 }
 
 export const config = {
-  // Run on every page request; skip Next internals, API routes and static assets.
-  matcher: ['/((?!api|_next/static|_next/image|favicon.ico|logo.png|logo-full.png|.*\\.(?:png|jpg|jpeg|gif|svg|webp|ico|txt|xml)$).*)'],
+  // Run broadly so the DocuSeal signing subdomain can proxy assets and form POSTs.
+  matcher: ['/:path*'],
 };

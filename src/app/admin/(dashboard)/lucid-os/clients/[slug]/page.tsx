@@ -1,6 +1,8 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, BriefcaseBusiness, Building2, CheckSquare, Contact, Edit3, ExternalLink, FileText, Globe2, Mail, MessageSquare, Phone, Plus, Upload } from 'lucide-react';
+import { ArrowLeft, BriefcaseBusiness, Building2, CheckSquare, Contact, Edit3, ExternalLink, FileCheck2, FileText, Globe2, Mail, MessageSquare, Phone, Plus, RefreshCw, Upload } from 'lucide-react';
+import { listLucidClientDocumentsForClient } from '@/lib/admin/documents/workflow';
+import type { LucidClientDocumentStatus, LucidClientDocumentSummary } from '@/lib/admin/documents/types';
 import {
   getLucidClientBySlug,
   getLucidClientIntakeKnowledge,
@@ -12,10 +14,8 @@ import {
   listLucidProjectsForClient,
   listLucidWebsitesForClient,
   type LucidClientHealthStatus,
-  type LucidClientLifecycleStage,
   type LucidClientTaskPriority,
   type LucidClientTaskStatus,
-  type LucidClientStatus,
   type LucidContactInfluenceLevel,
   type LucidContactStatus,
   type LucidHealthStatus,
@@ -25,40 +25,12 @@ import {
   type LucidProjectStatus,
   type LucidWebsiteStatus,
 } from '@/lib/admin/lucid-os';
-import { EmptyState, formatAdminDate, formatAdminDateTime, LucidOsTabs, Section, StatusBadge } from '../../components';
-import { recordClientContactAction, recordClientImportAction, recordClientInteractionAction, recordClientOpportunityAction, recordClientTaskAction, syncClientObsidianAction, updateClientStatusAndLifecycleAction } from '../actions';
+import { EmptyState, formatAdminDate, formatAdminDateTime, Section, StatusBadge } from '../../components';
+import { createBonDeCommandeDraftAction, recordClientContactAction, recordClientImportAction, recordClientInteractionAction, recordClientOpportunityAction, recordClientTaskAction, refreshDocuSealDocumentStatusAction, sendBonDeCommandeForSignatureAction, syncClientObsidianAction, updateClientStatusAndLifecycleAction } from '../actions';
 import { DeleteClientForm } from '../DeleteClientForm';
 import { InlineSelectForm } from '../InlineSelectForm';
 
 export const dynamic = 'force-dynamic';
-
-function clientTone(status: LucidClientStatus): 'neutral' | 'good' | 'warning' | 'danger' {
-  switch (status) {
-    case 'active': return 'good';
-    case 'paused': return 'warning';
-    case 'offboarded':
-    case 'archived': return 'neutral';
-    default: return 'warning';
-  }
-}
-
-function lifecycleTone(stage: LucidClientLifecycleStage): 'neutral' | 'good' | 'warning' | 'danger' {
-  switch (stage) {
-    case 'won':
-    case 'onboarding':
-    case 'in_delivery':
-    case 'live_managed':
-    case 'success_retention':
-    case 'expansion_opportunity': return 'good';
-    case 'proposal_needed':
-    case 'proposal_sent':
-    case 'negotiation':
-    case 'meeting_booked':
-    case 'discovery_done': return 'warning';
-    case 'lost': return 'danger';
-    default: return 'neutral';
-  }
-}
 
 function clientHealthTone(status: LucidClientHealthStatus): 'neutral' | 'good' | 'warning' | 'danger' {
   switch (status) {
@@ -150,8 +122,37 @@ function sentimentTone(sentiment: LucidInteractionSentiment): 'neutral' | 'good'
   }
 }
 
+function documentTone(status: LucidClientDocumentStatus): 'neutral' | 'good' | 'warning' | 'danger' {
+  switch (status) {
+    case 'signed':
+    case 'archived': return 'good';
+    case 'needs_review':
+    case 'ready_to_send':
+    case 'sent_for_signature':
+    case 'viewed':
+    case 'in_progress': return 'warning';
+    case 'declined':
+    case 'expired':
+    case 'failed': return 'danger';
+    default: return 'neutral';
+  }
+}
+
 function fallbackValue(value: string | null | undefined): string {
   return value && value.trim().length > 0 ? value : '-';
+}
+
+function formatMoney(value: number | null): string {
+  if (value === null) return '-';
+  return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(value);
+}
+
+function statusLabel(value: string): string {
+  return value.replace(/_/g, ' ');
+}
+
+function hasBlockingDocumentIssues(document: LucidClientDocumentSummary): boolean {
+  return document.validationErrors.some((issue) => issue.severity === 'error');
 }
 
 function externalHref(value: string | null): string | null {
@@ -266,6 +267,7 @@ const clientProfileLinks: Array<{ id: string; label: string; icon: typeof Buildi
   { id: 'overview', label: 'Overview', icon: Building2 },
   { id: 'contacts', label: 'Contacts', icon: Contact },
   { id: 'opportunities', label: 'Deals', icon: BriefcaseBusiness },
+  { id: 'documents', label: 'Documents', icon: FileText },
   { id: 'timeline', label: 'Timeline', icon: MessageSquare },
   { id: 'tasks', label: 'Tasks', icon: CheckSquare },
   { id: 'imports', label: 'Imports', icon: Upload },
@@ -277,9 +279,10 @@ export default async function LucidClientDetailPage({ params }: { params: Promis
   const client = await getLucidClientBySlug(decodeURIComponent(slug));
   if (!client) notFound();
 
-  const [contacts, opportunities, interactions, tasks, imports, projects, websites, intakeKnowledge] = await Promise.all([
+  const [contacts, opportunities, documents, interactions, tasks, imports, projects, websites, intakeKnowledge] = await Promise.all([
     listLucidClientContactsForClient(client.id, 50),
     listLucidClientOpportunitiesForClient(client.id, 50),
+    listLucidClientDocumentsForClient(client.id, 25),
     listLucidClientInteractionsForClient(client.id, 50),
     listLucidClientTasksForClient(client.id, 50),
     listLucidClientImportsForClient(client.id, 25),
@@ -304,6 +307,9 @@ export default async function LucidClientDetailPage({ params }: { params: Promis
     .join(' / ');
   const openOpportunities = opportunities.filter((opportunity) => opportunity.status === 'open').length;
   const openTasks = tasks.filter((task) => task.status !== 'done' && task.status !== 'cancelled').length;
+  const signedDocumentValue = documents
+    .filter((document) => document.status === 'signed' || document.status === 'archived')
+    .reduce((total, document) => total + (document.amountHtEur ?? 0), 0);
 
   return (
     <div className="grid gap-6">
@@ -405,7 +411,7 @@ export default async function LucidClientDetailPage({ params }: { params: Promis
         </div>
       </section>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
         <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3">
             <p className="text-xs font-medium uppercase text-zinc-500">Contacts</p>
@@ -426,6 +432,14 @@ export default async function LucidClientDetailPage({ params }: { params: Promis
             <CheckSquare className="size-4 text-zinc-400" />
           </div>
           <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-zinc-950">{openTasks}</p>
+        </div>
+        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-xs font-medium uppercase text-zinc-500">Documents</p>
+            <FileText className="size-4 text-zinc-400" />
+          </div>
+          <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-zinc-950">{documents.length}</p>
+          <p className="mt-1 text-xs text-zinc-500">Signed {formatMoney(signedDocumentValue)}</p>
         </div>
         <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3">
@@ -688,6 +702,95 @@ export default async function LucidClientDetailPage({ params }: { params: Promis
             {textInput('Next step due', 'next_step_due_at', undefined, 'datetime-local')}
             {textareaInput('Notes', 'notes', 'Commercial context, objections, buying criteria...', 3)}
             <div className="flex justify-end"><ActionButton icon={BriefcaseBusiness}>Add opportunity</ActionButton></div>
+          </form>
+        </div>
+      </Section>
+
+      <Section title="Documents & billing" description="Bon de commande, DocuSeal status, archive readiness, and billing handoff.">
+        <div id="documents" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+          {documents.length === 0 ? (
+            <EmptyState>No commercial documents have been generated for this client yet.</EmptyState>
+          ) : (
+            <div className="divide-y divide-zinc-100">
+              {documents.map((document) => {
+                const canSend = document.documentType === 'bon_de_commande'
+                  && !hasBlockingDocumentIssues(document)
+                  && !['sent_for_signature', 'viewed', 'in_progress', 'signed', 'archived'].includes(document.status);
+                const canRefreshDocuSeal = Boolean(document.docusealSubmissionId) && ['sent_for_signature', 'viewed', 'in_progress', 'signed'].includes(document.status);
+                return (
+                  <article key={document.id} className="py-4 first:pt-0 last:pb-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <p className="font-medium text-zinc-950">{document.title}</p>
+                      <StatusBadge tone={documentTone(document.status)}>{statusLabel(document.status)}</StatusBadge>
+                      <StatusBadge tone="neutral">{statusLabel(document.documentType)}</StatusBadge>
+                    </div>
+                    <p className="mt-1 text-sm text-zinc-500">{document.documentNumber ?? 'No number'} - {formatAdminDateTime(document.createdAt)}</p>
+                    <div className="mt-2 grid gap-2 text-sm text-zinc-600 md:grid-cols-3">
+                      <span>HT: {formatMoney(document.amountHtEur)}</span>
+                      <span>TVA: {formatMoney(document.vatAmountEur)}</span>
+                      <span>TTC: {formatMoney(document.amountTtcEur)}</span>
+                    </div>
+                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-600">
+                      {document.sentAt ? <span>Sent {formatAdminDateTime(document.sentAt)}</span> : null}
+                      {document.completedAt ? <span>Signed {formatAdminDateTime(document.completedAt)}</span> : null}
+                      {document.docusealSubmissionUrl ? <a href={document.docusealSubmissionUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:underline"><ExternalLink className="size-4 text-zinc-400" />DocuSeal</a> : null}
+                      {document.docusealCombinedDocumentUrl ? <a href={document.docusealCombinedDocumentUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:underline"><FileCheck2 className="size-4 text-zinc-400" />Signed BDC + contract PDF</a> : null}
+                      {document.docusealAuditLogUrl ? <a href={document.docusealAuditLogUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:underline"><ExternalLink className="size-4 text-zinc-400" />Audit log</a> : null}
+                      {document.googleDriveFolderId ? <a href={`https://drive.google.com/drive/folders/${document.googleDriveFolderId}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:underline"><ExternalLink className="size-4 text-zinc-400" />Drive folder</a> : null}
+                    </div>
+                    {document.validationErrors.length > 0 ? (
+                      <ul className="mt-3 grid gap-1 rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-sm leading-6 text-amber-800">
+                        {document.validationErrors.map((issue) => (
+                          <li key={`${document.id}-${issue.code}-${issue.field}`}>{issue.severity}: {issue.message}</li>
+                        ))}
+                      </ul>
+                    ) : null}
+                    {canSend ? (
+                      <form action={sendBonDeCommandeForSignatureAction} className="mt-3 flex justify-end">
+                        <HiddenClientFields client={client} />
+                        <input type="hidden" name="document_id" value={document.id} />
+                        <button type="submit" className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-zinc-950 px-3 text-sm font-medium text-white transition hover:bg-zinc-800">
+                          <FileText className="size-4" />
+                          Send BDC + contract
+                        </button>
+                      </form>
+                    ) : null}
+                    {canRefreshDocuSeal ? (
+                      <form action={refreshDocuSealDocumentStatusAction} className="mt-3 flex justify-end">
+                        <HiddenClientFields client={client} />
+                        <input type="hidden" name="document_id" value={document.id} />
+                        <button type="submit" className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50">
+                          <RefreshCw className="size-4" />
+                          Refresh DocuSeal
+                        </button>
+                      </form>
+                    ) : null}
+                  </article>
+                );
+              })}
+            </div>
+          )}
+
+          <form action={createBonDeCommandeDraftAction} className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
+            <HiddenClientFields client={client} />
+            <h3 className="text-sm font-semibold text-zinc-950">Generate BDC + contract</h3>
+            <label className="grid gap-2 text-sm font-medium text-zinc-700">
+              Opportunity
+              <select name="opportunity_id" defaultValue={opportunities[0]?.id ?? ''} className={inputClassName}>
+                <option value="">Select a deal</option>
+                {opportunities.map((opportunity) => <option key={opportunity.id} value={opportunity.id}>{opportunity.title}</option>)}
+              </select>
+            </label>
+            <label className="grid gap-2 text-sm font-medium text-zinc-700">
+              Signer
+              <select name="contact_id" defaultValue={contacts.find((contact) => contact.isPrimary)?.id ?? contacts[0]?.id ?? ''} className={inputClassName}>
+                <option value="">Use client primary contact</option>
+                {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}{contact.email ? ` - ${contact.email}` : ''}</option>)}
+              </select>
+            </label>
+            {textInput('Google Drive folder id', 'google_drive_folder_id', 'Optional: folder id for this client')}
+            {textareaInput('Internal notes', 'document_notes', 'Special payment terms, assumptions, or review notes...', 3)}
+            <div className="flex justify-end"><ActionButton icon={FileText}>Create draft</ActionButton></div>
           </form>
         </div>
       </Section>

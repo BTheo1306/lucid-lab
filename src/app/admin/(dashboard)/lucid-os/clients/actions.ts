@@ -4,6 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/admin/auth';
 import { extractClientIntake } from '@/lib/admin/agents/client-intake-agent';
+import { createBonDeCommandeDraft, refreshDocuSealDocumentStatus, sendBonDeCommandeForSignature } from '@/lib/admin/documents/workflow';
 import {
   createLucidClientContact,
   createLucidClientImport,
@@ -20,6 +21,7 @@ import {
   type LucidContactInfluenceLevel,
   type LucidContactStatus,
   type LucidClientIntakeStage,
+  type LucidClientLifecycleStage,
   type LucidClientMeetingStatus,
   type LucidClientStatus,
   type LucidInteractionDirection,
@@ -32,6 +34,7 @@ import {
 } from '@/lib/admin/lucid-os';
 
 const clientStatuses = new Set<LucidClientStatus>(['lead', 'active', 'paused', 'offboarded', 'archived']);
+const lifecycleStages = new Set<LucidClientLifecycleStage>(['lead', 'qualified', 'meeting_booked', 'discovery_done', 'proposal_needed', 'proposal_sent', 'negotiation', 'won', 'lost', 'onboarding', 'in_delivery', 'live_managed', 'success_retention', 'expansion_opportunity', 'archived']);
 const intakeStages = new Set<LucidClientIntakeStage>(['potential', 'meeting_booked', 'meeting_done', 'proposal_sent', 'won', 'lost']);
 const meetingStatuses = new Set<LucidClientMeetingStatus>(['not_booked', 'booked', 'done', 'cancelled']);
 const contactStatuses = new Set<LucidContactStatus>(['active', 'inactive', 'left_company', 'archived']);
@@ -156,11 +159,13 @@ export async function recordClientIntakeAction(formData: FormData): Promise<void
 export async function updateClientStatusAndLifecycleAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const { clientId, clientSlug } = requireClientActionContext(formData);
-  const status = formString(formData, 'status') as any;
-  const lifecycleStage = formString(formData, 'lifecycle_stage') as any;
+  const statusRaw = formString(formData, 'status') as LucidClientStatus;
+  const lifecycleStageRaw = formString(formData, 'lifecycle_stage') as LucidClientLifecycleStage;
+  const status = clientStatuses.has(statusRaw) ? statusRaw : undefined;
+  const lifecycleStage = lifecycleStages.has(lifecycleStageRaw) ? lifecycleStageRaw : undefined;
 
   if (status || lifecycleStage) {
-    await updateClientStatusAndLifecycle(clientId, status || undefined, lifecycleStage || undefined);
+    await updateClientStatusAndLifecycle(clientId, status, lifecycleStage);
   }
 
   revalidatePath('/admin/lucid-os/clients');
@@ -247,6 +252,46 @@ export async function recordClientOpportunityAction(formData: FormData): Promise
 
   revalidateClientWorkspace(clientSlug);
   redirect(`/admin/lucid-os/clients/${clientSlug}#opportunities`);
+}
+
+export async function createBonDeCommandeDraftAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const { clientId, clientSlug } = requireClientActionContext(formData);
+
+  await createBonDeCommandeDraft({
+    clientId,
+    opportunityId: optionalId(formData, 'opportunity_id'),
+    contactId: optionalId(formData, 'contact_id'),
+    googleDriveFolderId: formString(formData, 'google_drive_folder_id') || null,
+    notes: formString(formData, 'document_notes') || null,
+  });
+
+  revalidateClientWorkspace(clientSlug);
+  redirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
+}
+
+export async function sendBonDeCommandeForSignatureAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const { clientSlug } = requireClientActionContext(formData);
+  const documentId = formString(formData, 'document_id');
+  if (!documentId) throw new Error('Document id is required.');
+
+  await sendBonDeCommandeForSignature(documentId);
+
+  revalidateClientWorkspace(clientSlug);
+  redirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
+}
+
+export async function refreshDocuSealDocumentStatusAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const { clientSlug } = requireClientActionContext(formData);
+  const documentId = formString(formData, 'document_id');
+  if (!documentId) throw new Error('Document id is required.');
+
+  await refreshDocuSealDocumentStatus(documentId);
+
+  revalidateClientWorkspace(clientSlug);
+  redirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
 }
 
 export async function recordClientInteractionAction(formData: FormData): Promise<void> {
