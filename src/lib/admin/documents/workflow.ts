@@ -143,12 +143,24 @@ function compactFieldValues(values: Record<string, string | null>): Record<strin
   return Object.fromEntries(Object.entries(values).filter((entry): entry is [string, string] => Boolean(entry[1])));
 }
 
+const DEFAULT_BON_DE_COMMANDE_DELIVERABLES = [
+  'Cadrage du besoin, des acces, des contraintes operationnelles et des indicateurs de reussite.',
+  'Conception, configuration ou developpement des systemes convenus avec le Client.',
+  'Tests, mise en production, documentation de passation et ajustements prevus au perimetre.',
+].join('\n');
+
 function buildBonDeCommandeFieldValues(document: UnknownRecord, recipient: UnknownRecord, generationPayload: UnknownRecord): Record<string, string> {
   const client = asRecord(generationPayload.client) ?? {};
   const opportunity = asRecord(generationPayload.opportunity) ?? {};
   const signer = asRecord(generationPayload.signer) ?? {};
   const payloadDocument = asRecord(generationPayload.document) ?? {};
   const issuedDate = formatFrenchDate(asString(document.issued_at));
+  const scopePerimeter = asString(document.scope_perimeter) ?? asString(payloadDocument.scope_perimeter);
+  const syntheticDescription = asString(document.synthetic_description)
+    ?? asString(payloadDocument.synthetic_description)
+    ?? asString(payloadDocument.notes)
+    ?? asString(opportunity.notes);
+  const deliverables = asString(document.deliverables) ?? asString(payloadDocument.deliverables) ?? DEFAULT_BON_DE_COMMANDE_DELIVERABLES;
 
   return compactFieldValues({
     'Document Number': asString(document.document_number) ?? asString(payloadDocument.number),
@@ -158,9 +170,9 @@ function buildBonDeCommandeFieldValues(document: UnknownRecord, recipient: Unkno
     'Signer Email': asString(recipient.email) ?? asString(signer.email),
     'Opportunity Title': asString(opportunity.title),
     'Lucid Document Id': asString(document.id),
-    'Scope Perimeter': asString(document.scope_perimeter) ?? asString(payloadDocument.scope_perimeter),
-    'Synthetic Description': asString(document.synthetic_description) ?? asString(payloadDocument.synthetic_description),
-    'Deliverables': asString(document.deliverables) ?? asString(payloadDocument.deliverables),
+    'Scope Perimeter': scopePerimeter,
+    'Synthetic Description': syntheticDescription,
+    'Deliverables': deliverables,
     'Setup Amount EUR': formatEuro(asNumber(document.setup_amount_eur) ?? asNumber(opportunity.setup_value_eur)),
     'Monthly Amount EUR': formatEuro(asNumber(document.monthly_amount_eur) ?? asNumber(opportunity.monthly_value_eur)),
     'Amount HT EUR': formatEuro(asNumber(document.amount_ht_eur) ?? asNumber(payloadDocument.amount_ht_eur)),
