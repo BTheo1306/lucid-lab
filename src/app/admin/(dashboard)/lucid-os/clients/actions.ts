@@ -274,6 +274,9 @@ export async function createBonDeCommandeDraftAction(formData: FormData): Promis
     opportunityId: optionalId(formData, 'opportunity_id'),
     contactId: optionalId(formData, 'contact_id'),
     googleDriveFolderId: formString(formData, 'google_drive_folder_id') || null,
+    scopePerimeter: formString(formData, 'scope_perimeter') || null,
+    syntheticDescription: formString(formData, 'synthetic_description') || null,
+    deliverables: formString(formData, 'deliverables') || null,
     notes: formString(formData, 'document_notes') || null,
   });
 

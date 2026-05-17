@@ -87,6 +87,9 @@ export interface CreateBonDeCommandeDraftInput {
   opportunityId?: string | null;
   contactId?: string | null;
   googleDriveFolderId?: string | null;
+  scopePerimeter?: string | null;
+  syntheticDescription?: string | null;
+  deliverables?: string | null;
   notes?: string | null;
 }
 

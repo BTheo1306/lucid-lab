@@ -158,7 +158,9 @@ function buildBonDeCommandeFieldValues(document: UnknownRecord, recipient: Unkno
     'Signer Email': asString(recipient.email) ?? asString(signer.email),
     'Opportunity Title': asString(opportunity.title),
     'Lucid Document Id': asString(document.id),
-    'Commercial Notes': asString(payloadDocument.notes) ?? asString(opportunity.notes),
+    'Scope Perimeter': asString(document.scope_perimeter) ?? asString(payloadDocument.scope_perimeter),
+    'Synthetic Description': asString(document.synthetic_description) ?? asString(payloadDocument.synthetic_description),
+    'Deliverables': asString(document.deliverables) ?? asString(payloadDocument.deliverables),
     'Setup Amount EUR': formatEuro(asNumber(document.setup_amount_eur) ?? asNumber(opportunity.setup_value_eur)),
     'Monthly Amount EUR': formatEuro(asNumber(document.monthly_amount_eur) ?? asNumber(opportunity.monthly_value_eur)),
     'Amount HT EUR': formatEuro(asNumber(document.amount_ht_eur) ?? asNumber(payloadDocument.amount_ht_eur)),
@@ -321,6 +323,9 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
   const status: LucidClientDocumentStatus = hasBlockingValidationIssue(validationIssues) ? 'needs_review' : 'draft';
   const documentNumber = generateDocumentNumber('bon_de_commande', clientSlug);
   const title = `Bon de commande - ${clientName ?? 'Client'}${opportunityTitle ? ` - ${opportunityTitle}` : ''}`;
+  const scopePerimeter = asString(input.scopePerimeter);
+  const syntheticDescription = asString(input.syntheticDescription);
+  const deliverables = asString(input.deliverables);
   const generationPayload = {
     client: {
       id: input.clientId,
@@ -350,6 +355,9 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
       vat_amount_eur: vatAmountEur,
       amount_ttc_eur: amountTtcEur,
       google_drive_folder_id: googleDriveFolderId,
+      scope_perimeter: scopePerimeter,
+      synthetic_description: syntheticDescription,
+      deliverables,
       notes: asString(input.notes),
     },
   };
@@ -366,7 +374,7 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
       title,
       document_number: documentNumber,
       template_key: 'lucid_lab_bdc_contract_docuseal_pdf',
-      template_version: '2026-05-17-bdc-contract-v2',
+      template_version: '2026-05-17-bdc-contract-v3',
       amount_ht_eur: amountHtEur,
       setup_amount_eur: setupAmountEur,
       monthly_amount_eur: monthlyAmountEur,
@@ -374,6 +382,9 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
       vat_amount_eur: vatAmountEur,
       amount_ttc_eur: amountTtcEur,
       issued_at: new Date().toISOString(),
+      scope_perimeter: scopePerimeter,
+      synthetic_description: syntheticDescription,
+      deliverables,
       google_drive_folder_id: googleDriveFolderId,
       validation_errors: validationIssues,
       generation_payload: generationPayload,
@@ -449,7 +460,7 @@ async function getDocumentForSend(documentId: string): Promise<{ document: Unkno
   const organizationId = await ensureLucidOrganizationId();
   const { data, error } = await supabase
     .from('client_documents')
-    .select('id,organization_id,client_id,opportunity_id,primary_contact_id,document_type,status,title,document_number,amount_ht_eur,setup_amount_eur,monthly_amount_eur,vat_rate,vat_amount_eur,amount_ttc_eur,issued_at,generation_payload,validation_errors')
+    .select('id,organization_id,client_id,opportunity_id,primary_contact_id,document_type,status,title,document_number,amount_ht_eur,setup_amount_eur,monthly_amount_eur,vat_rate,vat_amount_eur,amount_ttc_eur,issued_at,scope_perimeter,synthetic_description,deliverables,generation_payload,validation_errors')
     .eq('organization_id', organizationId)
     .eq('id', documentId)
     .maybeSingle();

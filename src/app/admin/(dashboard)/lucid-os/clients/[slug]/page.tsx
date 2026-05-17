@@ -806,6 +806,9 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
               </select>
             </label>
             {textInput('Google Drive folder id', 'google_drive_folder_id', 'Optional: folder id for this client')}
+            {textareaInput('Périmètre de la prestation', 'scope_perimeter', 'Ex: Agent IA de qualification des réservations, automatisation des avis Google...', 4)}
+            {textareaInput('Description synthétique', 'synthetic_description', 'Décrivez le contexte, les objectifs et le fonctionnement prévu...', 5)}
+            {textareaInput('Livrables attendus', 'deliverables', 'Ex: Agent opérationnel, formation équipe, documentation technique...', 4)}
             {textareaInput('Internal notes', 'document_notes', 'Special payment terms, assumptions, or review notes...', 3)}
             <div className="flex justify-end"><ActionButton icon={FileText}>Create draft</ActionButton></div>
           </form>
