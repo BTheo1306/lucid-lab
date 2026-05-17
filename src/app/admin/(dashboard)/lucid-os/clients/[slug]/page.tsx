@@ -274,8 +274,19 @@ const clientProfileLinks: Array<{ id: string; label: string; icon: typeof Buildi
   { id: 'delivery', label: 'Delivery', icon: Globe2 },
 ];
 
-export default async function LucidClientDetailPage({ params }: { params: Promise<{ slug: string }> }) {
+type ClientDetailSearchParams = {
+  document_error?: string | string[];
+};
+
+function firstSearchParam(value: string | string[] | undefined): string | null {
+  if (Array.isArray(value)) return value[0] ?? null;
+  return value ?? null;
+}
+
+export default async function LucidClientDetailPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams?: Promise<ClientDetailSearchParams> }) {
   const { slug } = await params;
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const documentError = firstSearchParam(resolvedSearchParams.document_error);
   const client = await getLucidClientBySlug(decodeURIComponent(slug));
   if (!client) notFound();
 
@@ -708,6 +719,12 @@ export default async function LucidClientDetailPage({ params }: { params: Promis
 
       <Section title="Documents & billing" description="Bon de commande, DocuSeal status, archive readiness, and billing handoff.">
         <div id="documents" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
+          {documentError ? (
+            <div className="xl:col-span-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+              <p className="font-medium text-red-950">Document send failed</p>
+              <p className="mt-1 break-words">{documentError}</p>
+            </div>
+          ) : null}
           {documents.length === 0 ? (
             <EmptyState>No commercial documents have been generated for this client yet.</EmptyState>
           ) : (

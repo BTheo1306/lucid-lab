@@ -91,6 +91,17 @@ function revalidateClientWorkspace(clientSlug: string): void {
   revalidatePath(`/admin/lucid-os/clients/${clientSlug}`);
 }
 
+function clientDocumentsHref(clientSlug: string, params?: Record<string, string>): string {
+  const searchParams = new URLSearchParams(params);
+  const query = searchParams.toString();
+  return `/admin/lucid-os/clients/${clientSlug}${query ? `?${query}` : ''}#documents`;
+}
+
+function actionErrorMessage(error: unknown): string {
+  const message = error instanceof Error ? error.message : String(error);
+  return (message || 'Unknown error').slice(0, 500);
+}
+
 export async function recordClientIntakeAction(formData: FormData): Promise<void> {
   await requireAdmin();
 
@@ -276,10 +287,17 @@ export async function sendBonDeCommandeForSignatureAction(formData: FormData): P
   const documentId = formString(formData, 'document_id');
   if (!documentId) throw new Error('Document id is required.');
 
-  await sendBonDeCommandeForSignature(documentId);
+  try {
+    await sendBonDeCommandeForSignature(documentId);
+  } catch (error) {
+    const message = actionErrorMessage(error);
+    console.error('[send-bdc-action]', message, error);
+    revalidateClientWorkspace(clientSlug);
+    redirect(clientDocumentsHref(clientSlug, { document_error: message }));
+  }
 
   revalidateClientWorkspace(clientSlug);
-  redirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
+  redirect(clientDocumentsHref(clientSlug));
 }
 
 export async function refreshDocuSealDocumentStatusAction(formData: FormData): Promise<void> {
