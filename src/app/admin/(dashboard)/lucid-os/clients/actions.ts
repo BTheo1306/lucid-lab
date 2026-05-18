@@ -49,6 +49,7 @@ const interactionSourceSystems = new Set<LucidInteractionSourceSystem>(['admin',
 const taskStatuses = new Set<LucidClientTaskStatus>(['todo', 'in_progress', 'waiting', 'done', 'cancelled']);
 const taskPriorities = new Set<LucidClientTaskPriority>(['low', 'normal', 'high', 'urgent']);
 const importSourceTypes = new Set<LucidClientImportSourceType>(['note', 'meeting_notes', 'email', 'doc', 'linkedin', 'website', 'chat', 'github', 'other']);
+const pricingModels = new Set(['one_shot', 'monthly']);
 
 function formString(formData: FormData, key: string): string {
   const value = formData.get(key);
@@ -140,6 +141,9 @@ export async function recordClientIntakeAction(formData: FormData): Promise<void
     status: clientStatuses.has(statusRaw) ? statusRaw : 'lead',
     industry: firstText(formString(formData, 'industry'), parsedContext?.industry) || null,
     websiteUrl: firstText(formString(formData, 'website_url'), parsedContext?.websiteUrl) || null,
+    legalName: formString(formData, 'legal_name') || null,
+    siret: formString(formData, 'siret') || null,
+    billingAddress: formString(formData, 'billing_address') || null,
     primaryContactName: resolvedContactName || null,
     primaryContactEmail: resolvedContactEmail || null,
     primaryContactPhone: resolvedContactPhone || null,
@@ -279,7 +283,10 @@ export async function createBonDeCommandeDraftAction(formData: FormData): Promis
     deliverables: formString(formData, 'deliverables') || null,
     calendarTimeline: formString(formData, 'calendar_timeline') || null,
     nextSteps: formString(formData, 'next_steps') || null,
-    billingMode: (formString(formData, 'billing_mode') as 'one_shot' | 'mensuel' | 'auto' | null) || 'auto',
+    pricingModel: pricingModels.has(formString(formData, 'pricing_model')) ? formString(formData, 'pricing_model') as 'one_shot' | 'monthly' : null,
+    clientLegalName: formString(formData, 'client_legal_name') || null,
+    clientSiret: formString(formData, 'client_siret') || null,
+    clientBillingAddress: formString(formData, 'client_billing_address') || null,
     notes: formString(formData, 'document_notes') || null,
   });
 

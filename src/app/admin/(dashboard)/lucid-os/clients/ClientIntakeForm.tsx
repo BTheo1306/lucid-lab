@@ -84,6 +84,21 @@ export function ClientIntakeForm({ client, submitLabel = 'Save client intake' }:
         </label>
       </div>
 
+      <div className="grid gap-4 md:grid-cols-[1fr_0.7fr_1.4fr]">
+        <label className="grid gap-2 text-sm font-medium text-zinc-700">
+          Legal name
+          <input name="legal_name" defaultValue={client?.legalName ?? client?.name ?? ''} className="h-10 rounded-lg border border-zinc-200 px-3 text-sm font-normal text-zinc-950 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100" placeholder="Acme SAS" />
+        </label>
+        <label className="grid gap-2 text-sm font-medium text-zinc-700">
+          SIRET
+          <input name="siret" defaultValue={client?.siret ?? ''} className="h-10 rounded-lg border border-zinc-200 px-3 text-sm font-normal text-zinc-950 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100" placeholder="123 456 789 00010" />
+        </label>
+        <label className="grid gap-2 text-sm font-medium text-zinc-700">
+          Billing address
+          <input name="billing_address" defaultValue={client?.billingAddress ?? ''} className="h-10 rounded-lg border border-zinc-200 px-3 text-sm font-normal text-zinc-950 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100" placeholder="10 rue Exemple, 75000 Paris, France" />
+        </label>
+      </div>
+
       <label className="grid gap-2 text-sm font-medium text-zinc-700">
         Tools they use
         <input

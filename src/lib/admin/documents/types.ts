@@ -92,7 +92,10 @@ export interface CreateBonDeCommandeDraftInput {
   deliverables?: string | null;
   calendarTimeline?: string | null;
   nextSteps?: string | null;
-  billingMode?: 'one_shot' | 'mensuel' | 'auto' | null;
+  pricingModel?: 'one_shot' | 'monthly' | null;
+  clientLegalName?: string | null;
+  clientSiret?: string | null;
+  clientBillingAddress?: string | null;
   notes?: string | null;
 }
 
@@ -139,4 +142,13 @@ export interface DocuSealSubmissionResponse {
   combined_document_url?: string | null;
   url?: string | null;
   [key: string]: unknown;
+}
+
+export interface DocuSealHtmlDocumentPayload {
+  name: string;
+  html: string;
+  html_header?: string;
+  html_footer?: string;
+  size?: 'Letter' | 'Legal' | 'Tabloid' | 'Ledger' | 'A0' | 'A1' | 'A2' | 'A3' | 'A4' | 'A5' | 'A6';
+  position?: number;
 }

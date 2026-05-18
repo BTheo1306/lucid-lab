@@ -2,13 +2,25 @@ import 'server-only';
 
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { config } from '@/lib/bot/config';
-import type { DocuSealSubmissionResponse, DocuSealSubmitterPayload } from './types';
+import type { DocuSealHtmlDocumentPayload, DocuSealSubmissionResponse, DocuSealSubmitterPayload } from './types';
 
 export interface CreateDocuSealSubmissionInput {
   templateId: string;
   name: string;
   submitters: DocuSealSubmitterPayload[];
   variables?: Record<string, unknown>;
+  sendEmail?: boolean;
+  completedRedirectUrl?: string | null;
+  replyTo?: string | null;
+  bccCompleted?: string | null;
+  expireAt?: string | null;
+  metadata?: Record<string, unknown>;
+}
+
+export interface CreateDocuSealHtmlSubmissionInput {
+  name: string;
+  documents: DocuSealHtmlDocumentPayload[];
+  submitters: DocuSealSubmitterPayload[];
   sendEmail?: boolean;
   completedRedirectUrl?: string | null;
   replyTo?: string | null;
@@ -43,7 +55,10 @@ async function docusealFetch<T>(path: string, init: RequestInit): Promise<T> {
   const text = await response.text();
   const body = text ? JSON.parse(text) as T : ({} as T);
   if (!response.ok) {
-    const message = typeof body === 'object' && body && 'error' in body ? String((body as { error?: unknown }).error) : text;
+    const errorBody = body as { error?: unknown; message?: unknown };
+    const message = typeof body === 'object' && body
+      ? String(errorBody.error ?? errorBody.message ?? text)
+      : text;
     throw new Error(`DocuSeal API ${response.status}: ${message || response.statusText}`);
   }
 
@@ -64,6 +79,35 @@ export async function createDocuSealSubmission(input: CreateDocuSealSubmissionIn
       variables: input.variables ?? {},
       metadata: input.metadata ?? {},
       submitters: input.submitters,
+    }),
+  });
+
+  if (Array.isArray(response)) {
+    const firstSubmitter = response[0];
+    return {
+      id: firstSubmitter?.submission_id,
+      status: 'pending',
+      submitters: response,
+    };
+  }
+
+  return response;
+}
+
+export async function createDocuSealHtmlSubmission(input: CreateDocuSealHtmlSubmissionInput): Promise<DocuSealSubmissionResponse> {
+  const response = await docusealFetch<DocuSealSubmissionResponse | NonNullable<DocuSealSubmissionResponse['submitters']>>('/submissions/html', {
+    method: 'POST',
+    body: JSON.stringify({
+      name: input.name,
+      send_email: input.sendEmail ?? true,
+      completed_redirect_url: (input.completedRedirectUrl ?? config.docusealCompletedRedirectUrl) || undefined,
+      reply_to: input.replyTo ?? config.emailFrom,
+      bcc_completed: input.bccCompleted ?? config.teamNotificationEmail,
+      expire_at: input.expireAt ?? undefined,
+      metadata: input.metadata ?? {},
+      documents: input.documents,
+      submitters: input.submitters,
+      merge_documents: false,
     }),
   });
 

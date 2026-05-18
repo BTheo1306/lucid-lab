@@ -10,7 +10,8 @@ import {
   ensureLucidOrganizationId,
   recordLucidAuditEvent,
 } from '@/lib/admin/lucid-os';
-import { createDocuSealSubmission, getDocuSealApiBaseUrl, getDocuSealSubmission, getDocuSealSubmissionDocuments } from './docuseal';
+import { buildBonDeCommandeHtmlDocuments } from './bon-de-commande-html';
+import { createDocuSealHtmlSubmission, createDocuSealSubmission, getDocuSealApiBaseUrl, getDocuSealSubmission, getDocuSealSubmissionDocuments } from './docuseal';
 import { buildGoogleDriveFolderUrl, findOrCreateGoogleDriveFolder, isGoogleDriveArchiveConfigured, uploadPdfToGoogleDrive } from './google-drive';
 import { calculateVatAmounts, hasBlockingValidationIssue, resolveBonDeCommandeAmount, validateBonDeCommandeDraft } from './validation';
 import type {
@@ -23,6 +24,7 @@ import type {
 
 type QueryError = { code?: string; message?: string };
 type UnknownRecord = Record<string, unknown>;
+type PricingModel = 'one_shot' | 'monthly';
 
 interface ClientDocumentContext {
   organizationId: string;
@@ -57,6 +59,10 @@ function asNumber(value: unknown): number | null {
     return Number.isFinite(parsed) ? parsed : null;
   }
   return null;
+}
+
+function asPricingModel(value: unknown): PricingModel | null {
+  return value === 'one_shot' || value === 'monthly' ? value : null;
 }
 
 function asValidationIssues(value: unknown): LucidDocumentValidationIssue[] {
@@ -149,23 +155,6 @@ const DEFAULT_BON_DE_COMMANDE_DELIVERABLES = [
   'Tests, mise en production, documentation de passation et ajustements prevus au perimetre.',
 ].join('\n');
 
-const DEFAULT_BON_DE_COMMANDE_CALENDAR = [
-  'Semaine 1 : cadrage, acces, audit initial.',
-  'Semaines 2-3 : implementation, automatisations et validation intermediaire.',
-  'Semaine 4 : finalisation, transfert et mise en production.',
-].join('\n');
-
-const DEFAULT_BON_DE_COMMANDE_NEXT_STEPS = [
-  'Confirmer les acces necessaires (Drive, emails, outils).',
-  'Valider la modalite de paiement et le demarrage.',
-  'Signer le Bon de Commande et proceder au premier paiement.',
-].join('\n');
-
-function resolveBillingMode(inputMode: string | null, monthlyAmountEur: number | null | undefined): 'one_shot' | 'mensuel' {
-  if (inputMode === 'one_shot' || inputMode === 'mensuel') return inputMode;
-  return (typeof monthlyAmountEur === 'number' && monthlyAmountEur > 0) ? 'mensuel' : 'one_shot';
-}
-
 function buildBonDeCommandeFieldValues(document: UnknownRecord, recipient: UnknownRecord, generationPayload: UnknownRecord): Record<string, string> {
   const client = asRecord(generationPayload.client) ?? {};
   const opportunity = asRecord(generationPayload.opportunity) ?? {};
@@ -178,9 +167,6 @@ function buildBonDeCommandeFieldValues(document: UnknownRecord, recipient: Unkno
     ?? asString(payloadDocument.notes)
     ?? asString(opportunity.notes);
   const deliverables = asString(document.deliverables) ?? asString(payloadDocument.deliverables) ?? DEFAULT_BON_DE_COMMANDE_DELIVERABLES;
-  const calendarTimeline = asString(payloadDocument.calendar_timeline) ?? DEFAULT_BON_DE_COMMANDE_CALENDAR;
-  const nextSteps = asString(payloadDocument.next_steps) ?? DEFAULT_BON_DE_COMMANDE_NEXT_STEPS;
-  const billingMode = resolveBillingMode(asString(payloadDocument.billing_mode), asNumber(document.monthly_amount_eur) ?? asNumber(opportunity.monthly_value_eur));
 
   return compactFieldValues({
     'Document Number': asString(document.document_number) ?? asString(payloadDocument.number),
@@ -193,11 +179,6 @@ function buildBonDeCommandeFieldValues(document: UnknownRecord, recipient: Unkno
     'Scope Perimeter': scopePerimeter,
     'Synthetic Description': syntheticDescription,
     'Deliverables': deliverables,
-    'Calendar Timeline': calendarTimeline,
-    'Next Steps': nextSteps,
-    'Billing One-Shot Mark': billingMode === 'one_shot' ? '☑' : '☐',
-    'Billing Mensuel Mark': billingMode === 'mensuel' ? '☑' : '☐',
-    'Billing Mode Label': billingMode === 'mensuel' ? 'mensuel 12 mois' : 'one-shot',
     'Setup Amount EUR': formatEuro(asNumber(document.setup_amount_eur) ?? asNumber(opportunity.setup_value_eur)),
     'Monthly Amount EUR': formatEuro(asNumber(document.monthly_amount_eur) ?? asNumber(opportunity.monthly_value_eur)),
     'Amount HT EUR': formatEuro(asNumber(document.amount_ht_eur) ?? asNumber(payloadDocument.amount_ht_eur)),
@@ -311,6 +292,20 @@ async function getDocumentContext(input: CreateBonDeCommandeDraftInput): Promise
   return { organizationId, client, opportunity, contact };
 }
 
+function getClientLegalSnapshot(client: UnknownRecord, input: CreateBonDeCommandeDraftInput): { name: string | null; siret: string | null; address: string | null } {
+  const metadata = asRecord(client.metadata) ?? {};
+  const legal = asRecord(metadata.legal) ?? {};
+  return {
+    name: asString(input.clientLegalName) ?? asString(legal.name) ?? asString(client.name),
+    siret: asString(input.clientSiret) ?? asString(legal.siret),
+    address: asString(input.clientBillingAddress) ?? asString(legal.billing_address) ?? asString(legal.address),
+  };
+}
+
+function inferPricingModel(input: CreateBonDeCommandeDraftInput, monthlyAmountEur: number | null): PricingModel {
+  return asPricingModel(input.pricingModel) ?? (monthlyAmountEur !== null && monthlyAmountEur > 0 ? 'monthly' : 'one_shot');
+}
+
 export async function listLucidClientDocumentsForClient(clientId: string, limit = 25): Promise<LucidClientDocumentSummary[]> {
   const organizationId = await ensureLucidOrganizationId();
   const { data, error } = await supabase
@@ -365,12 +360,14 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
   const deliverables = asString(input.deliverables);
   const calendarTimeline = asString(input.calendarTimeline);
   const nextSteps = asString(input.nextSteps);
-  const billingMode = resolveBillingMode(asString(input.billingMode), monthlyAmountEur);
+  const pricingModel = inferPricingModel(input, monthlyAmountEur);
+  const clientLegal = getClientLegalSnapshot(context.client, input);
   const generationPayload = {
     client: {
       id: input.clientId,
       name: clientName,
       slug: clientSlug,
+      legal: clientLegal,
     },
     opportunity: context.opportunity ? {
       id: asString(context.opportunity.id),
@@ -400,7 +397,7 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
       deliverables,
       calendar_timeline: calendarTimeline,
       next_steps: nextSteps,
-      billing_mode: billingMode,
+      pricing_model: pricingModel,
       notes: asString(input.notes),
     },
   };
@@ -416,8 +413,8 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
       status,
       title,
       document_number: documentNumber,
-      template_key: 'lucid_lab_bdc_contract_docuseal_html',
-      template_version: '2026-05-17-bdc-contract-v4-html',
+      template_key: config.docusealSubmissionMode === 'html' ? 'lucid_lab_bdc_contract_docuseal_html' : 'lucid_lab_bdc_contract_docuseal_pdf',
+      template_version: config.docusealSubmissionMode === 'html' ? '2026-05-18-bdc-contract-html-v1' : '2026-05-17-bdc-contract-v3',
       amount_ht_eur: amountHtEur,
       setup_amount_eur: setupAmountEur,
       monthly_amount_eur: monthlyAmountEur,
@@ -434,6 +431,8 @@ export async function createBonDeCommandeDraft(input: CreateBonDeCommandeDraftIn
       metadata: {
         source: 'admin_client_document_form',
         notes: asString(input.notes),
+        client_legal: clientLegal,
+        pricing_model: pricingModel,
       },
     })
     .select('id')
@@ -524,8 +523,22 @@ async function getDocumentForSend(documentId: string): Promise<{ document: Unkno
   return { document, recipient: asRecord(recipientRow) };
 }
 
+function buildSubmitterPayload(documentId: string, document: UnknownRecord, recipient: UnknownRecord, fieldValues: Record<string, string>) {
+  return {
+    role: asString(recipient.role) ?? 'Client',
+    name: asString(recipient.name),
+    email: asString(recipient.email),
+    phone: normalizePhoneE164(asString(recipient.phone)) ?? undefined,
+    external_id: asString(recipient.external_id) ?? `${documentId}:client`,
+    values: fieldValues,
+    fields: Object.entries(fieldValues).map(([name, defaultValue]) => ({ name, default_value: defaultValue, readonly: true })),
+    metadata: { lucid_document_id: documentId, lucid_recipient_id: asString(recipient.id) },
+    completed_redirect_url: config.docusealCompletedRedirectUrl || undefined,
+  };
+}
+
 export async function sendBonDeCommandeForSignature(documentId: string): Promise<void> {
-  if (!config.docusealBonDeCommandeTemplateId) throw new Error('DOCUSEAL_BON_DE_COMMANDE_TEMPLATE_ID is required before sending bon de commande documents.');
+  if (config.docusealSubmissionMode !== 'html' && !config.docusealBonDeCommandeTemplateId) throw new Error('DOCUSEAL_BON_DE_COMMANDE_TEMPLATE_ID is required before sending bon de commande documents.');
   const { document, recipient } = await getDocumentForSend(documentId);
   const validationIssues = asValidationIssues(document.validation_errors);
   if (hasBlockingValidationIssue(validationIssues)) throw new Error('Document still has blocking validation errors. Fix them before sending.');
@@ -533,24 +546,25 @@ export async function sendBonDeCommandeForSignature(documentId: string): Promise
 
   const generationPayload = asRecord(document.generation_payload) ?? {};
   const fieldValues = buildBonDeCommandeFieldValues(document, recipient, generationPayload);
-  const submission = await createDocuSealSubmission({
-    templateId: config.docusealBonDeCommandeTemplateId,
-    name: asString(document.title) ?? 'Bon de commande Lucid-Lab',
-    variables: generationPayload,
-    sendEmail: false,
-    metadata: { lucid_document_id: documentId, lucid_client_id: asString(document.client_id) },
-    submitters: [{
-      role: asString(recipient.role) ?? 'Client',
-      name: asString(recipient.name),
-      email: asString(recipient.email),
-      phone: normalizePhoneE164(asString(recipient.phone)) ?? undefined,
-      external_id: asString(recipient.external_id) ?? `${documentId}:client`,
-      values: fieldValues,
-      fields: Object.entries(fieldValues).map(([name, defaultValue]) => ({ name, default_value: defaultValue, readonly: true })),
-      metadata: { lucid_document_id: documentId, lucid_recipient_id: asString(recipient.id) },
-      completed_redirect_url: config.docusealCompletedRedirectUrl || undefined,
-    }],
-  });
+  const submitters = [buildSubmitterPayload(documentId, document, recipient, fieldValues)];
+  const submissionName = asString(document.title) ?? 'Bon de commande Lucid-Lab';
+  const submissionMetadata = { lucid_document_id: documentId, lucid_client_id: asString(document.client_id), submission_mode: config.docusealSubmissionMode };
+  const submission = config.docusealSubmissionMode === 'html'
+    ? await createDocuSealHtmlSubmission({
+      name: submissionName,
+      documents: buildBonDeCommandeHtmlDocuments({ document, recipient, generationPayload }),
+      sendEmail: false,
+      metadata: submissionMetadata,
+      submitters,
+    })
+    : await createDocuSealSubmission({
+      templateId: config.docusealBonDeCommandeTemplateId,
+      name: submissionName,
+      variables: generationPayload,
+      sendEmail: false,
+      metadata: submissionMetadata,
+      submitters,
+    });
 
   const submissionId = asString(submission.id) ?? null;
   const firstSubmitter = asRecord(submission.submitters?.[0]) ?? null;
@@ -572,7 +586,7 @@ export async function sendBonDeCommandeForSignature(documentId: string): Promise
     .update({
       status: 'sent_for_signature',
       sent_at: now,
-      docuseal_template_id: config.docusealBonDeCommandeTemplateId,
+      docuseal_template_id: config.docusealSubmissionMode === 'html' ? null : config.docusealBonDeCommandeTemplateId,
       docuseal_submission_id: submissionId,
       docuseal_submission_slug: asString(submission.slug),
       docuseal_submission_url: asString(submission.url),

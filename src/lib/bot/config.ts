@@ -74,6 +74,7 @@ export const config = {
   docusealWebhookSecret: process.env['DOCUSEAL_WEBHOOK_SECRET'] ?? '',
   docusealBonDeCommandeTemplateId: process.env['DOCUSEAL_BON_DE_COMMANDE_TEMPLATE_ID'] ?? '',
   docusealCompletedRedirectUrl: process.env['DOCUSEAL_COMPLETED_REDIRECT_URL'] ?? '',
+  docusealSubmissionMode: optionalEnv('DOCUSEAL_SUBMISSION_MODE', 'template') as 'template' | 'html',
 
   // Google Drive document archive — service account (legacy)
   googleDriveClientEmail: process.env['GOOGLE_DRIVE_CLIENT_EMAIL'] ?? process.env['GOOGLE_DRIVE_SERVICE_ACCOUNT_EMAIL'] ?? '',

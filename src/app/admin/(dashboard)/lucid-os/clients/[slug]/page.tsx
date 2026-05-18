@@ -321,6 +321,7 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
   const signedDocumentValue = documents
     .filter((document) => document.status === 'signed' || document.status === 'archived')
     .reduce((total, document) => total + (document.amountHtEur ?? 0), 0);
+  const defaultPricingModel = opportunities[0]?.monthlyValueEur ? 'monthly' : 'one_shot';
 
   return (
     <div className="grid gap-6">
@@ -480,6 +481,12 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
             <InfoItem label="Industry" value={client.industry} />
             <InfoItem label="Billing plan" value={client.billingPlanName ?? client.billingPlanTier} />
             <InfoItem label="Source" value={client.intake.source} />
+            <InfoItem label="Legal name" value={client.legalName} />
+            <InfoItem label="SIRET" value={client.siret} />
+            <div className="border-b border-zinc-100 py-3 md:col-span-2">
+              <dt className="text-xs font-medium uppercase text-zinc-500">Billing address</dt>
+              <dd className="mt-1 whitespace-pre-line text-sm font-medium text-zinc-950">{client.billingAddress ?? '-'}</dd>
+            </div>
             <div className="border-b border-zinc-100 py-3">
               <dt className="text-xs font-medium uppercase text-zinc-500">Email</dt>
               <dd className="mt-1 text-sm font-medium text-zinc-950">
@@ -805,20 +812,35 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
                 {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}{contact.email ? ` - ${contact.email}` : ''}</option>)}
               </select>
             </label>
-            <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Modalité de paiement
-              <select name="billing_mode" defaultValue="auto" className={inputClassName}>
-                <option value="auto">Auto (mensuel si montant mensuel &gt; 0, sinon one-shot)</option>
-                <option value="one_shot">One-shot</option>
-                <option value="mensuel">Mensuel (12 mois)</option>
-              </select>
-            </label>
             {textInput('Google Drive folder id', 'google_drive_folder_id', 'Optional: folder id for this client')}
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
+              <label className="grid gap-2 text-sm font-medium text-zinc-700">
+                Pricing model
+                <select name="pricing_model" defaultValue={defaultPricingModel} className={inputClassName}>
+                  <option value="one_shot">One-shot</option>
+                  <option value="monthly">Mensuel 12 mois</option>
+                </select>
+              </label>
+              <label className="grid gap-2 text-sm font-medium text-zinc-700">
+                Client legal name
+                <input name="client_legal_name" defaultValue={client.legalName ?? client.name} className={inputClassName} placeholder="Raison sociale" />
+              </label>
+            </div>
+            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
+              <label className="grid gap-2 text-sm font-medium text-zinc-700">
+                Client SIRET
+                <input name="client_siret" defaultValue={client.siret ?? ''} className={inputClassName} placeholder="123 456 789 00010" />
+              </label>
+              <label className="grid gap-2 text-sm font-medium text-zinc-700">
+                Client address
+                <input name="client_billing_address" defaultValue={client.billingAddress ?? ''} className={inputClassName} placeholder="Adresse complète du client" />
+              </label>
+            </div>
             {textareaInput('Périmètre de la prestation', 'scope_perimeter', 'Ex: Agent IA de qualification des réservations, automatisation des avis Google...', 4)}
             {textareaInput('Description synthétique', 'synthetic_description', 'Décrivez le contexte, les objectifs et le fonctionnement prévu...', 5)}
             {textareaInput('Livrables attendus', 'deliverables', 'Ex: Agent opérationnel, formation équipe, documentation technique...', 4)}
-            {textareaInput('Calendrier', 'calendar_timeline', 'Ex: Semaine 1..., Semaines 2-3..., Semaine 4...', 4)}
-            {textareaInput('Prochaines étapes', 'next_steps', 'Ex: Confirmer les accès, valider le compte Meta Ads, signer le BDC...', 4)}
+            {textareaInput('Calendrier', 'calendar_timeline', 'Ex: Semaine 1 Audit du fichier, Drive, emails et flux documents.\nSemaines 2-3 Google Sheets, automatisations, relances et classement.\nSemaine 4 Meta Ads, WhatsApp Business et routine SEO.', 4)}
+            {textareaInput('Prochaines étapes', 'next_steps', 'Ex: Confirmer les accès utiles.\nValider les échéances de relance.\nSigner le Bon de Commande et procéder au premier paiement.', 4)}
             {textareaInput('Internal notes', 'document_notes', 'Special payment terms, assumptions, or review notes...', 3)}
             <div className="flex justify-end"><ActionButton icon={FileText}>Create draft</ActionButton></div>
           </form>

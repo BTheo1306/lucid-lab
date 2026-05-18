@@ -65,6 +65,9 @@ export interface LucidClientSummary {
   lastContactedAt: string | null;
   industry: string | null;
   websiteUrl: string | null;
+  legalName: string | null;
+  siret: string | null;
+  billingAddress: string | null;
   firstName: string | null;
   lastName: string | null;
   primaryContactName: string | null;
@@ -276,6 +279,9 @@ export interface UpsertLucidClientIntakeInput {
   status?: LucidClientStatus;
   industry?: string | null;
   websiteUrl?: string | null;
+  legalName?: string | null;
+  siret?: string | null;
+  billingAddress?: string | null;
   primaryContactName?: string | null;
   primaryContactEmail?: string | null;
   primaryContactPhone?: string | null;
@@ -609,6 +615,7 @@ function normalizeClient(value: unknown): LucidClientSummary {
   const billingPlan = asRecord(record.billing_plan);
   const metadata = asRecord(record.metadata) ?? {};
   const intake = asRecord(metadata.intake) ?? {};
+  const legal = asRecord(metadata.legal) ?? {};
 
   return {
     id: String(record.id ?? ''),
@@ -625,6 +632,9 @@ function normalizeClient(value: unknown): LucidClientSummary {
     lastContactedAt: asString(record.last_contacted_at),
     industry: asString(record.industry),
     websiteUrl: asString(record.website_url),
+    legalName: asString(legal.name),
+    siret: asString(legal.siret),
+    billingAddress: asString(legal.billing_address) ?? asString(legal.address),
     firstName: asString(metadata.first_name),
     lastName: asString(metadata.last_name),
     primaryContactName: asString(record.primary_contact_name),
@@ -1797,6 +1807,12 @@ export async function upsertLucidClientIntake(input: UpsertLucidClientIntakeInpu
         first_name: firstText(input.firstName) || existingMetadata.first_name || null,
         last_name: firstText(input.lastName) || existingMetadata.last_name || null,
         tools: input.tools ?? (existingMetadata.tools as string[] | undefined) ?? [],
+        legal: {
+          ...(asRecord(existingMetadata.legal) ?? {}),
+          name: firstText(input.legalName) || asString(asRecord(existingMetadata.legal)?.name) || null,
+          siret: firstText(input.siret) || asString(asRecord(existingMetadata.legal)?.siret) || null,
+          billing_address: firstText(input.billingAddress) || asString(asRecord(existingMetadata.legal)?.billing_address) || asString(asRecord(existingMetadata.legal)?.address) || null,
+        },
         intake: intakeMetadata,
       },
     }, { onConflict: 'organization_id,slug' })
