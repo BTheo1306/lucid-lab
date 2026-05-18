@@ -203,6 +203,7 @@ export const en: typeof fr = {
     copyright: '© 2026 Lucid-Lab. All rights reserved.',
     legalLinks: [
       { label: 'Legal notice', href: '/en/legal-notice' },
+      { label: 'Terms', href: '/en/terms' },
       { label: 'Privacy', href: '/en/privacy' },
     ],
     location: 'Paris, France 🇫🇷',

@@ -186,6 +186,7 @@ export const fr = {
     copyright: '© 2026 Lucid-Lab. Tous droits réservés.',
     legalLinks: [
       { label: 'Mentions légales', href: '/mentions-legales' },
+      { label: 'CGV', href: '/cgv' },
       { label: 'Confidentialité', href: '/confidentialite' },
     ],
     location: 'Paris, France 🇫🇷',

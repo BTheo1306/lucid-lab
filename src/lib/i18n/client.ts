@@ -27,10 +27,12 @@ export function localizeHref(pathname: string, target: Locale): string {
   const FR_TO_EN: Record<string, string> = {
     '/confidentialite': '/privacy',
     '/mentions-legales': '/legal-notice',
+    '/cgv': '/terms',
   };
   const EN_TO_FR: Record<string, string> = {
     '/privacy': '/confidentialite',
     '/legal-notice': '/mentions-legales',
+    '/terms': '/cgv',
   };
 
   if (target === 'en') {

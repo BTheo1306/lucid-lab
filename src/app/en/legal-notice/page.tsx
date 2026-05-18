@@ -24,15 +24,20 @@ export default function LegalNotice() {
         <h2>Site publisher</h2>
         <p>
           <strong>Lucid-Lab</strong><br />
-          Société par actions simplifiée (SAS) under French law<br />
-          Share capital: in formation<br />
-          Registered office: Paris, France<br />
-          SIREN: pending registration<br />
-          Email: <a href="mailto:info@lucid-lab.fr" className="text-zinc-900 underline underline-offset-2">info@lucid-lab.fr</a>
+          Société par actions simplifiée (SAS) under French law — share capital: €999<br />
+          Registered office: 47 rue Vivienne, 75002 Paris, France<br />
+          Registered in the Paris Trade and Companies Register (RCS Paris) under number 104 672 050<br />
+          SIREN: 104 672 050<br />
+          VAT number: FR 02 104 672 050<br />
+          APE code: 6202A (IT consulting)<br />
+          Email: <a href="mailto:info@lucid-lab.fr" className="text-zinc-900 underline underline-offset-2">info@lucid-lab.fr</a><br />
+          Chairman: Periscope-X SARL, a Belgian company registered with the BCE under number
+          BE 1035283275, registered office 168 rue de Haerne, 1040 Etterbeek (Belgium),
+          represented by Mr Anthony Poirier.
         </p>
 
         <h2>Publication directors</h2>
-        <p>Théo BENARD and Jules GOURON, co-founders</p>
+        <p>Théo Benard and Jules Gouron, co-founders and shareholders.</p>
 
         <h2>Hosting</h2>
         <p>
