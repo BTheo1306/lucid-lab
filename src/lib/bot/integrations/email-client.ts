@@ -263,6 +263,39 @@ export async function sendDocumentSignedNotification(input: {
   });
 }
 
+export async function sendDocumentSignedClientConfirmation(input: {
+  to: string;
+  signerName?: string | null;
+  documentNumber?: string | null;
+  documentTitle: string;
+  signedAt?: string | null;
+  signedPdfUrl: string;
+  replyTo?: string | null;
+}): Promise<void> {
+  const signerName = input.signerName?.trim();
+  const greeting = signerName ? `Bonjour ${signerName},` : 'Bonjour,';
+  const documentLabel = input.documentNumber || input.documentTitle;
+  const signedAt = input.signedAt ? new Intl.DateTimeFormat('fr-FR', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(new Date(input.signedAt)) : null;
+  const safeSignedPdfUrl = escapeHtml(input.signedPdfUrl);
+
+  await sendEmail({
+    to: input.to,
+    subject: `Documents Lucid-Lab signes - ${documentLabel}`,
+    replyTo: input.replyTo ?? undefined,
+    text: `${greeting}\n\nVos documents Lucid-Lab ont bien ete signes${signedAt ? ` le ${signedAt}` : ''}.\n\nVous pouvez telecharger le PDF signe ici : ${input.signedPdfUrl}\n\nBien a vous,\nL'equipe Lucid-Lab`,
+    html: `
+      <p>${escapeHtml(greeting)}</p>
+      <p>Vos documents Lucid-Lab ont bien été signés${signedAt ? ` le ${escapeHtml(signedAt)}` : ''}.</p>
+      <p><a href="${safeSignedPdfUrl}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:6px;">Télécharger le PDF signé</a></p>
+      <p>Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><a href="${safeSignedPdfUrl}">${safeSignedPdfUrl}</a></p>
+      <p>Bien à vous,<br>L'équipe Lucid-Lab</p>
+    `,
+  });
+}
+
 function buildFollowupTemplate(
   name: string,
   lang: 'fr' | 'en',

@@ -3,7 +3,7 @@ import 'server-only';
 import { createHash } from 'node:crypto';
 import { config } from '@/lib/bot/config';
 import { supabase } from '@/lib/bot/db/supabase';
-import { sendDocumentSignatureRequest, sendDocumentSignedNotification } from '@/lib/bot/integrations/email-client';
+import { sendDocumentSignatureRequest, sendDocumentSignedClientConfirmation, sendDocumentSignedNotification } from '@/lib/bot/integrations/email-client';
 import {
   createLucidClientInteraction,
   createLucidClientTask,
@@ -41,6 +41,10 @@ interface DocuSealWebhookPayload {
 
 function missingRelation(error: QueryError | null): boolean {
   return error?.code === '42P01' || error?.code === 'PGRST205';
+}
+
+function missingUniqueConflictTarget(error: QueryError | null): boolean {
+  return error?.code === '42P10' || /no unique or exclusion constraint/i.test(error?.message ?? '');
 }
 
 function asRecord(value: unknown): UnknownRecord | null {
@@ -682,15 +686,7 @@ async function upsertDocuSealStorageLocation(input: {
   url: string;
   submissionId: string;
 }): Promise<void> {
-  await supabase
-    .from('client_document_storage_locations')
-    .delete()
-    .eq('organization_id', input.organizationId)
-    .eq('document_id', input.documentId)
-    .eq('storage_provider', 'docuseal')
-    .eq('file_kind', input.fileKind);
-
-  const { error } = await supabase.from('client_document_storage_locations').insert({
+  const storageLocation = {
     organization_id: input.organizationId,
     client_id: input.clientId,
     document_id: input.documentId,
@@ -700,7 +696,25 @@ async function upsertDocuSealStorageLocation(input: {
     url: input.url,
     mime_type: 'application/pdf',
     metadata: { docuseal_submission_id: input.submissionId },
+  };
+
+  const { error } = await supabase.from('client_document_storage_locations').upsert(storageLocation, {
+    onConflict: 'organization_id,document_id,storage_provider,file_kind',
   });
+  if (error && missingUniqueConflictTarget(error)) {
+    const { error: deleteError } = await supabase
+      .from('client_document_storage_locations')
+      .delete()
+      .eq('organization_id', input.organizationId)
+      .eq('document_id', input.documentId)
+      .eq('storage_provider', 'docuseal')
+      .eq('file_kind', input.fileKind);
+    if (deleteError) throw new Error(`upsertDocuSealStorageLocation delete: ${deleteError.message}`);
+
+    const { error: insertError } = await supabase.from('client_document_storage_locations').insert(storageLocation);
+    if (insertError) throw new Error(`upsertDocuSealStorageLocation: ${insertError.message}`);
+    return;
+  }
   if (error) throw new Error(`upsertDocuSealStorageLocation: ${error.message}`);
 }
 
@@ -714,15 +728,7 @@ async function upsertGoogleDriveStorageLocation(input: {
   folderId: string;
   url: string;
 }): Promise<void> {
-  await supabase
-    .from('client_document_storage_locations')
-    .delete()
-    .eq('organization_id', input.organizationId)
-    .eq('document_id', input.documentId)
-    .eq('storage_provider', 'google_drive')
-    .eq('file_kind', input.fileKind);
-
-  const { error } = await supabase.from('client_document_storage_locations').insert({
+  const storageLocation = {
     organization_id: input.organizationId,
     client_id: input.clientId,
     document_id: input.documentId,
@@ -733,7 +739,25 @@ async function upsertGoogleDriveStorageLocation(input: {
     folder_id: input.folderId,
     url: input.url,
     mime_type: 'application/pdf',
+  };
+
+  const { error } = await supabase.from('client_document_storage_locations').upsert(storageLocation, {
+    onConflict: 'organization_id,document_id,storage_provider,file_kind',
   });
+  if (error && missingUniqueConflictTarget(error)) {
+    const { error: deleteError } = await supabase
+      .from('client_document_storage_locations')
+      .delete()
+      .eq('organization_id', input.organizationId)
+      .eq('document_id', input.documentId)
+      .eq('storage_provider', 'google_drive')
+      .eq('file_kind', input.fileKind);
+    if (deleteError) throw new Error(`upsertGoogleDriveStorageLocation delete: ${deleteError.message}`);
+
+    const { error: insertError } = await supabase.from('client_document_storage_locations').insert(storageLocation);
+    if (insertError) throw new Error(`upsertGoogleDriveStorageLocation: ${insertError.message}`);
+    return;
+  }
   if (error) throw new Error(`upsertGoogleDriveStorageLocation: ${error.message}`);
 }
 
@@ -751,13 +775,24 @@ async function getDocumentClient(clientId: string | null): Promise<UnknownRecord
 async function getDocumentRecipient(documentId: string): Promise<UnknownRecord | null> {
   const { data, error } = await supabase
     .from('client_document_recipients')
-    .select('id,full_name,email,status,completed_at')
+    .select('id,name,email,status,completed_at')
     .eq('document_id', documentId)
     .order('created_at', { ascending: true })
     .limit(1)
     .maybeSingle();
   if (error && !missingRelation(error)) throw new Error(`getDocumentRecipient: ${error.message}`);
   return asRecord(data);
+}
+
+interface RecordDocumentEventInput {
+  organizationId: string;
+  clientId: string | null;
+  documentId: string;
+  source: string;
+  eventType: string;
+  idempotencyKey: string;
+  eventTimestamp?: string | null;
+  payload?: unknown;
 }
 
 async function hasDocumentEvent(organizationId: string, documentId: string, idempotencyKey: string): Promise<boolean> {
@@ -772,16 +807,7 @@ async function hasDocumentEvent(organizationId: string, documentId: string, idem
   return (data ?? []).length > 0;
 }
 
-async function recordDocumentEvent(input: {
-  organizationId: string;
-  clientId: string | null;
-  documentId: string;
-  source: string;
-  eventType: string;
-  idempotencyKey: string;
-  eventTimestamp?: string | null;
-  payload?: unknown;
-}): Promise<void> {
+async function insertDocumentEventIfNew(input: RecordDocumentEventInput): Promise<boolean> {
   const { error } = await supabase.from('client_document_events').insert({
     organization_id: input.organizationId,
     client_id: input.clientId,
@@ -792,7 +818,48 @@ async function recordDocumentEvent(input: {
     event_timestamp: input.eventTimestamp ?? new Date().toISOString(),
     payload: input.payload ?? {},
   });
-  if (error && error.code !== '23505') throw new Error(`recordDocumentEvent: ${error.message}`);
+  if (error) {
+    if (error.code === '23505') return false;
+    throw new Error(`recordDocumentEvent: ${error.message}`);
+  }
+  return true;
+}
+
+async function releaseDocumentEventClaim(input: {
+  organizationId: string;
+  source: string;
+  idempotencyKey: string;
+}): Promise<void> {
+  const { error } = await supabase
+    .from('client_document_events')
+    .delete()
+    .eq('organization_id', input.organizationId)
+    .eq('source', input.source)
+    .eq('idempotency_key', input.idempotencyKey);
+  if (error && !missingRelation(error)) throw new Error(`releaseDocumentEventClaim: ${error.message}`);
+}
+
+async function recordDocumentEvent(input: RecordDocumentEventInput): Promise<void> {
+  await insertDocumentEventIfNew(input);
+}
+
+async function getExistingGoogleDriveArchive(documentId: string): Promise<{ fileUrl: string | null; folderUrl: string | null }> {
+  const { data, error } = await supabase
+    .from('client_document_storage_locations')
+    .select('url,folder_id')
+    .eq('document_id', documentId)
+    .eq('storage_provider', 'google_drive')
+    .eq('file_kind', 'combined_pdf')
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  if (error && !missingRelation(error)) throw new Error(`getExistingGoogleDriveArchive: ${error.message}`);
+  const storageLocation = asRecord(data);
+  const folderId = asString(storageLocation?.folder_id);
+  return {
+    fileUrl: asString(storageLocation?.url),
+    folderUrl: folderId ? buildGoogleDriveFolderUrl(folderId) : null,
+  };
 }
 
 async function archiveSignedDocumentsToGoogleDrive(input: {
@@ -807,6 +874,7 @@ async function archiveSignedDocumentsToGoogleDrive(input: {
   const documentId = asString(input.document.id) ?? '';
   const clientId = asString(input.document.client_id) ?? '';
   const documentNumber = asString(input.document.document_number) ?? documentId;
+  const archiveIdempotencyKey = `google-drive-archive:${input.submissionId}`;
   let folderId = asString(input.document.google_drive_folder_id);
 
   const skipped = async (status: string, folderUrl: string | null = buildGoogleDriveFolderUrl(folderId)) => {
@@ -816,7 +884,7 @@ async function archiveSignedDocumentsToGoogleDrive(input: {
       documentId,
       source: 'google_drive',
       eventType: 'google_drive_archive_skipped',
-      idempotencyKey: `google-drive-archive-skipped:${input.submissionId}:${input.completedAt ?? 'completed'}:${status}`,
+      idempotencyKey: `google-drive-archive-skipped:${input.submissionId}:${status}`,
       eventTimestamp: input.completedAt,
       payload: { status, folder_id: folderId },
     });
@@ -825,6 +893,34 @@ async function archiveSignedDocumentsToGoogleDrive(input: {
 
   if (!input.combinedDocumentUrl) return skipped('No signed PDF URL available yet.');
   if (!isGoogleDriveArchiveConfigured()) return skipped('Google Drive archive not configured.');
+
+  if (await hasDocumentEvent(input.organizationId, documentId, archiveIdempotencyKey)) {
+    const existingArchive = await getExistingGoogleDriveArchive(documentId);
+    return {
+      status: existingArchive.fileUrl ? 'Already archived in Google Drive.' : 'Google Drive archive already processed.',
+      fileUrl: existingArchive.fileUrl,
+      folderUrl: existingArchive.folderUrl ?? buildGoogleDriveFolderUrl(folderId),
+    };
+  }
+
+  const archiveClaimed = await insertDocumentEventIfNew({
+    organizationId: input.organizationId,
+    clientId,
+    documentId,
+    source: 'google_drive',
+    eventType: 'google_drive_archive_started',
+    idempotencyKey: archiveIdempotencyKey,
+    eventTimestamp: input.completedAt,
+    payload: { folder_id: folderId, signed_pdf_url: input.combinedDocumentUrl },
+  });
+  if (!archiveClaimed) {
+    const existingArchive = await getExistingGoogleDriveArchive(documentId);
+    return {
+      status: existingArchive.fileUrl ? 'Already archived in Google Drive.' : 'Google Drive archive already in progress.',
+      fileUrl: existingArchive.fileUrl,
+      folderUrl: existingArchive.folderUrl ?? buildGoogleDriveFolderUrl(folderId),
+    };
+  }
 
   if (!folderId) {
     // Determine the root folder: use configured one, or auto-create "Lucid OS - Documents Signés" at Drive root.
@@ -835,7 +931,14 @@ async function archiveSignedDocumentsToGoogleDrive(input: {
     await supabase.from('client_documents').update({ google_drive_folder_id: folderId }).eq('id', documentId);
   }
 
-  if (!folderId) return skipped('Client Google Drive folder id is missing.', null);
+  if (!folderId) {
+    await releaseDocumentEventClaim({
+      organizationId: input.organizationId,
+      source: 'google_drive',
+      idempotencyKey: archiveIdempotencyKey,
+    });
+    return skipped('Client Google Drive folder id is missing.', null);
+  }
 
   try {
     const signedPdf = await uploadPdfToGoogleDrive({
@@ -878,7 +981,7 @@ async function archiveSignedDocumentsToGoogleDrive(input: {
       documentId,
       source: 'google_drive',
       eventType: 'google_drive_archive_completed',
-      idempotencyKey: `google-drive-archive:${input.submissionId}:${input.completedAt ?? 'completed'}`,
+      idempotencyKey: `${archiveIdempotencyKey}:completed`,
       eventTimestamp: input.completedAt,
       payload: { folder_id: folderId, signed_pdf_url: signedPdf.url },
     });
@@ -886,13 +989,18 @@ async function archiveSignedDocumentsToGoogleDrive(input: {
     return { status: 'Archived in Google Drive.', fileUrl: signedPdf.url, folderUrl: buildGoogleDriveFolderUrl(folderId) };
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Unknown Google Drive archive error';
+    await releaseDocumentEventClaim({
+      organizationId: input.organizationId,
+      source: 'google_drive',
+      idempotencyKey: archiveIdempotencyKey,
+    });
     await recordDocumentEvent({
       organizationId: input.organizationId,
       clientId,
       documentId,
       source: 'google_drive',
       eventType: 'google_drive_archive_failed',
-      idempotencyKey: `google-drive-archive-failed:${input.submissionId}:${input.completedAt ?? 'completed'}`,
+      idempotencyKey: `google-drive-archive-failed:${input.submissionId}:${new Date().toISOString()}`,
       eventTimestamp: input.completedAt,
       payload: { error: message, folder_id: folderId },
     });
@@ -913,25 +1021,8 @@ async function sendSignedDocumentNotificationOnce(input: {
 }): Promise<void> {
   const documentId = asString(input.document.id) ?? '';
   const clientId = asString(input.document.client_id);
-  const idempotencyKey = `signed-document-notification:${input.submissionId}:${input.completedAt ?? 'completed'}`;
-  if (await hasDocumentEvent(input.organizationId, documentId, idempotencyKey)) return;
-
-  const clientSlug = asString(input.client?.slug);
-  const adminUrl = clientSlug ? `https://lucid-lab.fr/admin/lucid-os/clients/${clientSlug}` : null;
-  await sendDocumentSignedNotification({
-    clientName: asString(input.client?.name),
-    signerName: asString(input.recipient?.full_name) ?? asString(input.client?.primary_contact_name),
-    documentNumber: asString(input.document.document_number),
-    documentTitle: asString(input.document.title) ?? 'Bon de commande + contrat Lucid-Lab',
-    signedAt: input.completedAt,
-    signedPdfUrl: input.combinedDocumentUrl,
-    googleDriveUrl: input.driveArchive.fileUrl,
-    googleDriveFolderUrl: input.driveArchive.folderUrl,
-    auditLogUrl: input.auditLogUrl,
-    adminUrl,
-    driveStatus: input.driveArchive.status,
-  });
-  await recordDocumentEvent({
+  const idempotencyKey = `signed-document-internal-notification:${input.submissionId}`;
+  const notificationClaimed = await insertDocumentEventIfNew({
     organizationId: input.organizationId,
     clientId,
     documentId,
@@ -941,6 +1032,71 @@ async function sendSignedDocumentNotificationOnce(input: {
     eventTimestamp: input.completedAt,
     payload: { to: config.teamNotificationEmail, drive_status: input.driveArchive.status },
   });
+  if (!notificationClaimed) return;
+
+  const clientSlug = asString(input.client?.slug);
+  const adminUrl = clientSlug ? `https://lucid-lab.fr/admin/lucid-os/clients/${clientSlug}` : null;
+  try {
+    await sendDocumentSignedNotification({
+      clientName: asString(input.client?.name),
+      signerName: asString(input.recipient?.name) ?? asString(input.client?.primary_contact_name),
+      documentNumber: asString(input.document.document_number),
+      documentTitle: asString(input.document.title) ?? 'Bon de commande + contrat Lucid-Lab',
+      signedAt: input.completedAt,
+      signedPdfUrl: input.combinedDocumentUrl,
+      googleDriveUrl: input.driveArchive.fileUrl,
+      googleDriveFolderUrl: input.driveArchive.folderUrl,
+      auditLogUrl: input.auditLogUrl,
+      adminUrl,
+      driveStatus: input.driveArchive.status,
+    });
+  } catch (error) {
+    await releaseDocumentEventClaim({ organizationId: input.organizationId, source: 'lucid_os', idempotencyKey });
+    throw error;
+  }
+}
+
+async function sendSignedDocumentClientConfirmationOnce(input: {
+  organizationId: string;
+  document: UnknownRecord;
+  client: UnknownRecord | null;
+  recipient: UnknownRecord | null;
+  submissionId: string;
+  completedAt: string | null;
+  combinedDocumentUrl: string | null;
+}): Promise<void> {
+  const documentId = asString(input.document.id) ?? '';
+  const clientId = asString(input.document.client_id);
+  const recipientEmail = asString(input.recipient?.email) ?? asString(input.client?.primary_contact_email);
+  if (!recipientEmail || !input.combinedDocumentUrl) return;
+
+  const idempotencyKey = `signed-document-client-confirmation:${input.submissionId}`;
+  const confirmationClaimed = await insertDocumentEventIfNew({
+    organizationId: input.organizationId,
+    clientId,
+    documentId,
+    source: 'lucid_os',
+    eventType: 'signed_document_client_confirmation_sent',
+    idempotencyKey,
+    eventTimestamp: input.completedAt,
+    payload: { to: recipientEmail, signed_pdf_url: input.combinedDocumentUrl },
+  });
+  if (!confirmationClaimed) return;
+
+  try {
+    await sendDocumentSignedClientConfirmation({
+      to: recipientEmail,
+      signerName: asString(input.recipient?.name) ?? asString(input.client?.primary_contact_name),
+      documentNumber: asString(input.document.document_number),
+      documentTitle: asString(input.document.title) ?? 'Bon de commande + contrat Lucid-Lab',
+      signedAt: input.completedAt,
+      signedPdfUrl: input.combinedDocumentUrl,
+      replyTo: config.teamNotificationEmail,
+    });
+  } catch (error) {
+    await releaseDocumentEventClaim({ organizationId: input.organizationId, source: 'lucid_os', idempotencyKey });
+    throw error;
+  }
 }
 
 async function finalizeSignedDocumentBusinessEvents(input: {
@@ -962,7 +1118,7 @@ async function finalizeSignedDocumentBusinessEvents(input: {
 
   if ((existingBillingEvents ?? []).length > 0) return;
 
-  await supabase.from('client_billing_events').insert({
+  const { error: billingInsertError } = await supabase.from('client_billing_events').insert({
     organization_id: input.organizationId,
     client_id: asString(input.document.client_id),
     opportunity_id: asString(input.document.opportunity_id),
@@ -977,6 +1133,10 @@ async function finalizeSignedDocumentBusinessEvents(input: {
     occurred_at: input.completedAt ?? new Date().toISOString(),
     metadata: { docuseal_submission_id: input.submissionId, source: input.source },
   });
+  if (billingInsertError) {
+    if (billingInsertError.code === '23505') return;
+    throw new Error(`finalizeSignedDocumentBusinessEvents billing insert: ${billingInsertError.message}`);
+  }
 
   if (asString(input.document.opportunity_id)) {
     await supabase
@@ -1122,6 +1282,15 @@ export async function refreshDocuSealDocumentStatus(documentId: string): Promise
       auditLogUrl,
       driveArchive,
     });
+    await sendSignedDocumentClientConfirmationOnce({
+      organizationId,
+      document,
+      client,
+      recipient,
+      submissionId,
+      completedAt,
+      combinedDocumentUrl,
+    });
     await finalizeSignedDocumentBusinessEvents({
       organizationId,
       document,
@@ -1217,7 +1386,7 @@ export async function recordDocuSealWebhookEvent(payload: DocuSealWebhookPayload
   if (document && submitterId) {
     const { data: recipientRow, error } = await supabase
       .from('client_document_recipients')
-      .select('id,client_id,document_id')
+      .select('id,client_id,document_id,name,email,status,completed_at')
       .eq('organization_id', organizationId)
       .eq('document_id', String(document.id))
       .eq('docuseal_submitter_id', submitterId)
@@ -1322,6 +1491,7 @@ export async function recordDocuSealWebhookEvent(payload: DocuSealWebhookPayload
 
     if (submissionId) {
       const client = await getDocumentClient(asString(document.client_id));
+      const documentRecipient = recipient ?? await getDocumentRecipient(asString(document.id) ?? '');
       const driveArchive = await archiveSignedDocumentsToGoogleDrive({
         organizationId,
         document,
@@ -1335,12 +1505,21 @@ export async function recordDocuSealWebhookEvent(payload: DocuSealWebhookPayload
         organizationId,
         document,
         client,
-        recipient,
+        recipient: documentRecipient,
         submissionId,
         completedAt: eventTimestamp,
         combinedDocumentUrl,
         auditLogUrl,
         driveArchive,
+      });
+      await sendSignedDocumentClientConfirmationOnce({
+        organizationId,
+        document,
+        client,
+        recipient: documentRecipient,
+        submissionId,
+        completedAt: eventTimestamp,
+        combinedDocumentUrl,
       });
       await finalizeSignedDocumentBusinessEvents({
         organizationId,
