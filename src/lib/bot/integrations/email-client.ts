@@ -30,6 +30,11 @@ interface SendEmailInput {
   html: string;
   text?: string;
   replyTo?: string;
+  attachments?: Array<{
+    filename: string;
+    content: Buffer;
+    contentType: string;
+  }>;
 }
 
 async function sendEmail(input: SendEmailInput): Promise<void> {
@@ -47,7 +52,31 @@ async function sendEmail(input: SendEmailInput): Promise<void> {
     html: input.html,
     text: input.text,
     replyTo: input.replyTo,
+    attachments: input.attachments,
   });
+}
+
+function safeAttachmentFileName(value: string): string {
+  const normalized = value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9._-]+/gi, '-')
+    .replace(/^-+|-+$/g, '')
+    .toLowerCase();
+  return normalized || 'documents-lucid-lab-signes';
+}
+
+async function downloadPdfAttachment(url: string, fileName: string): Promise<SendEmailInput['attachments']> {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) throw new Error(`${response.status} ${response.statusText}`);
+    const content = Buffer.from(await response.arrayBuffer());
+    return [{ filename: fileName, content, contentType: 'application/pdf' }];
+  } catch (error) {
+    const message = error instanceof Error ? error.message : 'unknown error';
+    console.warn(`[email] Could not attach signed PDF ${fileName}: ${message}`);
+    return undefined;
+  }
 }
 
 /** New lead captured by the bot — notify the team immediately. */
@@ -280,15 +309,20 @@ export async function sendDocumentSignedClientConfirmation(input: {
     timeStyle: 'short',
   }).format(new Date(input.signedAt)) : null;
   const safeSignedPdfUrl = escapeHtml(input.signedPdfUrl);
+  const attachmentFileName = `${safeAttachmentFileName(documentLabel)}.pdf`;
+  const attachments = await downloadPdfAttachment(input.signedPdfUrl, attachmentFileName);
+  const hasAttachment = Boolean(attachments?.length);
 
   await sendEmail({
     to: input.to,
     subject: `Documents Lucid-Lab signes - ${documentLabel}`,
     replyTo: input.replyTo ?? undefined,
-    text: `${greeting}\n\nVos documents Lucid-Lab ont bien ete signes${signedAt ? ` le ${signedAt}` : ''}.\n\nVous pouvez telecharger le PDF signe ici : ${input.signedPdfUrl}\n\nBien a vous,\nL'equipe Lucid-Lab`,
+    attachments,
+    text: `${greeting}\n\nVos documents Lucid-Lab ont bien ete signes${signedAt ? ` le ${signedAt}` : ''}.\n\n${hasAttachment ? 'Le PDF signe est joint a cet email. ' : ''}Vous pouvez aussi telecharger le PDF signe ici : ${input.signedPdfUrl}\n\nBien a vous,\nL'equipe Lucid-Lab`,
     html: `
       <p>${escapeHtml(greeting)}</p>
       <p>Vos documents Lucid-Lab ont bien été signés${signedAt ? ` le ${escapeHtml(signedAt)}` : ''}.</p>
+      ${hasAttachment ? '<p>Le PDF signé est joint à cet email. Le lien ci-dessous reste disponible en secours.</p>' : ''}
       <p><a href="${safeSignedPdfUrl}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:6px;">Télécharger le PDF signé</a></p>
       <p>Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><a href="${safeSignedPdfUrl}">${safeSignedPdfUrl}</a></p>
       <p>Bien à vous,<br>L'équipe Lucid-Lab</p>
