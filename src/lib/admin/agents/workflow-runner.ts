@@ -197,6 +197,14 @@ function nextActionForStage(stage: ClientLifecycleStage | null): string | null {
   }
 }
 
+function optionalToolIsNotRequired(run: AutomationRunRecord, toolName: string): boolean {
+  const normalized = normalizeForMatch(requestTextFromRun(run));
+  if (toolName === 'outreach.email_send') {
+    return !/\b(email|mail|outreach|prospection|relance|envoie|envoyer|send|sent)\b/.test(normalized);
+  }
+  return false;
+}
+
 async function findBestClientForText(organizationId: string, text: string): Promise<UnknownRecord | null> {
   const { data, error } = await supabase
     .from('clients')
@@ -721,6 +729,7 @@ async function executeQueuedAutomationRun(run: AutomationRunRecord): Promise<{ s
   const completedTools: string[] = [];
   const pausedTools: string[] = [];
   const failedTools: string[] = [];
+  const skippedTools: string[] = [];
   let toolCallsCreated = 1;
 
   for (const toolName of proposedTools) {
@@ -736,6 +745,22 @@ async function executeQueuedAutomationRun(run: AutomationRunRecord): Promise<{ s
         resultSummary: { reason: 'unknown_tool' },
         externalSideEffect: false,
         errorMessage: 'Tool is not registered in Lucid OS.',
+      });
+      toolCallsCreated++;
+      continue;
+    }
+
+    if (optionalToolIsNotRequired(run, toolName)) {
+      skippedTools.push(toolName);
+      await createToolCall({
+        runId: run.id,
+        stepId: dispatchStepId,
+        toolName,
+        status: 'cancelled',
+        toolArguments: { workflow_key: run.workflowKey, approval_id: asString(run.input.approval_id) },
+        resultSummary: { execution: 'optional_tool_not_required_for_request' },
+        externalSideEffect: tool.externalSideEffect,
+        errorMessage: 'Skipped because the approved request did not ask for this optional side effect.',
       });
       toolCallsCreated++;
       continue;
@@ -825,6 +850,7 @@ async function executeQueuedAutomationRun(run: AutomationRunRecord): Promise<{ s
     completed_tools: completedTools,
     paused_tools: pausedTools,
     failed_tools: failedTools,
+    skipped_tools: skippedTools,
     external_side_effects_allowed: false,
   };
 
