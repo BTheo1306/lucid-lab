@@ -4,16 +4,18 @@ import {
   listLucidAgentRuns,
   listLucidAgentTasks,
   listLucidApprovals,
+  listLucidAutomationRuns,
   listLucidClients,
   listLucidIncidents,
   type LucidAgentRunStatus,
   type LucidAgentTaskPriority,
   type LucidAgentTaskStatus,
+  type LucidAutomationRunStatus,
   type LucidClientHealthStatus,
   type LucidIncidentStatus,
 } from '@/lib/admin/lucid-os';
 import { EmptyState, formatAdminDateTime, LucidOsHeader, Section, StatCard, StatusBadge } from '../components';
-import { updateAgentTaskStatusAction } from './actions';
+import { decideAgentApprovalAction, processQueuedAgentWorkflowsAction, updateAgentTaskStatusAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -58,6 +60,23 @@ function runStatusTone(status: LucidAgentRunStatus): 'neutral' | 'good' | 'warni
     case 'queued':
     case 'running':
     case 'waiting_approval':
+      return 'warning';
+    default:
+      return 'neutral';
+  }
+}
+
+function automationRunStatusTone(status: LucidAutomationRunStatus): 'neutral' | 'good' | 'warning' | 'danger' {
+  switch (status) {
+    case 'completed':
+      return 'good';
+    case 'failed':
+    case 'completed_with_errors':
+    case 'cancelled':
+      return 'danger';
+    case 'queued':
+    case 'running':
+    case 'paused':
       return 'warning';
     default:
       return 'neutral';
@@ -134,8 +153,12 @@ function labelFr(value: string): string {
     monitoring: 'surveillance',
     normal: 'normal',
     open: 'ouvert',
+    paused: 'en pause',
+    pending: 'en attente',
+    approved: 'validé',
     queued: 'en file',
     ready: 'prêt',
+    rejected: 'refusé',
     resolved: 'résolu',
     risk: 'risque',
     running: 'en cours',
@@ -169,17 +192,45 @@ function TaskStatusButton({ taskId, status, label }: { taskId: string; status: L
   );
 }
 
+function ApprovalDecisionButton({ approvalId, decision, label }: { approvalId: string; decision: 'approve' | 'reject'; label: string }) {
+  const tone = decision === 'approve'
+    ? 'border-emerald-500/30 text-emerald-200 hover:bg-emerald-500/10'
+    : 'border-red-500/30 text-red-200 hover:bg-red-500/10';
+
+  return (
+    <form action={decideAgentApprovalAction}>
+      <input type="hidden" name="approval_id" value={approvalId} />
+      <input type="hidden" name="decision" value={decision} />
+      <button className={`inline-flex h-8 items-center justify-center rounded border px-2.5 text-xs font-medium transition ${tone}`}>
+        {label}
+      </button>
+    </form>
+  );
+}
+
+function ProcessQueueButton() {
+  return (
+    <form action={processQueuedAgentWorkflowsAction}>
+      <button className="inline-flex h-8 items-center justify-center rounded border border-white/10 px-2.5 text-xs font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-zinc-50">
+        Traiter la file
+      </button>
+    </form>
+  );
+}
+
 export default async function LucidOsInboxPage() {
-  const [pendingApprovals, incidents, clients, agentTasks, agentRuns] = await Promise.all([
+  const [pendingApprovals, incidents, clients, agentTasks, agentRuns, automationRuns] = await Promise.all([
     listLucidApprovals(20, 'pending'),
     listLucidIncidents(20),
     listLucidClients(50),
     listLucidAgentTasks(40),
     listLucidAgentRuns(20),
+    listLucidAutomationRuns(20),
   ]);
   const openIncidents = incidents.filter((incident) => !['resolved', 'closed'].includes(incident.status));
   const openAgentTasks = agentTasks.filter((task) => !['done', 'cancelled'].includes(task.status));
   const recentTelegramRuns = agentRuns.filter((run) => run.triggerSource === 'telegram').slice(0, 8);
+  const recentAutomationRuns = automationRuns.slice(0, 8);
   const clientNextActions = clients
     .filter((client) => client.nextAction || client.nextActionDueAt || ['watch', 'risk', 'critical'].includes(client.clientHealthStatus))
     .slice(0, 8);
@@ -249,10 +300,17 @@ export default async function LucidOsInboxPage() {
                       <p className="mt-1 text-sm text-zinc-500">
                         {approval.agentName ?? 'Agent inconnu'} · {approval.clientName ?? approval.projectName ?? 'Lucid OS'} · {formatAdminDateTime(approval.createdAt)}
                       </p>
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-400">
+                        {contextString(approval.requestPayload, 'proposed_summary') ?? contextString(approval.requestPayload, 'requested_text') ?? 'Validation agent en attente.'}
+                      </p>
                     </div>
-                    <Link href="/admin/lucid-os/agents" className="inline-flex items-center gap-1 text-sm font-medium text-zinc-400 hover:text-zinc-50">
-                      Voir <ArrowRight className="size-4" />
-                    </Link>
+                    <div className="flex flex-wrap gap-2 sm:justify-end">
+                      <ApprovalDecisionButton approvalId={approval.id} decision="approve" label="Valider" />
+                      <ApprovalDecisionButton approvalId={approval.id} decision="reject" label="Refuser" />
+                      <Link href="/admin/lucid-os/agents" className="inline-flex h-8 items-center gap-1 rounded border border-white/10 px-2.5 text-xs font-medium text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-50">
+                        Voir <ArrowRight className="size-4" />
+                      </Link>
+                    </div>
                   </div>
                 </div>
               ))}
@@ -289,6 +347,42 @@ export default async function LucidOsInboxPage() {
           )}
         </Section>
       </div>
+
+      <Section title="Exécutions durables" action={<ProcessQueueButton />}>
+        {recentAutomationRuns.length === 0 ? (
+          <EmptyState>Aucune exécution durable enregistrée.</EmptyState>
+        ) : (
+          <div className="divide-y divide-white/10">
+            {recentAutomationRuns.map((run) => {
+              const actionType = contextString(run.input, 'action_type') ?? run.workflowKey;
+              const stage = contextString(run.summary, 'stage') ?? run.runType;
+              const pausedTools = Array.isArray(run.summary.paused_tools)
+                ? run.summary.paused_tools.filter((tool): tool is string => typeof tool === 'string')
+                : [];
+
+              return (
+                <div key={run.id} className="py-4 first:pt-0 last:pb-0">
+                  <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <PlayCircle className="size-4 text-zinc-500" />
+                        <p className="truncate font-medium text-zinc-50">{actionType}</p>
+                        <StatusBadge tone={automationRunStatusTone(run.status)}>{labelFr(run.status)}</StatusBadge>
+                      </div>
+                      <p className="mt-1 text-sm text-zinc-500">
+                        {run.agentName ?? 'Agent'} · {run.clientName ?? run.projectName ?? 'Lucid OS'} · {formatAdminDateTime(run.createdAt)}
+                      </p>
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-400">
+                        {labelFr(stage)}{pausedTools.length ? ` · en attente: ${pausedTools.join(', ')}` : ''}
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </Section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
         <Section title="Incidents">

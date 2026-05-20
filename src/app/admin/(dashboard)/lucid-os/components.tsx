@@ -46,15 +46,20 @@ export function StatCard({
 
 export function Section({
   title,
+  action,
   children,
 }: {
   title: string;
   description?: string;
+  action?: ReactNode;
   children: ReactNode;
 }) {
   return (
     <section className="grid gap-3">
-      <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">{title}</h2>
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">{title}</h2>
+        {action ? <div className="shrink-0">{action}</div> : null}
+      </div>
       <div className="border-t border-white/[0.08] pt-3">{children}</div>
     </section>
   );

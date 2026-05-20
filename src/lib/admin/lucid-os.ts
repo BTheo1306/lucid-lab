@@ -23,6 +23,7 @@ export type LucidWebsiteStatus = 'planned' | 'designing' | 'building' | 'live' |
 export type LucidHealthStatus = 'unknown' | 'healthy' | 'degraded' | 'down';
 export type LucidAgentStatus = 'draft' | 'active' | 'paused' | 'retired';
 export type LucidAgentRunStatus = 'queued' | 'running' | 'waiting_approval' | 'completed' | 'completed_with_errors' | 'failed' | 'cancelled';
+export type LucidAutomationRunStatus = 'queued' | 'running' | 'completed' | 'completed_with_errors' | 'failed' | 'cancelled' | 'paused';
 export type LucidAgentTaskStatus = 'backlog' | 'ready' | 'in_progress' | 'blocked' | 'waiting_approval' | 'done' | 'cancelled';
 export type LucidAgentTaskPriority = 'low' | 'normal' | 'high' | 'urgent';
 export type LucidApprovalStatus = 'pending' | 'approved' | 'rejected' | 'expired' | 'cancelled';
@@ -448,6 +449,24 @@ export interface LucidAgentRunSummary {
   projectName: string | null;
 }
 
+export interface LucidAutomationRunSummary {
+  id: string;
+  workflowKey: string;
+  runType: string;
+  status: LucidAutomationRunStatus;
+  input: Record<string, unknown>;
+  summary: Record<string, unknown>;
+  errorMessage: string | null;
+  startedAt: string | null;
+  finishedAt: string | null;
+  createdAt: string;
+  updatedAt: string;
+  agentName: string | null;
+  agentSlug: string | null;
+  clientName: string | null;
+  projectName: string | null;
+}
+
 export interface LucidAgentTaskSummary {
   id: string;
   title: string;
@@ -470,9 +489,12 @@ export interface LucidAgentTaskSummary {
 
 export interface LucidApprovalSummary {
   id: string;
+  runId: string | null;
+  taskId: string | null;
   actionType: string;
   status: LucidApprovalStatus;
   riskLevel: string;
+  requestPayload: Record<string, unknown>;
   decisionNotes: string | null;
   expiresAt: string | null;
   createdAt: string;
@@ -921,6 +943,31 @@ function normalizeAgentRun(value: unknown): LucidAgentRunSummary {
   };
 }
 
+function normalizeAutomationRun(value: unknown): LucidAutomationRunSummary {
+  const record = asRecord(value) ?? {};
+  const agent = asRecord(record.agent);
+  const client = asRecord(record.client);
+  const project = asRecord(record.project);
+
+  return {
+    id: String(record.id ?? ''),
+    workflowKey: asString(record.workflow_key) ?? 'unknown_workflow',
+    runType: asString(record.run_type) ?? 'unknown',
+    status: typedValue(record.status, ['queued', 'running', 'completed', 'completed_with_errors', 'failed', 'cancelled', 'paused'] satisfies LucidAutomationRunStatus[], 'queued'),
+    input: asRecord(record.input) ?? {},
+    summary: asRecord(record.summary) ?? {},
+    errorMessage: asString(record.error_message),
+    startedAt: asString(record.started_at),
+    finishedAt: asString(record.finished_at),
+    createdAt: String(record.created_at ?? ''),
+    updatedAt: String(record.updated_at ?? ''),
+    agentName: asString(agent?.name),
+    agentSlug: asString(agent?.slug),
+    clientName: asString(client?.name),
+    projectName: asString(project?.name),
+  };
+}
+
 function normalizeAgentTask(value: unknown): LucidAgentTaskSummary {
   const record = asRecord(value) ?? {};
   const agent = asRecord(record.agent);
@@ -957,9 +1004,12 @@ function normalizeApproval(value: unknown): LucidApprovalSummary {
 
   return {
     id: String(record.id ?? ''),
+    runId: asString(record.run_id),
+    taskId: asString(record.task_id),
     actionType: asString(record.action_type) ?? 'unknown_action',
     status: typedValue(record.status, ['pending', 'approved', 'rejected', 'expired', 'cancelled'] satisfies LucidApprovalStatus[], 'pending'),
     riskLevel: asString(record.risk_level) ?? 'medium',
+    requestPayload: asRecord(record.request_payload) ?? {},
     decisionNotes: asString(record.decision_notes),
     expiresAt: asString(record.expires_at),
     createdAt: String(record.created_at ?? ''),
@@ -1483,6 +1533,22 @@ export async function listLucidAgentRuns(limit = 50): Promise<LucidAgentRunSumma
   return rows.map(normalizeAgentRun);
 }
 
+export async function listLucidAutomationRuns(limit = 50): Promise<LucidAutomationRunSummary[]> {
+  const organizationId = await getLucidOrganizationId();
+  if (!organizationId) return [];
+
+  const rows = await selectRows<unknown>(
+    supabase
+      .from('automation_runs')
+      .select('id,workflow_key,run_type,status,input,summary,error_message,started_at,finished_at,created_at,updated_at,agent:agents(name,slug),client:clients(name),project:projects(name)')
+      .eq('organization_id', organizationId)
+      .order('created_at', { ascending: false })
+      .limit(limit),
+  );
+
+  return rows.map(normalizeAutomationRun);
+}
+
 export async function listLucidAgentTasks(limit = 50, status?: LucidAgentTaskStatus): Promise<LucidAgentTaskSummary[]> {
   const organizationId = await getLucidOrganizationId();
   if (!organizationId) return [];
@@ -1547,7 +1613,7 @@ export async function listLucidApprovals(limit = 50, status?: LucidApprovalStatu
 
   let query = supabase
     .from('agent_approvals')
-    .select('id,action_type,status,risk_level,decision_notes,expires_at,created_at,agent:agents(name),client:clients(name),project:projects(name)')
+    .select('id,run_id,task_id,action_type,status,risk_level,request_payload,decision_notes,expires_at,created_at,agent:agents(name),client:clients(name),project:projects(name)')
     .eq('organization_id', organizationId)
     .order('created_at', { ascending: false })
     .limit(limit);
