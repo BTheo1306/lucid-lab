@@ -8,6 +8,8 @@ type UnknownRecord = Record<string, unknown>;
 type AutomationRunStatus = 'queued' | 'running' | 'completed' | 'completed_with_errors' | 'failed' | 'cancelled' | 'paused';
 type ToolCallStatus = 'queued' | 'running' | 'completed' | 'failed' | 'cancelled';
 type AuditRiskLevel = 'low' | 'medium' | 'high' | 'critical';
+type ClientLifecycleStage = 'lead' | 'qualified' | 'meeting_booked' | 'discovery_done' | 'proposal_needed' | 'proposal_sent' | 'negotiation' | 'won' | 'lost' | 'onboarding' | 'in_delivery' | 'live_managed' | 'success_retention' | 'expansion_opportunity' | 'archived';
+type OpportunityStage = 'new' | 'qualified' | 'discovery' | 'proposal_needed' | 'proposal_sent' | 'negotiation' | 'won' | 'lost' | 'paused';
 
 interface AgentApprovalRecord {
   id: string;
@@ -69,6 +71,33 @@ function asAuditRiskLevel(value: unknown): AuditRiskLevel {
   return value === 'low' || value === 'medium' || value === 'high' || value === 'critical' ? value : 'medium';
 }
 
+function normalizeForMatch(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function matchTokens(value: string): string[] {
+  return normalizeForMatch(value).split(' ').filter((token) => token.length > 2);
+}
+
+function cleanExtractedPhrase(value: string | null): string | null {
+  if (!value) return null;
+  const cleaned = value
+    .replace(/["“”]/g, '')
+    .replace(/\s+/g, ' ')
+    .replace(/^(un|une|le|la|l')\s+/i, '')
+    .replace(/[.,;:]+$/g, '')
+    .trim();
+
+  if (cleaned.length < 3) return null;
+  return `${cleaned[0]?.toUpperCase() ?? ''}${cleaned.slice(1)}`.slice(0, 120);
+}
+
 function approvalFromRow(value: unknown): AgentApprovalRecord | null {
   const record = asRecord(value);
   if (!record?.id || !record.organization_id) return null;
@@ -108,6 +137,237 @@ function automationRunFromRow(value: unknown): AutomationRunRecord | null {
 
 function proposedToolsFromApproval(approval: AgentApprovalRecord): string[] {
   return asStringArray(approval.requestPayload.proposed_tools);
+}
+
+function requestTextFromRun(run: AutomationRunRecord): string {
+  const requestPayload = asRecord(run.input.request_payload) ?? {};
+  return [
+    asString(requestPayload.requested_text),
+    asString(requestPayload.proposed_summary),
+    asString(requestPayload.task_title),
+    asString(run.input.action_type),
+  ].filter(Boolean).join('\n');
+}
+
+function inferIndustry(text: string): string | null {
+  const compact = text.replace(/\s+/g, ' ').trim();
+  const patterns = [
+    /activit[ée]\s+(?:de|du|d'|d’)?[^.,;:]{0,90}?\s+en\s+(.+?)(?:\s+et\s+(?:les|la|le|l'|l’)|[,.;:]|$)/i,
+    /secteur\s+(?:de|du|d'|d’)?[^.,;:]{0,90}?\s+en\s+(.+?)(?:\s+et\s+(?:les|la|le|l'|l’)|[,.;:]|$)/i,
+    /m[ée]tier\s+(?:de|du|d'|d’)?[^.,;:]{0,90}?\s+en\s+(.+?)(?:\s+et\s+(?:les|la|le|l'|l’)|[,.;:]|$)/i,
+  ];
+
+  for (const pattern of patterns) {
+    const match = compact.match(pattern)?.[1];
+    const cleaned = cleanExtractedPhrase(match ?? null);
+    if (cleaned) return cleaned;
+  }
+
+  return null;
+}
+
+function inferLifecycleStage(text: string): ClientLifecycleStage | null {
+  const normalized = normalizeForMatch(text);
+  if (/\b(signe|signature|signed|accepte|valide|won)\b/.test(normalized)) return 'won';
+  if (/\b(proposition|propositions|devis|bdc|bon de commande|contrat|contrats)\b/.test(normalized) && /\b(envoye|envoyes|envoyee|sent|send)\b/.test(normalized)) return 'proposal_sent';
+  if (/\b(proposition|devis|bdc|bon de commande|contrat)\b/.test(normalized)) return 'proposal_needed';
+  if (/\b(rdv fait|meeting done|decouverte faite|discovery done)\b/.test(normalized)) return 'discovery_done';
+  return null;
+}
+
+function lifecycleToOpportunityStage(stage: ClientLifecycleStage | null): OpportunityStage | null {
+  switch (stage) {
+    case 'qualified': return 'qualified';
+    case 'discovery_done': return 'discovery';
+    case 'proposal_needed': return 'proposal_needed';
+    case 'proposal_sent': return 'proposal_sent';
+    case 'negotiation': return 'negotiation';
+    case 'won': return 'won';
+    case 'lost': return 'lost';
+    default: return null;
+  }
+}
+
+function nextActionForStage(stage: ClientLifecycleStage | null): string | null {
+  switch (stage) {
+    case 'proposal_sent': return 'Suivre le retour client sur les propositions, BDC et contrats envoyés.';
+    case 'proposal_needed': return 'Préparer ou finaliser la proposition commerciale.';
+    case 'won': return 'Lancer l’onboarding et la livraison.';
+    default: return null;
+  }
+}
+
+async function findBestClientForText(organizationId: string, text: string): Promise<UnknownRecord | null> {
+  const { data, error } = await supabase
+    .from('clients')
+    .select('id,name,slug,industry,lifecycle_stage,status,metadata')
+    .eq('organization_id', organizationId)
+    .order('updated_at', { ascending: false })
+    .limit(200);
+
+  if (error) throw new Error(`findBestClientForText: ${error.message}`);
+
+  const textTokens = new Set(matchTokens(text));
+  let best: { score: number; client: UnknownRecord } | null = null;
+
+  for (const row of data ?? []) {
+    const client = asRecord(row);
+    const name = asString(client?.name);
+    if (!client || !name) continue;
+    const tokens = matchTokens(name);
+    const score = tokens.reduce((count, token) => count + (textTokens.has(token) ? 1 : 0), 0);
+    if (score > (best?.score ?? 0)) best = { score, client };
+  }
+
+  return best && best.score > 0 ? best.client : null;
+}
+
+async function updateLatestOpenOpportunity(input: {
+  organizationId: string;
+  clientId: string;
+  stage: OpportunityStage | null;
+  nextAction: string | null;
+}): Promise<string | null> {
+  if (!input.stage) return null;
+
+  const { data: opportunityRows, error: selectError } = await supabase
+    .from('client_opportunities')
+    .select('id')
+    .eq('organization_id', input.organizationId)
+    .eq('client_id', input.clientId)
+    .neq('status', 'archived')
+    .order('updated_at', { ascending: false })
+    .limit(1);
+
+  if (selectError) throw new Error(`updateLatestOpenOpportunity select: ${selectError.message}`);
+  const opportunityId = asString(asRecord(opportunityRows?.[0])?.id);
+  if (!opportunityId) return null;
+
+  const { error } = await supabase
+    .from('client_opportunities')
+    .update({
+      stage: input.stage,
+      status: input.stage === 'won' ? 'won' : input.stage === 'lost' ? 'lost' : 'open',
+      next_step: input.nextAction,
+      updated_at: new Date().toISOString(),
+    })
+    .eq('organization_id', input.organizationId)
+    .eq('id', opportunityId);
+
+  if (error) throw new Error(`updateLatestOpenOpportunity update: ${error.message}`);
+  return opportunityId;
+}
+
+async function executeCrmClientWrite(run: AutomationRunRecord): Promise<UnknownRecord> {
+  const requestText = requestTextFromRun(run);
+  const client = await findBestClientForText(run.organizationId, requestText);
+  const clientId = asString(client?.id);
+  const clientName = asString(client?.name);
+  if (!client || !clientId || !clientName) {
+    throw new Error('No matching Lucid OS client found for the approved CRM update.');
+  }
+
+  const now = new Date().toISOString();
+  const industry = inferIndustry(requestText);
+  const lifecycleStage = inferLifecycleStage(requestText);
+  const opportunityStage = lifecycleToOpportunityStage(lifecycleStage);
+  const nextAction = nextActionForStage(lifecycleStage);
+  const existingMetadata = asRecord(client.metadata) ?? {};
+  const updates: UnknownRecord = {
+    metadata: {
+      ...existingMetadata,
+      last_agent_crm_update: {
+        source: 'agent_workflow_runner',
+        automation_run_id: run.id,
+        approved_at: now,
+        request_preview: requestText.slice(0, 500),
+      },
+    },
+    last_contacted_at: now,
+    updated_at: now,
+  };
+
+  if (industry) updates.industry = industry;
+  if (lifecycleStage) updates.lifecycle_stage = lifecycleStage;
+  if (nextAction !== null) updates.next_action = nextAction;
+
+  const { error: clientError } = await supabase
+    .from('clients')
+    .update(updates)
+    .eq('organization_id', run.organizationId)
+    .eq('id', clientId);
+
+  if (clientError) throw new Error(`executeCrmClientWrite client update: ${clientError.message}`);
+
+  const opportunityId = await updateLatestOpenOpportunity({
+    organizationId: run.organizationId,
+    clientId,
+    stage: opportunityStage,
+    nextAction,
+  });
+
+  const interactionSummary = lifecycleStage === 'proposal_sent'
+    ? 'Documents commerciaux envoyés: propositions d’accompagnement, BDC et contrats.'
+    : `Mise à jour CRM validée depuis Telegram: ${requestText.slice(0, 180)}`;
+
+  const { data: interactionRow, error: interactionError } = await supabase
+    .from('client_interactions')
+    .insert({
+      organization_id: run.organizationId,
+      client_id: clientId,
+      opportunity_id: opportunityId,
+      interaction_type: 'decision',
+      direction: 'internal',
+      summary: interactionSummary,
+      notes: requestText.slice(0, 2000),
+      occurred_at: now,
+      next_step: nextAction,
+      sentiment: 'neutral',
+      source_system: 'agent',
+      source_uri: `automation_runs:${run.id}`,
+      metadata: {
+        automation_run_id: run.id,
+        approval_id: asString(run.input.approval_id),
+        extracted_industry: industry,
+        extracted_lifecycle_stage: lifecycleStage,
+      },
+    })
+    .select('id')
+    .single();
+
+  if (interactionError) throw new Error(`executeCrmClientWrite interaction: ${interactionError.message}`);
+  const interactionId = asString(asRecord(interactionRow)?.id);
+
+  await recordLucidAuditEvent({
+    eventType: 'crm_agent_write_executed',
+    actorType: 'automation',
+    actorId: 'agent-workflow-worker',
+    targetTable: 'clients',
+    targetId: clientId,
+    clientId,
+    riskLevel: 'medium',
+    summary: `Approved CRM update executed for ${clientName}.`,
+    details: {
+      automation_run_id: run.id,
+      approval_id: asString(run.input.approval_id),
+      industry,
+      lifecycle_stage: lifecycleStage,
+      opportunity_id: opportunityId,
+      interaction_id: interactionId,
+    },
+  });
+
+  return {
+    execution: 'crm_client_write_executed',
+    client_id: clientId,
+    client_name: clientName,
+    industry,
+    lifecycle_stage: lifecycleStage,
+    opportunity_stage: opportunityStage,
+    opportunity_id: opportunityId,
+    interaction_id: interactionId,
+    next_action: nextAction,
+  };
 }
 
 async function getApproval(organizationId: string, approvalId: string): Promise<AgentApprovalRecord> {
@@ -481,6 +741,37 @@ async function executeQueuedAutomationRun(run: AutomationRunRecord): Promise<{ s
       continue;
     }
 
+    if (toolName === 'crm.client.write') {
+      try {
+        const resultSummary = await executeCrmClientWrite(run);
+        completedTools.push(toolName);
+        await createToolCall({
+          runId: run.id,
+          stepId: dispatchStepId,
+          toolName,
+          status: 'completed',
+          toolArguments: { workflow_key: run.workflowKey, approval_id: asString(run.input.approval_id) },
+          resultSummary,
+          externalSideEffect: false,
+        });
+      } catch (error) {
+        const message = error instanceof Error ? error.message : 'CRM client write failed';
+        failedTools.push(toolName);
+        await createToolCall({
+          runId: run.id,
+          stepId: dispatchStepId,
+          toolName,
+          status: 'failed',
+          toolArguments: { workflow_key: run.workflowKey, approval_id: asString(run.input.approval_id) },
+          resultSummary: { execution: 'crm_client_write_failed' },
+          externalSideEffect: false,
+          errorMessage: message,
+        });
+      }
+      toolCallsCreated++;
+      continue;
+    }
+
     const executableNow = tool.status === 'available' && !tool.externalSideEffect;
     if (executableNow) {
       completedTools.push(toolName);
@@ -571,6 +862,64 @@ async function executeQueuedAutomationRun(run: AutomationRunRecord): Promise<{ s
   });
 
   return { status: finalStatus, toolCallsCreated };
+}
+
+export async function processAgentWorkflowRunById(automationRunId: string): Promise<AgentWorkflowProcessResult> {
+  assertSupabaseServiceRoleConfigured();
+
+  const organizationId = await ensureLucidOrganizationId();
+  const { data, error } = await supabase
+    .from('automation_runs')
+    .select('id,organization_id,client_id,project_id,agent_id,workflow_key,run_type,status,input,summary')
+    .eq('organization_id', organizationId)
+    .eq('id', automationRunId)
+    .maybeSingle();
+
+  if (error) throw new Error(`processAgentWorkflowRunById: ${error.message}`);
+  const run = automationRunFromRow(data);
+  if (!run) throw new Error('Automation run not found.');
+
+  const result: AgentWorkflowProcessResult = {
+    scanned: 1,
+    completed: 0,
+    paused: 0,
+    failed: 0,
+    toolCallsCreated: 0,
+    runIds: [run.id],
+  };
+
+  if (run.status !== 'queued') {
+    if (run.status === 'completed') result.completed = 1;
+    else if (run.status === 'paused') result.paused = 1;
+    else if (run.status === 'failed' || run.status === 'completed_with_errors') result.failed = 1;
+    return result;
+  }
+
+  try {
+    const runResult = await executeQueuedAutomationRun(run);
+    result.toolCallsCreated = runResult.toolCallsCreated;
+    if (runResult.status === 'completed') result.completed = 1;
+    else if (runResult.status === 'paused') result.paused = 1;
+    else result.failed = 1;
+  } catch (error) {
+    result.failed = 1;
+    const message = error instanceof Error ? error.message : 'Unknown workflow execution error';
+    await markAutomationRun(run, 'failed', { stage: 'failed', error: message }, message);
+    await recordLucidAuditEvent({
+      eventType: 'agent_workflow_run_failed',
+      actorType: 'automation',
+      actorId: 'agent-workflow-worker',
+      targetTable: 'automation_runs',
+      targetId: run.id,
+      clientId: run.clientId,
+      projectId: run.projectId,
+      riskLevel: 'medium',
+      summary: `Agent workflow failed: ${message}`,
+      details: { automation_run_id: run.id, error: message },
+    });
+  }
+
+  return result;
 }
 
 export async function processQueuedAgentWorkflowRuns(limit = 5): Promise<AgentWorkflowProcessResult> {

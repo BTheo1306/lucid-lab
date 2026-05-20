@@ -15,7 +15,7 @@ import {
   type LucidIncidentStatus,
 } from '@/lib/admin/lucid-os';
 import { EmptyState, formatAdminDateTime, LucidOsHeader, Section, StatCard, StatusBadge } from '../components';
-import { decideAgentApprovalAction, processQueuedAgentWorkflowsAction, updateAgentTaskStatusAction } from './actions';
+import { decideAgentApprovalAction, executeAgentTaskAction, processQueuedAgentWorkflowsAction, updateAgentTaskStatusAction } from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -176,6 +176,11 @@ function contextString(context: Record<string, unknown>, key: string): string | 
   return typeof value === 'string' && value.trim().length > 0 ? value : null;
 }
 
+function contextStringArray(context: Record<string, unknown>, key: string): string[] {
+  const value = context[key];
+  return Array.isArray(value) ? value.filter((item): item is string => typeof item === 'string' && item.trim().length > 0) : [];
+}
+
 function taskReference(id: string): string {
   return id.slice(0, 8);
 }
@@ -189,6 +194,56 @@ function TaskStatusButton({ taskId, status, label }: { taskId: string; status: L
         {label}
       </button>
     </form>
+  );
+}
+
+function ExecuteTaskButton({ taskId, approvalId }: { taskId: string; approvalId: string | null }) {
+  return (
+    <form action={executeAgentTaskAction}>
+      <input type="hidden" name="task_id" value={taskId} />
+      {approvalId ? <input type="hidden" name="approval_id" value={approvalId} /> : null}
+      <button className="inline-flex h-8 items-center justify-center rounded border border-emerald-500/30 px-2.5 text-xs font-medium text-emerald-200 transition hover:bg-emerald-500/10">
+        Execute
+      </button>
+    </form>
+  );
+}
+
+function TaskActionButtons({ taskId, approvalId }: { taskId: string; approvalId: string | null }) {
+  return (
+    <div className="flex flex-wrap gap-2 xl:justify-end">
+      <ExecuteTaskButton taskId={taskId} approvalId={approvalId} />
+      <TaskStatusButton taskId={taskId} status="blocked" label="Bloqué" />
+      <TaskStatusButton taskId={taskId} status="done" label="Fait" />
+    </div>
+  );
+}
+
+function TaskCard({ task, approvalId }: { task: Awaited<ReturnType<typeof listLucidAgentTasks>>[number]; approvalId: string | null }) {
+  const intent = contextString(task.context, 'intent');
+  const senderName = contextString(task.context, 'sender_name');
+  const routedTo = contextString(task.context, 'routed_to') ?? task.assignedAgentName ?? task.agentName ?? 'COO Agent';
+  const approvalSummary = contextString(task.context, 'approval_summary');
+  const proposedTools = contextStringArray(task.context, 'proposed_tools');
+
+  return (
+    <article className="grid gap-4 py-4 first:pt-0 last:pb-0 xl:grid-cols-[minmax(0,1fr)_minmax(260px,0.45fr)] xl:items-start">
+      <div className="min-w-0">
+        <div className="flex flex-wrap items-center gap-2">
+          <p className="font-medium text-zinc-50">{task.title}</p>
+          <StatusBadge tone={taskStatusTone(task.status)}>{labelFr(task.status)}</StatusBadge>
+          <StatusBadge tone={priorityTone(task.priority)}>{labelFr(task.priority)}</StatusBadge>
+        </div>
+        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-300">{task.description ?? 'Aucun détail enregistré.'}</p>
+        {approvalSummary ? <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-400">{approvalSummary}</p> : null}
+        {proposedTools.length ? <p className="mt-2 text-xs text-zinc-500">Outils: {proposedTools.join(', ')}</p> : null}
+        <p className="mt-2 text-xs text-zinc-500">
+          #{taskReference(task.id)} · {intent ? labelFr(intent) : 'opération'} · {routedTo} · {senderName ?? 'Telegram'} · {formatAdminDateTime(task.createdAt)}
+        </p>
+      </div>
+
+      {task.status === 'done' ? null : <TaskActionButtons taskId={task.id} approvalId={approvalId} />}
+    </article>
   );
 }
 
@@ -228,7 +283,11 @@ export default async function LucidOsInboxPage() {
     listLucidAutomationRuns(20),
   ]);
   const openIncidents = incidents.filter((incident) => !['resolved', 'closed'].includes(incident.status));
-  const openAgentTasks = agentTasks.filter((task) => !['done', 'cancelled'].includes(task.status));
+  const pendingApprovalByTaskId = new Map(pendingApprovals.filter((approval) => approval.taskId).map((approval) => [approval.taskId as string, approval.id]));
+  const pendingValidationTasks = agentTasks.filter((task) => task.status === 'waiting_approval');
+  const executableTasks = agentTasks.filter((task) => !['waiting_approval', 'done', 'cancelled', 'blocked'].includes(task.status));
+  const executedTasks = agentTasks.filter((task) => task.status === 'done').slice(0, 12);
+  const hiddenBlockedTasks = agentTasks.filter((task) => task.status === 'blocked');
   const recentTelegramRuns = agentRuns.filter((run) => run.triggerSource === 'telegram').slice(0, 8);
   const recentAutomationRuns = automationRuns.slice(0, 8);
   const clientNextActions = clients
@@ -240,47 +299,41 @@ export default async function LucidOsInboxPage() {
       <LucidOsHeader title="Actions" icon={Inbox} />
 
       <div className="grid gap-3 md:grid-cols-4">
-        <StatCard label="Tâches COO" value={openAgentTasks.length} hint="Captures Telegram à traiter" icon={ListChecks} />
-        <StatCard label="Validations" value={pendingApprovals.length} hint="Décisions humaines en attente" icon={ShieldCheck} />
+        <StatCard label="À valider" value={pendingValidationTasks.length} hint="Tâches prêtes pour validation" icon={ShieldCheck} />
+        <StatCard label="À exécuter" value={executableTasks.length} hint="Tâches COO actives" icon={ListChecks} />
         <StatCard label="Incidents" value={openIncidents.length} hint="Événements opérationnels actifs" icon={AlertTriangle} />
         <StatCard label="Actions client" value={clientNextActions.length} hint="Relances et signaux de santé" icon={CalendarClock} />
       </div>
 
-      <Section title="Tâches COO Telegram">
-        {openAgentTasks.length === 0 ? (
-          <EmptyState>Aucune tâche COO ouverte.</EmptyState>
+      <Section title="Tâches en attente de validation">
+        {pendingValidationTasks.length === 0 ? (
+          <EmptyState>Aucune tâche en attente de validation.</EmptyState>
         ) : (
           <div className="divide-y divide-white/10">
-            {openAgentTasks.map((task) => {
-              const intent = contextString(task.context, 'intent');
-              const senderName = contextString(task.context, 'sender_name');
-              const routedTo = contextString(task.context, 'routed_to') ?? task.assignedAgentName ?? task.agentName ?? 'COO Agent';
-
-              return (
-                <article key={task.id} className="grid gap-4 py-4 first:pt-0 last:pb-0 xl:grid-cols-[minmax(0,1fr)_minmax(260px,0.55fr)] xl:items-start">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="truncate font-medium text-zinc-50">{task.title}</p>
-                      <StatusBadge tone={taskStatusTone(task.status)}>{labelFr(task.status)}</StatusBadge>
-                      <StatusBadge tone={priorityTone(task.priority)}>{labelFr(task.priority)}</StatusBadge>
-                    </div>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-400">{task.description ?? 'Aucun détail enregistré.'}</p>
-                    <p className="mt-2 text-xs text-zinc-500">
-                      #{taskReference(task.id)} · {intent ? labelFr(intent) : 'opération'} · {routedTo} · {senderName ?? 'Telegram'} · {formatAdminDateTime(task.createdAt)}
-                    </p>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2 xl:justify-end">
-                    {task.status !== 'in_progress' ? <TaskStatusButton taskId={task.id} status="in_progress" label="Prendre" /> : null}
-                    {task.status !== 'waiting_approval' ? <TaskStatusButton taskId={task.id} status="waiting_approval" label="Validation" /> : null}
-                    {task.status !== 'blocked' ? <TaskStatusButton taskId={task.id} status="blocked" label="Bloquer" /> : null}
-                    <TaskStatusButton taskId={task.id} status="done" label="Fait" />
-                  </div>
-                </article>
-              );
-            })}
+            {pendingValidationTasks.map((task) => <TaskCard key={task.id} task={task} approvalId={pendingApprovalByTaskId.get(task.id) ?? null} />)}
           </div>
         )}
+      </Section>
+
+      <Section title="Tâches à exécuter">
+        {executableTasks.length === 0 ? (
+          <EmptyState>Aucune tâche active à exécuter.</EmptyState>
+        ) : (
+          <div className="divide-y divide-white/10">
+            {executableTasks.map((task) => <TaskCard key={task.id} task={task} approvalId={pendingApprovalByTaskId.get(task.id) ?? null} />)}
+          </div>
+        )}
+      </Section>
+
+      <Section title="Tâches exécutées">
+        {executedTasks.length === 0 ? (
+          <EmptyState>Aucune tâche exécutée récemment.</EmptyState>
+        ) : (
+          <div className="divide-y divide-white/10">
+            {executedTasks.map((task) => <TaskCard key={task.id} task={task} approvalId={null} />)}
+          </div>
+        )}
+        {hiddenBlockedTasks.length ? <p className="mt-3 text-xs text-zinc-600">{hiddenBlockedTasks.length} tâche(s) bloquée(s) masquée(s).</p> : null}
       </Section>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,1fr)]">
@@ -305,7 +358,7 @@ export default async function LucidOsInboxPage() {
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2 sm:justify-end">
-                      <ApprovalDecisionButton approvalId={approval.id} decision="approve" label="Valider" />
+                      <ApprovalDecisionButton approvalId={approval.id} decision="approve" label="Execute" />
                       <ApprovalDecisionButton approvalId={approval.id} decision="reject" label="Refuser" />
                       <Link href="/admin/lucid-os/agents" className="inline-flex h-8 items-center gap-1 rounded border border-white/10 px-2.5 text-xs font-medium text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-50">
                         Voir <ArrowRight className="size-4" />

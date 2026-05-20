@@ -274,7 +274,7 @@ export function toolNamesForCooIntent(intent: string): string[] {
     case 'finance_document':
       return ['documents.draft_bdc', 'documents.send_docuseal', 'agent_approvals.request'];
     case 'crm_or_sales':
-      return ['crm.client.read', 'crm.client.write', 'outreach.email_send', 'agent_approvals.request'];
+      return ['crm.client.read', 'crm.client.write', 'agent_approvals.request'];
     case 'meeting_ops':
       return ['crm.client.read', 'crm.client.write', 'knowledge.search', 'agent_approvals.request'];
     case 'incident_ops':

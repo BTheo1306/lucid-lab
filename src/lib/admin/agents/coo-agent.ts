@@ -6,6 +6,7 @@ import { config } from '@/lib/bot/config';
 import { assertSupabaseServiceRoleConfigured, supabase } from '@/lib/bot/db/supabase';
 import { isBudgetExceeded, recordAiUsage } from '@/lib/bot/db/queries/ai-budget';
 import { getAIProvider } from '@/lib/bot/integrations/ai-client';
+import { approveAgentApprovalAndEnqueue, processAgentWorkflowRunById, rejectAgentApproval, type AgentWorkflowProcessResult } from './workflow-runner';
 import { COO_AGENT_TOOL_NAMES, highestToolRiskLevel, mergeRiskLevels, toolCatalogForPrompt, toolNamesForCooIntent } from './tool-registry';
 
 const COO_AGENT_SLUG = 'coo-agent';
@@ -340,6 +341,118 @@ function asString(value: unknown): string | null {
   return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
 }
 
+type TelegramApprovalCommand = 'approve' | 'reject';
+
+interface PendingTelegramApproval {
+  id: string;
+  taskId: string | null;
+  runId: string | null;
+  actionType: string;
+  riskLevel: string;
+  requestPayload: Record<string, unknown>;
+  createdAt: string;
+}
+
+function approvalCommandFromText(text: string): TelegramApprovalCommand | null {
+  const normalized = normalizeSearchText(text);
+  if (/\b(refuse|refuser|rejette|reject|cancel|annule|annuler|bloque|bloquer)\b/.test(normalized)) return 'reject';
+  if (/\b(approve|approved|approuve|approuver|valide|valider|validation|execute|executer|go|tu as la validation|you have the validation|ok execute)\b/.test(normalized)) return 'approve';
+  return null;
+}
+
+function approvalPayloadMatchesTelegram(payload: Record<string, unknown>, chatId: TelegramId | null, senderId: TelegramId | null): boolean {
+  const payloadChatId = asString(payload.chat_id);
+  const payloadSenderId = asString(payload.sender_id);
+  if (chatId && payloadChatId && payloadChatId === chatId) return true;
+  if (senderId && payloadSenderId && payloadSenderId === senderId) return true;
+  return false;
+}
+
+function textMentionsRecord(text: string, approval: PendingTelegramApproval): boolean {
+  const normalized = normalizeSearchText(text);
+  const identifiers = [approval.id, approval.taskId, approval.runId]
+    .filter((value): value is string => Boolean(value))
+    .flatMap((value) => [value, value.slice(0, 8)]);
+  return identifiers.some((identifier) => normalized.includes(normalizeSearchText(identifier)));
+}
+
+async function findPendingTelegramApproval(input: {
+  organizationId: string;
+  chatId: TelegramId | null;
+  senderId: TelegramId | null;
+  text: string;
+}): Promise<{ approval: PendingTelegramApproval | null; ambiguous: PendingTelegramApproval[] }> {
+  const { data, error } = await supabase
+    .from('agent_approvals')
+    .select('id,task_id,run_id,action_type,risk_level,request_payload,created_at')
+    .eq('organization_id', input.organizationId)
+    .eq('status', 'pending')
+    .order('created_at', { ascending: false })
+    .limit(20);
+
+  if (error) throw new Error(`findPendingTelegramApproval: ${error.message}`);
+
+  const matching = (data ?? [])
+    .map((row) => {
+      const record = asRecord(row) ?? {};
+      return {
+        id: String(record.id ?? ''),
+        taskId: asString(record.task_id),
+        runId: asString(record.run_id),
+        actionType: asString(record.action_type) ?? 'unknown_action',
+        riskLevel: asString(record.risk_level) ?? 'medium',
+        requestPayload: asRecord(record.request_payload) ?? {},
+        createdAt: String(record.created_at ?? ''),
+      } satisfies PendingTelegramApproval;
+    })
+    .filter((approval) => approval.id && approvalPayloadMatchesTelegram(approval.requestPayload, input.chatId, input.senderId));
+
+  if (matching.length === 0) return { approval: null, ambiguous: [] };
+
+  const explicitMatch = matching.find((approval) => textMentionsRecord(input.text, approval));
+  if (explicitMatch) return { approval: explicitMatch, ambiguous: [] };
+
+  return { approval: matching[0] ?? null, ambiguous: [] };
+}
+
+function approvalSummaryForReply(approval: PendingTelegramApproval): string {
+  return cleanText(approval.requestPayload.proposed_summary, 700)
+    ?? cleanText(approval.requestPayload.requested_text, 700)
+    ?? cleanText(approval.requestPayload.task_title, 700)
+    ?? approval.actionType;
+}
+
+function approvalExecutionReply(input: {
+  approval: PendingTelegramApproval;
+  automationRunId: string | null;
+  processResult: AgentWorkflowProcessResult | null;
+}): string {
+  const processResult = input.processResult;
+  const statusLine = processResult
+    ? processResult.completed > 0
+      ? 'Execution completed in Lucid OS.'
+      : processResult.paused > 0
+        ? 'Execution started, but one or more tools still need a human/manual executor.'
+        : processResult.failed > 0
+          ? 'Execution was attempted but failed. Check Lucid OS for the exact error.'
+          : 'Execution has been queued in Lucid OS.'
+    : 'Execution has been queued in Lucid OS.';
+
+  return [
+    'Validation received. I am executing the pending Lucid OS task now.',
+    `Task: ${approvalSummaryForReply(input.approval)}`,
+    input.automationRunId ? `Workflow run: ${input.automationRunId.slice(0, 8)}.` : null,
+    statusLine,
+  ].filter(Boolean).join('\n');
+}
+
+function approvalRejectedReply(approval: PendingTelegramApproval): string {
+  return [
+    'Validation rejected. I cancelled the pending Lucid OS task.',
+    `Task: ${approvalSummaryForReply(approval)}`,
+  ].join('\n');
+}
+
 async function safeRows<T>(query: PromiseLike<{ data: T[] | null; error: { message?: string } | null }>): Promise<T[]> {
   const { data, error } = await query;
   if (error) return [];
@@ -427,13 +540,50 @@ function formatOpportunityRow(value: unknown): string | null {
   return `- ${asString(row.title) ?? 'Opportunity'}: ${parts.join('; ')}`;
 }
 
+function formatAgentTaskRow(value: unknown): string | null {
+  const row = asRecord(value);
+  if (!row) return null;
+  const context = asRecord(row.context) ?? {};
+  const resultSummary = asRecord(row.result_summary) ?? {};
+  const parts = [
+    `status ${asString(row.status) ?? 'unknown'}`,
+    asString(context.intent) ? `intent ${asString(context.intent)}` : null,
+    asString(context.approval_summary) ?? asString(row.description),
+    asString(resultSummary.phase) ? `result ${asString(resultSummary.phase)}` : null,
+  ].filter(Boolean);
+  return `- Task ${String(row.id ?? '').slice(0, 8)} ${asString(row.title) ?? 'Untitled'}: ${parts.join('; ')}`;
+}
+
+function formatApprovalRow(value: unknown): string | null {
+  const row = asRecord(value);
+  if (!row) return null;
+  const payload = asRecord(row.request_payload) ?? {};
+  const summary = asString(payload.proposed_summary) ?? asString(payload.requested_text);
+  return `- Approval ${String(row.id ?? '').slice(0, 8)} status ${asString(row.status) ?? 'unknown'} action ${asString(row.action_type) ?? 'unknown'}${summary ? `: ${cleanText(summary, 240)}` : ''}`;
+}
+
+function formatAutomationRunRow(value: unknown): string | null {
+  const row = asRecord(value);
+  if (!row) return null;
+  const input = asRecord(row.input) ?? {};
+  const summary = asRecord(row.summary) ?? {};
+  const parts = [
+    `status ${asString(row.status) ?? 'unknown'}`,
+    asString(input.action_type),
+    asString(summary.stage),
+    Array.isArray(summary.completed_tools) ? `completed ${summary.completed_tools.join(', ')}` : null,
+    Array.isArray(summary.paused_tools) ? `paused ${summary.paused_tools.join(', ')}` : null,
+  ].filter(Boolean);
+  return `- Workflow ${String(row.id ?? '').slice(0, 8)}: ${parts.join('; ')}`;
+}
+
 function compactSection(title: string, rows: Array<string | null>, fallback: string): string {
   const content = rows.filter((row): row is string => Boolean(row)).join('\n');
   return `## ${title}\n${content || fallback}`;
 }
 
 async function loadBusinessContext(organizationId: string, queryText: string): Promise<string> {
-  const [knowledgeRows, clientRows, opportunityRows] = await Promise.all([
+  const [knowledgeRows, clientRows, opportunityRows, taskRows, approvalRows, automationRows] = await Promise.all([
     safeRows<unknown>(
       supabase
         .from('knowledge_documents')
@@ -460,6 +610,30 @@ async function loadBusinessContext(organizationId: string, queryText: string): P
         .order('updated_at', { ascending: false })
         .limit(10),
     ),
+    safeRows<unknown>(
+      supabase
+        .from('agent_tasks')
+        .select('id,title,description,status,priority,context,result_summary,created_at,updated_at')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false })
+        .limit(12),
+    ),
+    safeRows<unknown>(
+      supabase
+        .from('agent_approvals')
+        .select('id,action_type,status,risk_level,request_payload,created_at')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false })
+        .limit(10),
+    ),
+    safeRows<unknown>(
+      supabase
+        .from('automation_runs')
+        .select('id,workflow_key,run_type,status,input,summary,error_message,created_at,updated_at')
+        .eq('organization_id', organizationId)
+        .order('created_at', { ascending: false })
+        .limit(10),
+    ),
   ]);
 
   const selectedKnowledgeRows = selectKnowledgeRows(knowledgeRows, queryText);
@@ -468,6 +642,9 @@ async function loadBusinessContext(organizationId: string, queryText: string): P
     compactSection('Runtime knowledge', selectedKnowledgeRows.map(formatKnowledgeRow), 'No active knowledge documents available.'),
     compactSection('CRM clients', clientRows.map(formatClientRow), 'No clients available.'),
     compactSection('CRM opportunities', opportunityRows.map(formatOpportunityRow), 'No opportunities available.'),
+    compactSection('COO task memory', taskRows.map(formatAgentTaskRow), 'No recent COO tasks.'),
+    compactSection('COO approvals', approvalRows.map(formatApprovalRow), 'No recent approvals.'),
+    compactSection('COO durable executions', automationRows.map(formatAutomationRunRow), 'No recent durable executions.'),
   ].join('\n\n').slice(0, 12000);
 }
 
@@ -949,6 +1126,96 @@ export async function handleCooTelegramUpdate(update: TelegramUpdate): Promise<C
 
   const organizationId = await ensureLucidOrganizationId();
   const agentId = await getOrCreateCooAgentId(organizationId);
+  const approvalCommand = approvalCommandFromText(text);
+  if (approvalCommand) {
+    const { approval, ambiguous } = await findPendingTelegramApproval({ organizationId, chatId, senderId, text });
+
+    if (!approval) {
+      return {
+        processed: true,
+        authorized: true,
+        chatId,
+        senderId,
+        replyText: 'I do not see a pending Lucid OS approval linked to this Telegram chat. Use the task/approval short ID if you want me to target a specific item.',
+        runId: null,
+        taskId: null,
+        approvalId: null,
+        reason: 'approval_not_found',
+      };
+    }
+
+    if (ambiguous.length > 0) {
+      return {
+        processed: true,
+        authorized: true,
+        chatId,
+        senderId,
+        replyText: `I found several pending approvals. Reply with the short task or approval ID. Latest: ${ambiguous.slice(0, 3).map((item) => `${item.taskId?.slice(0, 8) ?? item.id.slice(0, 8)} ${approvalSummaryForReply(item).slice(0, 80)}`).join(' / ')}`,
+        runId: null,
+        taskId: null,
+        approvalId: null,
+        reason: 'approval_ambiguous',
+      };
+    }
+
+    if (approvalCommand === 'reject') {
+      await rejectAgentApproval({ approvalId: approval.id, actorLabel: senderName ?? senderId ?? 'telegram_coo', decisionNotes: text });
+      await recordLucidAuditEvent({
+        eventType: 'telegram_coo_approval_rejected',
+        actorType: 'integration',
+        actorId: senderId,
+        targetTable: 'agent_approvals',
+        targetId: approval.id,
+        riskLevel: governedRiskLevel({ mode: 'action', intent: 'general_ops', confidence: 1, replyText: null, taskTitle: null, taskDescription: null, approvalSummary: null, routedTo: null, riskLevel: 'medium', requiresApproval: true }),
+        summary: 'Telegram COO approval rejected by follow-up message.',
+        details: { approval_id: approval.id, task_id: approval.taskId, message_preview: text.slice(0, 240) },
+      });
+
+      return {
+        processed: true,
+        authorized: true,
+        chatId,
+        senderId,
+        replyText: approvalRejectedReply(approval),
+        runId: approval.runId,
+        taskId: approval.taskId,
+        approvalId: approval.id,
+        reason: 'approval_rejected',
+      };
+    }
+
+    const approvalResult = await approveAgentApprovalAndEnqueue({ approvalId: approval.id, actorLabel: senderName ?? senderId ?? 'telegram_coo', decisionNotes: text });
+    const processResult = approvalResult.automationRunId ? await processAgentWorkflowRunById(approvalResult.automationRunId) : null;
+    await recordLucidAuditEvent({
+      eventType: 'telegram_coo_approval_executed',
+      actorType: 'integration',
+      actorId: senderId,
+      targetTable: approvalResult.automationRunId ? 'automation_runs' : 'agent_approvals',
+      targetId: approvalResult.automationRunId ?? approval.id,
+      riskLevel: governedRiskLevel({ mode: 'action', intent: 'general_ops', confidence: 1, replyText: null, taskTitle: null, taskDescription: null, approvalSummary: null, routedTo: null, riskLevel: 'medium', requiresApproval: true }),
+      summary: 'Telegram COO approval executed by follow-up message.',
+      details: {
+        approval_id: approval.id,
+        task_id: approval.taskId,
+        automation_run_id: approvalResult.automationRunId,
+        process_result: processResult,
+        message_preview: text.slice(0, 240),
+      },
+    });
+
+    return {
+      processed: true,
+      authorized: true,
+      chatId,
+      senderId,
+      replyText: approvalExecutionReply({ approval, automationRunId: approvalResult.automationRunId, processResult }),
+      runId: approval.runId,
+      taskId: approval.taskId,
+      approvalId: approval.id,
+      reason: 'approval_executed',
+    };
+  }
+
   const decision = await decideCooResponse({
     organizationId,
     text,
