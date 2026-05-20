@@ -1,6 +1,6 @@
-import { Brain, ExternalLink, FileText, Save, ShieldCheck } from 'lucide-react';
+import { Brain, ExternalLink, FileText, Save } from 'lucide-react';
 import { listLucidAuditEvents, listLucidKnowledgeDocuments, type LucidKnowledgeStatus } from '@/lib/admin/lucid-os';
-import { EmptyState, formatAdminDateTime, LucidOsHeader, LucidOsTabs, Section, StatusBadge } from '../components';
+import { EmptyState, formatAdminDateTime, LucidOsHeader, Section, StatusBadge } from '../components';
 import { recordKnowledgeDocumentAction } from './actions';
 
 export const dynamic = 'force-dynamic';
@@ -16,12 +16,21 @@ function knowledgeTone(status: LucidKnowledgeStatus): 'neutral' | 'good' | 'warn
 
 function sourceLabel(sourceSystem: string): string {
   switch (sourceSystem) {
-    case 'obsidian': return 'Obsidian';
+    case 'obsidian': return 'Note interne';
     case 'github': return 'GitHub';
     case 'supabase': return 'Supabase';
-    case 'integration': return 'Integration';
+    case 'integration': return 'Intégration';
     case 'web': return 'Web';
     default: return 'Admin';
+  }
+}
+
+function statusLabel(status: LucidKnowledgeStatus): string {
+  switch (status) {
+    case 'active': return 'actif';
+    case 'stale': return 'à mettre à jour';
+    case 'archived': return 'archivé';
+    default: return status;
   }
 }
 
@@ -36,41 +45,32 @@ export default async function LucidOsKnowledgePage() {
   return (
     <div className="grid gap-6">
       <LucidOsHeader
-        eyebrow="Operational memory"
-        title="Knowledge"
-        description="Obsidian-backed company memory and Supabase records for agent retrieval."
+        eyebrow="Mémoire opérationnelle"
+        title="Connaissance"
+        description="Mémoire d’entreprise récupérable par les agents."
         icon={Brain}
       />
 
-      <LucidOsTabs active="knowledge" />
-
-      <section className="rounded-xl border border-zinc-200 bg-white p-4 text-sm leading-6 text-zinc-600 shadow-sm">
-        <div className="flex gap-2">
-          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-zinc-500" />
-          <p>Significant work should update Obsidian when it changes human business knowledge and update Supabase knowledge records when agents need to retrieve it later.</p>
-        </div>
-      </section>
-
-      <Section title="Knowledge documents" description="Source-linked summaries available to Lucid OS.">
+      <Section title="Documents de connaissance" description="Résumés reliés à leurs sources et disponibles dans Lucid OS.">
         {documents.length === 0 ? (
-          <EmptyState>No knowledge documents are indexed yet.</EmptyState>
+          <EmptyState>Aucun document de connaissance n’est encore indexé.</EmptyState>
         ) : (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="divide-y divide-white/10">
             {documents.map((document) => (
-              <article key={document.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+              <article key={document.id} className="grid gap-4 py-5 first:pt-0 last:pb-0 xl:grid-cols-[minmax(280px,0.9fr)_minmax(320px,1.1fr)_minmax(220px,0.75fr)] xl:items-start">
                 <div className="flex items-start justify-between gap-3">
-                  <div>
+                  <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
                       <p className="font-semibold text-zinc-950">{document.title}</p>
-                      <StatusBadge tone={knowledgeTone(document.status)}>{document.status}</StatusBadge>
+                      <StatusBadge tone={knowledgeTone(document.status)}>{statusLabel(document.status)}</StatusBadge>
                     </div>
                     <p className="mt-1 text-sm text-zinc-500">{sourceLabel(document.sourceSystem)} · {document.visibility}</p>
                   </div>
                   <FileText className="size-5 shrink-0 text-zinc-400" />
                 </div>
-                {document.summary ? <p className="mt-3 line-clamp-3 text-sm leading-6 text-zinc-600">{document.summary}</p> : null}
-                <div className="mt-4 flex flex-col gap-2 text-sm text-zinc-500 sm:flex-row sm:items-center sm:justify-between">
-                  <span>Fresh {formatAdminDateTime(document.freshnessAt ?? document.updatedAt)}</span>
+                {document.summary ? <p className="line-clamp-3 text-sm leading-6 text-zinc-600">{document.summary}</p> : <p className="text-sm text-zinc-500">Aucun résumé enregistré.</p>}
+                <div className="flex flex-col gap-2 text-sm text-zinc-500">
+                  <span>Fraîcheur {formatAdminDateTime(document.freshnessAt ?? document.updatedAt)}</span>
                   {document.sourceUri ? (
                     <span className="inline-flex max-w-full items-center gap-1 truncate text-zinc-600">
                       <ExternalLink className="size-4 shrink-0" />
@@ -84,16 +84,16 @@ export default async function LucidOsKnowledgePage() {
         )}
       </Section>
 
-      <Section title="Record knowledge" description="Capture an internal source for agent retrieval and audit traceability.">
+      <Section title="Enregistrer une connaissance" description="Capture une source interne pour la récupération par les agents et la traçabilité d’audit.">
         <form action={recordKnowledgeDocumentAction} className="grid gap-4">
           <div className="grid gap-4 md:grid-cols-2">
             <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Title
+              Titre
               <input
                 name="title"
                 required
                 className="h-10 rounded-lg border border-zinc-200 px-3 text-sm font-normal text-zinc-950 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100"
-                placeholder="Lucid OS client onboarding workflow"
+                placeholder="Processus d’onboarding client Lucid OS"
               />
             </label>
             <label className="grid gap-2 text-sm font-medium text-zinc-700">
@@ -114,7 +114,7 @@ export default async function LucidOsKnowledgePage() {
                 className="h-10 rounded-lg border border-zinc-200 px-3 text-sm font-normal text-zinc-950 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100"
               >
                 <option value="admin">Admin</option>
-                <option value="obsidian">Obsidian</option>
+                <option value="obsidian">Note interne</option>
                 <option value="github">GitHub</option>
                 <option value="supabase">Supabase</option>
                 <option value="integration">Integration</option>
@@ -122,31 +122,31 @@ export default async function LucidOsKnowledgePage() {
               </select>
             </label>
             <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Source URI
+              Lien source
               <input
                 name="source_uri"
                 className="h-10 rounded-lg border border-zinc-200 px-3 text-sm font-normal text-zinc-950 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100"
-                placeholder="wiki/concepts/lucid-os or repo path"
+                placeholder="wiki/concepts/lucid-os ou chemin repo"
               />
             </label>
           </div>
           <label className="grid gap-2 text-sm font-medium text-zinc-700">
-            Summary
+            Résumé
             <textarea
               name="summary"
               required
               rows={3}
               className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-normal leading-6 text-zinc-950 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100"
-              placeholder="What changed, why it matters, and where future agents should look."
+              placeholder="Ce qui a changé, pourquoi c’est important et où les futurs agents doivent regarder."
             />
           </label>
           <label className="grid gap-2 text-sm font-medium text-zinc-700">
-            Retrieval content
+            Contenu récupérable
             <textarea
               name="content"
               rows={6}
               className="rounded-lg border border-zinc-200 px-3 py-2 text-sm font-normal leading-6 text-zinc-950 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100"
-              placeholder="Full operational note or condensed source content. Leave blank to use the summary."
+              placeholder="Note opérationnelle complète ou contenu source condensé. Laisse vide pour utiliser le résumé."
             />
           </label>
           <div className="flex justify-end">
@@ -155,19 +155,19 @@ export default async function LucidOsKnowledgePage() {
               className="inline-flex h-10 items-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-medium text-white transition hover:bg-zinc-800"
             >
               <Save className="size-4" />
-              Save knowledge
+              Enregistrer
             </button>
           </div>
         </form>
       </Section>
 
-      <Section title="Knowledge audit" description="Recent memory changes and protocol events.">
+      <Section title="Audit connaissance" description="Changements mémoire et événements de protocole récents.">
         {knowledgeAuditEvents.length === 0 ? (
-          <EmptyState>No knowledge audit events yet.</EmptyState>
+          <EmptyState>Aucun événement d’audit connaissance pour le moment.</EmptyState>
         ) : (
-          <div className="grid gap-3">
+          <div className="divide-y divide-white/10">
             {knowledgeAuditEvents.map((event) => (
-              <div key={event.id} className="rounded-lg border border-zinc-200 p-3">
+              <div key={event.id} className="py-3 first:pt-0 last:pb-0">
                 <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center">
                   <div>
                     <p className="font-medium text-zinc-950">{event.summary}</p>

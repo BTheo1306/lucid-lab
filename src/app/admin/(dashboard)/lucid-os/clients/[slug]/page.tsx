@@ -1,32 +1,66 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
-import { ArrowLeft, BriefcaseBusiness, Building2, CheckSquare, Contact, Edit3, ExternalLink, FileCheck2, FileText, Globe2, Mail, MessageSquare, Phone, Plus, RefreshCw, Upload } from 'lucide-react';
+import {
+  ArrowLeft,
+  BriefcaseBusiness,
+  CheckSquare,
+  Contact,
+  DatabaseZap,
+  Edit3,
+  ExternalLink,
+  FileCheck2,
+  FileText,
+  FolderOpen,
+  Globe2,
+  Mail,
+  MessageSquare,
+  Phone,
+  Plus,
+  RefreshCw,
+} from 'lucide-react';
+import { getVaultClientProfile, profileStatusLabel, type VaultClientDocument, type VaultClientProfile } from '@/lib/admin/client-vault-profiles';
+import { supabaseServiceRoleConfigurationError } from '@/lib/bot/db/supabase';
 import { listLucidClientDocumentsForClient } from '@/lib/admin/documents/workflow';
 import type { LucidClientDocumentStatus, LucidClientDocumentSummary } from '@/lib/admin/documents/types';
 import {
   getLucidClientBySlug,
-  getLucidClientIntakeKnowledge,
   listLucidClientContactsForClient,
+  listLucidDatabasesForClient,
+  listLucidDeploymentsForClient,
   listLucidClientImportsForClient,
   listLucidClientInteractionsForClient,
+  listLucidIntegrationsForClient,
   listLucidClientOpportunitiesForClient,
   listLucidClientTasksForClient,
   listLucidProjectsForClient,
   listLucidWebsitesForClient,
   type LucidClientHealthStatus,
-  type LucidClientTaskPriority,
-  type LucidClientTaskStatus,
-  type LucidContactInfluenceLevel,
-  type LucidContactStatus,
-  type LucidHealthStatus,
+  type LucidClientImportSummary,
+  type LucidClientSummary,
+  type LucidClientTaskSummary,
+  type LucidDatabaseSummary,
+  type LucidDeploymentSummary,
+  type LucidIntegrationSummary,
   type LucidInteractionSentiment,
-  type LucidOpportunityStage,
-  type LucidOpportunityStatus,
   type LucidProjectStatus,
+  type LucidProjectSummary,
   type LucidWebsiteStatus,
+  type LucidWebsiteSummary,
 } from '@/lib/admin/lucid-os';
-import { EmptyState, formatAdminDate, formatAdminDateTime, Section, StatusBadge } from '../../components';
-import { createBonDeCommandeDraftAction, recordClientContactAction, recordClientImportAction, recordClientInteractionAction, recordClientOpportunityAction, recordClientTaskAction, refreshDocuSealDocumentStatusAction, sendBonDeCommandeForSignatureAction, syncClientObsidianAction, updateClientStatusAndLifecycleAction } from '../actions';
+import { EmptyState, formatAdminDateTime, StatusBadge } from '../../components';
+import { ClientTaskBoard } from './TaskBoard';
+import {
+  createBonDeCommandeDraftAction,
+  fetchClientCompanyInfoAction,
+  recordClientContactAction,
+  recordClientOpportunityAction,
+  recordClientSmartNoteAction,
+  recordClientTaskAction,
+  refreshDocuSealDocumentStatusAction,
+  sendBonDeCommandeForSignatureAction,
+  updateClientCompanyInfoAction,
+  updateClientStatusAndLifecycleAction,
+} from '../actions';
 import { DeleteClientForm } from '../DeleteClientForm';
 import { InlineSelectForm } from '../InlineSelectForm';
 
@@ -57,59 +91,6 @@ function websiteTone(status: LucidWebsiteStatus): 'neutral' | 'good' | 'warning'
     case 'paused': return 'warning';
     case 'archived': return 'neutral';
     default: return 'warning';
-  }
-}
-
-function healthTone(status: LucidHealthStatus): 'neutral' | 'good' | 'warning' | 'danger' {
-  switch (status) {
-    case 'healthy': return 'good';
-    case 'degraded': return 'warning';
-    case 'down': return 'danger';
-    default: return 'neutral';
-  }
-}
-
-function contactTone(status: LucidContactStatus): 'neutral' | 'good' | 'warning' | 'danger' {
-  switch (status) {
-    case 'active': return 'good';
-    case 'inactive': return 'warning';
-    case 'left_company': return 'danger';
-    default: return 'neutral';
-  }
-}
-
-function influenceTone(level: LucidContactInfluenceLevel): 'neutral' | 'good' | 'warning' | 'danger' {
-  switch (level) {
-    case 'champion':
-    case 'high': return 'good';
-    case 'blocker': return 'danger';
-    case 'medium': return 'warning';
-    default: return 'neutral';
-  }
-}
-
-function opportunityTone(status: LucidOpportunityStatus, stage: LucidOpportunityStage): 'neutral' | 'good' | 'warning' | 'danger' {
-  if (status === 'won' || stage === 'won') return 'good';
-  if (status === 'lost' || stage === 'lost') return 'danger';
-  if (status === 'paused' || stage === 'paused') return 'warning';
-  return 'neutral';
-}
-
-function taskTone(status: LucidClientTaskStatus): 'neutral' | 'good' | 'warning' | 'danger' {
-  switch (status) {
-    case 'done': return 'good';
-    case 'waiting': return 'warning';
-    case 'cancelled': return 'neutral';
-    default: return 'warning';
-  }
-}
-
-function priorityTone(priority: LucidClientTaskPriority): 'neutral' | 'good' | 'warning' | 'danger' {
-  switch (priority) {
-    case 'urgent': return 'danger';
-    case 'high': return 'warning';
-    case 'low': return 'neutral';
-    default: return 'good';
   }
 }
 
@@ -148,7 +129,91 @@ function formatMoney(value: number | null): string {
 }
 
 function statusLabel(value: string): string {
-  return value.replace(/_/g, ' ');
+  const labels: Record<string, string> = {
+    active: 'actif',
+    ai_agent: 'agent IA',
+    ai_automation: 'automatisation IA',
+    archived: 'archivé',
+    audit: 'audit',
+    blocked: 'bloqué',
+    call: 'appel',
+    cancelled: 'annulé',
+    chat: 'chat',
+    champion: 'allié',
+    contract: 'contrat',
+    critical: 'critique',
+    custom: 'sur mesure',
+    custom_app: 'application sur mesure',
+    degraded: 'dégradé',
+    decision: 'décision',
+    declined: 'refusé',
+    discovery: 'découverte',
+    discovery_done: 'découverte faite',
+    delivery_update: 'point production',
+    done: 'fait',
+    draft: 'brouillon',
+    email: 'email',
+    expired: 'expiré',
+    expansion_opportunity: 'opportunité d’expansion',
+    failed: 'échec',
+    form: 'formulaire',
+    healthy: 'sain',
+    high: 'élevé',
+    in_delivery: 'en production',
+    in_progress: 'en cours',
+    inactive: 'inactif',
+    lead: 'prospect',
+    left_company: 'a quitté l’entreprise',
+    live: 'en ligne',
+    live_managed: 'en ligne / géré',
+    lost: 'perdu',
+    low: 'faible',
+    managed_website: 'site web géré',
+    medium: 'moyen',
+    meeting: 'rendez-vous',
+    meeting_booked: 'rdv planifié',
+    meeting_notes: 'notes de rendez-vous',
+    monitoring: 'monitoring',
+    monthly: 'mensuel',
+    needs_review: 'à relire',
+    negative: 'négatif',
+    neutral: 'neutre',
+    new: 'nouveau',
+    note: 'note',
+    normal: 'normal',
+    offboarded: 'terminé',
+    one_shot: 'one-shot',
+    open: 'ouvert',
+    other: 'autre',
+    paused: 'en pause',
+    positive: 'positif',
+    processed: 'traité',
+    proposal: 'proposition',
+    proposal_needed: 'proposition à préparer',
+    proposal_sent: 'proposition envoyée',
+    qualified: 'qualifié',
+    ready_to_send: 'prêt à envoyer',
+    retainer: 'récurrent',
+    risk: 'risque',
+    sent: 'envoyé',
+    sent_for_signature: 'envoyé en signature',
+    signed: 'signé',
+    signed_pdf: 'PDF signé',
+    source: 'source',
+    stale: 'à mettre à jour',
+    success_retention: 'succès / rétention',
+    support: 'support',
+    test_artifact: 'artefact de test',
+    todo: 'à faire',
+    unknown: 'inconnu',
+    urgent: 'urgent',
+    viewed: 'vu',
+    waiting: 'en attente',
+    website_database: 'site web + base de données',
+    won: 'gagné',
+  };
+
+  return labels[value] ?? value.replace(/_/g, ' ');
 }
 
 function hasBlockingDocumentIssues(document: LucidClientDocumentSummary): boolean {
@@ -160,70 +225,6 @@ function externalHref(value: string | null): string | null {
   return /^https?:\/\//i.test(value) ? value : `https://${value}`;
 }
 
-function equalText(left: string | null | undefined, right: string | null | undefined): boolean {
-  if (!left || !right) return false;
-  return left.replace(/\s+/g, ' ').trim() === right.replace(/\s+/g, ' ').trim();
-}
-
-function checklistItems(value: string | null | undefined): string[] {
-  if (!value || value.trim().length === 0) return [];
-  const normalized = value.replace(/\r/g, '\n').trim();
-  const lines = normalized
-    .split('\n')
-    .map((line) => line.replace(/^\s*(?:[-*]|\d+[.)]|\u2022)\s+/, '').trim())
-    .filter(Boolean);
-
-  if (lines.length > 1) return lines;
-
-  const semicolonItems = normalized.split(';').map((item) => item.trim()).filter(Boolean);
-  if (semicolonItems.length > 1) return semicolonItems;
-
-  const commaItems = normalized.split(',').map((item) => item.trim()).filter(Boolean);
-  if (commaItems.length > 1 && commaItems.every((item) => item.length <= 90)) return commaItems;
-
-  return [normalized];
-}
-
-function InfoItem({ label, value }: { label: string; value: string | null | undefined }) {
-  return (
-    <div className="border-b border-zinc-100 py-3 last:border-b-0">
-      <dt className="text-xs font-medium uppercase text-zinc-500">{label}</dt>
-      <dd className="mt-1 break-words text-sm font-medium text-zinc-950">{fallbackValue(value)}</dd>
-    </div>
-  );
-}
-
-function LongText({ title, value }: { title: string; value: string | null | undefined }) {
-  const displayValue = fallbackValue(value);
-  if (displayValue === '-') return null;
-
-  return (
-    <div className="grid gap-2">
-      <h3 className="text-sm font-semibold text-zinc-950">{title}</h3>
-      <p className="whitespace-pre-wrap rounded-lg border border-zinc-100 bg-zinc-50 px-3 py-3 text-sm leading-6 text-zinc-700">{displayValue}</p>
-    </div>
-  );
-}
-
-function BulletChecklist({ title, value }: { title: string; value: string | null | undefined }) {
-  const items = checklistItems(value);
-  if (items.length === 0) return null;
-
-  return (
-    <div className="grid gap-2">
-      <h3 className="text-sm font-semibold text-zinc-950">{title}</h3>
-      <ul className="grid gap-2 rounded-lg border border-zinc-100 bg-zinc-50 px-3 py-3 text-sm leading-6 text-zinc-700">
-        {items.map((item, i) => (
-          <li key={i} className="grid grid-cols-[16px_minmax(0,1fr)] gap-2">
-            <input type="checkbox" disabled className="mt-1 size-4 shrink-0 rounded border-zinc-300 bg-white" />
-            <span className="break-words">{item}</span>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
 function HiddenClientFields({ client }: { client: { id: string; slug: string } }) {
   return (
     <>
@@ -233,12 +234,12 @@ function HiddenClientFields({ client }: { client: { id: string; slug: string } }
   );
 }
 
-const inputClassName = 'h-10 rounded-lg border border-zinc-200 px-3 text-sm font-normal text-zinc-950 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100';
-const textareaClassName = 'rounded-lg border border-zinc-200 px-3 py-2 text-sm font-normal leading-6 text-zinc-950 outline-none transition focus:border-zinc-400 focus:ring-2 focus:ring-zinc-100';
+const inputClassName = 'h-9 rounded border border-white/10 bg-[#050506] px-3 text-sm font-normal text-zinc-100 outline-none transition placeholder:text-zinc-700 focus:border-[#60a5fa]/60 focus:ring-2 focus:ring-[#60a5fa]/10';
+const textareaClassName = 'rounded border border-white/10 bg-[#050506] px-3 py-2 text-sm font-normal leading-6 text-zinc-100 outline-none transition placeholder:text-zinc-700 focus:border-[#60a5fa]/60 focus:ring-2 focus:ring-[#60a5fa]/10';
 
 function textInput(label: string, name: string, placeholder?: string, type = 'text') {
   return (
-    <label className="grid gap-2 text-sm font-medium text-zinc-700">
+    <label className="grid gap-2 text-sm font-medium text-zinc-300">
       {label}
       <input name={name} type={type} className={inputClassName} placeholder={placeholder} />
     </label>
@@ -247,7 +248,7 @@ function textInput(label: string, name: string, placeholder?: string, type = 'te
 
 function textareaInput(label: string, name: string, placeholder?: string, rows = 3) {
   return (
-    <label className="grid gap-2 text-sm font-medium text-zinc-700">
+    <label className="grid gap-2 text-sm font-medium text-zinc-300">
       {label}
       <textarea name={name} rows={rows} className={textareaClassName} placeholder={placeholder} />
     </label>
@@ -256,26 +257,895 @@ function textareaInput(label: string, name: string, placeholder?: string, rows =
 
 function ActionButton({ icon: Icon = Plus, children }: { icon?: typeof Plus; children: string }) {
   return (
-    <button type="submit" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-medium text-white transition hover:bg-zinc-800">
+    <button type="submit" className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
       <Icon className="size-4" />
       {children}
     </button>
   );
 }
 
-const clientProfileLinks: Array<{ id: string; label: string; icon: typeof Building2 }> = [
-  { id: 'overview', label: 'Overview', icon: Building2 },
-  { id: 'contacts', label: 'Contacts', icon: Contact },
-  { id: 'opportunities', label: 'Deals', icon: BriefcaseBusiness },
-  { id: 'documents', label: 'Documents', icon: FileText },
-  { id: 'timeline', label: 'Timeline', icon: MessageSquare },
-  { id: 'tasks', label: 'Tasks', icon: CheckSquare },
-  { id: 'imports', label: 'Imports', icon: Upload },
-  { id: 'delivery', label: 'Delivery', icon: Globe2 },
-];
+function RecordPanel({ title, children }: { title: string; description?: string; children: React.ReactNode }) {
+  return (
+    <section className="grid gap-3">
+      <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">{title}</h2>
+      <div className="border-t border-white/[0.08] pt-3">{children}</div>
+    </section>
+  );
+}
+
+function FieldRow({ label, value }: { label: string; value: React.ReactNode }) {
+  return (
+    <div className="grid gap-1 border-t border-white/[0.08] py-3 first:border-t-0 first:pt-0 last:pb-0 md:grid-cols-[160px_minmax(0,1fr)] md:gap-4">
+      <dt className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-600">{label}</dt>
+      <dd className="min-w-0 break-words text-sm leading-6 text-zinc-300">{value}</dd>
+    </div>
+  );
+}
+
+function LineList({ items, empty = 'Rien d’enregistré pour le moment.' }: { items: string[]; empty?: string }) {
+  if (items.length === 0) return <p className="text-sm text-zinc-600">{empty}</p>;
+
+  return (
+    <div className="divide-y divide-white/[0.08]">
+      {items.map((item) => (
+        <p key={item} className="py-3 text-sm leading-6 text-zinc-300 first:pt-0 last:pb-0">{item}</p>
+      ))}
+    </div>
+  );
+}
+
+function VaultDocumentList({ documents }: { documents: VaultClientDocument[] }) {
+  if (documents.length === 0) return <EmptyState>Aucune référence documentaire n’est enregistrée pour ce client.</EmptyState>;
+
+  return (
+    <div className="divide-y divide-white/[0.08]">
+      {documents.map((document) => (
+        <article key={`${document.title}-${document.location}`} className="py-4 first:pt-0 last:pb-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-medium text-zinc-50">{document.title}</p>
+            <StatusBadge tone={document.status === 'signed' ? 'good' : document.status === 'needs_review' || document.status === 'test_artifact' ? 'warning' : 'neutral'}>{statusLabel(document.status)}</StatusBadge>
+            <StatusBadge tone="neutral">{statusLabel(document.kind)}</StatusBadge>
+          </div>
+          <p className="mt-2 text-sm text-zinc-500">{document.location}</p>
+          {document.note ? <p className="mt-2 text-sm leading-6 text-zinc-400">{document.note}</p> : null}
+          {document.url ? (
+            <a href={document.url} target="_blank" rel="noreferrer" className="mt-2 inline-flex items-center gap-2 text-sm text-zinc-200 underline-offset-4 hover:underline">
+              Ouvrir le document <ExternalLink className="size-4" />
+            </a>
+          ) : null}
+        </article>
+      ))}
+    </div>
+  );
+}
+
+function SourceRefs({ profile }: { profile: VaultClientProfile }) {
+  return (
+    <div className="divide-y divide-white/[0.08]">
+      {profile.sourceRefs.map((source) => (
+        <div key={source.vaultPath} className="py-3 first:pt-0 last:pb-0">
+          <p className="text-sm font-medium text-zinc-200">{source.label}</p>
+          <p className="mt-1 break-all text-xs text-zinc-600">{source.vaultPath}</p>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function FoldoutForm({ title, icon: Icon, children }: { title: string; icon: typeof Plus; children: React.ReactNode }) {
+  return (
+    <details className="group border-t border-white/[0.08] py-4 first:border-t-0 first:pt-0 last:pb-0">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-zinc-100 [&::-webkit-details-marker]:hidden">
+        <span className="inline-flex items-center gap-2"><Icon className="size-4 text-zinc-500" />{title}</span>
+        <Plus className="size-4 text-zinc-600 transition group-open:rotate-45" />
+      </summary>
+      <div className="mt-4">{children}</div>
+    </details>
+  );
+}
+
+function ActionErrorBanner({ message }: { message: string | null }) {
+  if (!message) return null;
+
+  return (
+    <div className="border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm leading-6 text-rose-100">
+      {message}
+    </div>
+  );
+}
+
+function VaultEditPanel({ profile, supabaseWriteError }: { profile: VaultClientProfile; supabaseWriteError: string | null }) {
+  return (
+    <RecordPanel title="Actions">
+      <div className="grid gap-3">
+        <Link href={`/admin/lucid-os/crm/clients/${profile.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
+          <Edit3 className="size-4" />
+          Modifier / rendre éditable
+        </Link>
+        {supabaseWriteError ? <ActionErrorBanner message={supabaseWriteError} /> : null}
+      </div>
+    </RecordPanel>
+  );
+}
+
+function VaultCompanyContactPanel({ profile }: { profile: VaultClientProfile }) {
+  return (
+    <RecordPanel title="Contact et entreprise">
+      <div className="grid gap-6 xl:grid-cols-2">
+        <dl>
+          <FieldRow label="Raison sociale" value={profile.name} />
+          <FieldRow label="SIREN" value="-" />
+          <FieldRow label="SIRET" value="-" />
+          <FieldRow label="Adresse" value="-" />
+          <FieldRow label="Activité" value={fallbackValue(profile.industry)} />
+          <FieldRow label="Site" value={profile.websiteUrl ? <a href={externalHref(profile.websiteUrl) ?? profile.websiteUrl} target="_blank" rel="noreferrer" className="underline-offset-4 hover:text-zinc-100 hover:underline">{profile.websiteUrl}</a> : '-'} />
+        </dl>
+        <dl>
+          <FieldRow label="Contact" value={fallbackValue(profile.primaryContactName)} />
+          <FieldRow label="Rôle" value="-" />
+          <FieldRow label="Email" value={profile.primaryContactEmail ? <a href={`mailto:${profile.primaryContactEmail}`} className="underline-offset-4 hover:text-zinc-100 hover:underline">{profile.primaryContactEmail}</a> : '-'} />
+          <FieldRow label="Téléphone" value={fallbackValue(profile.primaryContactPhone)} />
+          <FieldRow label="Statut" value={statusLabel(profile.status)} />
+          <FieldRow label="Source" value="source interne" />
+        </dl>
+      </div>
+    </RecordPanel>
+  );
+}
+
+function VaultNotesPanel({ profile }: { profile: VaultClientProfile }) {
+  return (
+    <RecordPanel title="Notes">
+      <div className="grid gap-6 xl:grid-cols-2">
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-50">Notes de relation</h3>
+          <div className="mt-3"><LineList items={profile.relationshipNotes} /></div>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-50">Points d’attention</h3>
+          <div className="mt-3"><LineList items={profile.warnings} empty="Aucun point d’attention enregistré." /></div>
+        </div>
+      </div>
+    </RecordPanel>
+  );
+}
+
+function VaultTaskColumn({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="min-h-[180px] border border-white/[0.08] bg-white/[0.02] p-3">
+      <div className="mb-3 flex items-center justify-between gap-3">
+        <h3 className="text-sm font-semibold text-zinc-100">{title}</h3>
+      </div>
+      {children}
+    </div>
+  );
+}
+
+function VaultTasksPanel({ profile }: { profile: VaultClientProfile }) {
+  return (
+    <RecordPanel title="Tâches">
+      <div className="grid gap-3 lg:grid-cols-3">
+        <VaultTaskColumn title="À faire">
+          {profile.nextStep ? (
+            <article className="border border-white/[0.08] bg-[#050506] p-3">
+              <p className="text-sm font-semibold text-zinc-100">{profile.nextStep}</p>
+            </article>
+          ) : <p className="text-sm text-zinc-600">-</p>}
+        </VaultTaskColumn>
+        <VaultTaskColumn title="En cours"><p className="text-sm text-zinc-600">-</p></VaultTaskColumn>
+        <VaultTaskColumn title="Fini"><p className="text-sm text-zinc-600">-</p></VaultTaskColumn>
+      </div>
+    </RecordPanel>
+  );
+}
+
+function VaultBillingSummaryPanel() {
+  return (
+    <RecordPanel title="Montant facturé">
+      <div className="grid gap-4 md:grid-cols-4">
+        <div className="border-t border-white/[0.08] py-4 md:col-span-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-600">Total TTC signé</p>
+          <p className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-zinc-50">-</p>
+        </div>
+        <div className="border-t border-white/[0.08] py-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-600">Mensuel signé</p>
+          <p className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-zinc-50">-</p>
+        </div>
+        <div className="border-t border-white/[0.08] py-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-600">Pipeline</p>
+          <p className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-zinc-50">-</p>
+        </div>
+      </div>
+    </RecordPanel>
+  );
+}
+
+function VaultDeliverablesPanel({ profile }: { profile: VaultClientProfile }) {
+  return (
+    <RecordPanel title="Livrables et accès">
+      <div className="grid gap-6">
+        {profile.websiteUrl ? (
+          <div>
+            <h3 className="text-sm font-semibold text-zinc-50">Sites</h3>
+            <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2"><AccessLink label="Production" href={profile.websiteUrl} /></div>
+          </div>
+        ) : null}
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-50">Livrables</h3>
+          <div className="mt-3"><LineList items={profile.deliveryTracks} empty="Aucun livrable renseigné." /></div>
+        </div>
+      </div>
+    </RecordPanel>
+  );
+}
+
+function VaultOnlyClientPage({ profile, clientError }: { profile: VaultClientProfile; clientError: string | null }) {
+  const supabaseWriteError = supabaseServiceRoleConfigurationError();
+
+  return (
+    <div className="grid gap-7">
+      <ClientHero
+        name={profile.name}
+        subtitle={profileStatusLabel(profile)}
+        industry={profile.industry}
+        websiteUrl={profile.websiteUrl}
+        email={profile.primaryContactEmail}
+        phone={profile.primaryContactPhone}
+        backHref="/admin/lucid-os/crm/clients"
+        actions={(
+          <Link href={`/admin/lucid-os/crm/clients/${profile.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
+            <Edit3 className="size-4" />
+            Modifier
+          </Link>
+        )}
+      >
+        <StatusBadge tone={profile.status === 'active' ? 'good' : profile.status === 'lead' ? 'warning' : 'neutral'}>{statusLabel(profile.status)}</StatusBadge>
+        <StatusBadge tone="neutral">source interne</StatusBadge>
+      </ClientHero>
+      <ActionErrorBanner message={clientError} />
+
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_360px] xl:items-start">
+        <main className="grid gap-6">
+          <VaultCompanyContactPanel profile={profile} />
+          <VaultNotesPanel profile={profile} />
+          <VaultTasksPanel profile={profile} />
+          <VaultBillingSummaryPanel />
+          <VaultDeliverablesPanel profile={profile} />
+          <RecordPanel title="Documents">
+            <VaultDocumentList documents={profile.documents} />
+          </RecordPanel>
+        </main>
+
+        <aside className="grid gap-4 xl:sticky xl:top-5">
+          <VaultEditPanel profile={profile} supabaseWriteError={supabaseWriteError} />
+          <RecordPanel title="Sources internes">
+            <SourceRefs profile={profile} />
+          </RecordPanel>
+        </aside>
+      </div>
+    </div>
+  );
+}
+
+function ClientHero({
+  name,
+  subtitle,
+  industry,
+  websiteUrl,
+  email,
+  phone,
+  backHref,
+  actions,
+  children,
+}: {
+  name: string;
+  subtitle: string;
+  industry: string | null;
+  websiteUrl: string | null;
+  email: string | null;
+  phone: string | null;
+  backHref: string;
+  actions?: React.ReactNode;
+  children: React.ReactNode;
+}) {
+  const websiteHref = externalHref(websiteUrl);
+
+  return (
+    <section className="border-b border-white/[0.08] pb-5">
+      <div className="flex flex-col gap-5 lg:flex-row lg:items-end lg:justify-between">
+        <div className="min-w-0">
+          <Link href={backHref} className="mb-5 inline-flex items-center gap-2 text-sm font-medium text-zinc-500 transition hover:text-zinc-200">
+            <ArrowLeft className="size-4" />
+            Retour aux fiches clients
+          </Link>
+          <h1 className="text-3xl font-semibold tracking-[-0.04em] text-zinc-50 md:text-5xl">{name}</h1>
+          <div className="mt-4 flex flex-wrap gap-2">{children}</div>
+          <p className="mt-4 max-w-3xl text-sm leading-6 text-zinc-500">{subtitle}{industry ? ` / ${industry}` : ''}</p>
+        </div>
+
+        <div className="grid gap-3 text-sm text-zinc-400 lg:min-w-[300px]">
+          {actions ? <div className="flex justify-start lg:justify-end">{actions}</div> : null}
+          {email ? <a href={`mailto:${email}`} className="inline-flex min-w-0 items-center gap-2 truncate hover:text-zinc-100"><Mail className="size-4 text-zinc-600" /><span className="truncate">{email}</span></a> : null}
+          {phone ? <span className="inline-flex min-w-0 items-center gap-2 truncate"><Phone className="size-4 text-zinc-600" /><span className="truncate">{phone}</span></span> : null}
+          {websiteHref ? <a href={websiteHref} target="_blank" rel="noreferrer" className="inline-flex min-w-0 items-center gap-2 truncate hover:text-zinc-100"><Globe2 className="size-4 text-zinc-600" /><span className="truncate">{websiteUrl}</span><ExternalLink className="size-3.5 text-zinc-700" /></a> : null}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AddContactForm({ client }: { client: LucidClientSummary }) {
+  return (
+    <form action={recordClientContactAction} className="grid gap-3">
+      <HiddenClientFields client={client} />
+      {textInput('Nom', 'full_name', 'Marie Dupont')}
+      {textInput('Rôle', 'role', 'Direction, marketing, finance')}
+      {textInput('Email', 'email', 'marie@client.fr', 'email')}
+      {textInput('Téléphone', 'phone', '+33 6...')}
+      {textInput('LinkedIn', 'linkedin_url', 'https://linkedin.com/in/...')}
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
+        <label className="grid gap-2 text-sm font-medium text-zinc-300">
+          Influence
+          <select name="influence_level" defaultValue="unknown" className={inputClassName}>
+            <option value="unknown">Inconnue</option>
+            <option value="low">Faible</option>
+            <option value="medium">Moyenne</option>
+            <option value="high">Élevée</option>
+            <option value="champion">Champion</option>
+            <option value="blocker">Bloquant</option>
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-medium text-zinc-300">
+          Statut
+          <select name="contact_status" defaultValue="active" className={inputClassName}>
+            <option value="active">Actif</option>
+            <option value="inactive">Inactif</option>
+            <option value="left_company">A quitté l’entreprise</option>
+            <option value="archived">Archivé</option>
+          </select>
+        </label>
+      </div>
+      <div className="flex flex-wrap gap-4 text-sm font-medium text-zinc-300">
+        <label className="inline-flex items-center gap-2"><input name="is_primary" type="checkbox" className="size-4 rounded border-white/10 bg-[#050506]" />Contact principal</label>
+        <label className="inline-flex items-center gap-2"><input name="is_decision_maker" type="checkbox" className="size-4 rounded border-white/10 bg-[#050506]" />Décisionnaire</label>
+      </div>
+      {textareaInput('Notes', 'notes', 'Contexte relationnel, préférences, objections...', 3)}
+      <div className="flex justify-end"><ActionButton icon={Contact}>Ajouter le contact</ActionButton></div>
+    </form>
+  );
+}
+
+function AddOpportunityForm({ client, contacts }: { client: LucidClientSummary; contacts: Array<{ id: string; fullName: string }> }) {
+  return (
+    <form action={recordClientOpportunityAction} className="grid gap-3">
+      <HiddenClientFields client={client} />
+      {textInput('Titre', 'title', 'Système de génération de leads IA')}
+      <label className="grid gap-2 text-sm font-medium text-zinc-300">
+        Contact principal
+        <select name="primary_contact_id" defaultValue="" className={inputClassName}>
+          <option value="">Aucun</option>
+          {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}</option>)}
+        </select>
+      </label>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
+        <label className="grid gap-2 text-sm font-medium text-zinc-300">
+          Étape
+          <select name="stage" defaultValue="discovery" className={inputClassName}>
+            <option value="new">Nouveau</option>
+            <option value="qualified">Qualifié</option>
+            <option value="discovery">Découverte</option>
+            <option value="proposal_needed">Proposition à préparer</option>
+            <option value="proposal_sent">Proposition envoyée</option>
+            <option value="negotiation">Négociation</option>
+            <option value="won">Gagné</option>
+            <option value="lost">Perdu</option>
+            <option value="paused">En pause</option>
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-medium text-zinc-300">
+          Statut
+          <select name="opportunity_status" defaultValue="open" className={inputClassName}>
+            <option value="open">Ouvert</option>
+            <option value="won">Gagné</option>
+            <option value="lost">Perdu</option>
+            <option value="paused">En pause</option>
+            <option value="archived">Archivé</option>
+          </select>
+        </label>
+      </div>
+      <label className="grid gap-2 text-sm font-medium text-zinc-300">
+        Offre
+        <select name="offer_type" defaultValue="custom" className={inputClassName}>
+          <option value="managed_website">Site web géré</option>
+          <option value="website_database">Site web + base de données</option>
+          <option value="ai_automation">Automatisation IA</option>
+          <option value="ai_agent">Agent IA</option>
+          <option value="custom_app">Application sur mesure</option>
+          <option value="retainer">Récurrent</option>
+          <option value="audit">Audit</option>
+          <option value="custom">Sur mesure</option>
+        </select>
+      </label>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
+        {textInput('Prévision EUR', 'value_estimate_eur', '5000', 'number')}
+        {textInput('Probabilité %', 'probability_percent', '40', 'number')}
+      </div>
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
+        {textInput('Setup EUR', 'setup_value_eur', '3000', 'number')}
+        {textInput('Mensuel EUR', 'monthly_value_eur', '500', 'number')}
+      </div>
+      {textInput('Clôture prévue', 'expected_close_at', undefined, 'datetime-local')}
+      {textInput('Prochaine étape', 'next_step', 'Envoyer la proposition')}
+      {textInput('Échéance prochaine étape', 'next_step_due_at', undefined, 'datetime-local')}
+      {textareaInput('Notes', 'notes', 'Contexte commercial, objections, critères d’achat...', 3)}
+      <div className="flex justify-end"><ActionButton icon={BriefcaseBusiness}>Ajouter l’opportunité</ActionButton></div>
+    </form>
+  );
+}
+
+function AddTaskForm({ client, contacts, opportunities }: { client: LucidClientSummary; contacts: Array<{ id: string; fullName: string }>; opportunities: Array<{ id: string; title: string }> }) {
+  return (
+    <form action={recordClientTaskAction} className="grid gap-3">
+      <HiddenClientFields client={client} />
+      {textInput('Titre', 'title', 'Relancer avec la proposition')}
+      <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
+        <label className="grid gap-2 text-sm font-medium text-zinc-300">
+          Statut
+          <select name="task_status" defaultValue="todo" className={inputClassName}>
+            <option value="todo">À faire</option>
+            <option value="in_progress">En cours</option>
+            <option value="waiting">En attente</option>
+            <option value="done">Fait</option>
+            <option value="cancelled">Annulé</option>
+          </select>
+        </label>
+        <label className="grid gap-2 text-sm font-medium text-zinc-300">
+          Priorité
+          <select name="priority" defaultValue="normal" className={inputClassName}>
+            <option value="low">Basse</option>
+            <option value="normal">Normal</option>
+            <option value="high">Haute</option>
+            <option value="urgent">Urgent</option>
+          </select>
+        </label>
+      </div>
+      <label className="grid gap-2 text-sm font-medium text-zinc-300">
+        Contact
+        <select name="contact_id" defaultValue="" className={inputClassName}>
+          <option value="">Aucun</option>
+          {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}</option>)}
+        </select>
+      </label>
+      <label className="grid gap-2 text-sm font-medium text-zinc-300">
+        Opportunité
+        <select name="opportunity_id" defaultValue="" className={inputClassName}>
+          <option value="">Aucune</option>
+          {opportunities.map((opportunity) => <option key={opportunity.id} value={opportunity.id}>{opportunity.title}</option>)}
+        </select>
+      </label>
+      {textInput('Responsable', 'owner_label', 'Jules, Anthony, Theo')}
+      {textInput('Échéance', 'due_at', undefined, 'datetime-local')}
+      {textareaInput('Description', 'description', 'Ce qui doit être fait et le contexte utile...', 3)}
+      <div className="flex justify-end"><ActionButton icon={CheckSquare}>Ajouter la tâche</ActionButton></div>
+    </form>
+  );
+}
+
+function CreateDocumentForm({ client, contacts, opportunities, defaultPricingModel }: { client: LucidClientSummary; contacts: Array<{ id: string; fullName: string; email: string | null; isPrimary: boolean }>; opportunities: Array<{ id: string; title: string }>; defaultPricingModel: string }) {
+  return (
+    <form action={createBonDeCommandeDraftAction} className="grid gap-3">
+      <HiddenClientFields client={client} />
+      <label className="grid gap-2 text-sm font-medium text-zinc-300">
+        Opportunité
+        <select name="opportunity_id" defaultValue={opportunities[0]?.id ?? ''} className={inputClassName}>
+          <option value="">Sélectionner une opportunité</option>
+          {opportunities.map((opportunity) => <option key={opportunity.id} value={opportunity.id}>{opportunity.title}</option>)}
+        </select>
+      </label>
+      <label className="grid gap-2 text-sm font-medium text-zinc-300">
+        Signataire
+        <select name="contact_id" defaultValue={contacts.find((contact) => contact.isPrimary)?.id ?? contacts[0]?.id ?? ''} className={inputClassName}>
+          <option value="">Utiliser le contact principal</option>
+          {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}{contact.email ? ` - ${contact.email}` : ''}</option>)}
+        </select>
+      </label>
+      <label className="grid gap-2 text-sm font-medium text-zinc-300">
+        Modèle de prix
+        <select name="pricing_model" defaultValue={defaultPricingModel} className={inputClassName}>
+          <option value="one_shot">One-shot</option>
+          <option value="monthly">Mensuel 12 mois</option>
+        </select>
+      </label>
+      {textInput('ID du dossier Google Drive', 'google_drive_folder_id', 'ID de dossier optionnel')}
+      <label className="grid gap-2 text-sm font-medium text-zinc-300">
+        Raison sociale du client
+        <input name="client_legal_name" defaultValue={client.legalName ?? client.name} className={inputClassName} placeholder="Raison sociale" />
+      </label>
+      <label className="grid gap-2 text-sm font-medium text-zinc-300">
+        SIRET du client
+        <input name="client_siret" defaultValue={client.siret ?? ''} className={inputClassName} placeholder="123 456 789 00010" />
+      </label>
+      <label className="grid gap-2 text-sm font-medium text-zinc-300">
+        Adresse du client
+        <input name="client_billing_address" defaultValue={client.billingAddress ?? ''} className={inputClassName} placeholder="Adresse complete du client" />
+      </label>
+      {textareaInput('Périmètre de la prestation', 'scope_perimeter', 'Périmètre, systèmes, automatisations, intégrations...', 4)}
+      {textareaInput('Description synthétique', 'synthetic_description', 'Contexte, objectifs et fonctionnement prévu...', 4)}
+      {textareaInput('Livrables attendus', 'deliverables', 'Livrables, formation, documentation...', 3)}
+      {textareaInput('Calendrier', 'calendar_timeline', 'Semaine 1 : ...\nSemaine 2 : ...', 3)}
+      {textareaInput('Prochaines étapes', 'next_steps', 'Accès, validation, signature, premier paiement...', 3)}
+      <div className="flex justify-end"><ActionButton icon={FileText}>Créer le brouillon</ActionButton></div>
+    </form>
+  );
+}
+
+function CompanyContactPanel({ client, contacts }: { client: LucidClientSummary; contacts: Array<{ fullName: string; role: string | null; email: string | null; phone: string | null; isPrimary: boolean }> }) {
+  const primaryContact = contacts.find((contact) => contact.isPrimary) ?? contacts[0] ?? null;
+  const contactName = primaryContact?.fullName ?? client.primaryContactName;
+  const contactEmail = primaryContact?.email ?? client.primaryContactEmail;
+  const contactPhone = primaryContact?.phone ?? client.primaryContactPhone;
+  const registrationNumber = client.siret ?? client.siren ?? '';
+
+  return (
+    <RecordPanel title="Contact et entreprise">
+      <div id="company" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)]">
+        <dl>
+          <FieldRow label="Raison sociale" value={fallbackValue(client.legalName ?? client.name)} />
+          <FieldRow label="SIREN" value={fallbackValue(client.siren)} />
+          <FieldRow label="SIRET" value={fallbackValue(client.siret)} />
+          <FieldRow label="Adresse" value={fallbackValue(client.billingAddress)} />
+          <FieldRow label="Activité" value={fallbackValue(client.nafLabel ?? client.industry)} />
+          <FieldRow label="Site" value={client.websiteUrl ? <a href={externalHref(client.websiteUrl) ?? client.websiteUrl} target="_blank" rel="noreferrer" className="underline-offset-4 hover:text-zinc-100 hover:underline">{client.websiteUrl}</a> : '-'} />
+        </dl>
+        <dl>
+          <FieldRow label="Contact" value={fallbackValue(contactName)} />
+          <FieldRow label="Rôle" value={fallbackValue(primaryContact?.role)} />
+          <FieldRow label="Email" value={contactEmail ? <a href={`mailto:${contactEmail}`} className="underline-offset-4 hover:text-zinc-100 hover:underline">{contactEmail}</a> : '-'} />
+          <FieldRow label="Téléphone" value={fallbackValue(contactPhone)} />
+          <FieldRow label="Statut entreprise" value={fallbackValue(client.companyStatus)} />
+          <FieldRow label="Dernière récup." value={formatAdminDateTime(client.legalLastFetchedAt)} />
+        </dl>
+      </div>
+
+      <div className="mt-5 grid gap-4 border-t border-white/[0.08] pt-5 xl:grid-cols-[minmax(260px,0.8fr)_minmax(0,1.2fr)]">
+        <form action={fetchClientCompanyInfoAction} className="grid content-start gap-3">
+          <HiddenClientFields client={client} />
+          <label className="grid gap-2 text-sm font-medium text-zinc-300">
+            SIREN ou SIRET
+            <input name="registration_number" defaultValue={registrationNumber} className={inputClassName} placeholder="9 ou 14 chiffres" />
+          </label>
+          <ActionButton icon={DatabaseZap}>Récupérer l’entreprise</ActionButton>
+        </form>
+
+        <details className="group border border-white/[0.08] bg-white/[0.02] p-4">
+          <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-zinc-100 [&::-webkit-details-marker]:hidden">
+            Modifier les informations
+            <Plus className="size-4 text-zinc-600 transition group-open:rotate-45" />
+          </summary>
+          <form action={updateClientCompanyInfoAction} className="mt-4 grid gap-3 md:grid-cols-2">
+            <HiddenClientFields client={client} />
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">Raison sociale<input name="legal_name" defaultValue={client.legalName ?? ''} className={inputClassName} /></label>
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">SIREN/SIRET<input name="registration_number" defaultValue={registrationNumber} className={inputClassName} /></label>
+            <label className="grid gap-2 text-sm font-medium text-zinc-300 md:col-span-2">Adresse<input name="billing_address" defaultValue={client.billingAddress ?? ''} className={inputClassName} /></label>
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">Activité<input name="industry" defaultValue={client.industry ?? ''} className={inputClassName} /></label>
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">Site<input name="website_url" defaultValue={client.websiteUrl ?? ''} className={inputClassName} /></label>
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">Contact principal<input name="primary_contact_name" defaultValue={client.primaryContactName ?? primaryContact?.fullName ?? ''} className={inputClassName} /></label>
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">Email<input name="primary_contact_email" defaultValue={client.primaryContactEmail ?? primaryContact?.email ?? ''} className={inputClassName} /></label>
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">Téléphone<input name="primary_contact_phone" defaultValue={client.primaryContactPhone ?? primaryContact?.phone ?? ''} className={inputClassName} /></label>
+            <div className="flex items-end justify-end md:col-span-2"><ActionButton icon={Edit3}>Enregistrer</ActionButton></div>
+          </form>
+        </details>
+      </div>
+    </RecordPanel>
+  );
+}
+
+function SmartNotesPanel({ client, imports, interactions }: { client: LucidClientSummary; imports: LucidClientImportSummary[]; interactions: Array<{ id: string; interactionType: string; summary: string; notes: string | null; occurredAt: string; sentiment: LucidInteractionSentiment }> }) {
+  return (
+    <RecordPanel title="Notes">
+      <details className="group border border-white/[0.08] bg-white/[0.02] p-4">
+        <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-zinc-100 [&::-webkit-details-marker]:hidden">
+          Ajouter une note IA
+          <Plus className="size-4 text-zinc-600 transition group-open:rotate-45" />
+        </summary>
+        <form action={recordClientSmartNoteAction} className="mt-4 grid gap-3">
+          <HiddenClientFields client={client} />
+          <div className="grid gap-3 md:grid-cols-[220px_1fr]">
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">Titre<input name="title" defaultValue="Note de call" className={inputClassName} /></label>
+            <label className="grid gap-2 text-sm font-medium text-zinc-300">Lien source<input name="source_uri" className={inputClassName} placeholder="TidyCal, Meet, email, fichier..." /></label>
+          </div>
+          <input type="hidden" name="source_type" value="meeting_notes" />
+          <label className="grid gap-2 text-sm font-medium text-zinc-300">
+            Note brute
+            <textarea name="raw_content" rows={7} required className={textareaClassName} placeholder="Colle les notes de call. L’agent extrait le résumé, le contact et la prochaine tâche quand il les trouve." />
+          </label>
+          <div className="flex justify-end"><ActionButton icon={MessageSquare}>Analyser et ajouter</ActionButton></div>
+        </form>
+      </details>
+
+      <div id="notes" className="mt-5 grid gap-6 xl:grid-cols-2">
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-50">Sources</h3>
+          <div className="mt-3"><ImportList imports={imports} /></div>
+        </div>
+        <div>
+          <h3 className="text-sm font-semibold text-zinc-50">Historique</h3>
+          {interactions.length === 0 ? <p className="mt-3 text-sm text-zinc-600">Aucune note pour le moment.</p> : (
+            <div className="mt-3 divide-y divide-white/[0.08]">
+              {interactions.slice(0, 6).map((interaction) => (
+                <article key={interaction.id} className="py-3 first:pt-0 last:pb-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <StatusBadge tone="neutral">{statusLabel(interaction.interactionType)}</StatusBadge>
+                    <StatusBadge tone={sentimentTone(interaction.sentiment)}>{statusLabel(interaction.sentiment)}</StatusBadge>
+                    <p className="text-sm text-zinc-600">{formatAdminDateTime(interaction.occurredAt)}</p>
+                  </div>
+                  <p className="mt-2 text-sm font-medium text-zinc-100">{interaction.summary}</p>
+                  {interaction.notes ? <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-500">{interaction.notes}</p> : null}
+                </article>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+    </RecordPanel>
+  );
+}
+
+function TasksPanel({ client, contacts, opportunities, tasks }: { client: LucidClientSummary; contacts: Array<{ id: string; fullName: string }>; opportunities: Array<{ id: string; title: string }>; tasks: LucidClientTaskSummary[] }) {
+  return (
+    <RecordPanel title="Tâches">
+      <div id="tasks" className="grid gap-4">
+        <div className="border border-white/[0.08] bg-white/[0.02] p-4">
+          <h3 className="mb-4 text-sm font-semibold text-zinc-50">Créer une tâche</h3>
+          <AddTaskForm client={client} contacts={contacts} opportunities={opportunities} />
+        </div>
+        <ClientTaskBoard clientId={client.id} clientSlug={client.slug} tasks={tasks} />
+      </div>
+    </RecordPanel>
+  );
+}
+
+function BillingSummaryPanel({ documents, opportunities }: { documents: LucidClientDocumentSummary[]; opportunities: Array<{ status: string; stage: string; valueEstimateEur: number | null; setupValueEur: number | null; monthlyValueEur: number | null }> }) {
+  const signedDocuments = documents.filter((document) => document.status === 'signed' || document.status === 'archived');
+  const billedHt = signedDocuments.reduce((total, document) => total + (document.amountHtEur ?? 0), 0);
+  const billedTtc = signedDocuments.reduce((total, document) => total + (document.amountTtcEur ?? document.amountHtEur ?? 0), 0);
+  const billedMonthly = signedDocuments.reduce((total, document) => total + (document.monthlyAmountEur ?? 0), 0);
+  const pipeline = opportunities
+    .filter((opportunity) => opportunity.status === 'open' || opportunity.stage === 'won')
+    .reduce((total, opportunity) => total + (opportunity.valueEstimateEur ?? opportunity.setupValueEur ?? 0), 0);
+
+  return (
+    <RecordPanel title="Montant facturé">
+      <div className="grid gap-4 md:grid-cols-4">
+        <div className="border-t border-white/[0.08] py-4 md:col-span-2">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-600">Total TTC signé</p>
+          <p className="mt-2 text-3xl font-semibold tracking-[-0.04em] text-zinc-50">{formatMoney(billedTtc)}</p>
+          <p className="mt-1 text-sm text-zinc-600">HT {formatMoney(billedHt)}</p>
+        </div>
+        <div className="border-t border-white/[0.08] py-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-600">Mensuel signé</p>
+          <p className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-zinc-50">{formatMoney(billedMonthly)}</p>
+        </div>
+        <div className="border-t border-white/[0.08] py-4">
+          <p className="text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-600">Pipeline</p>
+          <p className="mt-2 text-2xl font-semibold tracking-[-0.03em] text-zinc-50">{formatMoney(pipeline)}</p>
+        </div>
+      </div>
+    </RecordPanel>
+  );
+}
+
+function AccessLink({ label, href }: { label: string; href: string | null }) {
+  if (!href) return null;
+  const resolvedHref = externalHref(href);
+  if (!resolvedHref) return null;
+
+  return (
+    <a href={resolvedHref} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 text-sm text-zinc-300 underline-offset-4 hover:text-zinc-50 hover:underline">
+      <ExternalLink className="size-3.5 text-zinc-600" />
+      {label}
+    </a>
+  );
+}
+
+function DeliverablesPanel({
+  projects,
+  websites,
+  databases,
+  deployments,
+  integrations,
+}: {
+  projects: LucidProjectSummary[];
+  websites: LucidWebsiteSummary[];
+  databases: LucidDatabaseSummary[];
+  deployments: LucidDeploymentSummary[];
+  integrations: LucidIntegrationSummary[];
+}) {
+  const hasDeliveryData = projects.length > 0 || websites.length > 0 || databases.length > 0 || deployments.length > 0 || integrations.length > 0;
+
+  return (
+    <RecordPanel title="Livrables et accès">
+      {!hasDeliveryData ? <EmptyState>Aucun livrable ou accès n’est encore renseigné.</EmptyState> : (
+        <div className="grid gap-6">
+          {projects.length > 0 ? (
+            <div>
+              <h3 className="text-sm font-semibold text-zinc-50">Projets</h3>
+              <div className="mt-3 divide-y divide-white/[0.08]">
+                {projects.map((project) => (
+                  <article key={project.id} className="grid gap-2 py-3 first:pt-0 last:pb-0 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
+                    <div><p className="font-medium text-zinc-100">{project.name}</p>{project.summary ? <p className="mt-1 text-sm text-zinc-500">{project.summary}</p> : null}</div>
+                    <StatusBadge tone={projectTone(project.status)}>{statusLabel(project.status)}</StatusBadge>
+                  </article>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {websites.length > 0 ? (
+            <div>
+              <h3 className="text-sm font-semibold text-zinc-50">Sites</h3>
+              <div className="mt-3 divide-y divide-white/[0.08]">
+                {websites.map((website) => (
+                  <article key={website.id} className="grid gap-2 py-3 first:pt-0 last:pb-0 md:grid-cols-[minmax(0,1fr)_auto] md:items-start">
+                    <div>
+                      <p className="font-medium text-zinc-100">{website.name}</p>
+                      <p className="mt-1 text-sm text-zinc-600">{website.hostingProvider}{website.primaryDomain ? ` / ${website.primaryDomain}` : ''}</p>
+                      <div className="mt-2 flex flex-wrap gap-x-4 gap-y-2">
+                        <AccessLink label="Production" href={website.productionUrl ?? website.primaryDomain} />
+                        <AccessLink label="Preview" href={website.previewUrl} />
+                        <AccessLink label="Repo" href={website.repositoryUrl} />
+                      </div>
+                    </div>
+                    <StatusBadge tone={websiteTone(website.status)}>{statusLabel(website.status)}</StatusBadge>
+                  </article>
+                ))}
+              </div>
+            </div>
+          ) : null}
+
+          {databases.length > 0 || deployments.length > 0 || integrations.length > 0 ? (
+            <div className="grid gap-6 xl:grid-cols-3">
+              <div>
+                <h3 className="text-sm font-semibold text-zinc-50">Bases</h3>
+                <div className="mt-3 divide-y divide-white/[0.08]">
+                  {databases.length === 0 ? <p className="text-sm text-zinc-600">-</p> : databases.map((database) => (
+                    <div key={database.id} className="py-3 first:pt-0 last:pb-0">
+                      <p className="font-medium text-zinc-100">{database.name}</p>
+                      <p className="mt-1 text-sm text-zinc-600">{database.provider} / {statusLabel(database.status)}</p>
+                      {database.externalRef ? <p className="mt-1 break-all text-sm text-zinc-400">{database.externalRef}</p> : null}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-zinc-50">Déploiements</h3>
+                <div className="mt-3 divide-y divide-white/[0.08]">
+                  {deployments.length === 0 ? <p className="text-sm text-zinc-600">-</p> : deployments.map((deployment) => (
+                    <div key={deployment.id} className="py-3 first:pt-0 last:pb-0">
+                      <p className="font-medium text-zinc-100">{deployment.provider} / {deployment.environment}</p>
+                      <p className="mt-1 text-sm text-zinc-600">{statusLabel(deployment.status)}{deployment.branch ? ` / ${deployment.branch}` : ''}</p>
+                      <div className="mt-2"><AccessLink label="Ouvrir" href={deployment.deploymentUrl} /></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h3 className="text-sm font-semibold text-zinc-50">Intégrations</h3>
+                <div className="mt-3 divide-y divide-white/[0.08]">
+                  {integrations.length === 0 ? <p className="text-sm text-zinc-600">-</p> : integrations.map((integration) => (
+                    <div key={integration.id} className="py-3 first:pt-0 last:pb-0">
+                      <p className="font-medium text-zinc-100">{integration.name}</p>
+                      <p className="mt-1 text-sm text-zinc-600">{integration.provider} / {statusLabel(integration.status)}</p>
+                      <div className="mt-2"><AccessLink label="Accès" href={integration.docsUrl} /></div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </div>
+      )}
+    </RecordPanel>
+  );
+}
+
+function DocumentsPanel({ client, documents, vaultProfile }: { client: LucidClientSummary; documents: LucidClientDocumentSummary[]; vaultProfile: VaultClientProfile | null }) {
+  return (
+    <RecordPanel title="Documents" description="Documents commerciaux, statut DocuSeal, fichiers Drive et références de proposition.">
+      <div className="grid gap-6">
+        {documents.length === 0 ? (
+          <EmptyState>Aucun document Lucid OS généré pour le moment.</EmptyState>
+        ) : (
+          <div className="divide-y divide-white/[0.08]">
+            {documents.map((document) => {
+              const canSend = document.documentType === 'bon_de_commande'
+                && !hasBlockingDocumentIssues(document)
+                && !['sent_for_signature', 'viewed', 'in_progress', 'signed', 'archived'].includes(document.status);
+              const canRefreshDocuSeal = Boolean(document.docusealSubmissionId) && ['sent_for_signature', 'viewed', 'in_progress', 'signed'].includes(document.status);
+
+              return (
+                <article key={document.id} className="py-4 first:pt-0 last:pb-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-medium text-zinc-50">{document.title}</p>
+                    <StatusBadge tone={documentTone(document.status)}>{statusLabel(document.status)}</StatusBadge>
+                    <StatusBadge tone="neutral">{statusLabel(document.documentType)}</StatusBadge>
+                  </div>
+                  <p className="mt-1 text-sm text-zinc-600">{document.documentNumber ?? 'Sans numéro'} / {formatAdminDateTime(document.createdAt)}</p>
+                  <div className="mt-3 grid gap-2 text-sm text-zinc-400 md:grid-cols-3">
+                    <span>HT: {formatMoney(document.amountHtEur)}</span>
+                    <span>TVA: {formatMoney(document.vatAmountEur)}</span>
+                    <span>TTC: {formatMoney(document.amountTtcEur)}</span>
+                  </div>
+                  <div className="mt-3 flex flex-wrap gap-x-4 gap-y-2 text-sm text-zinc-400">
+                    {document.docusealSubmissionUrl ? <a href={document.docusealSubmissionUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:text-zinc-100 hover:underline"><ExternalLink className="size-4 text-zinc-600" />DocuSeal</a> : null}
+                    {document.docusealCombinedDocumentUrl ? <a href={document.docusealCombinedDocumentUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:text-zinc-100 hover:underline"><FileCheck2 className="size-4 text-zinc-600" />PDF signé</a> : null}
+                    {document.docusealAuditLogUrl ? <a href={document.docusealAuditLogUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:text-zinc-100 hover:underline"><ExternalLink className="size-4 text-zinc-600" />Journal d’audit</a> : null}
+                    {document.googleDriveFolderId ? <a href={`https://drive.google.com/drive/folders/${document.googleDriveFolderId}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:text-zinc-100 hover:underline"><FolderOpen className="size-4 text-zinc-600" />Dossier Drive</a> : null}
+                  </div>
+                  {document.validationErrors.length > 0 ? (
+                    <div className="mt-3 border border-amber-400/20 bg-amber-500/10 px-3 py-2 text-sm leading-6 text-amber-200">
+                      {document.validationErrors.map((issue) => <p key={`${document.id}-${issue.code}-${issue.field}`}>{issue.severity}: {issue.message}</p>)}
+                    </div>
+                  ) : null}
+                  <div className="mt-3 flex flex-wrap justify-end gap-2">
+                    {canSend ? (
+                      <form action={sendBonDeCommandeForSignatureAction}>
+                        <HiddenClientFields client={client} />
+                        <input type="hidden" name="document_id" value={document.id} />
+                        <ActionButton icon={FileText}>Envoyer le BDC</ActionButton>
+                      </form>
+                    ) : null}
+                    {canRefreshDocuSeal ? (
+                      <form action={refreshDocuSealDocumentStatusAction}>
+                        <HiddenClientFields client={client} />
+                        <input type="hidden" name="document_id" value={document.id} />
+                        <button type="submit" className="inline-flex h-9 items-center justify-center gap-2 rounded border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.07]">
+                          <RefreshCw className="size-4" /> Actualiser
+                        </button>
+                      </form>
+                    ) : null}
+                  </div>
+                </article>
+              );
+            })}
+          </div>
+        )}
+
+        {vaultProfile ? (
+          <div className="border-t border-white/[0.08] pt-5">
+            <h3 className="text-sm font-semibold text-zinc-50">Références internes</h3>
+            <div className="mt-4"><VaultDocumentList documents={vaultProfile.documents} /></div>
+          </div>
+        ) : null}
+      </div>
+    </RecordPanel>
+  );
+}
+
+function ImportList({ imports }: { imports: LucidClientImportSummary[] }) {
+  if (imports.length === 0) return <EmptyState>Aucune source n’a encore été importée.</EmptyState>;
+
+  return (
+    <div className="divide-y divide-white/[0.08]">
+      {imports.map((sourceImport) => (
+        <article key={sourceImport.id} className="py-4 first:pt-0 last:pb-0">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="font-medium text-zinc-50">{sourceImport.title}</p>
+            <StatusBadge tone={sourceImport.status === 'processed' ? 'good' : sourceImport.status === 'needs_review' ? 'warning' : 'neutral'}>{statusLabel(sourceImport.status)}</StatusBadge>
+            {sourceImport.indexedAsKnowledge ? <StatusBadge tone="good">indexé</StatusBadge> : null}
+          </div>
+          <p className="mt-1 text-sm text-zinc-600">{sourceImport.sourceType} / {formatAdminDateTime(sourceImport.createdAt)}</p>
+          {sourceImport.extractedSummary ? <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-400">{sourceImport.extractedSummary}</p> : null}
+          <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-zinc-600">{sourceImport.rawContentPreview}</p>
+        </article>
+      ))}
+    </div>
+  );
+}
 
 type ClientDetailSearchParams = {
   document_error?: string | string[];
+  client_error?: string | string[];
 };
 
 function firstSearchParam(value: string | string[] | undefined): string | null {
@@ -285,12 +1155,20 @@ function firstSearchParam(value: string | string[] | undefined): string | null {
 
 export default async function LucidClientDetailPage({ params, searchParams }: { params: Promise<{ slug: string }>; searchParams?: Promise<ClientDetailSearchParams> }) {
   const { slug } = await params;
+  const resolvedSlug = decodeURIComponent(slug);
+  const vaultProfile = getVaultClientProfile(resolvedSlug);
+  const client = await getLucidClientBySlug(resolvedSlug);
+
+  if (!client) {
+    if (!vaultProfile) notFound();
+    const resolvedSearchParams = searchParams ? await searchParams : {};
+    return <VaultOnlyClientPage profile={vaultProfile} clientError={firstSearchParam(resolvedSearchParams.client_error)} />;
+  }
+
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const documentError = firstSearchParam(resolvedSearchParams.document_error);
-  const client = await getLucidClientBySlug(decodeURIComponent(slug));
-  if (!client) notFound();
-
-  const [contacts, opportunities, documents, interactions, tasks, imports, projects, websites, intakeKnowledge] = await Promise.all([
+  const clientError = firstSearchParam(resolvedSearchParams.client_error);
+  const [contacts, opportunities, documents, interactions, tasks, imports, projects, websites, databases, deployments, integrations] = await Promise.all([
     listLucidClientContactsForClient(client.id, 50),
     listLucidClientOpportunitiesForClient(client.id, 50),
     listLucidClientDocumentsForClient(client.id, 25),
@@ -299,811 +1177,119 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
     listLucidClientImportsForClient(client.id, 25),
     listLucidProjectsForClient(client.id, 25),
     listLucidWebsitesForClient(client.id, 25),
-    getLucidClientIntakeKnowledge(client.slug),
+    listLucidDatabasesForClient(client.id, 25),
+    listLucidDeploymentsForClient(client.id, 25),
+    listLucidIntegrationsForClient(client.id, 25),
   ]);
-  const websiteHref = externalHref(client.websiteUrl);
-  const internalNotes = [client.intake.desiredOutcome, client.intake.meetingNotes, client.intake.rawContextPreview]
-    .some((value) => equalText(client.notes, value))
-    ? null
-    : client.notes;
-  const meetingSummary = equalText(client.intake.meetingNotes, client.intake.rawContextPreview)
-    ? null
-    : client.intake.meetingNotes;
-  const indexedAgentMemory = [client.intake.desiredOutcome, client.intake.meetingNotes, client.intake.rawContextPreview]
-    .some((value) => equalText(intakeKnowledge?.summary, value))
-    ? null
-    : intakeKnowledge?.summary;
-  const extractionLabel = [client.intake.extractedBy, client.intake.extractionMethod]
-    .filter(Boolean)
-    .join(' / ');
-  const openOpportunities = opportunities.filter((opportunity) => opportunity.status === 'open').length;
-  const openTasks = tasks.filter((task) => task.status !== 'done' && task.status !== 'cancelled').length;
-  const signedDocumentValue = documents
-    .filter((document) => document.status === 'signed' || document.status === 'archived')
-    .reduce((total, document) => total + (document.amountHtEur ?? 0), 0);
   const defaultPricingModel = opportunities[0]?.monthlyValueEur ? 'monthly' : 'one_shot';
 
   return (
-    <div className="grid gap-6">
-      <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm">
-        <div className="flex items-center gap-4">
-          <div className="flex size-14 items-center justify-center overflow-hidden rounded-lg border border-zinc-200 bg-zinc-50">
-            {client.websiteUrl ? (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img src={`https://icon.horse/icon/${client.websiteUrl.replace(/^https?:\/\//, '').replace(/\/.*$/, '')}`} alt={`${client.name} logo`} className="size-8 object-contain" />
-            ) : (
-              <Building2 className="size-6 text-zinc-400" />
-            )}
-          </div>
-          <div>
-            <p className="text-sm font-medium uppercase tracking-[0.12em] text-zinc-500">Client record</p>
-            <h1 className="text-3xl font-semibold tracking-[-0.04em] text-zinc-950">{client.name}</h1>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-        <Link href="/admin/lucid-os/clients" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
-          <ArrowLeft className="size-4" />
-          Back to clients
-        </Link>
-        <div className="flex flex-wrap gap-2">
-          <form action={syncClientObsidianAction}>
-            <HiddenClientFields client={client} />
-            <button type="submit" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
-              <FileText className="size-4" />
-              Sync Obsidian
-            </button>
-          </form>
-          <DeleteClientForm clientId={client.id} clientSlug={client.slug} clientName={client.name} />
-          <Link href={`/admin/lucid-os/clients/${client.slug}/edit`} className="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
+    <div className="grid gap-7">
+      <ClientHero
+        name={client.name}
+        subtitle={client.healthSummary ?? vaultProfile?.healthSummary ?? 'Fiche client'}
+        industry={client.industry ?? vaultProfile?.industry ?? null}
+        websiteUrl={client.websiteUrl ?? vaultProfile?.websiteUrl ?? null}
+        email={client.primaryContactEmail ?? vaultProfile?.primaryContactEmail ?? null}
+        phone={client.primaryContactPhone ?? vaultProfile?.primaryContactPhone ?? null}
+        backHref="/admin/lucid-os/crm/clients"
+        actions={(
+          <Link href={`/admin/lucid-os/crm/clients/${client.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
             <Edit3 className="size-4" />
-            Edit / re-run intake
+            Modifier
           </Link>
-        </div>
-      </div>
+        )}
+      >
+        <StatusBadge tone={client.status === 'active' ? 'good' : client.status === 'lead' ? 'warning' : 'neutral'}>{statusLabel(client.status)}</StatusBadge>
+        <StatusBadge tone={clientHealthTone(client.clientHealthStatus)}>{statusLabel(client.clientHealthStatus)}</StatusBadge>
+        {vaultProfile ? <StatusBadge tone="neutral">note interne</StatusBadge> : null}
+      </ClientHero>
+      <ActionErrorBanner message={clientError} />
 
-      <section className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-        <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
-          <div>
-            <p className="text-xs font-medium uppercase text-zinc-500">Client status</p>
-            <div className="mt-2 flex w-full max-w-[200px] items-center">
-              <InlineSelectForm
-                action={updateClientStatusAndLifecycleAction}
-                name="status"
-                defaultValue={client.status}
-                clientArgs={{ id: client.id, slug: client.slug }}
-                options={[
-                  { value: 'lead', label: 'Lead' },
-                  { value: 'active', label: 'Active' },
-                  { value: 'paused', label: 'Paused' },
-                  { value: 'offboarded', label: 'Offboarded' },
-                  { value: 'archived', label: 'Archived' },
-                ]}
-              />
-            </div>
-          </div>
-          <div>
-            <p className="text-xs font-medium uppercase text-zinc-500">Lifecycle</p>
-            <div className="mt-2 flex w-full max-w-[200px] items-center">
-              <InlineSelectForm
-                action={updateClientStatusAndLifecycleAction}
-                name="lifecycle_stage"
-                defaultValue={client.lifecycleStage}
-                clientArgs={{ id: client.id, slug: client.slug }}
-                options={[
-                  { value: 'lead', label: 'Lead' },
-                  { value: 'qualified', label: 'Qualified' },
-                  { value: 'meeting_booked', label: 'Meeting booked' },
-                  { value: 'discovery_done', label: 'Discovery done' },
-                  { value: 'proposal_needed', label: 'Proposal needed' },
-                  { value: 'proposal_sent', label: 'Proposal sent' },
-                  { value: 'negotiation', label: 'Negotiation' },
-                  { value: 'won', label: 'Won' },
-                  { value: 'lost', label: 'Lost' },
-                  { value: 'onboarding', label: 'Onboarding' },
-                  { value: 'in_delivery', label: 'In delivery' },
-                  { value: 'live_managed', label: 'Live managed' },
-                  { value: 'success_retention', label: 'Success retention' },
-                  { value: 'expansion_opportunity', label: 'Expansion opportunity' },
-                  { value: 'archived', label: 'Archived' },
-                ]}
-              />
-            </div>
-          </div>
-          <div>
-            <p className="text-xs font-medium uppercase text-zinc-500">Health</p>
-            <div className="mt-2 flex items-center gap-2"><StatusBadge tone={clientHealthTone(client.clientHealthStatus)}>{client.clientHealthStatus}</StatusBadge>{client.healthScore !== null ? <span className="text-sm font-medium text-zinc-950">{client.healthScore}/100</span> : null}</div>
-          </div>
-          <div>
-            <p className="text-xs font-medium uppercase text-zinc-500">Next action</p>
-            <p className="mt-2 line-clamp-2 text-sm font-medium text-zinc-950">{fallbackValue(client.nextAction)}</p>
-            {client.nextActionDueAt ? <p className="mt-1 text-xs text-zinc-500">Due {formatAdminDate(client.nextActionDueAt)}</p> : null}
-          </div>
-        </div>
-      </section>
+      <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_380px] xl:items-start">
+        <main className="grid gap-6">
+          <CompanyContactPanel client={client} contacts={contacts} />
+          <SmartNotesPanel client={client} imports={imports} interactions={interactions} />
+          <TasksPanel client={client} contacts={contacts} opportunities={opportunities} tasks={tasks} />
+          <BillingSummaryPanel documents={documents} opportunities={opportunities} />
+          <DeliverablesPanel projects={projects} websites={websites} databases={databases} deployments={deployments} integrations={integrations} />
+          <DocumentsPanel client={client} documents={documents} vaultProfile={vaultProfile} />
+        </main>
 
-      <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-medium uppercase text-zinc-500">Contacts</p>
-            <Contact className="size-4 text-zinc-400" />
-          </div>
-          <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-zinc-950">{contacts.length}</p>
-        </div>
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-medium uppercase text-zinc-500">Open deals</p>
-            <BriefcaseBusiness className="size-4 text-zinc-400" />
-          </div>
-          <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-zinc-950">{openOpportunities}</p>
-        </div>
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-medium uppercase text-zinc-500">Open tasks</p>
-            <CheckSquare className="size-4 text-zinc-400" />
-          </div>
-          <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-zinc-950">{openTasks}</p>
-        </div>
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-medium uppercase text-zinc-500">Documents</p>
-            <FileText className="size-4 text-zinc-400" />
-          </div>
-          <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-zinc-950">{documents.length}</p>
-          <p className="mt-1 text-xs text-zinc-500">Signed {formatMoney(signedDocumentValue)}</p>
-        </div>
-        <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <p className="text-xs font-medium uppercase text-zinc-500">Interactions</p>
-            <MessageSquare className="size-4 text-zinc-400" />
-          </div>
-          <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-zinc-950">{interactions.length}</p>
-        </div>
-      </section>
+        <aside className="grid gap-4 xl:sticky xl:top-5">
+          <RecordPanel title="Modifier le compte">
+            <div className="grid gap-4">
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-600">Statut</p>
+                <InlineSelectForm
+                  action={updateClientStatusAndLifecycleAction}
+                  name="status"
+                  defaultValue={client.status}
+                  clientArgs={{ id: client.id, slug: client.slug }}
+                  options={[
+                    { value: 'lead', label: 'Prospect' },
+                    { value: 'active', label: 'Actif' },
+                    { value: 'paused', label: 'En pause' },
+                    { value: 'offboarded', label: 'Terminé' },
+                    { value: 'archived', label: 'Archivé' },
+                  ]}
+                />
+              </div>
+              <div>
+                <p className="mb-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-zinc-600">Cycle de vie</p>
+                <InlineSelectForm
+                  action={updateClientStatusAndLifecycleAction}
+                  name="lifecycle_stage"
+                  defaultValue={client.lifecycleStage}
+                  clientArgs={{ id: client.id, slug: client.slug }}
+                  options={[
+                    { value: 'lead', label: 'Prospect' },
+                    { value: 'qualified', label: 'Qualifié' },
+                    { value: 'meeting_booked', label: 'Rdv planifié' },
+                    { value: 'discovery_done', label: 'Découverte faite' },
+                    { value: 'proposal_needed', label: 'Proposition à préparer' },
+                    { value: 'proposal_sent', label: 'Proposition envoyée' },
+                    { value: 'negotiation', label: 'Négociation' },
+                    { value: 'won', label: 'Gagné' },
+                    { value: 'lost', label: 'Perdu' },
+                    { value: 'onboarding', label: 'Onboarding' },
+                    { value: 'in_delivery', label: 'En production' },
+                    { value: 'live_managed', label: 'En ligne / géré' },
+                    { value: 'success_retention', label: 'Succès / rétention' },
+                    { value: 'expansion_opportunity', label: 'Opportunité d’expansion' },
+                    { value: 'archived', label: 'Archivé' },
+                  ]}
+                />
+              </div>
+              <div className="grid gap-2 border-t border-white/[0.08] pt-4">
+                <Link href={`/admin/lucid-os/crm/clients/${client.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.07]">
+                  <Edit3 className="size-4" />
+                  Modifier toute la fiche
+                </Link>
+                <DeleteClientForm clientId={client.id} clientSlug={client.slug} clientName={client.name} />
+              </div>
+            </div>
+          </RecordPanel>
 
-      <nav className="overflow-x-auto rounded-xl border border-zinc-200 bg-white p-2 shadow-sm" aria-label="Client profile sections">
-        <div className="flex min-w-max gap-1 text-sm">
-          {clientProfileLinks.map(({ id, label, icon: Icon }) => (
-            <a key={id} href={`#${id}`} className="inline-flex h-9 items-center gap-2 rounded-lg px-3 font-medium text-zinc-600 transition-colors hover:bg-zinc-100 hover:text-zinc-950">
-              <Icon className="size-4" />
-              {label}
-            </a>
-          ))}
-        </div>
-      </nav>
-
-      <div id="overview" className="grid gap-6 xl:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <Section title="Profile" description="Account identity and contact details.">
-          <dl className="grid gap-x-6 md:grid-cols-2">
-            <InfoItem label="First name" value={client.firstName ?? client.name.split(' ')[0]} />
-            <InfoItem label="Last name" value={client.lastName ?? (client.name.includes(' ') ? client.name.slice(client.name.indexOf(' ') + 1) : null)} />
-            <InfoItem label="Industry" value={client.industry} />
-            <InfoItem label="Billing plan" value={client.billingPlanName ?? client.billingPlanTier} />
-            <InfoItem label="Source" value={client.intake.source} />
-            <InfoItem label="Legal name" value={client.legalName} />
-            <InfoItem label="SIRET" value={client.siret} />
-            <div className="border-b border-zinc-100 py-3 md:col-span-2">
-              <dt className="text-xs font-medium uppercase text-zinc-500">Billing address</dt>
-              <dd className="mt-1 whitespace-pre-line text-sm font-medium text-zinc-950">{client.billingAddress ?? '-'}</dd>
-            </div>
-            <div className="border-b border-zinc-100 py-3">
-              <dt className="text-xs font-medium uppercase text-zinc-500">Email</dt>
-              <dd className="mt-1 text-sm font-medium text-zinc-950">
-                {client.primaryContactEmail ? (
-                  <a href={`mailto:${client.primaryContactEmail}`} className="inline-flex items-center gap-2 underline-offset-4 hover:underline">
-                    <Mail className="size-4 text-zinc-400" />
-                    {client.primaryContactEmail}
-                  </a>
-                ) : '-'}
-              </dd>
-            </div>
-            <div className="border-b border-zinc-100 py-3">
-              <dt className="text-xs font-medium uppercase text-zinc-500">Phone</dt>
-              <dd className="mt-1 text-sm font-medium text-zinc-950">
-                {client.primaryContactPhone ? (
-                  <span className="inline-flex items-center gap-2">
-                    <Phone className="size-4 text-zinc-400" />
-                    {client.primaryContactPhone}
-                  </span>
-                ) : '-'}
-              </dd>
-            </div>
-            <div className="border-b border-zinc-100 py-3 md:col-span-2">
-              <dt className="text-xs font-medium uppercase text-zinc-500">Website</dt>
-              <dd className="mt-1 text-sm font-medium text-zinc-950">
-                {websiteHref ? (
-                  <a href={websiteHref} target="_blank" rel="noreferrer" className="inline-flex items-center gap-2 break-all underline-offset-4 hover:underline">
-                    <Globe2 className="size-4 shrink-0 text-zinc-400" />
-                    {client.websiteUrl}
-                    <ExternalLink className="size-4 shrink-0 text-zinc-400" />
-                  </a>
-                ) : '-'}
-              </dd>
-            </div>
-          </dl>
-          {client.tools.length > 0 && (
-            <div className="mt-4 border-t border-zinc-100 pt-4">
-              <dt className="text-xs font-medium uppercase text-zinc-500">Tools &amp; stack</dt>
-              <dd className="mt-2 flex flex-wrap gap-2">
-                {client.tools.map((tool) => (
-                  <span key={tool} className="inline-flex items-center rounded-full border border-zinc-200 bg-zinc-50 px-2.5 py-0.5 text-xs font-medium text-zinc-700">{tool}</span>
-                ))}
-              </dd>
-            </div>
-          )}
-        </Section>
-
-        <Section title="Commercial context" description="Budget, timeline, and next action.">
-          <dl className="grid gap-x-6 md:grid-cols-2">
-            <InfoItem label="Budget" value={client.intake.budgetRange} />
-            <InfoItem label="Timeline" value={client.intake.timeline} />
-            <InfoItem label="Extraction" value={extractionLabel} />
-            <InfoItem label="Meeting booked" value={formatAdminDate(client.intake.meetingBookedAt)} />
-            <InfoItem label="Meeting done" value={formatAdminDate(client.intake.meetingDoneAt)} />
-            <InfoItem label="Created" value={formatAdminDateTime(client.createdAt)} />
-          </dl>
-          <div className="mt-4">
-            <BulletChecklist title="Next steps" value={client.nextAction ?? client.intake.nextStep} />
-          </div>
-        </Section>
-      </div>
-
-      <Section title="Intake information" description="The main context Lucid OS captured for this client.">
-        <div className="grid gap-5">
-          <BulletChecklist title="What the client wants" value={client.intake.desiredOutcome} />
-          <LongText title="Meeting summary" value={meetingSummary} />
-          <LongText title="Source note" value={client.intake.rawContextPreview} />
-          <LongText title="Indexed agent memory" value={indexedAgentMemory} />
-          <LongText title="Internal notes" value={internalNotes} />
-        </div>
-      </Section>
-
-      <Section title="Contacts" description="People connected to this account, including decision makers and champions.">
-        <div id="contacts" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-          {contacts.length === 0 ? (
-            <EmptyState>No contacts have been separated from this account yet.</EmptyState>
-          ) : (
-            <div className="divide-y divide-zinc-100">
-              {contacts.map((contact) => (
-                <article key={contact.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium text-zinc-950">{contact.fullName}</p>
-                    {contact.isPrimary ? <StatusBadge tone="good">primary</StatusBadge> : null}
-                    {contact.isDecisionMaker ? <StatusBadge tone="warning">decision maker</StatusBadge> : null}
-                    <StatusBadge tone={contactTone(contact.status)}>{contact.status}</StatusBadge>
-                    <StatusBadge tone={influenceTone(contact.influenceLevel)}>{contact.influenceLevel}</StatusBadge>
-                  </div>
-                  <p className="mt-1 text-sm text-zinc-500">{fallbackValue(contact.role)}</p>
-                  <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-600">
-                    {contact.email ? <a href={`mailto:${contact.email}`} className="inline-flex items-center gap-1 underline-offset-4 hover:underline"><Mail className="size-4 text-zinc-400" />{contact.email}</a> : null}
-                    {contact.phone ? <span className="inline-flex items-center gap-1"><Phone className="size-4 text-zinc-400" />{contact.phone}</span> : null}
-                    {contact.linkedinUrl ? <a href={contact.linkedinUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:underline"><ExternalLink className="size-4 text-zinc-400" />LinkedIn</a> : null}
-                  </div>
-                  {contact.notes ? <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-600">{contact.notes}</p> : null}
-                </article>
-              ))}
-            </div>
-          )}
-
-          <form action={recordClientContactAction} className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-            <HiddenClientFields client={client} />
-            <h3 className="text-sm font-semibold text-zinc-950">Add contact</h3>
-            {textInput('Name', 'full_name', 'Marie Dupont')}
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              {textInput('Role', 'role', 'CEO, marketing, finance')}
-              {textInput('Email', 'email', 'marie@acme.fr', 'email')}
-            </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              {textInput('Phone', 'phone', '+33 6...')}
-              {textInput('LinkedIn', 'linkedin_url', 'https://linkedin.com/in/...')}
-            </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Influence
-                <select name="influence_level" defaultValue="unknown" className={inputClassName}>
-                  <option value="unknown">Unknown</option>
-                  <option value="low">Low</option>
-                  <option value="medium">Medium</option>
-                  <option value="high">High</option>
-                  <option value="champion">Champion</option>
-                  <option value="blocker">Blocker</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Status
-                <select name="contact_status" defaultValue="active" className={inputClassName}>
-                  <option value="active">Active</option>
-                  <option value="inactive">Inactive</option>
-                  <option value="left_company">Left company</option>
-                  <option value="archived">Archived</option>
-                </select>
-              </label>
-            </div>
-            <div className="flex flex-wrap gap-4 text-sm font-medium text-zinc-700">
-              <label className="inline-flex items-center gap-2"><input name="is_primary" type="checkbox" className="size-4 rounded border-zinc-300" />Primary</label>
-              <label className="inline-flex items-center gap-2"><input name="is_decision_maker" type="checkbox" className="size-4 rounded border-zinc-300" />Decision maker</label>
-            </div>
-            {textareaInput('Notes', 'notes', 'Relationship context, preferences, objections...', 3)}
-            <div className="flex justify-end"><ActionButton icon={Contact}>Add contact</ActionButton></div>
-          </form>
-        </div>
-      </Section>
-
-      <Section title="Opportunities" description="Deals, offers, forecast value, probability, and next sales action.">
-        <div id="opportunities" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-          {opportunities.length === 0 ? (
-            <EmptyState>No opportunities have been opened for this account yet.</EmptyState>
-          ) : (
-            <div className="divide-y divide-zinc-100">
-              {opportunities.map((opportunity) => (
-                <article key={opportunity.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium text-zinc-950">{opportunity.title}</p>
-                    <StatusBadge tone={opportunityTone(opportunity.status, opportunity.stage)}>{opportunity.stage}</StatusBadge>
-                    <StatusBadge tone={opportunityTone(opportunity.status, opportunity.stage)}>{opportunity.status}</StatusBadge>
-                  </div>
-                  <p className="mt-1 text-sm text-zinc-500">{opportunity.offerType} - {opportunity.probabilityPercent}% probability - {opportunity.primaryContactName ?? 'no contact linked'}</p>
-                  <div className="mt-2 grid gap-2 text-sm text-zinc-600 md:grid-cols-3">
-                    <span>Forecast: {opportunity.valueEstimateEur !== null ? `${opportunity.valueEstimateEur} EUR` : '-'}</span>
-                    <span>Setup: {opportunity.setupValueEur !== null ? `${opportunity.setupValueEur} EUR` : '-'}</span>
-                    <span>Monthly: {opportunity.monthlyValueEur !== null ? `${opportunity.monthlyValueEur} EUR` : '-'}</span>
-                  </div>
-                  {opportunity.nextStep ? <p className="mt-2 text-sm font-medium text-zinc-700">Next: {opportunity.nextStep}{opportunity.nextStepDueAt ? ` - ${formatAdminDate(opportunity.nextStepDueAt)}` : ''}</p> : null}
-                  {opportunity.notes ? <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-600">{opportunity.notes}</p> : null}
-                </article>
-              ))}
-            </div>
-          )}
-
-          <form action={recordClientOpportunityAction} className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-            <HiddenClientFields client={client} />
-            <h3 className="text-sm font-semibold text-zinc-950">Add opportunity</h3>
-            {textInput('Title', 'title', 'AI lead generation system')}
-            <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Primary contact
-              <select name="primary_contact_id" defaultValue="" className={inputClassName}>
-                <option value="">None</option>
-                {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}</option>)}
-              </select>
-            </label>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Stage
-                <select name="stage" defaultValue="discovery" className={inputClassName}>
-                  <option value="new">New</option>
-                  <option value="qualified">Qualified</option>
-                  <option value="discovery">Discovery</option>
-                  <option value="proposal_needed">Proposal needed</option>
-                  <option value="proposal_sent">Proposal sent</option>
-                  <option value="negotiation">Negotiation</option>
-                  <option value="won">Won</option>
-                  <option value="lost">Lost</option>
-                  <option value="paused">Paused</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Status
-                <select name="opportunity_status" defaultValue="open" className={inputClassName}>
-                  <option value="open">Open</option>
-                  <option value="won">Won</option>
-                  <option value="lost">Lost</option>
-                  <option value="paused">Paused</option>
-                  <option value="archived">Archived</option>
-                </select>
-              </label>
-            </div>
-            <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Offer
-              <select name="offer_type" defaultValue="custom" className={inputClassName}>
-                <option value="managed_website">Managed website</option>
-                <option value="website_database">Website + database</option>
-                <option value="ai_automation">AI automation</option>
-                <option value="ai_agent">AI agent</option>
-                <option value="custom_app">Custom app</option>
-                <option value="retainer">Retainer</option>
-                <option value="audit">Audit</option>
-                <option value="custom">Custom</option>
-              </select>
-            </label>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              {textInput('Forecast EUR', 'value_estimate_eur', '5000', 'number')}
-              {textInput('Probability %', 'probability_percent', '40', 'number')}
-            </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              {textInput('Setup EUR', 'setup_value_eur', '3000', 'number')}
-              {textInput('Monthly EUR', 'monthly_value_eur', '500', 'number')}
-            </div>
-            {textInput('Expected close', 'expected_close_at', undefined, 'datetime-local')}
-            {textInput('Source', 'source', 'LinkedIn, referral, website')}
-            {textInput('Next step', 'next_step', 'Send proposal')}
-            {textInput('Next step due', 'next_step_due_at', undefined, 'datetime-local')}
-            {textareaInput('Notes', 'notes', 'Commercial context, objections, buying criteria...', 3)}
-            <div className="flex justify-end"><ActionButton icon={BriefcaseBusiness}>Add opportunity</ActionButton></div>
-          </form>
-        </div>
-      </Section>
-
-      <Section title="Documents & billing" description="Bon de commande, DocuSeal status, archive readiness, and billing handoff.">
-        <div id="documents" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
           {documentError ? (
-            <div className="xl:col-span-2 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
-              <p className="font-medium text-red-950">Document send failed</p>
+            <div className="border border-red-400/30 bg-red-500/10 px-4 py-3 text-sm text-red-200">
+              <p className="font-medium text-red-100">Échec d’envoi du document</p>
               <p className="mt-1 break-words">{documentError}</p>
             </div>
           ) : null}
-          {documents.length === 0 ? (
-            <EmptyState>No commercial documents have been generated for this client yet.</EmptyState>
-          ) : (
-            <div className="divide-y divide-zinc-100">
-              {documents.map((document) => {
-                const canSend = document.documentType === 'bon_de_commande'
-                  && !hasBlockingDocumentIssues(document)
-                  && !['sent_for_signature', 'viewed', 'in_progress', 'signed', 'archived'].includes(document.status);
-                const canRefreshDocuSeal = Boolean(document.docusealSubmissionId) && ['sent_for_signature', 'viewed', 'in_progress', 'signed'].includes(document.status);
-                return (
-                  <article key={document.id} className="py-4 first:pt-0 last:pb-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <p className="font-medium text-zinc-950">{document.title}</p>
-                      <StatusBadge tone={documentTone(document.status)}>{statusLabel(document.status)}</StatusBadge>
-                      <StatusBadge tone="neutral">{statusLabel(document.documentType)}</StatusBadge>
-                    </div>
-                    <p className="mt-1 text-sm text-zinc-500">{document.documentNumber ?? 'No number'} - {formatAdminDateTime(document.createdAt)}</p>
-                    <div className="mt-2 grid gap-2 text-sm text-zinc-600 md:grid-cols-3">
-                      <span>HT: {formatMoney(document.amountHtEur)}</span>
-                      <span>TVA: {formatMoney(document.vatAmountEur)}</span>
-                      <span>TTC: {formatMoney(document.amountTtcEur)}</span>
-                    </div>
-                    <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1 text-sm text-zinc-600">
-                      {document.sentAt ? <span>Sent {formatAdminDateTime(document.sentAt)}</span> : null}
-                      {document.completedAt ? <span>Signed {formatAdminDateTime(document.completedAt)}</span> : null}
-                      {document.docusealSubmissionUrl ? <a href={document.docusealSubmissionUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:underline"><ExternalLink className="size-4 text-zinc-400" />DocuSeal</a> : null}
-                      {document.docusealCombinedDocumentUrl ? <a href={document.docusealCombinedDocumentUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:underline"><FileCheck2 className="size-4 text-zinc-400" />Signed BDC + contract PDF</a> : null}
-                      {document.docusealAuditLogUrl ? <a href={document.docusealAuditLogUrl} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:underline"><ExternalLink className="size-4 text-zinc-400" />Audit log</a> : null}
-                      {document.googleDriveFolderId ? <a href={`https://drive.google.com/drive/folders/${document.googleDriveFolderId}`} target="_blank" rel="noreferrer" className="inline-flex items-center gap-1 underline-offset-4 hover:underline"><ExternalLink className="size-4 text-zinc-400" />Drive folder</a> : null}
-                    </div>
-                    {document.validationErrors.length > 0 ? (
-                      <ul className="mt-3 grid gap-1 rounded-lg border border-amber-100 bg-amber-50 px-3 py-2 text-sm leading-6 text-amber-800">
-                        {document.validationErrors.map((issue) => (
-                          <li key={`${document.id}-${issue.code}-${issue.field}`}>{issue.severity}: {issue.message}</li>
-                        ))}
-                      </ul>
-                    ) : null}
-                    {canSend ? (
-                      <form action={sendBonDeCommandeForSignatureAction} className="mt-3 flex justify-end">
-                        <HiddenClientFields client={client} />
-                        <input type="hidden" name="document_id" value={document.id} />
-                        <button type="submit" className="inline-flex h-9 items-center justify-center gap-2 rounded-lg bg-zinc-950 px-3 text-sm font-medium text-white transition hover:bg-zinc-800">
-                          <FileText className="size-4" />
-                          Send BDC + contract
-                        </button>
-                      </form>
-                    ) : null}
-                    {canRefreshDocuSeal ? (
-                      <form action={refreshDocuSealDocumentStatusAction} className="mt-3 flex justify-end">
-                        <HiddenClientFields client={client} />
-                        <input type="hidden" name="document_id" value={document.id} />
-                        <button type="submit" className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition hover:border-zinc-300 hover:bg-zinc-50">
-                          <RefreshCw className="size-4" />
-                          Refresh DocuSeal
-                        </button>
-                      </form>
-                    ) : null}
-                  </article>
-                );
-              })}
-            </div>
-          )}
 
-          <form action={createBonDeCommandeDraftAction} className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-            <HiddenClientFields client={client} />
-            <h3 className="text-sm font-semibold text-zinc-950">Generate BDC + contract</h3>
-            <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Opportunity
-              <select name="opportunity_id" defaultValue={opportunities[0]?.id ?? ''} className={inputClassName}>
-                <option value="">Select a deal</option>
-                {opportunities.map((opportunity) => <option key={opportunity.id} value={opportunity.id}>{opportunity.title}</option>)}
-              </select>
-            </label>
-            <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Signer
-              <select name="contact_id" defaultValue={contacts.find((contact) => contact.isPrimary)?.id ?? contacts[0]?.id ?? ''} className={inputClassName}>
-                <option value="">Use client primary contact</option>
-                {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}{contact.email ? ` - ${contact.email}` : ''}</option>)}
-              </select>
-            </label>
-            {textInput('Google Drive folder id', 'google_drive_folder_id', 'Optional: folder id for this client')}
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Pricing model
-                <select name="pricing_model" defaultValue={defaultPricingModel} className={inputClassName}>
-                  <option value="one_shot">One-shot</option>
-                  <option value="monthly">Mensuel 12 mois</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Client legal name
-                <input name="client_legal_name" defaultValue={client.legalName ?? client.name} className={inputClassName} placeholder="Raison sociale" />
-              </label>
-            </div>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Client SIRET
-                <input name="client_siret" defaultValue={client.siret ?? ''} className={inputClassName} placeholder="123 456 789 00010" />
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Client address
-                <input name="client_billing_address" defaultValue={client.billingAddress ?? ''} className={inputClassName} placeholder="Adresse complète du client" />
-              </label>
-            </div>
-            {textareaInput('Périmètre de la prestation', 'scope_perimeter', 'Ex: Agent IA de qualification des réservations, automatisation des avis Google...', 4)}
-            {textareaInput('Description synthétique', 'synthetic_description', 'Décrivez le contexte, les objectifs et le fonctionnement prévu...', 5)}
-            {textareaInput('Livrables attendus', 'deliverables', 'Ex: Agent opérationnel, formation équipe, documentation technique...', 4)}
-            {textareaInput('Calendrier', 'calendar_timeline', 'Ex: Semaine 1 Audit du fichier, Drive, emails et flux documents.\nSemaines 2-3 Google Sheets, automatisations, relances et classement.\nSemaine 4 Meta Ads, WhatsApp Business et routine SEO.', 4)}
-            {textareaInput('Prochaines étapes', 'next_steps', 'Ex: Confirmer les accès utiles.\nValider les échéances de relance.\nSigner le Bon de Commande et procéder au premier paiement.', 4)}
-            {textareaInput('Internal notes', 'document_notes', 'Special payment terms, assumptions, or review notes...', 3)}
-            <div className="flex justify-end"><ActionButton icon={FileText}>Create draft</ActionButton></div>
-          </form>
-        </div>
-      </Section>
+          <RecordPanel title="Saisie rapide">
+            <FoldoutForm title="Ajouter un contact" icon={Contact}><AddContactForm client={client} /></FoldoutForm>
+            <FoldoutForm title="Ajouter une opportunité" icon={BriefcaseBusiness}><AddOpportunityForm client={client} contacts={contacts} /></FoldoutForm>
+            <FoldoutForm title="Générer un BDC" icon={FileText}><CreateDocumentForm client={client} contacts={contacts} opportunities={opportunities} defaultPricingModel={defaultPricingModel} /></FoldoutForm>
+          </RecordPanel>
 
-      <Section title="Timeline" description="Meetings, calls, emails, notes, imports, and other client interactions in chronological order.">
-        <div id="timeline" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-          {interactions.length === 0 ? (
-            <EmptyState>No timeline entries have been recorded yet.</EmptyState>
-          ) : (
-            <div className="divide-y divide-zinc-100">
-              {interactions.map((interaction) => (
-                <article key={interaction.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <StatusBadge tone="neutral">{interaction.interactionType}</StatusBadge>
-                    <StatusBadge tone="neutral">{interaction.direction}</StatusBadge>
-                    <StatusBadge tone={sentimentTone(interaction.sentiment)}>{interaction.sentiment}</StatusBadge>
-                    <p className="text-sm text-zinc-500">{formatAdminDateTime(interaction.occurredAt)}</p>
-                  </div>
-                  <p className="mt-2 font-medium text-zinc-950">{interaction.summary}</p>
-                  <p className="mt-1 text-sm text-zinc-500">{interaction.contactName ?? 'No contact'} - {interaction.opportunityTitle ?? 'No deal'} - {interaction.sourceSystem}</p>
-                  {interaction.notes ? <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-600">{interaction.notes}</p> : null}
-                  {interaction.nextStep ? <p className="mt-2 text-sm font-medium text-zinc-700">Next: {interaction.nextStep}{interaction.nextStepDueAt ? ` - ${formatAdminDate(interaction.nextStepDueAt)}` : ''}</p> : null}
-                </article>
-              ))}
-            </div>
-          )}
-
-          <form action={recordClientInteractionAction} className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-            <HiddenClientFields client={client} />
-            <h3 className="text-sm font-semibold text-zinc-950">Add interaction</h3>
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Type
-                <select name="interaction_type" defaultValue="note" className={inputClassName}>
-                  <option value="note">Note</option>
-                  <option value="meeting">Meeting</option>
-                  <option value="call">Call</option>
-                  <option value="email">Email</option>
-                  <option value="chat">Chat</option>
-                  <option value="form">Form</option>
-                  <option value="support">Support</option>
-                  <option value="delivery_update">Delivery update</option>
-                  <option value="decision">Decision</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Direction
-                <select name="direction" defaultValue="internal" className={inputClassName}>
-                  <option value="internal">Internal</option>
-                  <option value="inbound">Inbound</option>
-                  <option value="outbound">Outbound</option>
-                </select>
-              </label>
-            </div>
-            <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Contact
-              <select name="contact_id" defaultValue="" className={inputClassName}>
-                <option value="">None</option>
-                {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}</option>)}
-              </select>
-            </label>
-            <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Opportunity
-              <select name="opportunity_id" defaultValue="" className={inputClassName}>
-                <option value="">None</option>
-                {opportunities.map((opportunity) => <option key={opportunity.id} value={opportunity.id}>{opportunity.title}</option>)}
-              </select>
-            </label>
-            {textInput('Occurred at', 'occurred_at', undefined, 'datetime-local')}
-            {textInput('Summary', 'summary', 'Discovery call: client needs lead gen')}
-            {textareaInput('Notes', 'notes', 'Important context, decisions, objections, commitments...', 4)}
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Sentiment
-                <select name="sentiment" defaultValue="neutral" className={inputClassName}>
-                  <option value="positive">Positive</option>
-                  <option value="neutral">Neutral</option>
-                  <option value="negative">Negative</option>
-                  <option value="risk">Risk</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Source
-                <select name="source_system" defaultValue="admin" className={inputClassName}>
-                  <option value="admin">Admin</option>
-                  <option value="tidycal">TidyCal</option>
-                  <option value="email">Email</option>
-                  <option value="website">Website</option>
-                  <option value="chat">Chat</option>
-                  <option value="github">GitHub</option>
-                  <option value="obsidian">Obsidian</option>
-                  <option value="integration">Integration</option>
-                  <option value="agent">Agent</option>
-                </select>
-              </label>
-            </div>
-            {textInput('Source URI', 'source_uri', 'tidycal://..., mail://..., https://...')}
-            {textInput('Next step', 'next_step', 'Send recap email')}
-            {textInput('Next step due', 'next_step_due_at', undefined, 'datetime-local')}
-            <div className="flex justify-end"><ActionButton icon={MessageSquare}>Add interaction</ActionButton></div>
-          </form>
-        </div>
-      </Section>
-
-      <Section title="Tasks" description="Human follow-ups and delivery actions that keep the account moving.">
-        <div id="tasks" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-          {tasks.length === 0 ? (
-            <EmptyState>No tasks are open for this client yet.</EmptyState>
-          ) : (
-            <div className="divide-y divide-zinc-100">
-              {tasks.map((task) => (
-                <article key={task.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium text-zinc-950">{task.title}</p>
-                    <StatusBadge tone={taskTone(task.status)}>{task.status}</StatusBadge>
-                    <StatusBadge tone={priorityTone(task.priority)}>{task.priority}</StatusBadge>
-                  </div>
-                  <p className="mt-1 text-sm text-zinc-500">{task.ownerLabel ?? 'Unassigned'} - due {formatAdminDate(task.dueAt)} - {task.opportunityTitle ?? task.contactName ?? 'general'}</p>
-                  {task.description ? <p className="mt-2 line-clamp-3 text-sm leading-6 text-zinc-600">{task.description}</p> : null}
-                </article>
-              ))}
-            </div>
-          )}
-
-          <form action={recordClientTaskAction} className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-            <HiddenClientFields client={client} />
-            <h3 className="text-sm font-semibold text-zinc-950">Add task</h3>
-            {textInput('Title', 'title', 'Follow up with proposal')}
-            <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-1">
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Status
-                <select name="task_status" defaultValue="todo" className={inputClassName}>
-                  <option value="todo">Todo</option>
-                  <option value="in_progress">In progress</option>
-                  <option value="waiting">Waiting</option>
-                  <option value="done">Done</option>
-                  <option value="cancelled">Cancelled</option>
-                </select>
-              </label>
-              <label className="grid gap-2 text-sm font-medium text-zinc-700">
-                Priority
-                <select name="priority" defaultValue="normal" className={inputClassName}>
-                  <option value="low">Low</option>
-                  <option value="normal">Normal</option>
-                  <option value="high">High</option>
-                  <option value="urgent">Urgent</option>
-                </select>
-              </label>
-            </div>
-            <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Contact
-              <select name="contact_id" defaultValue="" className={inputClassName}>
-                <option value="">None</option>
-                {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}</option>)}
-              </select>
-            </label>
-            <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Opportunity
-              <select name="opportunity_id" defaultValue="" className={inputClassName}>
-                <option value="">None</option>
-                {opportunities.map((opportunity) => <option key={opportunity.id} value={opportunity.id}>{opportunity.title}</option>)}
-              </select>
-            </label>
-            {textInput('Owner', 'owner_label', 'Jules, Anthony, Théo')}
-            {textInput('Due at', 'due_at', undefined, 'datetime-local')}
-            {textareaInput('Description', 'description', 'What needs to happen and any context needed...', 3)}
-            <div className="flex justify-end"><ActionButton icon={CheckSquare}>Add task</ActionButton></div>
-          </form>
-        </div>
-      </Section>
-
-      <Section title="Imports" description="Source documents and pasted context stored once, then indexed for agents when useful.">
-        <div id="imports" className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_420px]">
-          {imports.length === 0 ? (
-            <EmptyState>No source documents have been imported for this client yet.</EmptyState>
-          ) : (
-            <div className="divide-y divide-zinc-100">
-              {imports.map((sourceImport) => (
-                <article key={sourceImport.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium text-zinc-950">{sourceImport.title}</p>
-                    <StatusBadge tone={sourceImport.status === 'processed' ? 'good' : sourceImport.status === 'needs_review' ? 'warning' : 'neutral'}>{sourceImport.status}</StatusBadge>
-                    {sourceImport.indexedAsKnowledge ? <StatusBadge tone="good">indexed</StatusBadge> : null}
-                  </div>
-                  <p className="mt-1 text-sm text-zinc-500">{sourceImport.sourceType} - {formatAdminDateTime(sourceImport.createdAt)}</p>
-                  {sourceImport.extractedSummary ? <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-600">{sourceImport.extractedSummary}</p> : null}
-                  <p className="mt-2 line-clamp-3 whitespace-pre-wrap text-sm leading-6 text-zinc-500">{sourceImport.rawContentPreview}</p>
-                </article>
-              ))}
-            </div>
-          )}
-
-          <form action={recordClientImportAction} className="grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
-            <HiddenClientFields client={client} />
-            <h3 className="text-sm font-semibold text-zinc-950">Import source</h3>
-            {textInput('Title', 'title', 'Discovery call notes')}
-            <label className="grid gap-2 text-sm font-medium text-zinc-700">
-              Source type
-              <select name="source_type" defaultValue="note" className={inputClassName}>
-                <option value="note">Note</option>
-                <option value="meeting_notes">Meeting notes</option>
-                <option value="email">Email</option>
-                <option value="doc">Document</option>
-                <option value="linkedin">LinkedIn</option>
-                <option value="website">Website</option>
-                <option value="chat">Chat</option>
-                <option value="github">GitHub</option>
-                <option value="other">Other</option>
-              </select>
-            </label>
-            {textInput('Source URI', 'source_uri', 'Optional link, file path, or external reference')}
-            {textareaInput('Raw content', 'raw_content', 'Paste the original notes, email thread, or document text here.', 8)}
-            <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
-              <input name="index_as_knowledge" type="checkbox" defaultChecked className="size-4 rounded border-zinc-300" />
-              <FileText className="size-4 text-zinc-500" />
-              Index for agents
-            </label>
-            <div className="flex justify-end"><ActionButton icon={Upload}>Import source</ActionButton></div>
-          </form>
-        </div>
-      </Section>
-
-      <div id="delivery" className="grid gap-6 xl:grid-cols-2">
-        <Section title="Projects" description="Client-scoped delivery work in Lucid OS.">
-          {projects.length === 0 ? (
-            <EmptyState>No projects are attached to this client yet.</EmptyState>
-          ) : (
-            <div className="divide-y divide-zinc-100">
-              {projects.map((project) => (
-                <article key={project.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium text-zinc-950">{project.name}</p>
-                    <StatusBadge tone={projectTone(project.status)}>{project.status}</StatusBadge>
-                  </div>
-                  <p className="mt-1 text-sm text-zinc-500">{project.projectType} - {project.priority} - due {formatAdminDate(project.dueAt)}</p>
-                  {project.summary ? <p className="mt-2 line-clamp-3 text-sm leading-6 text-zinc-600">{project.summary}</p> : null}
-                </article>
-              ))}
-            </div>
-          )}
-        </Section>
-
-        <Section title="Websites" description="Sites, domains, hosting, and health for this client.">
-          {websites.length === 0 ? (
-            <EmptyState>No websites are attached to this client yet.</EmptyState>
-          ) : (
-            <div className="divide-y divide-zinc-100">
-              {websites.map((website) => (
-                <article key={website.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <p className="font-medium text-zinc-950">{website.name}</p>
-                    <StatusBadge tone={websiteTone(website.status)}>{website.status}</StatusBadge>
-                    <StatusBadge tone={healthTone(website.healthStatus)}>{website.healthStatus}</StatusBadge>
-                  </div>
-                  <p className="mt-1 text-sm text-zinc-500">{website.hostingProvider} - checked {formatAdminDate(website.lastCheckedAt)}</p>
-                  <p className="mt-2 break-all text-sm text-zinc-600">{website.primaryDomain ?? website.productionUrl ?? 'No domain recorded'}</p>
-                </article>
-              ))}
-            </div>
-          )}
-        </Section>
+          {vaultProfile ? (
+            <RecordPanel title="Sources internes">
+              <SourceRefs profile={vaultProfile} />
+            </RecordPanel>
+          ) : null}
+        </aside>
       </div>
     </div>
   );

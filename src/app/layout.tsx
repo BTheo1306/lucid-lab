@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Syne } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-import { ChatWidget } from "@/components/chat-widget/ChatWidget";
+import { AdminAwareChatWidget } from "@/components/chat-widget/AdminAwareChatWidget";
 import "./globals.css";
 
 const inter = Inter({
@@ -231,20 +231,12 @@ export default function RootLayout({
     <html
       lang="fr"
       className={`${inter.variable} ${syne.variable} antialiased`}
+      data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
       <head>
-        {/* DNS + TLS handshake with Spline CDN before any JS runs */}
-        <link rel="preconnect" href="https://prod.spline.design" />
         {/* DNS prefetch for logo CDN (non-critical, below the fold) */}
         <link rel="dns-prefetch" href="https://storage.efferd.com" />
-        {/* Preload Spline 3D scene — starts download before React hydration */}
-        <link
-          rel="preload"
-          href="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode"
-          as="fetch"
-          crossOrigin="anonymous"
-        />
       </head>
       <body className="min-h-[100dvh] flex flex-col">
         {/* JSON-LD Structured Data */}
@@ -362,7 +354,7 @@ export default function RootLayout({
           <div className="mx-auto h-full max-w-[1264px] border-x border-[#e5e5e5]" />
         </div>
         {children}
-        <ChatWidget lang="fr" />
+        <AdminAwareChatWidget lang="fr" />
         <Analytics />
         <SpeedInsights />
       </body>

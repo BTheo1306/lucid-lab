@@ -29,7 +29,7 @@ export function InlineSelectForm({
         defaultValue={defaultValue}
         disabled={isPending}
         onChange={(e) => e.target.form?.requestSubmit()}
-        className="h-8 w-full rounded-lg border border-zinc-200 bg-zinc-50 px-2 text-sm font-medium text-zinc-950 focus:border-zinc-400 focus:ring-zinc-100 disabled:opacity-50"
+        className="h-8 w-full rounded border border-white/10 bg-[#050506] px-2 text-sm font-medium text-zinc-100 outline-none focus:border-blue-400/60 focus:ring-2 focus:ring-blue-500/15 disabled:opacity-50"
       >
         {options.map((opt) => (
           <option key={opt.value} value={opt.value}>

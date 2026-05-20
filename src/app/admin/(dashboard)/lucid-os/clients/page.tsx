@@ -1,24 +1,20 @@
 import Link from 'next/link';
-import { ArrowRight, Building2, CalendarCheck2, Globe2, Mail, Phone, Plus, Target, Users } from 'lucide-react';
+import { Plus } from 'lucide-react';
+import { getVaultClientProfiles, getVaultClientProfile, type VaultClientProfile } from '@/lib/admin/client-vault-profiles';
 import {
   listLucidClients,
   type LucidClientIntakeStage,
   type LucidClientMeetingStatus,
   type LucidClientStatus,
+  type LucidClientSummary,
 } from '@/lib/admin/lucid-os';
-import { EmptyState, formatAdminDate, LucidOsHeader, LucidOsTabs, Section, StatCard, StatusBadge } from '../components';
+import { EmptyState, LucidOsHeader, StatusBadge } from '../components';
 
 export const dynamic = 'force-dynamic';
 
-function clientTone(status: LucidClientStatus): 'neutral' | 'good' | 'warning' | 'danger' {
-  switch (status) {
-    case 'active': return 'good';
-    case 'paused': return 'warning';
-    case 'offboarded':
-    case 'archived': return 'neutral';
-    default: return 'warning';
-  }
-}
+type ClientRecordListItem =
+  | { source: 'lucid_os'; client: LucidClientSummary; vaultProfile: VaultClientProfile | null }
+  | { source: 'vault'; profile: VaultClientProfile };
 
 function intakeTone(stage: LucidClientIntakeStage): 'neutral' | 'good' | 'warning' | 'danger' {
   switch (stage) {
@@ -31,121 +27,172 @@ function intakeTone(stage: LucidClientIntakeStage): 'neutral' | 'good' | 'warnin
   }
 }
 
-function meetingTone(status: LucidClientMeetingStatus): 'neutral' | 'good' | 'warning' | 'danger' {
-  switch (status) {
-    case 'done': return 'good';
-    case 'booked': return 'warning';
-    case 'cancelled': return 'danger';
-    default: return 'neutral';
-  }
+function statusFr(status: LucidClientStatus): string {
+  const labels: Record<LucidClientStatus, string> = {
+    lead: 'prospect',
+    active: 'actif',
+    paused: 'en pause',
+    offboarded: 'terminé',
+    archived: 'archivé',
+  };
+  return labels[status];
 }
 
-function fallbackValue(value: string | null | undefined): string {
-  return value && value.trim().length > 0 ? value : '-';
+function intakeFr(stage: LucidClientIntakeStage): string {
+  const labels: Record<LucidClientIntakeStage, string> = {
+    potential: 'potentiel',
+    meeting_booked: 'rdv planifié',
+    meeting_done: 'rdv fait',
+    proposal_sent: 'proposition envoyée',
+    won: 'gagné',
+    lost: 'perdu',
+  };
+  return labels[stage];
 }
 
-export default async function LucidOsClientsPage() {
-  const clients = await listLucidClients(100);
-  const activeClients = clients.filter((client) => client.status === 'active').length;
-  const leadClients = clients.filter((client) => client.status === 'lead').length;
-  const meetingsInMotion = clients.filter((client) => client.intake.meetingStatus === 'booked' || client.intake.meetingStatus === 'done').length;
+function meetingFr(status: LucidClientMeetingStatus): string {
+  const labels: Record<LucidClientMeetingStatus, string> = {
+    not_booked: 'pas de rdv',
+    booked: 'rdv planifié',
+    done: 'rdv fait',
+    cancelled: 'annulé',
+  };
+  return labels[status];
+}
+
+function recordName(record: ClientRecordListItem): string {
+  return record.source === 'vault' ? record.profile.name : record.client.name;
+}
+
+function recordSlug(record: ClientRecordListItem): string {
+  return record.source === 'vault' ? record.profile.slug : record.client.slug;
+}
+
+function recordStatus(record: ClientRecordListItem): LucidClientStatus {
+  return record.source === 'vault' ? record.profile.status : record.client.status;
+}
+
+function recordIntakeStage(record: ClientRecordListItem): LucidClientIntakeStage {
+  return record.source === 'vault' ? record.profile.intakeStage : record.client.intake.stage;
+}
+
+function recordMeetingStatus(record: ClientRecordListItem): LucidClientMeetingStatus {
+  return record.source === 'vault' ? record.profile.meetingStatus : record.client.intake.meetingStatus;
+}
+
+function recordIsAcquired(record: ClientRecordListItem): boolean {
+  return recordStatus(record) === 'active';
+}
+
+function normalizeListSearch(value: string): string {
+  return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
+}
+
+function recordMatchesQuery(record: ClientRecordListItem, query: string): boolean {
+  if (!query) return true;
+  const haystack = record.source === 'vault'
+    ? [record.profile.name, record.profile.industry, record.profile.primaryContactName, record.profile.primaryContactEmail, record.profile.websiteUrl, record.profile.status]
+    : [record.client.name, record.client.industry, record.client.primaryContactName, record.client.primaryContactEmail, record.client.websiteUrl, record.client.status, record.client.lifecycleStage, record.client.siret, record.client.siren];
+
+  return normalizeListSearch(haystack.filter(Boolean).join(' ')).includes(query);
+}
+
+function prospectLabel(record: ClientRecordListItem): string {
+  const status = recordStatus(record);
+  if (status !== 'lead') return statusFr(status);
+
+  const stage = recordIntakeStage(record);
+  const meeting = recordMeetingStatus(record);
+  if (stage === 'potential' && meeting !== 'not_booked') return meetingFr(meeting);
+  return intakeFr(stage);
+}
+
+function prospectTone(record: ClientRecordListItem): 'neutral' | 'good' | 'warning' | 'danger' {
+  const status = recordStatus(record);
+  if (status === 'paused') return 'warning';
+  if (status === 'offboarded' || status === 'archived') return 'neutral';
+  return intakeTone(recordIntakeStage(record));
+}
+
+function RecordRow({ record, acquired }: { record: ClientRecordListItem; acquired: boolean }) {
+  const href = `/admin/lucid-os/crm/clients/${recordSlug(record)}`;
+  const label = acquired ? 'actif' : prospectLabel(record);
+  const tone = acquired ? 'good' : prospectTone(record);
 
   return (
-    <div className="grid gap-6">
+    <Link
+      href={href}
+      className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-white/[0.08] px-1 py-4 transition-colors first:border-t-0 hover:bg-white/[0.03] sm:px-3"
+    >
+      <span className="truncate text-base font-semibold tracking-[-0.01em] text-zinc-50 group-hover:text-white">
+        {recordName(record)}
+      </span>
+      <StatusBadge tone={tone}>{label}</StatusBadge>
+    </Link>
+  );
+}
+
+function RecordListSection({
+  id,
+  title,
+  records,
+  acquired,
+  emptyLabel,
+}: {
+  id?: string;
+  title: string;
+  records: ClientRecordListItem[];
+  acquired: boolean;
+  emptyLabel: string;
+}) {
+  return (
+    <section id={id} className="grid gap-3">
+      <div className="flex items-baseline justify-between gap-4">
+        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">{title}</h2>
+        <span className="text-xs text-zinc-600">{records.length}</span>
+      </div>
+      <div className="border-t border-white/[0.08] pt-1">
+        {records.length === 0 ? (
+          <EmptyState>{emptyLabel}</EmptyState>
+        ) : (
+          records.map((record) => <RecordRow key={`${record.source}-${recordSlug(record)}`} record={record} acquired={acquired} />)
+        )}
+      </div>
+    </section>
+  );
+}
+
+export default async function LucidOsClientsPage({ searchParams }: { searchParams?: Promise<{ q?: string | string[] }> }) {
+  const resolvedSearchParams = searchParams ? await searchParams : {};
+  const searchQuery = Array.isArray(resolvedSearchParams.q) ? resolvedSearchParams.q[0] ?? '' : resolvedSearchParams.q ?? '';
+  const normalizedQuery = normalizeListSearch(searchQuery.trim());
+  const clients = await listLucidClients(100);
+  const vaultProfiles = getVaultClientProfiles();
+  const clientSlugs = new Set(clients.map((client) => client.slug));
+  const records: ClientRecordListItem[] = [
+    ...clients.map((client) => ({ source: 'lucid_os' as const, client, vaultProfile: getVaultClientProfile(client.slug) })),
+    ...vaultProfiles
+      .filter((profile) => !clientSlugs.has(profile.slug))
+      .map((profile) => ({ source: 'vault' as const, profile })),
+  ];
+  const filteredRecords = records.filter((record) => recordMatchesQuery(record, normalizedQuery));
+  const clientRecords = filteredRecords.filter(recordIsAcquired);
+  const prospectRecords = filteredRecords.filter((record) => !recordIsAcquired(record));
+
+  return (
+    <div className="grid gap-7">
       <LucidOsHeader
-        eyebrow="Client workspace"
-        title="Clients"
-        description="Open client records, review all captured intake information, and add new prospects from one place."
-        icon={Building2}
+        title="Fiches clients"
+        action={(
+          <Link href="/admin/lucid-os/crm/clients/new" className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
+            <Plus className="size-4" />
+            Ajouter un client
+          </Link>
+        )}
       />
 
-      <LucidOsTabs active="clients" />
-
-      <section className="flex flex-col gap-4 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between">
-        <div>
-          <h2 className="text-base font-semibold tracking-[-0.01em] text-zinc-950">Client records</h2>
-          <p className="mt-1 text-sm text-zinc-500">Select a client to see contact details, meeting notes, commercial context, raw imported notes, projects, and websites.</p>
-        </div>
-        <Link href="/admin/lucid-os/clients/new" className="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-medium text-white transition hover:bg-zinc-800">
-          <Plus className="size-4" />
-          Add client
-        </Link>
-      </section>
-
-      <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Records" value={clients.length} hint="Total clients and prospects" icon={Users} />
-        <StatCard label="Leads" value={leadClients} hint="Prospects to qualify" icon={Target} />
-        <StatCard label="Active" value={activeClients} hint="Current accounts" icon={Building2} />
-        <StatCard label="Meetings" value={meetingsInMotion} hint="Booked or completed" icon={CalendarCheck2} />
-      </div>
-
-      <Section title="Client list" description="A scannable index. Open a record for the complete client view.">
-        {clients.length === 0 ? (
-          <div className="grid gap-4">
-            <EmptyState>No clients are registered in Lucid OS yet.</EmptyState>
-            <div className="flex justify-center">
-              <Link href="/admin/lucid-os/clients/new" className="inline-flex h-10 items-center gap-2 rounded-lg bg-zinc-950 px-4 text-sm font-medium text-white transition hover:bg-zinc-800">
-                <Plus className="size-4" />
-                Add first client
-              </Link>
-            </div>
-          </div>
-        ) : (
-          <div className="divide-y divide-zinc-100">
-            {clients.map((client) => {
-              const clientHref = `/admin/lucid-os/clients/${client.slug}`;
-              const intakeSummary = client.intake.desiredOutcome ?? client.intake.meetingNotes ?? client.notes ?? client.intake.rawContextPreview;
-              const commercialContext = [client.intake.budgetRange, client.intake.timeline, client.intake.source].filter(Boolean).join(' - ');
-
-              return (
-                <article key={client.id} className="grid gap-4 py-5 first:pt-0 last:pb-0 xl:grid-cols-[minmax(220px,0.9fr)_minmax(260px,1.1fr)_minmax(220px,0.8fr)_auto] xl:items-start">
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <Link href={clientHref} className="font-semibold text-zinc-950 underline-offset-4 hover:underline">
-                        {client.name}
-                      </Link>
-                      <StatusBadge tone={clientTone(client.status)}>{client.status}</StatusBadge>
-                    </div>
-                    <div className="mt-2 grid gap-1 text-sm text-zinc-500">
-                      <span className="truncate">{fallbackValue(client.industry ?? client.billingPlanName)}</span>
-                      <span className="inline-flex min-w-0 items-center gap-1 truncate">
-                        <Globe2 className="size-4 shrink-0 text-zinc-400" />
-                        <span className="truncate">{fallbackValue(client.websiteUrl)}</span>
-                      </span>
-                    </div>
-                  </div>
-
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap gap-2">
-                      <StatusBadge tone={intakeTone(client.intake.stage)}>{client.intake.stage}</StatusBadge>
-                      <StatusBadge tone={meetingTone(client.intake.meetingStatus)}>{client.intake.meetingStatus}</StatusBadge>
-                    </div>
-                    <p className="mt-3 line-clamp-2 text-sm leading-6 text-zinc-600">{fallbackValue(intakeSummary)}</p>
-                    {client.intake.nextStep ? <p className="mt-2 text-sm font-medium text-zinc-700">Next: {client.intake.nextStep}</p> : null}
-                  </div>
-
-                  <div className="grid gap-2 text-sm text-zinc-600">
-                    <span className="inline-flex min-w-0 items-center gap-2 truncate">
-                      <Mail className="size-4 shrink-0 text-zinc-400" />
-                      <span className="truncate">{fallbackValue(client.primaryContactEmail ?? client.primaryContactName)}</span>
-                    </span>
-                    <span className="inline-flex min-w-0 items-center gap-2 truncate">
-                      <Phone className="size-4 shrink-0 text-zinc-400" />
-                      <span className="truncate">{fallbackValue(client.primaryContactPhone)}</span>
-                    </span>
-                    <span className="text-zinc-500">{commercialContext || `Updated ${formatAdminDate(client.updatedAt)}`}</span>
-                  </div>
-
-                  <Link href={clientHref} className="inline-flex h-9 items-center justify-center gap-2 rounded-lg border border-zinc-200 px-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50 xl:justify-self-end">
-                    View record
-                    <ArrowRight className="size-4" />
-                  </Link>
-                </article>
-              );
-            })}
-          </div>
-        )}
-      </Section>
+      <RecordListSection title="Clients" records={clientRecords} acquired emptyLabel="Aucun client actif." />
+      <RecordListSection id="prospects" title="Prospects" records={prospectRecords} acquired={false} emptyLabel="Aucun prospect." />
     </div>
   );
 }

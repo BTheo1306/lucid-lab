@@ -1,12 +1,15 @@
 import type { Metadata } from 'next';
-import { Bot, LogOut, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
+import { Inbox, LogOut } from 'lucide-react';
+import Link from 'next/link';
 import { requireAdmin } from '@/lib/admin/auth';
 import { logoutAdmin } from '../actions';
 import { AdminNav } from './AdminNav';
-import { AdminThemeToggle } from './AdminThemeToggle';
+import { AdminSearch } from './AdminSearch';
+import './admin-dark.css';
 
 export const metadata: Metadata = {
-  title: 'Admin',
+  title: 'Lucid OS',
   robots: {
     index: false,
     follow: false,
@@ -17,17 +20,15 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   await requireAdmin();
 
   return (
-    <div data-admin-root className="relative z-10 min-h-[100dvh] bg-[#f5f6f2] text-zinc-950">
+    <div data-admin-root className="admin-dark relative z-10 min-h-[100dvh] bg-[#070708] text-zinc-100">
       <style>{`.ll-chat-toggle,.ll-chat-panel,.ll-chat-teaser{display:none!important}`}</style>
-      <div className="grid min-h-[100dvh] lg:grid-cols-[252px_1fr]">
-        <aside className="border-b border-zinc-200 bg-white/90 px-5 py-5 lg:border-b-0 lg:border-r">
+      <div className="grid min-h-[100dvh] md:grid-cols-[248px_minmax(0,1fr)]">
+        <aside className="border-b border-white/10 bg-[#0a0a0c] px-4 py-4 md:sticky md:top-0 md:h-[100dvh] md:overflow-y-auto md:border-b-0 md:border-r">
           <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-zinc-950 text-white">
-              <ShieldCheck className="size-4" />
-            </div>
+            <Image src="/logo.png" alt="Lucid-Lab" width={36} height={36} className="size-9 rounded-md border border-white/15 bg-white object-contain p-1.5" priority />
             <div>
-              <p className="text-sm font-semibold leading-none">Lucid-Lab</p>
-              <p className="mt-1 text-xs text-zinc-500">Bot operations</p>
+              <p className="text-sm font-semibold leading-none text-zinc-50">Lucid-Lab OS</p>
+              <p className="mt-1 text-xs text-zinc-500">Espace agence</p>
             </div>
           </div>
 
@@ -35,29 +36,32 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
         </aside>
 
         <div className="min-w-0">
-          <header className="sticky top-0 z-20 flex min-h-16 items-center justify-between gap-4 border-b border-zinc-200 bg-[#f5f6f2]/90 px-5 backdrop-blur md:px-8">
-            <div className="flex min-w-0 items-center gap-3">
-              <Bot className="size-5 shrink-0 text-zinc-500" />
-              <div className="min-w-0">
-                <p className="truncate text-sm font-medium">Admin dashboard</p>
-                <p className="truncate text-xs text-zinc-500">Leads, conversations, bookings and bot health</p>
-              </div>
+          <header className="sticky top-0 z-20 flex min-h-14 items-center justify-between gap-4 border-b border-white/10 bg-[#070708]/90 px-4 backdrop-blur md:px-6">
+            <AdminSearch />
+            <div className="min-w-0 md:hidden">
+              <p className="truncate text-sm font-medium text-zinc-100">Lucid OS</p>
             </div>
             <div className="flex items-center gap-2">
-              <AdminThemeToggle />
+              <Link
+                href="/admin/lucid-os/inbox"
+                className="inline-flex h-8 items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-3 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/[0.07] hover:text-zinc-50"
+              >
+                <Inbox className="size-4" />
+                Actions
+              </Link>
               <form action={logoutAdmin}>
                 <button
                   type="submit"
-                  className="inline-flex h-9 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+                  className="inline-flex h-8 items-center gap-2 rounded-md border border-white/10 bg-white/[0.03] px-3 text-sm font-medium text-zinc-300 transition-colors hover:bg-white/[0.07] hover:text-zinc-50"
                 >
                   <LogOut className="size-4" />
-                  Logout
+                  Déconnexion
                 </button>
               </form>
             </div>
           </header>
 
-          <main className="mx-auto w-full max-w-7xl px-5 py-6 md:px-8 md:py-8">
+          <main className="mx-auto w-full max-w-[1440px] px-4 py-5 md:px-6 md:py-6">
             {children}
           </main>
         </div>

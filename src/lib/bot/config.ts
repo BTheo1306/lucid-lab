@@ -25,7 +25,7 @@ export const config = {
   // Supabase — lazy getters so this module can be imported at Next.js build time
   // without throwing (Vercel injects runtime secrets only at runtime).
   get supabaseUrl(): string { return requiredEnv('SUPABASE_URL'); },
-  get supabaseServiceRoleKey(): string { return requiredEnv('SUPABASE_SERVICE_ROLE_KEY'); },
+  get supabaseServiceRoleKey(): string { return process.env['SUPABASE_SERVICE_ROLE_KEY'] || requiredEnv('SUPABASE_SECRET_KEY'); },
 
   // AI provider
   aiProvider: optionalEnv('AI_PROVIDER', 'anthropic') as
@@ -67,6 +67,12 @@ export const config = {
   // Admin + cron
   adminApiKey: process.env['ADMIN_API_KEY'] ?? '',
   cronSecret: process.env['CRON_SECRET'] ?? '',
+
+  // Telegram COO agent
+  telegramCooBotToken: process.env['TELEGRAM_COO_BOT_TOKEN'] ?? '',
+  telegramCooWebhookSecret: process.env['TELEGRAM_COO_WEBHOOK_SECRET'] ?? '',
+  telegramCooAllowedUserIds: process.env['TELEGRAM_COO_ALLOWED_USER_IDS'] ?? '',
+  telegramCooAllowedChatIds: process.env['TELEGRAM_COO_ALLOWED_CHAT_IDS'] ?? '',
 
   // DocuSeal document automation
   docusealApiBaseUrl: process.env['DOCUSEAL_API_BASE_URL'] ?? '',

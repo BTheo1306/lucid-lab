@@ -49,7 +49,7 @@ export async function loginAdmin(formData: FormData): Promise<void> {
     details: { route: 'admin/login' },
   });
 
-  redirect('/admin');
+  redirect('/admin/lucid-os');
 }
 
 export async function logoutAdmin(): Promise<void> {

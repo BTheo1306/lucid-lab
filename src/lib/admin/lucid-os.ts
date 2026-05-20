@@ -1,6 +1,6 @@
 import 'server-only';
 
-import { supabase } from '@/lib/bot/db/supabase';
+import { assertSupabaseServiceRoleConfigured, supabase } from '@/lib/bot/db/supabase';
 import { markLucidClientDeletedInObsidian, syncLucidClientToObsidian, type LucidObsidianSyncReason } from './obsidian-sync';
 
 const DEFAULT_ORGANIZATION_SLUG = 'lucid-lab';
@@ -22,6 +22,9 @@ export type LucidProjectStatus = 'idea' | 'planned' | 'active' | 'blocked' | 'co
 export type LucidWebsiteStatus = 'planned' | 'designing' | 'building' | 'live' | 'paused' | 'archived';
 export type LucidHealthStatus = 'unknown' | 'healthy' | 'degraded' | 'down';
 export type LucidAgentStatus = 'draft' | 'active' | 'paused' | 'retired';
+export type LucidAgentRunStatus = 'queued' | 'running' | 'waiting_approval' | 'completed' | 'completed_with_errors' | 'failed' | 'cancelled';
+export type LucidAgentTaskStatus = 'backlog' | 'ready' | 'in_progress' | 'blocked' | 'waiting_approval' | 'done' | 'cancelled';
+export type LucidAgentTaskPriority = 'low' | 'normal' | 'high' | 'urgent';
 export type LucidApprovalStatus = 'pending' | 'approved' | 'rejected' | 'expired' | 'cancelled';
 export type LucidIncidentStatus = 'open' | 'investigating' | 'identified' | 'monitoring' | 'resolved' | 'closed';
 export type LucidKnowledgeStatus = 'draft' | 'active' | 'archived' | 'stale';
@@ -66,8 +69,14 @@ export interface LucidClientSummary {
   industry: string | null;
   websiteUrl: string | null;
   legalName: string | null;
+  siren: string | null;
   siret: string | null;
   billingAddress: string | null;
+  nafCode: string | null;
+  nafLabel: string | null;
+  companyStatus: string | null;
+  employeeRange: string | null;
+  legalLastFetchedAt: string | null;
   firstName: string | null;
   lastName: string | null;
   primaryContactName: string | null;
@@ -271,15 +280,40 @@ export interface CreateLucidClientImportInput {
   indexAsKnowledge?: boolean;
 }
 
+export interface UpdateLucidClientCompanyProfileInput {
+  clientId: string;
+  legalName?: string | null;
+  siren?: string | null;
+  siret?: string | null;
+  billingAddress?: string | null;
+  industry?: string | null;
+  websiteUrl?: string | null;
+  primaryContactName?: string | null;
+  primaryContactEmail?: string | null;
+  primaryContactPhone?: string | null;
+  nafCode?: string | null;
+  nafLabel?: string | null;
+  companyStatus?: string | null;
+  employeeRange?: string | null;
+  source?: string | null;
+  fetchedAt?: string | null;
+}
+
 export interface UpsertLucidClientIntakeInput {
   name: string;
   firstName?: string | null;
   lastName?: string | null;
   slug?: string | null;
   status?: LucidClientStatus;
+  lifecycleStage?: LucidClientLifecycleStage | null;
+  ownerLabel?: string | null;
+  healthStatus?: LucidClientHealthStatus | null;
+  healthScore?: number | null;
+  healthSummary?: string | null;
   industry?: string | null;
   websiteUrl?: string | null;
   legalName?: string | null;
+  siren?: string | null;
   siret?: string | null;
   billingAddress?: string | null;
   primaryContactName?: string | null;
@@ -296,6 +330,8 @@ export interface UpsertLucidClientIntakeInput {
   budgetRange?: string | null;
   timeline?: string | null;
   nextStep?: string | null;
+  nextActionDueAt?: string | null;
+  lastContactedAt?: string | null;
   source?: string | null;
   rawContext?: string | null;
   indexAsKnowledge?: boolean;
@@ -333,10 +369,50 @@ export interface LucidWebsiteSummary {
   healthStatus: LucidHealthStatus;
   primaryDomain: string | null;
   productionUrl: string | null;
+  previewUrl: string | null;
+  repositoryUrl: string | null;
   hostingProvider: string;
   clientName: string | null;
   projectName: string | null;
   lastCheckedAt: string | null;
+  updatedAt: string;
+}
+
+export interface LucidDatabaseSummary {
+  id: string;
+  name: string;
+  provider: string;
+  status: string;
+  externalRef: string | null;
+  region: string | null;
+  purpose: string | null;
+  backupStatus: string;
+  lastBackupAt: string | null;
+  projectName: string | null;
+  updatedAt: string;
+}
+
+export interface LucidDeploymentSummary {
+  id: string;
+  provider: string;
+  environment: string;
+  status: string;
+  externalId: string | null;
+  branch: string | null;
+  deploymentUrl: string | null;
+  deployedAt: string | null;
+  projectName: string | null;
+  websiteName: string | null;
+  updatedAt: string;
+}
+
+export interface LucidIntegrationSummary {
+  id: string;
+  name: string;
+  provider: string;
+  category: string;
+  status: string;
+  docsUrl: string | null;
   updatedAt: string;
 }
 
@@ -352,6 +428,44 @@ export interface LucidAgentSummary {
   memoryScope: string;
   tools: string[];
   updatedAt: string;
+}
+
+export interface LucidAgentRunSummary {
+  id: string;
+  status: LucidAgentRunStatus;
+  triggerSource: string;
+  model: string | null;
+  promptVersion: string | null;
+  input: Record<string, unknown>;
+  outputSummary: Record<string, unknown>;
+  errorMessage: string | null;
+  startedAt: string | null;
+  finishedAt: string | null;
+  createdAt: string;
+  agentName: string | null;
+  agentSlug: string | null;
+  clientName: string | null;
+  projectName: string | null;
+}
+
+export interface LucidAgentTaskSummary {
+  id: string;
+  title: string;
+  description: string | null;
+  status: LucidAgentTaskStatus;
+  priority: LucidAgentTaskPriority;
+  dueAt: string | null;
+  context: Record<string, unknown>;
+  resultSummary: Record<string, unknown>;
+  createdAt: string;
+  updatedAt: string;
+  closedAt: string | null;
+  agentName: string | null;
+  agentSlug: string | null;
+  assignedAgentName: string | null;
+  assignedAgentSlug: string | null;
+  clientName: string | null;
+  projectName: string | null;
 }
 
 export interface LucidApprovalSummary {
@@ -633,8 +747,14 @@ function normalizeClient(value: unknown): LucidClientSummary {
     industry: asString(record.industry),
     websiteUrl: asString(record.website_url),
     legalName: asString(legal.name),
+    siren: asString(legal.siren) ?? asString(legal.siret)?.slice(0, 9) ?? null,
     siret: asString(legal.siret),
     billingAddress: asString(legal.billing_address) ?? asString(legal.address),
+    nafCode: asString(legal.naf_code) ?? asString(legal.activite_principale),
+    nafLabel: asString(legal.naf_label) ?? asString(legal.activite_principale_label),
+    companyStatus: asString(legal.company_status) ?? asString(legal.etat_administratif),
+    employeeRange: asString(legal.employee_range) ?? asString(legal.tranche_effectif_salarie),
+    legalLastFetchedAt: asString(legal.fetched_at),
     firstName: asString(metadata.first_name),
     lastName: asString(metadata.last_name),
     primaryContactName: asString(record.primary_contact_name),
@@ -695,10 +815,65 @@ function normalizeWebsite(value: unknown): LucidWebsiteSummary {
     healthStatus: typedValue(record.health_status, ['unknown', 'healthy', 'degraded', 'down'] satisfies LucidHealthStatus[], 'unknown'),
     primaryDomain: asString(record.primary_domain),
     productionUrl: asString(record.production_url),
+    previewUrl: asString(record.preview_url),
+    repositoryUrl: asString(record.repository_url),
     hostingProvider: asString(record.hosting_provider) ?? 'vercel',
     clientName: asString(client?.name),
     projectName: asString(project?.name),
     lastCheckedAt: asString(record.last_checked_at),
+    updatedAt: String(record.updated_at ?? ''),
+  };
+}
+
+function normalizeDatabase(value: unknown): LucidDatabaseSummary {
+  const record = asRecord(value) ?? {};
+  const project = asRecord(record.project);
+
+  return {
+    id: String(record.id ?? ''),
+    name: asString(record.name) ?? 'Untitled database',
+    provider: asString(record.provider) ?? 'supabase',
+    status: asString(record.status) ?? 'planned',
+    externalRef: asString(record.external_ref),
+    region: asString(record.region),
+    purpose: asString(record.purpose),
+    backupStatus: asString(record.backup_status) ?? 'unknown',
+    lastBackupAt: asString(record.last_backup_at),
+    projectName: asString(project?.name),
+    updatedAt: String(record.updated_at ?? ''),
+  };
+}
+
+function normalizeDeployment(value: unknown): LucidDeploymentSummary {
+  const record = asRecord(value) ?? {};
+  const project = asRecord(record.project);
+  const website = asRecord(record.website);
+
+  return {
+    id: String(record.id ?? ''),
+    provider: asString(record.provider) ?? 'vercel',
+    environment: asString(record.environment) ?? 'production',
+    status: asString(record.status) ?? 'queued',
+    externalId: asString(record.external_id),
+    branch: asString(record.branch),
+    deploymentUrl: asString(record.deployment_url),
+    deployedAt: asString(record.deployed_at),
+    projectName: asString(project?.name),
+    websiteName: asString(website?.name),
+    updatedAt: String(record.updated_at ?? ''),
+  };
+}
+
+function normalizeIntegration(value: unknown): LucidIntegrationSummary {
+  const record = asRecord(value) ?? {};
+
+  return {
+    id: String(record.id ?? ''),
+    name: asString(record.name) ?? 'Untitled integration',
+    provider: asString(record.provider) ?? 'other',
+    category: asString(record.category) ?? 'other',
+    status: asString(record.status) ?? 'planned',
+    docsUrl: asString(record.docs_url),
     updatedAt: String(record.updated_at ?? ''),
   };
 }
@@ -718,6 +893,59 @@ function normalizeAgent(value: unknown): LucidAgentSummary {
     memoryScope: asString(record.memory_scope) ?? 'organization',
     tools: asStringArray(record.tools),
     updatedAt: String(record.updated_at ?? ''),
+  };
+}
+
+function normalizeAgentRun(value: unknown): LucidAgentRunSummary {
+  const record = asRecord(value) ?? {};
+  const agent = asRecord(record.agent);
+  const client = asRecord(record.client);
+  const project = asRecord(record.project);
+
+  return {
+    id: String(record.id ?? ''),
+    status: typedValue(record.status, ['queued', 'running', 'waiting_approval', 'completed', 'completed_with_errors', 'failed', 'cancelled'] satisfies LucidAgentRunStatus[], 'queued'),
+    triggerSource: asString(record.trigger_source) ?? 'manual',
+    model: asString(record.model),
+    promptVersion: asString(record.prompt_version),
+    input: asRecord(record.input) ?? {},
+    outputSummary: asRecord(record.output_summary) ?? {},
+    errorMessage: asString(record.error_message),
+    startedAt: asString(record.started_at),
+    finishedAt: asString(record.finished_at),
+    createdAt: String(record.created_at ?? ''),
+    agentName: asString(agent?.name),
+    agentSlug: asString(agent?.slug),
+    clientName: asString(client?.name),
+    projectName: asString(project?.name),
+  };
+}
+
+function normalizeAgentTask(value: unknown): LucidAgentTaskSummary {
+  const record = asRecord(value) ?? {};
+  const agent = asRecord(record.agent);
+  const assignedAgent = asRecord(record.assigned_agent);
+  const client = asRecord(record.client);
+  const project = asRecord(record.project);
+
+  return {
+    id: String(record.id ?? ''),
+    title: asString(record.title) ?? 'Untitled agent task',
+    description: asString(record.description),
+    status: typedValue(record.status, ['backlog', 'ready', 'in_progress', 'blocked', 'waiting_approval', 'done', 'cancelled'] satisfies LucidAgentTaskStatus[], 'backlog'),
+    priority: typedValue(record.priority, ['low', 'normal', 'high', 'urgent'] satisfies LucidAgentTaskPriority[], 'normal'),
+    dueAt: asString(record.due_at),
+    context: asRecord(record.context) ?? {},
+    resultSummary: asRecord(record.result_summary) ?? {},
+    createdAt: String(record.created_at ?? ''),
+    updatedAt: String(record.updated_at ?? ''),
+    closedAt: asString(record.closed_at),
+    agentName: asString(agent?.name),
+    agentSlug: asString(agent?.slug),
+    assignedAgentName: asString(assignedAgent?.name),
+    assignedAgentSlug: asString(assignedAgent?.slug),
+    clientName: asString(client?.name),
+    projectName: asString(project?.name),
   };
 }
 
@@ -956,6 +1184,8 @@ async function getLucidOrganizationId(): Promise<string | null> {
 }
 
 export async function ensureLucidOrganizationId(): Promise<string> {
+  assertSupabaseServiceRoleConfigured();
+
   const existingOrganizationId = await getLucidOrganizationId();
   if (existingOrganizationId) return existingOrganizationId;
 
@@ -1144,7 +1374,7 @@ export async function listLucidWebsites(limit = 50): Promise<LucidWebsiteSummary
   const rows = await selectRows<unknown>(
     supabase
       .from('websites')
-      .select('id,name,status,health_status,primary_domain,production_url,hosting_provider,last_checked_at,updated_at,client:clients(name),project:projects(name)')
+      .select('id,name,status,health_status,primary_domain,production_url,preview_url,repository_url,hosting_provider,last_checked_at,updated_at,client:clients(name),project:projects(name)')
       .eq('organization_id', organizationId)
       .order('updated_at', { ascending: false })
       .limit(limit),
@@ -1160,7 +1390,7 @@ export async function listLucidWebsitesForClient(clientId: string, limit = 50): 
   const rows = await selectRows<unknown>(
     supabase
       .from('websites')
-      .select('id,name,status,health_status,primary_domain,production_url,hosting_provider,last_checked_at,updated_at,client:clients(name),project:projects(name)')
+      .select('id,name,status,health_status,primary_domain,production_url,preview_url,repository_url,hosting_provider,last_checked_at,updated_at,client:clients(name),project:projects(name)')
       .eq('organization_id', organizationId)
       .eq('client_id', clientId)
       .order('updated_at', { ascending: false })
@@ -1168,6 +1398,57 @@ export async function listLucidWebsitesForClient(clientId: string, limit = 50): 
   );
 
   return rows.map(normalizeWebsite);
+}
+
+export async function listLucidDatabasesForClient(clientId: string, limit = 50): Promise<LucidDatabaseSummary[]> {
+  const organizationId = await getLucidOrganizationId();
+  if (!organizationId) return [];
+
+  const rows = await selectRows<unknown>(
+    supabase
+      .from('databases')
+      .select('id,name,provider,status,external_ref,region,purpose,backup_status,last_backup_at,updated_at,project:projects(name)')
+      .eq('organization_id', organizationId)
+      .eq('client_id', clientId)
+      .order('updated_at', { ascending: false })
+      .limit(limit),
+  );
+
+  return rows.map(normalizeDatabase);
+}
+
+export async function listLucidDeploymentsForClient(clientId: string, limit = 50): Promise<LucidDeploymentSummary[]> {
+  const organizationId = await getLucidOrganizationId();
+  if (!organizationId) return [];
+
+  const rows = await selectRows<unknown>(
+    supabase
+      .from('deployments')
+      .select('id,provider,environment,status,external_id,branch,deployment_url,deployed_at,updated_at,project:projects(name),website:websites(name)')
+      .eq('organization_id', organizationId)
+      .eq('client_id', clientId)
+      .order('updated_at', { ascending: false })
+      .limit(limit),
+  );
+
+  return rows.map(normalizeDeployment);
+}
+
+export async function listLucidIntegrationsForClient(clientId: string, limit = 50): Promise<LucidIntegrationSummary[]> {
+  const organizationId = await getLucidOrganizationId();
+  if (!organizationId) return [];
+
+  const rows = await selectRows<unknown>(
+    supabase
+      .from('integrations')
+      .select('id,name,provider,category,status,docs_url,updated_at')
+      .eq('organization_id', organizationId)
+      .eq('client_id', clientId)
+      .order('updated_at', { ascending: false })
+      .limit(limit),
+  );
+
+  return rows.map(normalizeIntegration);
 }
 
 export async function listLucidAgents(limit = 50): Promise<LucidAgentSummary[]> {
@@ -1184,6 +1465,80 @@ export async function listLucidAgents(limit = 50): Promise<LucidAgentSummary[]> 
   );
 
   return rows.map(normalizeAgent);
+}
+
+export async function listLucidAgentRuns(limit = 50): Promise<LucidAgentRunSummary[]> {
+  const organizationId = await getLucidOrganizationId();
+  if (!organizationId) return [];
+
+  const rows = await selectRows<unknown>(
+    supabase
+      .from('agent_runs')
+      .select('id,status,trigger_source,model,prompt_version,input,output_summary,error_message,started_at,finished_at,created_at,agent:agents(name,slug),client:clients(name),project:projects(name)')
+      .eq('organization_id', organizationId)
+      .order('created_at', { ascending: false })
+      .limit(limit),
+  );
+
+  return rows.map(normalizeAgentRun);
+}
+
+export async function listLucidAgentTasks(limit = 50, status?: LucidAgentTaskStatus): Promise<LucidAgentTaskSummary[]> {
+  const organizationId = await getLucidOrganizationId();
+  if (!organizationId) return [];
+
+  let query = supabase
+    .from('agent_tasks')
+    .select('id,title,description,status,priority,due_at,context,result_summary,created_at,updated_at,closed_at,agent:agents!agent_tasks_agent_id_fkey(name,slug),assigned_agent:agents!agent_tasks_assigned_to_agent_id_fkey(name,slug),client:clients(name),project:projects(name)')
+    .eq('organization_id', organizationId)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (status) query = query.eq('status', status);
+
+  const rows = await selectRows<unknown>(query);
+  return rows.map(normalizeAgentTask);
+}
+
+export async function updateLucidAgentTaskStatus({
+  taskId,
+  status,
+  actorLabel = 'admin',
+}: {
+  taskId: string;
+  status: LucidAgentTaskStatus;
+  actorLabel?: string;
+}): Promise<void> {
+  assertSupabaseServiceRoleConfigured();
+
+  const organizationId = await ensureLucidOrganizationId();
+  const now = new Date().toISOString();
+  const closedAt = ['done', 'cancelled'].includes(status) ? now : null;
+
+  const { data, error } = await supabase
+    .from('agent_tasks')
+    .update({ status, closed_at: closedAt, updated_at: now })
+    .eq('organization_id', organizationId)
+    .eq('id', taskId)
+    .select('id,title,client_id,project_id,status')
+    .maybeSingle();
+
+  if (error) throw new Error(`updateLucidAgentTaskStatus: ${error.message}`);
+  const record = asRecord(data);
+  if (!record) throw new Error('Agent task not found.');
+
+  await recordLucidAuditEvent({
+    eventType: 'agent_task_status_updated',
+    actorType: 'admin',
+    actorId: actorLabel,
+    targetTable: 'agent_tasks',
+    targetId: String(record.id ?? taskId),
+    clientId: asString(record.client_id),
+    projectId: asString(record.project_id),
+    riskLevel: 'low',
+    summary: `Agent task marked ${status}: ${asString(record.title) ?? taskId}`,
+    details: { status },
+  });
 }
 
 export async function listLucidApprovals(limit = 50, status?: LucidApprovalStatus): Promise<LucidApprovalSummary[]> {
@@ -1461,6 +1816,89 @@ async function updateClientOperationalHints(input: {
     .eq('id', input.clientId);
 
   if (error) throw new Error(`updateClientOperationalHints: ${error.message}`);
+}
+
+export async function updateLucidClientCompanyProfile(input: UpdateLucidClientCompanyProfileInput): Promise<void> {
+  const client = await getLucidClientMutationContext(input.clientId);
+  const { data: existingClient, error: readError } = await supabase
+    .from('clients')
+    .select('metadata')
+    .eq('id', client.id)
+    .single();
+
+  if (readError) throw new Error(`updateLucidClientCompanyProfile read: ${readError.message}`);
+
+  const existingMetadata = asRecord(asRecord(existingClient)?.metadata) ?? {};
+  const existingLegal = asRecord(existingMetadata.legal) ?? {};
+  const legal = {
+    ...existingLegal,
+    name: firstText(input.legalName) ?? asString(existingLegal.name) ?? null,
+    siren: firstText(input.siren) ?? asString(existingLegal.siren) ?? null,
+    siret: firstText(input.siret) ?? asString(existingLegal.siret) ?? null,
+    billing_address: firstText(input.billingAddress) ?? asString(existingLegal.billing_address) ?? asString(existingLegal.address) ?? null,
+    naf_code: firstText(input.nafCode) ?? asString(existingLegal.naf_code) ?? null,
+    naf_label: firstText(input.nafLabel) ?? asString(existingLegal.naf_label) ?? null,
+    company_status: firstText(input.companyStatus) ?? asString(existingLegal.company_status) ?? null,
+    employee_range: firstText(input.employeeRange) ?? asString(existingLegal.employee_range) ?? null,
+    source: firstText(input.source) ?? asString(existingLegal.source) ?? null,
+    fetched_at: firstText(input.fetchedAt) ?? asString(existingLegal.fetched_at) ?? null,
+  };
+
+  const updates: Record<string, unknown> = {
+    metadata: {
+      ...existingMetadata,
+      legal,
+    },
+  };
+  if (input.industry !== undefined) updates.industry = firstText(input.industry);
+  if (input.websiteUrl !== undefined) updates.website_url = normalizeClientUrl(input.websiteUrl);
+  if (input.primaryContactName !== undefined) updates.primary_contact_name = firstText(input.primaryContactName);
+  if (input.primaryContactEmail !== undefined) updates.primary_contact_email = firstText(input.primaryContactEmail);
+  if (input.primaryContactPhone !== undefined) updates.primary_contact_phone = firstText(input.primaryContactPhone);
+
+  const { error } = await supabase
+    .from('clients')
+    .update(updates)
+    .eq('id', client.id);
+
+  if (error) throw new Error(`updateLucidClientCompanyProfile: ${error.message}`);
+
+  await recordLucidAuditEvent({
+    eventType: 'client_company_profile_updated',
+    summary: `Company profile updated for ${client.name}`,
+    actorType: 'admin',
+    clientId: client.id,
+    targetTable: 'clients',
+    targetId: client.id,
+    details: { client_slug: client.slug, source: legal.source, siren: legal.siren, siret: legal.siret },
+  });
+}
+
+export async function updateLucidClientTaskStatus(input: { clientId: string; taskId: string; status: LucidClientTaskStatus }): Promise<void> {
+  const client = await getLucidClientMutationContext(input.clientId);
+  const updates: Record<string, unknown> = {
+    status: input.status,
+    completed_at: input.status === 'done' ? new Date().toISOString() : null,
+  };
+
+  const { error } = await supabase
+    .from('client_tasks')
+    .update(updates)
+    .eq('organization_id', client.organizationId)
+    .eq('client_id', client.id)
+    .eq('id', input.taskId);
+
+  if (error) throw new Error(`updateLucidClientTaskStatus: ${error.message}`);
+
+  await recordLucidAuditEvent({
+    eventType: 'client_task_status_updated',
+    summary: `Task moved for ${client.name}`,
+    actorType: 'admin',
+    clientId: client.id,
+    targetTable: 'client_tasks',
+    targetId: input.taskId,
+    details: { client_slug: client.slug, status: input.status },
+  });
 }
 
 export async function createLucidClientContact(input: CreateLucidClientContactInput): Promise<string> {
@@ -1761,6 +2199,11 @@ export async function upsertLucidClientIntake(input: UpsertLucidClientIntakeInpu
   const extractionTrace = input.extractionTrace ?? null;
   const resolvedStatus = input.status ?? 'lead';
   const resolvedIntakeStage = input.intakeStage ?? 'potential';
+  const resolvedLifecycleStage = input.lifecycleStage ?? lifecycleFromIntakeStage(resolvedIntakeStage, resolvedStatus);
+  const resolvedHealthScore = typeof input.healthScore === 'number' && Number.isFinite(input.healthScore)
+    ? Math.min(100, Math.max(0, Math.round(input.healthScore)))
+    : null;
+  const existingLegal = asRecord(existingMetadata.legal) ?? {};
   const intakeMetadata = {
     stage: resolvedIntakeStage,
     meeting_status: input.meetingStatus ?? 'not_booked',
@@ -1793,9 +2236,14 @@ export async function upsertLucidClientIntake(input: UpsertLucidClientIntakeInpu
       name: input.name,
       slug,
       status: resolvedStatus,
-      lifecycle_stage: lifecycleFromIntakeStage(resolvedIntakeStage, resolvedStatus),
+      lifecycle_stage: resolvedLifecycleStage,
+      owner_label: firstText(input.ownerLabel),
+      health_status: input.healthStatus ?? 'unknown',
+      health_score: resolvedHealthScore,
+      health_summary: firstText(input.healthSummary),
       next_action: firstText(input.nextStep),
-      last_contacted_at: normalizeOptionalDate(input.meetingDoneAt ?? input.meetingBookedAt ?? null),
+      next_action_due_at: normalizeOptionalDate(input.nextActionDueAt),
+      last_contacted_at: normalizeOptionalDate(input.lastContactedAt ?? input.meetingDoneAt ?? input.meetingBookedAt ?? null),
       industry: firstText(input.industry),
       website_url: normalizeClientUrl(input.websiteUrl),
       primary_contact_name: firstText(input.primaryContactName),
@@ -1804,14 +2252,15 @@ export async function upsertLucidClientIntake(input: UpsertLucidClientIntakeInpu
       notes,
       metadata: {
         ...existingMetadata,
-        first_name: firstText(input.firstName) || existingMetadata.first_name || null,
-        last_name: firstText(input.lastName) || existingMetadata.last_name || null,
+        first_name: input.firstName !== undefined ? firstText(input.firstName) : asString(existingMetadata.first_name),
+        last_name: input.lastName !== undefined ? firstText(input.lastName) : asString(existingMetadata.last_name),
         tools: input.tools ?? (existingMetadata.tools as string[] | undefined) ?? [],
         legal: {
-          ...(asRecord(existingMetadata.legal) ?? {}),
-          name: firstText(input.legalName) || asString(asRecord(existingMetadata.legal)?.name) || null,
-          siret: firstText(input.siret) || asString(asRecord(existingMetadata.legal)?.siret) || null,
-          billing_address: firstText(input.billingAddress) || asString(asRecord(existingMetadata.legal)?.billing_address) || asString(asRecord(existingMetadata.legal)?.address) || null,
+          ...existingLegal,
+          name: input.legalName !== undefined ? firstText(input.legalName) : asString(existingLegal.name),
+          siren: input.siren !== undefined ? firstText(input.siren) : asString(existingLegal.siren),
+          siret: input.siret !== undefined ? firstText(input.siret) : asString(existingLegal.siret),
+          billing_address: input.billingAddress !== undefined ? firstText(input.billingAddress) : asString(existingLegal.billing_address) ?? asString(existingLegal.address),
         },
         intake: intakeMetadata,
       },

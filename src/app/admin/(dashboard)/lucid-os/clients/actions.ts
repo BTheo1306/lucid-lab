@@ -12,7 +12,11 @@ import {
   createLucidClientOpportunity,
   createLucidClientTask,
   deleteLucidClient,
+  listLucidClientContactsForClient,
+  listLucidClientTasksForClient,
   updateClientStatusAndLifecycle,
+  updateLucidClientCompanyProfile,
+  updateLucidClientTaskStatus,
   syncLucidClientRecordToObsidian,
   upsertLucidClientIntake,
   type LucidClientImportSourceType,
@@ -21,6 +25,7 @@ import {
   type LucidContactInfluenceLevel,
   type LucidContactStatus,
   type LucidClientIntakeStage,
+  type LucidClientHealthStatus,
   type LucidClientLifecycleStage,
   type LucidClientMeetingStatus,
   type LucidClientStatus,
@@ -34,6 +39,7 @@ import {
 } from '@/lib/admin/lucid-os';
 
 const clientStatuses = new Set<LucidClientStatus>(['lead', 'active', 'paused', 'offboarded', 'archived']);
+const clientHealthStatuses = new Set<LucidClientHealthStatus>(['unknown', 'healthy', 'watch', 'risk', 'critical']);
 const lifecycleStages = new Set<LucidClientLifecycleStage>(['lead', 'qualified', 'meeting_booked', 'discovery_done', 'proposal_needed', 'proposal_sent', 'negotiation', 'won', 'lost', 'onboarding', 'in_delivery', 'live_managed', 'success_retention', 'expansion_opportunity', 'archived']);
 const intakeStages = new Set<LucidClientIntakeStage>(['potential', 'meeting_booked', 'meeting_done', 'proposal_sent', 'won', 'lost']);
 const meetingStatuses = new Set<LucidClientMeetingStatus>(['not_booked', 'booked', 'done', 'cancelled']);
@@ -79,6 +85,140 @@ function firstText(...values: Array<string | null | undefined>): string {
   return values.find((value): value is string => typeof value === 'string' && value.trim().length > 0)?.trim() ?? '';
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === 'object' && !Array.isArray(value) ? value as Record<string, unknown> : null;
+}
+
+function asString(value: unknown): string | null {
+  return typeof value === 'string' && value.trim().length > 0 ? value.trim() : null;
+}
+
+function digitsOnly(value: string): string {
+  return value.replace(/\D/g, '');
+}
+
+function registrationNumberFromText(value: string): string | null {
+  const matches = value.match(/\d[\d\s.-]{7,}\d/g) ?? [];
+
+  for (const match of matches) {
+    const digits = digitsOnly(match);
+    if (digits.length === 14) return digits;
+    if (digits.length === 9) return digits;
+  }
+
+  return null;
+}
+
+function compactAddress(parts: Array<string | null | undefined>): string | null {
+  const value = parts.map((part) => part?.trim()).filter(Boolean).join(' ');
+  return value.length > 0 ? value : null;
+}
+
+function normalizeSearchText(value: string): string {
+  return value
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function taskTitleMatchesLine(title: string, line: string): boolean {
+  const normalizedTitle = normalizeSearchText(title);
+  const normalizedLine = normalizeSearchText(line);
+  if (!normalizedTitle || !normalizedLine) return false;
+  if (normalizedLine.includes(normalizedTitle)) return true;
+
+  const tokens = normalizedTitle.split(' ').filter((token) => token.length >= 4);
+  if (tokens.length === 0) return false;
+  return tokens.every((token) => normalizedLine.includes(token));
+}
+
+function taskStatusHint(line: string): LucidClientTaskStatus | null {
+  const normalizedLine = normalizeSearchText(line);
+  if (/\b(fait|faite|fini|finie|termine|terminee|done|complete|completed|valide|validee)\b/.test(normalizedLine)) return 'done';
+  if (/\b(en cours|started|wip|travaille|bloque|attente)\b/.test(normalizedLine)) return 'in_progress';
+  if (/\b(a faire|todo|a realiser|a lancer)\b/.test(normalizedLine)) return 'todo';
+  return null;
+}
+
+async function applyTaskHintsFromNote(clientId: string, rawContent: string): Promise<void> {
+  const lines = rawContent.split(/\r?\n/).map((line) => line.trim()).filter(Boolean);
+  if (lines.length === 0) return;
+
+  const tasks = await listLucidClientTasksForClient(clientId, 100);
+  for (const line of lines) {
+    const status = taskStatusHint(line);
+    if (!status) continue;
+
+    const matchingTask = tasks.find((task) => task.status !== status && taskTitleMatchesLine(task.title, line));
+    if (!matchingTask) continue;
+    await updateLucidClientTaskStatus({ clientId, taskId: matchingTask.id, status });
+  }
+}
+
+async function fetchFrenchCompanyProfile(registrationNumber: string): Promise<{
+  legalName: string | null;
+  siren: string | null;
+  siret: string | null;
+  billingAddress: string | null;
+  nafCode: string | null;
+  nafLabel: string | null;
+  companyStatus: string | null;
+  employeeRange: string | null;
+}> {
+  const digits = digitsOnly(registrationNumber);
+  if (digits.length !== 9 && digits.length !== 14) {
+    throw new Error('Ajoute un SIREN à 9 chiffres ou un SIRET à 14 chiffres.');
+  }
+
+  const response = await fetch(`https://recherche-entreprises.api.gouv.fr/search?q=${digits}&per_page=1`, {
+    headers: { accept: 'application/json' },
+    cache: 'no-store',
+  });
+  if (!response.ok) throw new Error(`Recherche entreprise impossible (${response.status}).`);
+
+  const payload = asRecord(await response.json());
+  const result = Array.isArray(payload?.results) ? asRecord(payload.results[0]) : null;
+  if (!result) throw new Error('Aucune entreprise trouvée pour ce numéro.');
+
+  const siege = asRecord(result.siege) ?? {};
+  const fallbackAddress = compactAddress([
+    asString(siege.numero_voie),
+    asString(siege.type_voie),
+    asString(siege.libelle_voie),
+    asString(siege.code_postal),
+    asString(siege.libelle_commune),
+  ]);
+
+  return {
+    legalName: firstText(asString(result.nom_complet), asString(result.nom_raison_sociale), asString(result.denomination), asString(result.nom_commercial)) || null,
+    siren: firstText(asString(result.siren), digits.length === 9 ? digits : digits.slice(0, 9)) || null,
+    siret: firstText(asString(siege.siret), digits.length === 14 ? digits : null) || null,
+    billingAddress: firstText(asString(siege.adresse), fallbackAddress) || null,
+    nafCode: asString(result.activite_principale) ?? asString(siege.activite_principale),
+    nafLabel: asString(result.section_activite_principale) ?? asString(result.libelle_activite_principale),
+    companyStatus: asString(result.etat_administratif) ?? asString(siege.etat_administratif),
+    employeeRange: asString(result.tranche_effectif_salarie) ?? asString(siege.tranche_effectif_salarie),
+  };
+}
+
+async function updateClientCompanyProfileFromText(clientId: string, rawText: string): Promise<boolean> {
+  const registrationNumber = registrationNumberFromText(rawText);
+  if (!registrationNumber) return false;
+
+  const profile = await fetchFrenchCompanyProfile(registrationNumber);
+  await updateLucidClientCompanyProfile({
+    clientId,
+    ...profile,
+    source: 'recherche-entreprises.api.gouv.fr',
+    fetchedAt: new Date().toISOString(),
+  });
+
+  return true;
+}
+
 function requireClientActionContext(formData: FormData): { clientId: string; clientSlug: string } {
   const clientId = formString(formData, 'client_id');
   const clientSlug = formString(formData, 'client_slug');
@@ -89,13 +229,27 @@ function requireClientActionContext(formData: FormData): { clientId: string; cli
 function revalidateClientWorkspace(clientSlug: string): void {
   revalidatePath('/admin/lucid-os');
   revalidatePath('/admin/lucid-os/clients');
+  revalidatePath('/admin/lucid-os/crm/clients');
   revalidatePath(`/admin/lucid-os/clients/${clientSlug}`);
+  revalidatePath(`/admin/lucid-os/crm/clients/${clientSlug}`);
 }
 
 function clientDocumentsHref(clientSlug: string, params?: Record<string, string>): string {
   const searchParams = new URLSearchParams(params);
   const query = searchParams.toString();
   return `/admin/lucid-os/clients/${clientSlug}${query ? `?${query}` : ''}#documents`;
+}
+
+function clientActionErrorHref(clientSlug: string, anchor: string, error: unknown): string {
+  const params = new URLSearchParams({ client_error: actionErrorMessage(error) });
+  return `/admin/lucid-os/crm/clients/${clientSlug}?${params.toString()}#${anchor}`;
+}
+
+function clientEditErrorHref(clientSlug: string | null, error: unknown): string {
+  const params = new URLSearchParams({ client_error: actionErrorMessage(error) });
+  return clientSlug
+    ? `/admin/lucid-os/crm/clients/${clientSlug}/edit?${params.toString()}`
+    : `/admin/lucid-os/crm/clients/new?${params.toString()}`;
 }
 
 function actionErrorMessage(error: unknown): string {
@@ -118,30 +272,49 @@ export async function recordClientIntakeAction(formData: FormData): Promise<void
   const primaryContactEmail = formString(formData, 'primary_contact_email');
   const primaryContactPhone = formString(formData, 'primary_contact_phone');
   const rawContext = formString(formData, 'raw_context');
-  const parsedContext = rawContext ? await extractClientIntake(rawContext) : null;
+  const submittedSlug = formString(formData, 'slug') || null;
+  let parsedContext: Awaited<ReturnType<typeof extractClientIntake>> | null = null;
+
+  try {
+    parsedContext = rawContext ? await extractClientIntake(rawContext) : null;
+  } catch (error) {
+    redirect(clientEditErrorHref(submittedSlug, error));
+  }
   const resolvedContactName = firstText(primaryContactName, parsedContext?.primaryContactName);
   const resolvedContactEmail = firstText(primaryContactEmail, parsedContext?.primaryContactEmail);
   const resolvedContactPhone = firstText(primaryContactPhone, parsedContext?.primaryContactPhone);
   const name = firstText(submittedName, parsedContext?.name, resolvedContactName, resolvedContactEmail, resolvedContactPhone);
   const statusRaw = formString(formData, 'status') as LucidClientStatus;
+  const healthStatusRaw = formString(formData, 'client_health_status') as LucidClientHealthStatus;
+  const lifecycleStageRaw = formString(formData, 'lifecycle_stage') as LucidClientLifecycleStage;
   const intakeStageRaw = formString(formData, 'intake_stage') as LucidClientIntakeStage;
   const meetingStatusRaw = formString(formData, 'meeting_status') as LucidClientMeetingStatus;
+  const selectedLifecycleStage = lifecycleStages.has(lifecycleStageRaw) ? lifecycleStageRaw : undefined;
   const selectedIntakeStage = intakeStages.has(intakeStageRaw) ? intakeStageRaw : 'potential';
   const selectedMeetingStatus = meetingStatuses.has(meetingStatusRaw) ? meetingStatusRaw : 'not_booked';
   const desiredOutcome = firstText(formString(formData, 'desired_outcome'), parsedContext?.desiredOutcome);
   const meetingNotes = firstText(formString(formData, 'meeting_notes'), parsedContext?.meetingNotes);
+  const healthScore = optionalNumber(formData, 'health_score');
 
-  if (!name) throw new Error('Add a company, client/person name, email, phone, or pasted note so Lucid OS can identify the client.');
+  if (!name) redirect(clientEditErrorHref(submittedSlug, new Error('Ajoute un nom, un email, un téléphone ou une note à analyser pour identifier le client.')));
 
-  const result = await upsertLucidClientIntake({
+  let result: Awaited<ReturnType<typeof upsertLucidClientIntake>>;
+  try {
+    result = await upsertLucidClientIntake({
     name,
     firstName: firstName || null,
     lastName: lastName || null,
-    slug: formString(formData, 'slug') || null,
+    slug: submittedSlug,
     status: clientStatuses.has(statusRaw) ? statusRaw : 'lead',
+    lifecycleStage: selectedLifecycleStage ?? null,
+    ownerLabel: formString(formData, 'owner_label') || null,
+    healthStatus: clientHealthStatuses.has(healthStatusRaw) ? healthStatusRaw : 'unknown',
+    healthScore,
+    healthSummary: formString(formData, 'health_summary') || null,
     industry: firstText(formString(formData, 'industry'), parsedContext?.industry) || null,
     websiteUrl: firstText(formString(formData, 'website_url'), parsedContext?.websiteUrl) || null,
     legalName: formString(formData, 'legal_name') || null,
+    siren: formString(formData, 'siren') || null,
     siret: formString(formData, 'siret') || null,
     billingAddress: formString(formData, 'billing_address') || null,
     primaryContactName: resolvedContactName || null,
@@ -158,15 +331,25 @@ export async function recordClientIntakeAction(formData: FormData): Promise<void
     budgetRange: firstText(formString(formData, 'budget_range'), parsedContext?.budgetRange) || null,
     timeline: firstText(formString(formData, 'timeline'), parsedContext?.timeline) || null,
     nextStep: firstText(formString(formData, 'next_step'), parsedContext?.nextStep) || null,
+    nextActionDueAt: optionalDateTime(formData, 'next_action_due_at'),
+    lastContactedAt: optionalDateTime(formData, 'last_contacted_at'),
     source: firstText(formString(formData, 'source'), parsedContext?.source) || null,
     rawContext: rawContext || null,
     indexAsKnowledge: formData.get('index_as_knowledge') === 'on',
     extractionTrace: parsedContext?.trace ?? null,
-  });
+    });
+
+    const companyLookupText = [formString(formData, 'siren'), formString(formData, 'siret'), rawContext].filter(Boolean).join('\n');
+    if (companyLookupText) await updateClientCompanyProfileFromText(result.id, companyLookupText);
+  } catch (error) {
+    redirect(clientEditErrorHref(submittedSlug, error));
+  }
 
   revalidatePath('/admin/lucid-os');
   revalidatePath('/admin/lucid-os/clients');
+  revalidatePath('/admin/lucid-os/crm/clients');
   revalidatePath(`/admin/lucid-os/clients/${result.slug}`);
+  revalidatePath(`/admin/lucid-os/crm/clients/${result.slug}`);
   revalidatePath('/admin/lucid-os/knowledge');
   redirect(`/admin/lucid-os/clients/${result.slug}`);
 }
@@ -184,7 +367,9 @@ export async function updateClientStatusAndLifecycleAction(formData: FormData): 
   }
 
   revalidatePath('/admin/lucid-os/clients');
+  revalidatePath('/admin/lucid-os/crm/clients');
   revalidatePath(`/admin/lucid-os/clients/${clientSlug}`);
+  revalidatePath(`/admin/lucid-os/crm/clients/${clientSlug}`);
   redirect(`/admin/lucid-os/clients/${clientSlug}`);
 }
 
@@ -196,7 +381,9 @@ export async function deleteClientAction(formData: FormData): Promise<void> {
 
   revalidatePath('/admin/lucid-os');
   revalidatePath('/admin/lucid-os/clients');
+  revalidatePath('/admin/lucid-os/crm/clients');
   revalidatePath(`/admin/lucid-os/clients/${clientSlug}`);
+  revalidatePath(`/admin/lucid-os/crm/clients/${clientSlug}`);
   revalidatePath('/admin/lucid-os/knowledge');
   redirect('/admin/lucid-os/clients');
 }
@@ -210,6 +397,133 @@ export async function syncClientObsidianAction(formData: FormData): Promise<void
   revalidateClientWorkspace(clientSlug);
   revalidatePath('/admin/lucid-os/knowledge');
   redirect(`/admin/lucid-os/clients/${clientSlug}`);
+}
+
+export async function updateClientCompanyInfoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const { clientId, clientSlug } = requireClientActionContext(formData);
+  const registrationNumber = digitsOnly(formString(formData, 'registration_number'));
+
+  try {
+    await updateLucidClientCompanyProfile({
+    clientId,
+    legalName: formString(formData, 'legal_name') || null,
+    siren: registrationNumber.length === 9 ? registrationNumber : formString(formData, 'siren') || null,
+    siret: registrationNumber.length === 14 ? registrationNumber : formString(formData, 'siret') || null,
+    billingAddress: formString(formData, 'billing_address') || null,
+    industry: formString(formData, 'industry') || null,
+    websiteUrl: formString(formData, 'website_url') || null,
+    primaryContactName: formString(formData, 'primary_contact_name') || null,
+    primaryContactEmail: formString(formData, 'primary_contact_email') || null,
+    primaryContactPhone: formString(formData, 'primary_contact_phone') || null,
+    source: 'admin',
+    });
+  } catch (error) {
+    redirect(clientActionErrorHref(clientSlug, 'company', error));
+  }
+
+  revalidateClientWorkspace(clientSlug);
+  redirect(`/admin/lucid-os/clients/${clientSlug}#company`);
+}
+
+export async function fetchClientCompanyInfoAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const { clientId, clientSlug } = requireClientActionContext(formData);
+  let profile: Awaited<ReturnType<typeof fetchFrenchCompanyProfile>>;
+
+  try {
+    profile = await fetchFrenchCompanyProfile(formString(formData, 'registration_number'));
+    await updateLucidClientCompanyProfile({
+    clientId,
+    ...profile,
+    source: 'recherche-entreprises.api.gouv.fr',
+    fetchedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    redirect(clientActionErrorHref(clientSlug, 'company', error));
+  }
+
+  revalidateClientWorkspace(clientSlug);
+  redirect(`/admin/lucid-os/clients/${clientSlug}#company`);
+}
+
+export async function recordClientSmartNoteAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const { clientId, clientSlug } = requireClientActionContext(formData);
+  const rawContent = formString(formData, 'raw_content');
+  if (!rawContent) redirect(clientActionErrorHref(clientSlug, 'notes', new Error('Ajoute une note à traiter.')));
+
+  const title = firstText(formString(formData, 'title'), 'Note de call');
+  const sourceTypeRaw = formString(formData, 'source_type') as LucidClientImportSourceType;
+
+  try {
+    const parsedContext = await extractClientIntake(rawContent);
+    const summary = firstText(parsedContext.meetingNotes, parsedContext.desiredOutcome, rawContent.slice(0, 500));
+
+    await createLucidClientImport({
+    clientId,
+    title,
+    sourceType: importSourceTypes.has(sourceTypeRaw) ? sourceTypeRaw : 'meeting_notes',
+    sourceUri: formString(formData, 'source_uri') || null,
+    rawContent,
+    extractedSummary: summary || null,
+    status: parsedContext.trace.error ? 'needs_review' : 'processed',
+    indexAsKnowledge: true,
+    });
+
+  const existingContacts = await listLucidClientContactsForClient(clientId, 100);
+  const extractedContactEmail = parsedContext.primaryContactEmail?.toLowerCase() ?? null;
+  const extractedContactName = parsedContext.primaryContactName?.toLowerCase() ?? null;
+  const contactAlreadyExists = existingContacts.some((contact) => {
+    const emailMatches = extractedContactEmail && contact.email?.toLowerCase() === extractedContactEmail;
+    const nameMatches = extractedContactName && contact.fullName.toLowerCase() === extractedContactName;
+    return Boolean(emailMatches || nameMatches);
+  });
+
+  if (!contactAlreadyExists && (parsedContext.primaryContactName || parsedContext.primaryContactEmail || parsedContext.primaryContactPhone)) {
+    await createLucidClientContact({
+      clientId,
+      fullName: firstText(parsedContext.primaryContactName, parsedContext.primaryContactEmail, parsedContext.primaryContactPhone),
+      email: parsedContext.primaryContactEmail,
+      phone: parsedContext.primaryContactPhone,
+      isPrimary: existingContacts.length === 0,
+      status: 'active',
+      notes: 'Ajouté automatiquement depuis une note IA.',
+    });
+  }
+
+  if (parsedContext.nextStep) {
+    await createLucidClientTask({
+      clientId,
+      title: parsedContext.nextStep,
+      description: `Créé automatiquement depuis la note : ${title}`,
+      status: 'todo',
+      priority: 'normal',
+      createdBy: 'agent',
+    });
+  }
+
+    await updateClientCompanyProfileFromText(clientId, rawContent);
+    await applyTaskHintsFromNote(clientId, rawContent);
+  } catch (error) {
+    redirect(clientActionErrorHref(clientSlug, 'notes', error));
+  }
+
+  revalidateClientWorkspace(clientSlug);
+  revalidatePath('/admin/lucid-os/knowledge');
+  redirect(`/admin/lucid-os/clients/${clientSlug}#notes`);
+}
+
+export async function updateClientTaskStatusAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const { clientId, clientSlug } = requireClientActionContext(formData);
+  const taskId = formString(formData, 'task_id');
+  const statusRaw = formString(formData, 'task_status') as LucidClientTaskStatus;
+  if (!taskId) throw new Error('Task id is required.');
+  if (!taskStatuses.has(statusRaw)) throw new Error('Task status is invalid.');
+
+  await updateLucidClientTaskStatus({ clientId, taskId, status: statusRaw });
+  revalidateClientWorkspace(clientSlug);
 }
 
 export async function recordClientContactAction(formData: FormData): Promise<void> {
@@ -359,11 +673,12 @@ export async function recordClientTaskAction(formData: FormData): Promise<void> 
   await requireAdmin();
   const { clientId, clientSlug } = requireClientActionContext(formData);
   const title = formString(formData, 'title');
-  if (!title) throw new Error('Task title is required.');
+  if (!title) redirect(clientActionErrorHref(clientSlug, 'tasks', new Error('Ajoute un titre de tâche.')));
   const statusRaw = formString(formData, 'task_status') as LucidClientTaskStatus;
   const priorityRaw = formString(formData, 'priority') as LucidClientTaskPriority;
 
-  await createLucidClientTask({
+  try {
+    await createLucidClientTask({
     clientId,
     contactId: optionalId(formData, 'contact_id'),
     opportunityId: optionalId(formData, 'opportunity_id'),
@@ -374,7 +689,10 @@ export async function recordClientTaskAction(formData: FormData): Promise<void> 
     ownerLabel: formString(formData, 'owner_label') || null,
     dueAt: optionalDateTime(formData, 'due_at'),
     createdBy: 'admin',
-  });
+    });
+  } catch (error) {
+    redirect(clientActionErrorHref(clientSlug, 'tasks', error));
+  }
 
   revalidateClientWorkspace(clientSlug);
   redirect(`/admin/lucid-os/clients/${clientSlug}#tasks`);

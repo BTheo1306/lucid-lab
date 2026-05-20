@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
-    "seed-kb": "tsx scripts/seed-kb.ts"
+    "seed-kb": "tsx scripts/seed-kb.ts",
+    "sync-obsidian-kb": "tsx scripts/sync-obsidian-knowledge.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.87.0",
