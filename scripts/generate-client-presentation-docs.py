@@ -25,6 +25,68 @@ OUTPUT_DIR = ROOT / "docs" / "client-presentations"
 
 CLIENTS = [
     {
+        "slug": "sophia-kanouni-bsp37",
+        "display_name": "BSP 37 — Sophia Kanouni",
+        "subtitle": (
+            "Refonte du site web, acquisition Meta Ads pour le film solaire "
+            "et système IA Claude + Obsidian."
+        ),
+        "objective": (
+            "BSP 37 est un groupement familial ancré dans l'artisanat depuis 1989. "
+            "L'objectif de cet accompagnement est triple : moderniser la présence "
+            "digitale de l'entreprise, ouvrir un nouveau canal d'acquisition pour "
+            "l'activité d'installation de film solaire via Meta Ads (Facebook / Instagram), "
+            "et doter Sophia d'un système IA privé (Claude + Obsidian) pour centraliser et "
+            "exploiter la connaissance opérationnelle de BSP 37 au quotidien."
+        ),
+        "scope": [
+            ("Système IA — Claude + Obsidian (installation unique)", [
+                "Installation et configuration d'Obsidian + Claude Code sur votre machine.",
+                "Création d'un vault BSP 37 dédié : processus, fournisseurs, catalogue, réalisations, suivi clients.",
+                "Configuration des sources approuvées et session d'ingestion initiale.",
+                "Formation à la routine hebdomadaire d'utilisation.",
+                "Remise du guide d'installation et du guide d'utilisation Lucid-Lab.",
+            ]),
+            ("Refonte du site web — bsp37.com", [
+                "Audit du site Wix existant et recommandations.",
+                "Refonte complète sur une technologie moderne : meilleure performance, SEO et contrôle total sans abonnement Wix.",
+                "Intégration du catalogue produits, galerie de réalisations, pages de services et formulaires de contact.",
+                "Déploiement et configuration du nom de domaine.",
+                "Maintenance mensuelle : mises à jour, corrections, suivi des performances SEO.",
+            ]),
+            ("Meta Ads — Film solaire", [
+                "Création et configuration du compte Meta Ads (Facebook / Instagram).",
+                "Définition de la cible locale : zone géographique, audiences et ciblages d'intérêt.",
+                "Création d'une landing page dédiée à la génération de leads film solaire.",
+                "Gestion mensuelle des campagnes : optimisation des budgets, tests visuels, reporting mensuel.",
+                "Production de vidéos pour les campagnes : 150 € HT / vidéo (court format Reels / Stories).",
+                "Mise en place d'un suivi des leads : formulaire dédié + tableau de bord partagé.",
+                "Commission de 2 % HT sur les devis signés issus directement des leads Meta Ads (traçabilité UTM + déclaration mensuelle).",
+                "Note : le budget publicitaire Meta est distinct des frais de gestion — recommandation de départ : 200–400 € / mois.",
+            ]),
+        ],
+        "calendar": [
+            ("Semaine 1", "Installation Claude + Obsidian, audit du site existant et brief Meta Ads."),
+            ("Semaines 2–3", "Refonte du site web : structure, design, contenus et intégrations."),
+            ("Semaine 4", "Mise en ligne du site, lancement des campagnes Meta Ads et landing page film solaire."),
+            ("Mois 2+", "Gestion mensuelle Meta Ads, production vidéos, optimisations, reporting et évolution du site."),
+        ],
+        "pricing": (
+            "Système IA Claude + Obsidian : 500 € HT (installation unique).\n"
+            "Refonte du site web : [à confirmer] € HT (prestation unique).\n"
+            "Maintenance du site web : 150 € HT / mois.\n"
+            "Gestion Meta Ads — Film solaire : 95 € HT / mois + 2 % HT sur les devis signés issus des leads Meta Ads.\n"
+            "Production vidéo (campagnes Meta Ads) : 150 € HT / vidéo."
+        ),
+        "next_steps": [
+            "Valider le périmètre et le budget de la refonte du site web.",
+            "Confirmer le budget publicitaire Meta Ads mensuel.",
+            "Confirmer la machine disponible pour l'installation Claude + Obsidian.",
+            "Accès à fournir : hébergement/domaine bsp37.com, accès Wix, compte Meta Business pour la création du compte Ads.",
+            "Signature de la proposition et règlement du premier mois pour démarrer.",
+        ],
+    },
+    {
         "slug": "eden-creche",
         "display_name": "Crèche Eden",
         "subtitle": (

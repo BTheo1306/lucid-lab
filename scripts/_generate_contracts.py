@@ -21,6 +21,74 @@ OUT.mkdir(parents=True, exist_ok=True)
 
 CLIENTS = [
     {
+        "id": "sophia-kanouni-bsp37",
+        "bdc_ref": "PROP-2026-009",
+        "ctr_ref": "CTR-2026-009",
+        "bc_ref": "BC-2026-009",
+        "date": "22/05/2026",
+        "client_block_bdc": (
+            "Le Client — Sophia Kanouni, BSP 37, dont le siège social est situé Route du Coutureau, "
+            "« Le Coudray », 37120 Lémeré, France, immatriculée sous le numéro SIRET [À COMPLÉTER], "
+            "représentée par Sophia Kanouni en qualité de Gérante."
+        ),
+        "client_block_ctr": (
+            "Sophia Kanouni, BSP 37, dont le siège social est situé Route du Coutureau, "
+            "« Le Coudray », 37120 Lémeré, France, immatriculée sous le numéro SIRET [À COMPLÉTER], "
+            "représentée par Sophia Kanouni en qualité de Gérante,"
+        ),
+        "interlocteur": "Sophia Kanouni — Gérante — info.bsp37@gmail.com — 06 52 22 06 82",
+        "lieu": "Lémeré",
+        "mission_title": "Refonte du site web bsp37.com, acquisition Meta Ads pour l'activité film solaire et installation du système IA Claude + Obsidian.",
+        "mission_description": (
+            "Refonte complète du site bsp37.com (remplacement du site Wix) avec intégration du catalogue produits, "
+            "galerie de réalisations et formulaires de contact, maintenance mensuelle incluse ; "
+            "création et gestion des campagnes Meta Ads (Facebook / Instagram) pour générer des leads qualifiés "
+            "sur l'activité d'installation de film solaire, avec landing page dédiée, production de vidéos courtes "
+            "et suivi des leads ; installation du système IA Claude + Obsidian sur la machine de Sophia "
+            "pour centraliser la connaissance opérationnelle de BSP 37."
+        ),
+        "livrable_1": "Site web bsp37.com refait : catalogue, galerie, formulaires, déploiement + maintenance mensuelle incluse.",
+        "livrable_2": "Campagnes Meta Ads film solaire : compte Ads, landing page, gestion mensuelle, reporting et suivi leads.",
+        "livrable_3": "Système IA Claude + Obsidian installé et configuré : vault BSP 37, ingestion initiale, guides Lucid-Lab + formation.",
+        "calendrier": "Démarrage à compter de la signature et réception du premier paiement (setup IA).",
+        "prix_ht": "3 440,00 € (500 € setup + 12 × 245,00 €)",
+        "tva": "688,00 €",
+        "prix_ttc": "4 128,00 € (hors vidéos et commission performance)",
+        "modalite": (
+            "☑ Setup IA Claude + Obsidian — 500,00 € HT / 600,00 € TTC — versement unique avant démarrage\n"
+            "☑ Abonnement 12 mois — 245,00 € HT / 294,00 € TTC / mois (site web + gestion Meta Ads)\n"
+            "☐ Vidéos Reels/Stories — 150,00 € HT / 180,00 € TTC / vidéo, à la commande\n"
+            "☐ Commission performance — 2 % HT sur devis signés issus des leads Meta Ads"
+        ),
+        "echeancier": "600,00 € TTC à la signature + 294,00 € TTC × 12 mois",
+        "ref_client_rib": "BC-2026-009 / BSP 37 — Sophia Kanouni",
+        "prop_ref_ctr": "PROP-2026-009 — BSP 37 / Sophia Kanouni — 22/05/2026",
+        "perimetre_ctr": (
+            "Refonte complète du site bsp37.com sur technologie moderne (remplacement du site Wix actuel) : "
+            "pages catalogue produits (bâche / sellerie / store, impression numérique, objets personnalisés), "
+            "galerie de réalisations, formulaires de contact, déploiement sur le domaine bsp37.com, "
+            "maintenance mensuelle incluse (mises à jour, corrections, suivi SEO) ; "
+            "création du compte Meta Ads (Facebook / Instagram), ciblage local, création d'une landing page dédiée "
+            "à la génération de leads film solaire, gestion mensuelle des campagnes (optimisation, reporting), "
+            "production de vidéos courtes Reels/Stories (150 € HT / vidéo, à la commande), "
+            "mise en place d'un suivi des leads avec commission de 2 % HT sur devis signés traçables ; "
+            "installation et configuration d'Obsidian + Claude Code sur la machine de Sophia, "
+            "création du vault BSP 37, ingestion initiale des sources clés, formation à la routine "
+            "hebdomadaire, remise des guides Lucid-Lab."
+        ),
+        "hors_perimetre": (
+            "toute prestation non explicitement listée dans la Proposition Commerciale, notamment le budget "
+            "publicitaire Meta Ads (géré et réglé directement par le Client auprès de Meta), "
+            "la refonte de l'identité visuelle ou du logo, la création de contenus textuels ou photographiques "
+            "en dehors des vidéos commandées, et toute extension de l'activité film solaire à d'autres "
+            "canaux non prévus (Google Ads, SEA, etc.)."
+        ),
+        "prix_ht_ctr": "3 440,00 €",
+        "tva_ctr": "688,00 €",
+        "prix_ttc_ctr": "4 128,00 €",
+        "mensualite_ttc": "294,00 €",
+    },
+    {
         "id": "clement-sinibaldi",
         "bdc_ref": "PROP-2026-007",
         "ctr_ref": "CTR-2026-007",

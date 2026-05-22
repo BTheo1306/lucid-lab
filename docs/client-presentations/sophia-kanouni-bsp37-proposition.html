@@ -1,0 +1,457 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Proposition d'accompagnement — BSP 37 · Sophia Kanouni</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f7f5f1;
+      --ink: #0a0a0a;
+      --muted: #666666;
+      --soft: #e5e5e5;
+      --white: #ffffff;
+      --amber: #ffb451;
+      --sand: #efc680;
+      --blue: #b4d8ff;
+      --ice: #d2e8ff;
+      --pale: #fafdff;
+      --violet: #a78bfa;
+      --emerald: #34d399;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: #dedbd5;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.5;
+    }
+
+    .page {
+      width: min(920px, calc(100vw - 32px));
+      min-height: 1180px;
+      margin: 32px auto;
+      background: var(--paper);
+      border: 1px solid var(--soft);
+      box-shadow: 0 22px 80px rgba(10, 10, 10, 0.16);
+      overflow: hidden;
+    }
+
+    .accent-strip {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      height: 14px;
+    }
+    .accent-strip span:nth-child(1) { background: var(--amber); }
+    .accent-strip span:nth-child(2) { background: var(--sand); }
+    .accent-strip span:nth-child(3) { background: var(--blue); }
+    .accent-strip span:nth-child(4) { background: var(--ice); }
+    .accent-strip span:nth-child(5) { background: var(--pale); }
+
+    .document { padding: 54px 64px 60px; }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 64px;
+    }
+    .brand img { width: 34px; height: 34px; object-fit: contain; }
+    .brand span {
+      font-family: Syne, Inter, sans-serif;
+      font-size: 21px;
+      font-weight: 800;
+      letter-spacing: -0.01em;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    h1, h2, h3 { margin: 0; letter-spacing: 0; }
+
+    h1 {
+      max-width: 660px;
+      font-size: clamp(42px, 6vw, 64px);
+      line-height: 0.98;
+      font-weight: 800;
+    }
+
+    .lead {
+      max-width: 690px;
+      margin: 24px 0 34px;
+      color: #4f4f4f;
+      font-size: 18px;
+      line-height: 1.65;
+    }
+
+    .meta {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      max-width: 620px;
+      margin: 0 0 24px;
+      border: 1px solid var(--soft);
+      background: var(--white);
+    }
+    .meta div { padding: 10px 14px; border-bottom: 1px solid var(--soft); font-size: 13px; }
+    .meta div:nth-last-child(-n + 2) { border-bottom: 0; }
+    .meta .label {
+      background: var(--ink);
+      color: var(--white);
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .callout {
+      display: grid;
+      grid-template-columns: 8px 1fr;
+      max-width: 720px;
+      margin: 24px 0 48px;
+      border: 1px solid var(--soft);
+      background: var(--white);
+    }
+    .callout::before { content: ""; background: var(--blue); }
+    .callout .content { padding: 18px 22px; }
+    .callout h3 { font-size: 18px; font-weight: 800; }
+    .callout p { margin: 5px 0 0; color: var(--muted); font-size: 14px; line-height: 1.6; }
+
+    .section {
+      padding-top: 18px;
+      border-top: 1px solid var(--soft);
+      margin-top: 30px;
+    }
+    .section-title {
+      display: flex;
+      align-items: baseline;
+      gap: 16px;
+      margin-bottom: 12px;
+    }
+    .section-title .num { color: #b7b7b7; font-size: 12px; font-weight: 800; }
+    h2 { font-size: 28px; line-height: 1.15; font-weight: 800; }
+
+    .body-copy {
+      max-width: 740px;
+      margin: 0 0 10px;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.7;
+    }
+    .body-copy strong { color: var(--ink); }
+
+    ul {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 16px;
+      padding-left: 18px;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    ul li strong { color: var(--ink); }
+
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .card {
+      min-height: 178px;
+      padding: 22px;
+      background: var(--ink);
+      color: var(--white);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+    }
+    .card .label {
+      margin-bottom: 18px;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .card h3 { font-size: 18px; line-height: 1.2; font-weight: 800; }
+    .card p { margin: 10px 0 0; color: rgba(255, 255, 255, 0.55); font-size: 13px; line-height: 1.5; }
+    .card:nth-child(1) .label { color: var(--amber); }
+    .card:nth-child(2) .label { color: var(--violet); }
+    .card:nth-child(3) .label { color: var(--emerald); }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: var(--white);
+      font-size: 14px;
+    }
+    th {
+      padding: 12px 14px;
+      background: var(--ink);
+      color: var(--white);
+      font-size: 11px;
+      letter-spacing: 0.12em;
+      text-align: left;
+      text-transform: uppercase;
+    }
+    td {
+      padding: 14px;
+      border: 1px solid var(--soft);
+      color: var(--muted);
+      vertical-align: top;
+    }
+    td:first-child { color: var(--ink); font-weight: 700; white-space: nowrap; }
+    .price-table td:last-child { font-weight: 700; color: var(--ink); text-align: right; white-space: nowrap; }
+    .total-row td { background: var(--ink); color: var(--white) !important; font-weight: 800 !important; }
+    .total-row td:first-child { color: var(--white) !important; }
+    .note { color: #999 !important; font-size: 12px; font-style: italic; font-weight: 400 !important; }
+
+    .steps { display: grid; gap: 10px; margin-top: 4px; }
+    .steps p {
+      margin: 0;
+      padding: 13px 16px;
+      background: var(--white);
+      border: 1px solid var(--soft);
+      color: #333333;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .principle::before { background: var(--amber); }
+    .signature::before { background: var(--ice); }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 24px;
+      padding: 20px 64px;
+      border-top: 1px solid var(--soft);
+      color: #8a8a8a;
+      font-size: 12px;
+    }
+
+    @media print {
+      body { background: var(--white); }
+      .page { width: 100%; margin: 0; border: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <div class="accent-strip" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+
+    <article class="document">
+      <header>
+        <div class="brand">
+          <img src="../../public/logo.png" alt="Lucid-Lab" />
+          <span>Lucid-Lab</span>
+        </div>
+        <p class="eyebrow">Proposition d'accompagnement · Mai 2026</p>
+        <h1>BSP 37<br />Sophia Kanouni</h1>
+        <p class="lead">
+          Site web moderne, acquisition Meta Ads pour le film solaire
+          et système IA Claude&nbsp;+&nbsp;Obsidian — tout en mensuel, sans frais d'entrée sur le site.
+        </p>
+        <section class="meta" aria-label="Métadonnées du document">
+          <div class="label">Client</div><div>Sophia Kanouni — BSP 37</div>
+          <div class="label">Site</div><div>bsp37.com</div>
+          <div class="label">Date</div><div>22 mai 2026</div>
+          <div class="label">Contact</div><div>Lucid-Lab · info@lucid-lab.fr</div>
+        </section>
+
+        <section class="callout">
+          <div class="content">
+            <h3>Ce qu'on construit ensemble</h3>
+            <p>
+              Trois modules complémentaires pour structurer la présence digitale de BSP 37,
+              générer des leads qualifiés pour l'activité film solaire et doter Sophia
+              d'un assistant IA privé calé sur son activité.
+            </p>
+          </div>
+        </section>
+      </header>
+
+      <!-- 01 OBJECTIF -->
+      <section class="section">
+        <div class="section-title"><span class="num">01</span><h2>Objectif</h2></div>
+        <p class="body-copy">
+          BSP 37 est un groupement familial ancré dans l'artisanat depuis 1989 : bâche, sellerie, store,
+          impression numérique et personnalisation textile. L'accompagnement cible trois axes&nbsp;:
+        </p>
+        <ul>
+          <li><strong>Refonte du site web</strong> — remplacer le site Wix actuel par une version moderne, rapide et bien référencée, sans frais d'entrée : tout est inclus dans le mensuel.</li>
+          <li><strong>Acquisition film solaire via Meta Ads</strong> — ouvrir un nouveau canal de génération de leads sur Facebook&nbsp;/ Instagram pour l'activité d'installation de film solaire, avec production de vidéos courtes pour les campagnes.</li>
+          <li><strong>Système IA Claude&nbsp;+&nbsp;Obsidian</strong> — installer sur la machine de Sophia un système de connaissance privé pour centraliser processus, fournisseurs, catalogue et suivi client.</li>
+        </ul>
+      </section>
+
+      <!-- 02 PÉRIMÈTRE -->
+      <section class="section">
+        <div class="section-title"><span class="num">02</span><h2>Périmètre de l'accompagnement</h2></div>
+
+        <div class="cards">
+          <article class="card">
+            <div class="label">Module 01</div>
+            <h3>Site web<br />Refonte + Maintenance</h3>
+            <p>Audit du site Wix · refonte sur technologie moderne · catalogue produits · galerie réalisations · formulaires de contact · SEO on-page · maintenance mensuelle incluse.</p>
+          </article>
+          <article class="card">
+            <div class="label">Module 02</div>
+            <h3>Meta Ads<br />Film solaire</h3>
+            <p>Compte Meta Ads · ciblage local · landing page dédiée · gestion mensuelle · tests visuels · reporting · production vidéos Reels/Stories · suivi leads + commission performance.</p>
+          </article>
+          <article class="card">
+            <div class="label">Module 03</div>
+            <h3>IA Claude<br />+&nbsp;Obsidian</h3>
+            <p>Installation Obsidian + Claude Code · vault BSP 37 · ingestion des sources clés · formation à la routine hebdomadaire · guides Lucid-Lab inclus.</p>
+          </article>
+        </div>
+
+        <div style="margin-top: 24px;">
+          <p class="body-copy"><strong>Module 01 — Site web (bsp37.com)</strong></p>
+          <ul>
+            <li>Audit du site Wix existant et recommandations SEO.</li>
+            <li>Refonte complète : performance, référencement naturel, contrôle total sans abonnement Wix.</li>
+            <li>Pages : accueil, bâche / sellerie / store, impression numérique, objets personnalisés, contact.</li>
+            <li>Galerie de réalisations et catalogue produits intégrés.</li>
+            <li>Déploiement et configuration du nom de domaine bsp37.com.</li>
+            <li>Maintenance mensuelle incluse : mises à jour, corrections, suivi des performances.</li>
+          </ul>
+
+          <p class="body-copy" style="margin-top: 18px;"><strong>Module 02 — Meta Ads / Film solaire</strong></p>
+          <ul>
+            <li>Création et configuration du compte Meta Ads (Facebook / Instagram).</li>
+            <li>Ciblage local : zone géographique, audiences et centres d'intérêt.</li>
+            <li>Création d'une landing page dédiée à la génération de leads film solaire.</li>
+            <li>Gestion mensuelle : optimisation, A/B tests visuels, reporting mensuel.</li>
+            <li>Production de vidéos courtes pour les campagnes (Reels / Stories) : <strong>150&nbsp;€&nbsp;HT / vidéo</strong>.</li>
+            <li>Suivi des leads : formulaire dédié + tableau de bord partagé (traçabilité UTM).</li>
+            <li>Commission de performance : <strong>2&nbsp;% HT sur les devis signés</strong> issus directement des leads Meta Ads, déclarés mensuellement.</li>
+            <li><em>Budget publicitaire Meta non inclus — recommandation de départ : 200–400&nbsp;€&nbsp;/ mois, géré directement par Sophia.</em></li>
+          </ul>
+
+          <p class="body-copy" style="margin-top: 18px;"><strong>Module 03 — Système IA Claude&nbsp;+&nbsp;Obsidian</strong></p>
+          <ul>
+            <li>Installation et configuration d'Obsidian + Claude Code sur la machine de Sophia.</li>
+            <li>Création d'un vault BSP 37 dédié : processus, fournisseurs, catalogue, réalisations, suivi clients.</li>
+            <li>Configuration des sources approuvées et session d'ingestion initiale.</li>
+            <li>Formation à la routine hebdomadaire d'utilisation.</li>
+            <li>Remise du guide d'installation et du guide d'utilisation Lucid-Lab (PDF).</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- 03 INVESTISSEMENT -->
+      <section class="section">
+        <div class="section-title"><span class="num">03</span><h2>Investissement</h2></div>
+        <table class="price-table">
+          <thead>
+            <tr><th>Prestation</th><th>Type</th><th style="text-align:right;">Prix HT</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Système IA Claude + Obsidian</td>
+              <td>Installation unique</td>
+              <td>500 €</td>
+            </tr>
+            <tr>
+              <td>Site web — Refonte + Maintenance</td>
+              <td>Mensuel (sans frais d'entrée)</td>
+              <td>150 € / mois</td>
+            </tr>
+            <tr>
+              <td>Gestion Meta Ads — Film solaire</td>
+              <td>Mensuel</td>
+              <td>95 € / mois</td>
+            </tr>
+            <tr>
+              <td>Production vidéo (Reels / Stories)</td>
+              <td>À la vidéo</td>
+              <td>150 € / vidéo</td>
+            </tr>
+            <tr>
+              <td>Commission leads convertis</td>
+              <td>Variable / mensuel</td>
+              <td>2 % sur devis signés</td>
+            </tr>
+            <tr class="total-row">
+              <td>Mensuel récurrent (hors vidéos et budget pub)</td>
+              <td></td>
+              <td>245 € / mois</td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="note" style="margin-top: 10px; font-size: 12px; color: #999; font-style: italic;">
+          Tous les prix sont indiqués HT. La TVA applicable sera ajoutée sur facture.
+          Le budget publicitaire Meta Ads est géré et réglé directement par le client auprès de Meta — il n'est pas inclus dans les frais de gestion.
+          La commission de 2 % s'applique uniquement aux leads traçables (UTM + formulaire dédié) déclarés signés par Sophia mensuellement.
+        </p>
+      </section>
+
+      <!-- 04 CALENDRIER -->
+      <section class="section">
+        <div class="section-title"><span class="num">04</span><h2>Calendrier d'exécution</h2></div>
+        <table>
+          <thead><tr><th>Phase</th><th>Actions</th><th>Livrable</th></tr></thead>
+          <tbody>
+            <tr>
+              <td>Semaine 1</td>
+              <td>Installation Claude&nbsp;+&nbsp;Obsidian · audit du site Wix · brief Meta Ads et film solaire</td>
+              <td>Vault BSP 37 opérationnel · plan de refonte validé</td>
+            </tr>
+            <tr>
+              <td>Semaines 2–3</td>
+              <td>Développement du nouveau site · structure · design · contenus · intégrations</td>
+              <td>Site en préproduction pour validation</td>
+            </tr>
+            <tr>
+              <td>Semaine 4</td>
+              <td>Mise en ligne du site · lancement campagnes Meta Ads · landing page film solaire</td>
+              <td>bsp37.com en ligne · campagnes actives</td>
+            </tr>
+            <tr>
+              <td>Mois 2+</td>
+              <td>Gestion mensuelle Meta Ads · production vidéos · optimisations · reporting mensuel</td>
+              <td>Reporting mensuel · leads traçés · évolutions site</td>
+            </tr>
+          </tbody>
+        </table>
+      </section>
+
+      <!-- 05 PROCHAINES ÉTAPES -->
+      <section class="section">
+        <div class="section-title"><span class="num">05</span><h2>Prochaines étapes</h2></div>
+        <div class="steps">
+          <p>1. Confirmer les trois modules et valider le budget publicitaire Meta Ads mensuel.</p>
+          <p>2. Fournir les accès : hébergement / domaine bsp37.com, accès Wix, compte Meta Business.</p>
+          <p>3. Prévoir la session d'installation Claude&nbsp;+&nbsp;Obsidian sur la machine de Sophia.</p>
+          <p>4. Signature de la proposition et règlement du setup IA (500&nbsp;€) pour démarrer la semaine suivante.</p>
+        </div>
+
+        <section class="callout signature" style="margin-top: 28px; margin-bottom: 0;">
+          <div class="content">
+            <h3>Signature</h3>
+            <p>
+              Bon pour accord — Sophia Kanouni, BSP 37 &nbsp;·&nbsp; Date : _______________<br />
+              Lucid-Lab &nbsp;·&nbsp; Operational Strategy, Software Dev &amp; IA Engineering &nbsp;·&nbsp; lucid-lab.fr
+            </p>
+          </div>
+        </section>
+      </section>
+    </article>
+
+    <footer class="footer">
+      <span>lucid-lab.fr · info@lucid-lab.fr</span>
+      <span>Document confidentiel — BSP 37 / Sophia Kanouni · Mai 2026</span>
+    </footer>
+  </main>
+</body>
+</html>
