@@ -18,12 +18,15 @@ import type { fr } from './fr';
 export const en: typeof fr = {
   header: {
     nav: {
-      cases: 'Case studies',
-      method: 'How it works',
+      expertise: 'Expertise',
+      offers: 'Offers',
+      delivery: 'How we ship',
+      cases: 'Delivered assets',
+      team: 'Team',
       blog: 'Blog',
       contact: 'Contact',
     },
-    cta: 'Book the Audit Flash',
+    cta: 'Audit Flash',
     backToHome: '← Back',
     languageLabel: 'Language',
     switchToEnglish: 'English',

@@ -12,26 +12,26 @@ const TEASER_DISMISS_KEY = 'll-chat-teaser-dismissed';
 
 const COPY = {
   fr: {
-    teaser: 'Bonjour. Une question sur Lucid-Lab\u00A0? Je suis là pour y répondre.',
+    teaser: 'Je suis Lex. Décris ton cas, je te dirai où chercher le premier système utile.',
     closeMessage: 'Fermer le message',
     closeChat: 'Fermer le chat',
     openChat: 'Ouvrir le chat',
-    dialogLabel: 'Assistant Lucid-Lab',
-    title: 'Lucid',
-    subtitle: 'Assistant Lucid-Lab',
+    dialogLabel: 'Lex, assistant Lucid-Lab',
+    title: 'Lex',
+    subtitle: 'Builder Lucid-Lab',
     closeAria: 'Fermer',
     poweredBy: 'Powered by Lucid-Lab · ',
     legalLink: 'Mentions légales',
     legalHref: '/mentions-legales',
   },
   en: {
-    teaser: 'Hi there. A question about Lucid-Lab\u00A0? I\u2019m here to help.',
+    teaser: 'I am Lex. Describe your case and I will point to the first useful system.',
     closeMessage: 'Close message',
     closeChat: 'Close chat',
     openChat: 'Open chat',
-    dialogLabel: 'Lucid-Lab Assistant',
-    title: 'Lucid',
-    subtitle: 'Lucid-Lab Assistant',
+    dialogLabel: 'Lex, Lucid-Lab assistant',
+    title: 'Lex',
+    subtitle: 'Lucid-Lab builder',
     closeAria: 'Close',
     poweredBy: 'Powered by Lucid-Lab · ',
     legalLink: 'Legal notice',
@@ -51,7 +51,7 @@ export function ChatWidget({ lang = 'fr' }: { lang?: Lang }) {
   const t = COPY[activeLang];
   const [open, setOpen] = useState(false);
   const [teaserVisible, setTeaserVisible] = useState(false);
-  const { messages, sending, error, sessionReady, sendMessage } = useChat({ language: activeLang });
+  const { messages, sending, error, sessionReady, sendMessage } = useChat({ language: activeLang, enabled: open });
 
   // Show the teaser bubble after a delay, unless the user has already dismissed it this session.
   useEffect(() => {
@@ -208,6 +208,9 @@ const widgetStyles = `
 @media (prefers-reduced-motion: reduce) {
   .ll-chat-teaser { animation: none; }
   .ll-chat-toggle-pulse { animation: none; }
+}
+@media (max-width: 640px) {
+  .ll-chat-teaser { display: none; }
 }
 
 .ll-chat-panel {

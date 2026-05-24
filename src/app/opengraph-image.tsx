@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og"
 import { readFileSync } from "fs"
 import { join } from "path"
 
-export const alt = "Lucid-Lab — Prenez le virage IA avant vos concurrents."
+export const alt = "Lucid-Lab — Vos systèmes IA, construits, déployés, opérés."
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -24,13 +24,13 @@ export default async function Image() {
           position: "relative",
         }}
       >
-        {/* Hero radial gradient — same as hero-section.tsx */}
+        {/* Premium light/data backdrop */}
         <div
           style={{
             position: "absolute",
             inset: 0,
             background:
-              "radial-gradient(84.42% 84.32% at 51.63% 100%, #FFB451 0%, #EFC680 24.76%, #B4D8FF 47.6%, #D2E8FF 75%, #FAFDFF 100%)",
+              "linear-gradient(135deg, #f8f7f3 0%, #ffffff 42%, #eaf2f5 100%)",
           }}
         />
 
@@ -57,6 +57,7 @@ export default async function Image() {
           >
             <img
               src={logoSrc}
+              alt="Lucid-Lab"
               style={{ width: "36px", height: "36px", objectFit: "contain" }}
             />
             <span
@@ -84,8 +85,9 @@ export default async function Image() {
               marginBottom: "20px",
             }}
           >
-            <span>Prenez le virage IA</span>
-            <span>avant vos concurrents.</span>
+            <span>Vos systèmes IA,</span>
+            <span>construits, déployés,</span>
+            <span>opérés.</span>
           </div>
 
           {/* Subtext */}
@@ -99,7 +101,7 @@ export default async function Image() {
               maxWidth: "420px",
             }}
           >
-            On vous accompagne pour automatiser l&#39;essentiel, gagner du temps et rester dans la course.
+            Agents, outils internes, automatisations et monitoring qui tournent en production.
           </div>
 
           {/* Badges */}
@@ -114,7 +116,7 @@ export default async function Image() {
                 fontWeight: "600",
               }}
             >
-              +10 entreprises accompagnées
+              Audit Flash gratuit
             </div>
             <div
               style={{
@@ -126,7 +128,7 @@ export default async function Image() {
                 fontWeight: "600",
               }}
             >
-              100% livrés en production
+              Build · Run · Documentation
             </div>
           </div>
 
@@ -153,6 +155,7 @@ export default async function Image() {
         >
           <img
             src={robotSrc}
+            alt=""
             style={{
               width: "100%",
               height: "100%",

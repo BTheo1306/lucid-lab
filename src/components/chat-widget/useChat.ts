@@ -12,6 +12,7 @@ export interface ChatMessage {
 interface UseChatOptions {
   turnstileToken?: string | null;
   language?: 'fr' | 'en';
+  enabled?: boolean;
 }
 
 const STORAGE_KEY = 'lucidlab_chat_session_v2';
@@ -58,6 +59,7 @@ export function useChat(opts: UseChatOptions = {}): UseChatApi {
 
   // Initialise session on mount, and re-init when language changes
   useEffect(() => {
+    if (opts.enabled === false) return;
     if (lastLanguage.current === (opts.language ?? 'fr')) return;
     lastLanguage.current = opts.language ?? 'fr';
 
@@ -107,7 +109,7 @@ export function useChat(opts: UseChatOptions = {}): UseChatApi {
       .catch((err) => {
         setError((err as Error).message);
       });
-  }, [opts.turnstileToken, opts.language]);
+  }, [opts.enabled, opts.turnstileToken, opts.language]);
 
   const sendMessage = useCallback(
     async (text: string) => {

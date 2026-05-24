@@ -1,12 +1,15 @@
 export const fr = {
   header: {
     nav: {
-      cases: 'Cas clients',
-      method: 'Méthode',
+      expertise: 'Expertises',
+      offers: 'Offres',
+      delivery: 'Comment on livre',
+      cases: 'Acquis livrés',
+      team: 'Équipe',
       blog: 'Blog',
       contact: 'Contact',
     },
-    cta: "Réserver l'Audit Flash",
+    cta: 'Audit Flash',
     backToHome: '← Retour',
     languageLabel: 'Langue',
     switchToEnglish: 'English',

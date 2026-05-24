@@ -18,10 +18,13 @@ export function Header() {
   const switchHref = localizeHref(pathname, lang === 'en' ? 'fr' : 'en')
 
   const links = [
-    { label: t.nav.cases, href: `${homePrefix}/#cas-clients` },
-    { label: t.nav.method, href: `${homePrefix}/#solutions` },
+    { label: t.nav.expertise, href: `${homePrefix}/#expertises` },
+    { label: t.nav.offers, href: `${homePrefix}/#offres` },
+    { label: t.nav.delivery, href: `${homePrefix}/#comment-on-livre` },
+    { label: t.nav.cases, href: `${homePrefix}/#acquis-livres` },
+    { label: t.nav.team, href: `${homePrefix}/#equipe` },
     { label: t.nav.blog, href: `${homePrefix === '' ? '/blog' : '/en/blog'}` },
-    { label: t.nav.contact, href: `${homePrefix}/#booking` },
+    { label: t.nav.contact, href: `${homePrefix}/audit-flash` },
   ]
 
   const nav = (href: string) => (e: React.MouseEvent<HTMLAnchorElement>) => {
@@ -76,7 +79,7 @@ export function Header() {
         </a>
 
         {/* Desktop Nav — Centered */}
-        <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-8 md:flex">
+        <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-5 lg:flex">
           {links.map((link) => (
             <a
               key={link.label}
@@ -90,7 +93,7 @@ export function Header() {
         </div>
 
         {/* Right CTA + language switcher */}
-        <div className="hidden items-center gap-5 md:flex">
+        <div className="hidden items-center gap-5 lg:flex">
           <a
             href={switchHref}
             className="group flex h-[32px] w-[32px] items-center justify-center rounded-full border border-[#e5e5e5] bg-white transition-all hover:border-[#ccc] hover:bg-[#f9f9f9]"
@@ -102,8 +105,7 @@ export function Header() {
             </span>
           </a>
           <a
-            href={`${homePrefix}/#booking`}
-            onClick={nav(`${homePrefix}/#booking`)}
+            href={`${homePrefix}/audit-flash`}
             className="flex h-[40px] items-center rounded-[10px] bg-black px-5 text-[14px] font-medium text-white transition-colors hover:bg-[#333]"
           >
             {t.cta}
@@ -113,7 +115,7 @@ export function Header() {
         {/* Mobile Toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center justify-center text-black md:hidden"
+          className="flex items-center justify-center text-black lg:hidden"
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label="Toggle menu"
@@ -146,8 +148,7 @@ export function Header() {
             {lang === 'en' ? t.switchToFrench : t.switchToEnglish}
           </a>
           <a
-            href={`${homePrefix}/#booking`}
-            onClick={nav(`${homePrefix}/#booking`)}
+            href={`${homePrefix}/audit-flash`}
             className="flex h-[48px] w-full items-center justify-center rounded-[10px] bg-black text-[15px] font-semibold text-white"
           >
             {t.cta}
@@ -170,7 +171,7 @@ function MobileMenu({ open, children, className, ...props }: MobileMenuProps) {
       id="mobile-menu"
       className={cn(
         'bg-white/95 supports-[backdrop-filter]:bg-white/80 backdrop-blur-lg',
-        'fixed top-[68px] right-0 bottom-0 left-0 z-40 flex flex-col overflow-hidden border-t border-[#e5e5e5] md:hidden',
+        'fixed top-[68px] right-0 bottom-0 left-0 z-40 flex flex-col overflow-hidden border-t border-[#e5e5e5] lg:hidden',
       )}
     >
       <div
@@ -186,17 +187,5 @@ function MobileMenu({ open, children, className, ...props }: MobileMenuProps) {
       </div>
     </div>,
     document.body,
-  )
-}
-
-function LucidLabIcon(props: React.ComponentProps<'svg'>) {
-  return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.5} {...props}>
-      <circle cx="12" cy="8" r="3" />
-      <circle cx="6" cy="18" r="2.5" />
-      <circle cx="18" cy="18" r="2.5" />
-      <line x1="12" y1="11" x2="6" y2="15.5" strokeOpacity={0.5} />
-      <line x1="12" y1="11" x2="18" y2="15.5" strokeOpacity={0.5} />
-    </svg>
   )
 }
