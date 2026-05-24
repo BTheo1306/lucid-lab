@@ -77,6 +77,32 @@ export const config = {
 
   // IP hashing salt — rotate periodically in production
   ipHashSalt: optionalEnv('IP_HASH_SALT', 'lucid-lab-default-salt-change-me'),
+
+  // DocuSeal
+  docusealApiKey: process.env['DOCUSEAL_API_KEY'] ?? '',
+  docusealApiBaseUrl: optionalEnv('DOCUSEAL_API_BASE_URL', 'https://api.docuseal.com'),
+  docusealWebhookSecret: process.env['DOCUSEAL_WEBHOOK_SECRET'] ?? '',
+  docusealCompletedRedirectUrl: process.env['DOCUSEAL_COMPLETED_REDIRECT_URL'] ?? '',
+  docusealSubmissionMode: optionalEnv('DOCUSEAL_SUBMISSION_MODE', 'html') as 'html' | 'pdf',
+  docusealBonDeCommandeTemplateId: process.env['DOCUSEAL_BON_DE_COMMANDE_TEMPLATE_ID'] ?? '',
+
+  // Telegram COO agent
+  telegramCooBotToken: process.env['TELEGRAM_COO_BOT_TOKEN'] ?? '',
+  telegramCooWebhookSecret: process.env['TELEGRAM_COO_WEBHOOK_SECRET'] ?? '',
+  telegramCooAllowedUserIds: process.env['TELEGRAM_COO_ALLOWED_USER_IDS'] ?? '',
+  telegramCooAllowedChatIds: process.env['TELEGRAM_COO_ALLOWED_CHAT_IDS'] ?? '',
+
+  // Google Drive
+  googleDriveClientId: process.env['GOOGLE_DRIVE_CLIENT_ID'] ?? '',
+  googleDriveClientSecret: process.env['GOOGLE_DRIVE_CLIENT_SECRET'] ?? '',
+  googleDriveRefreshToken: process.env['GOOGLE_DRIVE_REFRESH_TOKEN'] ?? '',
+  googleDriveClientEmail: process.env['GOOGLE_DRIVE_CLIENT_EMAIL'] ?? '',
+  googleDrivePrivateKey: process.env['GOOGLE_DRIVE_PRIVATE_KEY'] ?? '',
+  googleDriveImpersonatedUser: process.env['GOOGLE_DRIVE_IMPERSONATED_USER'] ?? '',
+  googleDriveRootFolderId: process.env['GOOGLE_DRIVE_ROOT_FOLDER_ID'] ?? '',
+
+  // Billing
+  billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '0.20')),
 } as const;
 
 export type Config = typeof config;
