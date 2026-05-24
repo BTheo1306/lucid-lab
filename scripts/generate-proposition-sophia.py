@@ -173,12 +173,14 @@ def add_signature_table(doc, client_name):
 
 # ── document ───────────────────────────────────────────────────────────────────
 
+LOGO = ROOT / "public" / "logo.png"
+
 doc = Document()
 
 # Page margins
 section = doc.sections[0]
-section.top_margin = Inches(1.0)
-section.bottom_margin = Inches(1.0)
+section.top_margin = Inches(0.9)
+section.bottom_margin = Inches(0.9)
 section.left_margin = Inches(1.1)
 section.right_margin = Inches(1.1)
 
@@ -186,6 +188,25 @@ section.right_margin = Inches(1.1)
 style = doc.styles["Normal"]
 style.font.name = "Inter"
 style.font.size = Pt(10)
+
+# ── Header (logo + title) ──────────────────────────────────────────────────────
+hdr = section.header
+hdr_para = hdr.paragraphs[0]
+hdr_para.alignment = WD_ALIGN_PARAGRAPH.LEFT
+run_logo = hdr_para.add_run()
+run_logo.add_picture(str(LOGO), width=Emu(266700))  # ~0.29 inch / 7.4mm
+run_txt = hdr_para.add_run("    Lucid-Lab    Proposition d'accompagnement — BSP 37")
+run_txt.font.size = Pt(8.5)
+run_txt.font.color.rgb = RGBColor.from_string("666666")
+
+# ── Footer ─────────────────────────────────────────────────────────────────────
+ftr = section.footer
+ftr_para = ftr.paragraphs[0]
+ftr_run = ftr_para.add_run(
+    "Lucid-Lab · SAS au capital de 999 € · RCS Paris 104 672 050 · TVA FR 02 104 672 050 · info@lucid-lab.fr · lucid-lab.fr"
+)
+ftr_run.font.size = Pt(8)
+ftr_run.font.color.rgb = RGBColor.from_string("999999")
 
 # ── Title block ────────────────────────────────────────────────────────────────
 p_title = doc.add_paragraph()
@@ -197,13 +218,13 @@ _run(p_client, "BSP 37 — Sophia Kanouni", bold=True)
 _set_spacing(p_client, after_emu=50800)
 
 p_sub = doc.add_paragraph()
-_run(p_sub, "Refonte du site web, gestion Meta Ads pour le film solaire et système IA Claude + Obsidian.", color_hex="666666")
+_run(p_sub, "Système IA Claude + Obsidian et refonte + maintenance du site web bsp37.com.", color_hex="666666")
 _set_spacing(p_sub, after_emu=177800)
 
 # ── Meta table ─────────────────────────────────────────────────────────────────
 add_meta_table(doc, [
     ("Client",     "BSP 37 — Sophia Kanouni"),
-    ("Date",       "22 mai 2026"),
+    ("Date",       "23 mai 2026"),
     ("Contact",    "Lucid-Lab — info@lucid-lab.fr"),
     ("Référence",  "PROP-2026-009"),
     ("Validité",   "30 jours à compter de la date d'émission"),
@@ -213,10 +234,10 @@ add_meta_table(doc, [
 add_h1(doc, "Objectif")
 add_body(doc,
     "BSP 37 est un groupement familial actif dans l'artisanat du bâtiment depuis 1989. "
-    "L'objectif de cet accompagnement est triple : moderniser la présence digitale de l'entreprise, "
-    "ouvrir un canal d'acquisition qualifié pour l'activité d'installation de film solaire via Meta Ads, "
-    "et doter Sophia d'un outil IA privé (Claude + Obsidian) pour centraliser et exploiter "
-    "la connaissance opérationnelle de l'entreprise au quotidien.",
+    "L'objectif de cet accompagnement est double : moderniser la présence digitale de l'entreprise "
+    "avec une refonte complète du site web bsp37.com, et doter Sophia d'un outil IA privé "
+    "(Claude + Obsidian) pour centraliser et exploiter la connaissance opérationnelle de BSP 37 "
+    "au quotidien.",
     space_after=177800,
 )
 
@@ -243,37 +264,22 @@ for item in [
 ]:
     add_bullet(doc, item)
 
-add_h2(doc, "Meta Ads — Film solaire")
-for item in [
-    "Création et configuration du compte Meta Ads (Facebook / Instagram).",
-    "Définition de la cible locale : zone géographique, audiences et ciblages d'intérêt.",
-    "Création d'une landing page dédiée à la génération de leads film solaire.",
-    "Gestion mensuelle des campagnes : optimisation des budgets, tests visuels, reporting mensuel.",
-    "Production de vidéos pour les campagnes : 150 € HT / vidéo (court format Reels / Stories).",
-    "Mise en place du suivi des leads : formulaire dédié + tableau de bord partagé.",
-    "Commission de 2 % HT sur les devis signés issus directement des leads Meta Ads (traçabilité UTM + déclaration mensuelle).",
-    "Note : le budget publicitaire Meta est distinct des frais de gestion — recommandation de départ : 200–400 € / mois.",
-]:
-    add_bullet(doc, item)
-
 # ── Calendrier ─────────────────────────────────────────────────────────────────
 add_h1(doc, "Calendrier")
-add_calendar(doc, "Semaine 1", "Installation Claude + Obsidian, audit du site Wix existant et brief Meta Ads.")
+add_calendar(doc, "Semaine 1", "Installation Claude + Obsidian et audit du site Wix existant.")
 add_calendar(doc, "Semaines 2–3", "Refonte du site web : structure, design, contenus et intégrations.")
-add_calendar(doc, "Semaine 4", "Mise en ligne du site, lancement des campagnes Meta Ads et landing page film solaire.")
-add_calendar(doc, "Mois 2+", "Gestion mensuelle Meta Ads, production vidéos, optimisations, reporting et évolution du site.")
+add_calendar(doc, "Semaine 4", "Mise en ligne du site et formation à la maintenance.")
+add_calendar(doc, "Mois 2+", "Maintenance mensuelle du site : mises à jour, corrections, suivi SEO et reporting.")
 
 # ── Investissement ─────────────────────────────────────────────────────────────
 add_h1(doc, "Investissement")
 add_investment_table(doc, [
-    ("Setup — IA Claude + Obsidian",           "500 € HT (installation unique)"),
-    ("Forfait mensuel — Site web + Meta Ads",  "245 € HT / mois pendant 12 mois (150 € site + 95 € Meta Ads)"),
-    ("Production vidéo",                       "150 € HT / vidéo (hors forfait, sur demande)"),
-    ("Commission performance Meta Ads",        "2 % HT sur les devis signés issus des leads Meta Ads"),
-    ("TVA (20 %)",                             "Applicable en sus des prix HT ci-dessus"),
-    ("Conditions de paiement",                 "Virement SEPA exclusivement, à l'avance — voir CGV article 5"),
-    ("Engagement (forfait mensuel)",           "Ferme et irrévocable sur 12 mois — clause pénale en cas de rupture anticipée"),
-    ("Pénalités de retard",                    "Intérêts BCE +10 pts (≈14,5 %/an) + 40 € (D. 441-5 Cciv) + 250 € par facture"),
+    ("Setup — IA Claude + Obsidian",  "500 € HT (installation unique)"),
+    ("Forfait mensuel — Site web",    "150 € HT / mois pendant 12 mois"),
+    ("TVA (20 %)",                    "Applicable en sus des prix HT ci-dessus"),
+    ("Conditions de paiement",        "Virement SEPA exclusivement, à l'avance — voir CGV article 5"),
+    ("Engagement (forfait mensuel)",  "Ferme et irrévocable sur 12 mois — clause pénale en cas de rupture anticipée"),
+    ("Pénalités de retard",           "Intérêts BCE +10 pts (≈14,5 %/an) + 40 € (D. 441-5 Cciv) + 250 € par facture"),
 ])
 
 # ── Coûts exclus ───────────────────────────────────────────────────────────────
@@ -286,8 +292,7 @@ add_body(doc,
 )
 for item in [
     "Consommations des services d'IA (jetons OpenAI, Anthropic, appels d'API, crédits de traitement) ;",
-    "Budgets publicitaires (Meta Ads, Google Ads, etc.) — vous gardez la maîtrise du débit ;",
-    "Abonnements aux outils tiers utilisés pour votre compte (hébergeur, nom de domaine, outils marketing) ;",
+    "Abonnements aux outils tiers utilisés pour votre compte (hébergeur, nom de domaine, etc.) ;",
     "Frais de déplacement éventuels, sur accord préalable écrit.",
 ]:
     add_bullet(doc, item)
@@ -307,7 +312,6 @@ add_h1(doc, "Prochaines étapes")
 for item in [
     "Confirmer la date de démarrage et le rendez-vous d'installation Claude + Obsidian.",
     "Fournir les accès au site Wix pour l'audit et le brief de refonte.",
-    "Confirmer le budget publicitaire Meta Ads mensuel.",
     "Signer le Bon de Commande et procéder au premier paiement pour démarrage.",
 ]:
     add_bullet(doc, item)
@@ -349,12 +353,12 @@ add_body(doc,
 )
 
 p_modal = doc.add_paragraph()
-_run(p_modal, "Modalité retenue : ☐ Forfait mensuel 12 mois ([245 € HT/mois] + [500 € HT setup unique]).", bold=True)
+_run(p_modal, "Modalité retenue : ☑ Setup IA (500 € HT) + Forfait mensuel 12 mois ([150 € HT/mois]).", bold=True)
 _set_spacing(p_modal, after_emu=76200)
 
 p_mention = doc.add_paragraph()
 _run(p_mention, "Mention manuscrite obligatoire : « Lu et approuvé — Bon pour accord et commande ferme — "
-     "Prix : [Total TTC] € — Modalité : [forfait mensuel 12 mois] ».", bold=True)
+     "Prix : [Total TTC] € — Modalité : [setup IA + forfait mensuel 12 mois] ».", bold=True)
 _set_spacing(p_mention, after_emu=177800)
 
 # ── Signature ──────────────────────────────────────────────────────────────────

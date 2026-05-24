@@ -14,6 +14,8 @@ from docx.oxml.ns import qn
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE_BDC = ROOT / "docs/legal-templates/source/03_Proposition-valant-Bon-de-commande-modele.docx"
 SOURCE_CTR = ROOT / "docs/legal-templates/source/04_Contrat-prestation-modele.docx"
+SOURCE_BDC_LOGO = ROOT / "docs/legal-templates/source/03_Proposition-valant-Bon-de-commande-modele-logo.docx"
+SOURCE_CTR_LOGO = ROOT / "docs/legal-templates/source/04_Contrat-prestation-modele-logo.docx"
 OUT = ROOT / "docs/legal-templates/generated"
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -22,71 +24,59 @@ OUT.mkdir(parents=True, exist_ok=True)
 CLIENTS = [
     {
         "id": "sophia-kanouni-bsp37",
+        "logo": True,
         "bdc_ref": "PROP-2026-009",
         "ctr_ref": "CTR-2026-009",
         "bc_ref": "BC-2026-009",
-        "date": "22/05/2026",
+        "date": "23/05/2026",
         "client_block_bdc": (
-            "Le Client — Sophia Kanouni, BSP 37, dont le siège social est situé Route du Coutureau, "
-            "« Le Coudray », 37120 Lémeré, France, immatriculée sous le numéro SIRET [À COMPLÉTER], "
-            "représentée par Sophia Kanouni en qualité de Gérante."
+            "Le Client — Sophia Kanouni, agissant pour le compte de BSP 37, "
+            "groupement familial dont le siège social est situé Route du Coutureau, "
+            "\"Le Coudray\", 37120 Lémeré, France, numéro SIRET [À COMPLÉTER], "
+            "représentée par Sophia Kanouni."
         ),
         "client_block_ctr": (
-            "Sophia Kanouni, BSP 37, dont le siège social est situé Route du Coutureau, "
-            "« Le Coudray », 37120 Lémeré, France, immatriculée sous le numéro SIRET [À COMPLÉTER], "
-            "représentée par Sophia Kanouni en qualité de Gérante,"
+            "Sophia Kanouni, agissant pour le compte de BSP 37, "
+            "dont le siège social est situé Route du Coutureau, \"Le Coudray\", 37120 Lémeré, France, "
+            "numéro SIRET [À COMPLÉTER], représentée par Sophia Kanouni,"
         ),
-        "interlocteur": "Sophia Kanouni — Gérante — info.bsp37@gmail.com — 06 52 22 06 82",
+        "interlocteur": "Sophia Kanouni — BSP 37",
         "lieu": "Lémeré",
-        "mission_title": "Refonte du site web bsp37.com, acquisition Meta Ads pour l'activité film solaire et installation du système IA Claude + Obsidian.",
+        "mission_title": "Système IA Claude + Obsidian et refonte + maintenance du site web bsp37.com.",
         "mission_description": (
-            "Refonte complète du site bsp37.com (remplacement du site Wix) avec intégration du catalogue produits, "
-            "galerie de réalisations et formulaires de contact, maintenance mensuelle incluse ; "
-            "création et gestion des campagnes Meta Ads (Facebook / Instagram) pour générer des leads qualifiés "
-            "sur l'activité d'installation de film solaire, avec landing page dédiée, production de vidéos courtes "
-            "et suivi des leads ; installation du système IA Claude + Obsidian sur la machine de Sophia "
-            "pour centraliser la connaissance opérationnelle de BSP 37."
+            "Installation et configuration d'un système IA privé (Claude + Obsidian) pour centraliser "
+            "la connaissance opérationnelle de BSP 37, formation à la routine d'utilisation, "
+            "et refonte complète du site web bsp37.com avec maintenance mensuelle."
         ),
-        "livrable_1": "Site web bsp37.com refait : catalogue, galerie, formulaires, déploiement + maintenance mensuelle incluse.",
-        "livrable_2": "Campagnes Meta Ads film solaire : compte Ads, landing page, gestion mensuelle, reporting et suivi leads.",
-        "livrable_3": "Système IA Claude + Obsidian installé et configuré : vault BSP 37, ingestion initiale, guides Lucid-Lab + formation.",
-        "calendrier": "Démarrage à compter de la signature et réception du premier paiement (setup IA).",
-        "prix_ht": "3 440,00 € (500 € setup + 12 × 245,00 €)",
-        "tva": "688,00 €",
-        "prix_ttc": "4 128,00 € (hors vidéos et commission performance)",
-        "modalite": (
-            "☑ Setup IA Claude + Obsidian — 500,00 € HT / 600,00 € TTC — versement unique avant démarrage\n"
-            "☑ Abonnement 12 mois — 245,00 € HT / 294,00 € TTC / mois (site web + gestion Meta Ads)\n"
-            "☐ Vidéos Reels/Stories — 150,00 € HT / 180,00 € TTC / vidéo, à la commande\n"
-            "☐ Commission performance — 2 % HT sur devis signés issus des leads Meta Ads"
-        ),
-        "echeancier": "600,00 € TTC à la signature + 294,00 € TTC × 12 mois",
-        "ref_client_rib": "BC-2026-009 / BSP 37 — Sophia Kanouni",
-        "prop_ref_ctr": "PROP-2026-009 — BSP 37 / Sophia Kanouni — 22/05/2026",
+        "livrable_1": "Vault Obsidian BSP 37 configuré + Claude opérationnel + guide d'installation et d'utilisation Lucid-Lab.",
+        "livrable_2": "Site web bsp37.com refondu sur technologie moderne : catalogue, galerie, services, formulaires, déploiement.",
+        "livrable_3": "Maintenance mensuelle du site : mises à jour, corrections, suivi SEO et performances.",
+        "calendrier": "Démarrage à compter de la signature et réception du premier paiement.",
+        "prix_ht": "2 300,00 € (500 € setup IA + 12 × 150,00 €)",
+        "tva": "460,00 €",
+        "prix_ttc": "2 760,00 €",
+        "modalite": "☑ Setup IA (500 € HT / 600 € TTC) + Mensuel 12 mois — engagement ferme",
+        "echeancier": "600,00 € TTC (setup IA, avant démarrage) + 180,00 € TTC × 12 mois",
+        "ref_client_rib": "BC-2026-009 / BSP 37",
+        "prop_ref_ctr": "PROP-2026-009 — BSP 37 — 23/05/2026",
         "perimetre_ctr": (
-            "Refonte complète du site bsp37.com sur technologie moderne (remplacement du site Wix actuel) : "
-            "pages catalogue produits (bâche / sellerie / store, impression numérique, objets personnalisés), "
-            "galerie de réalisations, formulaires de contact, déploiement sur le domaine bsp37.com, "
-            "maintenance mensuelle incluse (mises à jour, corrections, suivi SEO) ; "
-            "création du compte Meta Ads (Facebook / Instagram), ciblage local, création d'une landing page dédiée "
-            "à la génération de leads film solaire, gestion mensuelle des campagnes (optimisation, reporting), "
-            "production de vidéos courtes Reels/Stories (150 € HT / vidéo, à la commande), "
-            "mise en place d'un suivi des leads avec commission de 2 % HT sur devis signés traçables ; "
-            "installation et configuration d'Obsidian + Claude Code sur la machine de Sophia, "
-            "création du vault BSP 37, ingestion initiale des sources clés, formation à la routine "
-            "hebdomadaire, remise des guides Lucid-Lab."
+            "installation et configuration d'Obsidian + Claude sur la machine de la cliente, "
+            "création d'un vault BSP 37 dédié (processus, fournisseurs, catalogue, réalisations), "
+            "session d'ingestion initiale et formation à la routine hebdomadaire d'utilisation ; "
+            "refonte complète du site web bsp37.com (audit du site Wix existant, développement sur technologie moderne, "
+            "intégration du catalogue produits, galerie de réalisations, pages de services et formulaires de contact, "
+            "déploiement et configuration du nom de domaine) ; "
+            "maintenance mensuelle du site (mises à jour, corrections, suivi des performances SEO)."
         ),
         "hors_perimetre": (
-            "toute prestation non explicitement listée dans la Proposition Commerciale, notamment le budget "
-            "publicitaire Meta Ads (géré et réglé directement par le Client auprès de Meta), "
-            "la refonte de l'identité visuelle ou du logo, la création de contenus textuels ou photographiques "
-            "en dehors des vidéos commandées, et toute extension de l'activité film solaire à d'autres "
-            "canaux non prévus (Google Ads, SEA, etc.)."
+            "toute prestation non explicitement listée dans la Proposition Commerciale, notamment la gestion "
+            "de campagnes publicitaires, la production de contenus vidéo, toute intégration supplémentaire non prévue "
+            "et les coûts d'hébergement ou d'abonnements tiers."
         ),
-        "prix_ht_ctr": "3 440,00 €",
-        "tva_ctr": "688,00 €",
-        "prix_ttc_ctr": "4 128,00 €",
-        "mensualite_ttc": "294,00 €",
+        "prix_ht_ctr": "2 300,00 €",
+        "tva_ctr": "460,00 €",
+        "prix_ttc_ctr": "2 760,00 €",
+        "mensualite_ttc": "180,00 €",
     },
     {
         "id": "clement-sinibaldi",
@@ -236,7 +226,8 @@ def replace_in_doc(doc: Document, replacements: dict[str, str]):
 # ─── Document generators ──────────────────────────────────────────────────────
 
 def build_bdc(client: dict) -> Path:
-    doc = Document(str(SOURCE_BDC))
+    src = SOURCE_BDC_LOGO if client.get("logo") else SOURCE_BDC
+    doc = Document(str(src))
     replacements = {
         "PROP-[NUMÉRO]": client["bdc_ref"],
         "[JJ/MM/AAAA]": client["date"],
@@ -279,7 +270,8 @@ def build_bdc(client: dict) -> Path:
 
 
 def build_ctr(client: dict) -> Path:
-    doc = Document(str(SOURCE_CTR))
+    src = SOURCE_CTR_LOGO if client.get("logo") else SOURCE_CTR
+    doc = Document(str(src))
     replacements = {
         "CTR-[NUMÉRO]": client["ctr_ref"],
         "[JJ/MM/AAAA]": client["date"],

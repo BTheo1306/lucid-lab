@@ -6,11 +6,11 @@ import { cn } from '@/lib/utils';
 export type LeadEngineTabId = 'overview' | 'prospects' | 'campaigns' | 'runs' | 'outreach';
 
 const leadEngineTabs: Array<{ id: LeadEngineTabId; href: string; label: string; icon: ComponentType<{ className?: string }> }> = [
-  { id: 'overview', href: '/admin/lucid-os/growth', label: 'Overview', icon: BarChart3 },
-  { id: 'prospects', href: '/admin/lucid-os/growth/prospects', label: 'Prospects', icon: Search },
-  { id: 'campaigns', href: '/admin/lucid-os/growth/campaigns', label: 'Campaigns', icon: FileText },
-  { id: 'runs', href: '/admin/lucid-os/growth/runs', label: 'Runs', icon: PlayCircle },
-  { id: 'outreach', href: '/admin/lucid-os/growth/outreach', label: 'Outreach', icon: MessageSquare },
+  { id: 'overview', href: '/admin/lead-engine', label: 'Overview', icon: BarChart3 },
+  { id: 'prospects', href: '/admin/lead-engine/prospects', label: 'Prospects', icon: Search },
+  { id: 'campaigns', href: '/admin/lead-engine/campaigns', label: 'Campaigns', icon: FileText },
+  { id: 'runs', href: '/admin/lead-engine/runs', label: 'Runs', icon: PlayCircle },
+  { id: 'outreach', href: '/admin/lead-engine/outreach', label: 'Outreach', icon: MessageSquare },
 ];
 
 export function LeadEngineHeader({

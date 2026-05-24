@@ -1,8 +1,6 @@
 /**
  * Lucid-Lab chat bot configuration.
- * Reads from process.env at module load time.
- * Required vars throw at runtime if missing; during Next.js build phase the
- * Supabase client creation is guarded in supabase.ts.
+ * Reads from process.env at module load time. Throws if required vars missing.
  */
 
 function requiredEnv(name: string): string {
@@ -22,10 +20,9 @@ export const config = {
   // Runtime
   nodeEnv: optionalEnv('NODE_ENV', 'development'),
 
-  // Supabase — lazy getters so this module can be imported at Next.js build time
-  // without throwing (Vercel injects runtime secrets only at runtime).
-  get supabaseUrl(): string { return requiredEnv('SUPABASE_URL'); },
-  get supabaseServiceRoleKey(): string { return process.env['SUPABASE_SERVICE_ROLE_KEY'] || requiredEnv('SUPABASE_SECRET_KEY'); },
+  // Supabase
+  supabaseUrl: requiredEnv('SUPABASE_URL'),
+  supabaseServiceRoleKey: requiredEnv('SUPABASE_SERVICE_ROLE_KEY'),
 
   // AI provider
   aiProvider: optionalEnv('AI_PROVIDER', 'anthropic') as
@@ -67,33 +64,6 @@ export const config = {
   // Admin + cron
   adminApiKey: process.env['ADMIN_API_KEY'] ?? '',
   cronSecret: process.env['CRON_SECRET'] ?? '',
-
-  // Telegram COO agent
-  telegramCooBotToken: process.env['TELEGRAM_COO_BOT_TOKEN'] ?? '',
-  telegramCooWebhookSecret: process.env['TELEGRAM_COO_WEBHOOK_SECRET'] ?? '',
-  telegramCooAllowedUserIds: process.env['TELEGRAM_COO_ALLOWED_USER_IDS'] ?? '',
-  telegramCooAllowedChatIds: process.env['TELEGRAM_COO_ALLOWED_CHAT_IDS'] ?? '',
-
-  // DocuSeal document automation
-  docusealApiBaseUrl: process.env['DOCUSEAL_API_BASE_URL'] ?? '',
-  docusealApiKey: process.env['DOCUSEAL_API_KEY'] ?? '',
-  docusealWebhookSecret: process.env['DOCUSEAL_WEBHOOK_SECRET'] ?? '',
-  docusealBonDeCommandeTemplateId: process.env['DOCUSEAL_BON_DE_COMMANDE_TEMPLATE_ID'] ?? '',
-  docusealCompletedRedirectUrl: process.env['DOCUSEAL_COMPLETED_REDIRECT_URL'] ?? '',
-  docusealSubmissionMode: optionalEnv('DOCUSEAL_SUBMISSION_MODE', 'template') as 'template' | 'html',
-
-  // Google Drive document archive — service account (legacy)
-  googleDriveClientEmail: process.env['GOOGLE_DRIVE_CLIENT_EMAIL'] ?? process.env['GOOGLE_DRIVE_SERVICE_ACCOUNT_EMAIL'] ?? '',
-  googleDrivePrivateKey: process.env['GOOGLE_DRIVE_PRIVATE_KEY'] ?? process.env['GOOGLE_DRIVE_SERVICE_ACCOUNT_PRIVATE_KEY'] ?? '',
-  googleDriveImpersonatedUser: process.env['GOOGLE_DRIVE_IMPERSONATED_USER'] ?? '',
-  googleDriveRootFolderId: process.env['GOOGLE_DRIVE_ROOT_FOLDER_ID'] ?? '',
-  // Google Drive document archive — OAuth2 (preferred)
-  googleDriveClientId: process.env['GOOGLE_DRIVE_CLIENT_ID'] ?? '',
-  googleDriveClientSecret: process.env['GOOGLE_DRIVE_CLIENT_SECRET'] ?? '',
-  googleDriveRefreshToken: process.env['GOOGLE_DRIVE_REFRESH_TOKEN'] ?? '',
-
-  // Billing defaults
-  billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '20')),
 
   // Budget + rate limit
   dailyAiBudgetEur: parseFloat(optionalEnv('DAILY_AI_BUDGET_EUR', '5')),

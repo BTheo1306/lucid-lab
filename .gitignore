@@ -32,7 +32,6 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
-!.env.example
 
 # vercel
 .vercel
@@ -47,6 +46,3 @@ next-env.d.ts
 
 # Local Lead Engine sandbox data
 .lead-engine-sandbox/
-
-# Supabase CLI local metadata
-supabase/.temp/

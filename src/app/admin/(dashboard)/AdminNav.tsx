@@ -1,212 +1,42 @@
 'use client';
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import type { ComponentType } from 'react';
-import {
-  Activity,
-  BarChart3,
-  Bot,
-  Brain,
-  Building2,
-  CalendarClock,
-  ChevronDown,
-  ClipboardList,
-  Compass,
-  FileText,
-  FolderKanban,
-  Globe2,
-  History,
-  Inbox,
-  MessageSquare,
-  MonitorCheck,
-  Search,
-  Users,
-} from 'lucide-react';
+import { BarChart3, CalendarClock, FileText, MessageSquare, Search, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-type NavItem = {
-  href: string;
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-  exact?: boolean;
-  activePaths?: string[];
-};
-
-type NavSection = {
-  id: string;
-  label: string;
-  icon: ComponentType<{ className?: string }>;
-  defaultOpen?: boolean;
-  items: NavItem[];
-};
-
-const primaryItems: NavItem[] = [
-  { href: '/admin/lucid-os', label: 'Tableau de bord', icon: BarChart3, exact: true, activePaths: ['/admin'] },
-  { href: '/admin/lucid-os/inbox', label: 'Actions', icon: Inbox },
+const navItems = [
+  { href: '/admin', label: 'Overview', icon: BarChart3, exact: true },
+  { href: '/admin/lead-engine', label: 'Lead Engine', icon: Search },
+  { href: '/admin/leads', label: 'Leads', icon: Users },
+  { href: '/admin/conversations', label: 'Conversations', icon: MessageSquare },
+  { href: '/admin/bookings', label: 'Bookings', icon: CalendarClock },
+  { href: '/admin/blog', label: 'Blog', icon: FileText },
 ];
-
-const navSections: NavSection[] = [
-  {
-    id: 'crm',
-    label: 'CRM',
-    icon: Users,
-    defaultOpen: true,
-    items: [
-      { href: '/admin/lucid-os/crm/clients', label: 'Fiches clients', icon: Building2, activePaths: ['/admin/lucid-os/clients'] },
-      { href: '/admin/lucid-os/crm/clients#prospects', label: 'Prospects', icon: Users },
-    ],
-  },
-  {
-    id: 'growth',
-    label: 'Croissance',
-    icon: Search,
-    items: [
-      { href: '/admin/lucid-os/growth', label: 'Moteur de leads', icon: Search, exact: true, activePaths: ['/admin/lead-engine'] },
-      { href: '/admin/lucid-os/growth/prospects', label: 'Prospects', icon: Users, activePaths: ['/admin/lead-engine/prospects'] },
-      { href: '/admin/lucid-os/growth/campaigns', label: 'Campagnes', icon: ClipboardList, activePaths: ['/admin/lead-engine/campaigns'] },
-      { href: '/admin/lucid-os/growth/outreach', label: 'Prospection', icon: MessageSquare, activePaths: ['/admin/lead-engine/outreach'] },
-      { href: '/admin/lucid-os/growth/leads', label: 'Anciens leads', icon: Users, activePaths: ['/admin/leads'] },
-      { href: '/admin/lucid-os/growth/runs', label: 'Exécutions', icon: Activity, activePaths: ['/admin/lead-engine/runs'] },
-    ],
-  },
-  {
-    id: 'delivery',
-    label: 'Production',
-    icon: FolderKanban,
-    items: [
-      { href: '/admin/lucid-os/delivery/projects', label: 'Projets', icon: FolderKanban },
-      { href: '/admin/lucid-os/delivery/websites', label: 'Sites web', icon: Globe2 },
-      { href: '/admin/lucid-os/delivery/monitoring', label: 'Monitoring', icon: MonitorCheck },
-    ],
-  },
-  {
-    id: 'operations',
-    label: 'Opérations',
-    icon: Compass,
-    items: [
-      { href: '/admin/lucid-os/ops/conversations', label: 'Conversations bot', icon: MessageSquare, activePaths: ['/admin/conversations', '/admin/contacts'] },
-      { href: '/admin/lucid-os/ops/bookings', label: 'Rendez-vous', icon: CalendarClock, activePaths: ['/admin/bookings'] },
-    ],
-  },
-  {
-    id: 'agents',
-    label: 'Agents',
-    icon: Bot,
-    items: [
-      { href: '/admin/lucid-os/agents', label: 'Agents', icon: Bot },
-      { href: '/admin/lucid-os/inbox', label: 'Validations', icon: Inbox },
-    ],
-  },
-  {
-    id: 'knowledge',
-    label: 'Connaissance',
-    icon: Brain,
-    items: [
-      { href: '/admin/lucid-os/knowledge', label: 'Base de connaissance', icon: Brain },
-    ],
-  },
-  {
-    id: 'content',
-    label: 'Contenu',
-    icon: FileText,
-    items: [
-      { href: '/admin/lucid-os/content/blog', label: 'Blog', icon: FileText, activePaths: ['/admin/blog'] },
-    ],
-  },
-  {
-    id: 'system',
-    label: 'Système',
-    icon: History,
-    items: [
-      { href: '/admin/lucid-os/system/audit', label: 'Journal d’audit', icon: History },
-    ],
-  },
-];
-
-function pathIsActive(pathname: string, item: NavItem): boolean {
-  const candidates = [item.href, ...(item.activePaths ?? [])];
-
-  return candidates.some((candidate) => {
-    if (item.exact) return pathname === candidate;
-    return pathname === candidate || pathname.startsWith(`${candidate}/`);
-  });
-}
-
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
-  const Icon = item.icon;
-
-  return (
-    <Link
-      href={item.href}
-      className={cn(
-        'group flex h-8 items-center gap-2 rounded-md px-2.5 text-[13px] font-medium transition-colors',
-        active
-          ? 'bg-[#17171a] text-zinc-50 ring-1 ring-white/10'
-          : 'text-zinc-500 hover:bg-[#121215] hover:text-zinc-100',
-      )}
-    >
-      <Icon className={cn('size-3.5 shrink-0', active ? 'text-[#60a5fa]' : 'text-zinc-600 group-hover:text-zinc-300')} />
-      <span className="truncate">{item.label}</span>
-    </Link>
-  );
-}
 
 export function AdminNav() {
   const pathname = usePathname();
-  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
-
-  function toggleGroup(sectionId: string) {
-    setOpenGroups((current) => ({
-      ...current,
-      [sectionId]: !(current[sectionId] ?? navSections.find((section) => section.id === sectionId)?.defaultOpen ?? false),
-    }));
-  }
 
   return (
-    <nav className="mt-7 grid gap-6 text-sm">
-      <div className="grid gap-1">
-        {primaryItems.map((item) => (
-          <NavLink key={item.href} item={item} active={pathIsActive(pathname, item)} />
-        ))}
-      </div>
+    <nav className="mt-7 grid gap-1 text-sm">
+      {navItems.map((item) => {
+        const Icon = item.icon;
+        const isActive = item.exact ? pathname === item.href : pathname.startsWith(item.href);
 
-      <div className="grid gap-4">
-        {navSections.map((section) => {
-          const SectionIcon = section.icon;
-          const sectionIsActive = section.items.some((item) => pathIsActive(pathname, item));
-          const sectionIsOpen = sectionIsActive || (openGroups[section.id] ?? section.defaultOpen ?? false);
-
-          return (
-            <div key={section.id} className="grid gap-1">
-              <button
-                type="button"
-                onClick={() => toggleGroup(section.id)}
-                className={cn(
-                  'flex h-7 items-center justify-between gap-2 rounded-md px-2 text-[11px] font-semibold uppercase tracking-[0.12em] transition-colors',
-                  sectionIsActive ? 'text-zinc-200' : 'text-zinc-600 hover:bg-[#101013] hover:text-zinc-300',
-                )}
-                aria-expanded={sectionIsOpen}
-              >
-                <span className="flex min-w-0 items-center gap-2">
-                  <SectionIcon className="size-3 shrink-0" />
-                  <span className="truncate">{section.label}</span>
-                </span>
-                <ChevronDown className={cn('size-3 shrink-0 transition-transform', sectionIsOpen && 'rotate-180')} />
-              </button>
-
-              {sectionIsOpen ? (
-                <div className="grid gap-1">
-                  {section.items.map((item) => (
-                    <NavLink key={item.href} item={item} active={pathIsActive(pathname, item)} />
-                  ))}
-                </div>
-              ) : null}
-            </div>
-          );
-        })}
-      </div>
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              'flex items-center gap-2 rounded-lg px-3 py-2 transition-colors',
+              isActive ? 'bg-zinc-950 text-white' : 'text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950',
+            )}
+          >
+            <Icon className="size-4" />
+            {item.label}
+          </Link>
+        );
+      })}
     </nav>
   );
 }
