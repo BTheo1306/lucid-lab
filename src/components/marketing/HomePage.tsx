@@ -80,9 +80,9 @@ const content = {
       ],
     },
     problems: {
-      title: 'Les blocages arrivent avant le modèle.',
+      title: 'Le succès d\'un projet IA se joue avant la première ligne de code.',
       subtitle:
-        'Vous avez des idées IA, des exports, des outils et des équipes pressées. Lucid-Lab transforme ce matériau en chantier priorisé.',
+        'Nous transformons vos processus manuels et vos données fragmentées en une infrastructure intelligente, scalable et sécurisée.',
       items: [
         ['Idées IA dispersées', 'Les métiers listent des cas d’usage, mais personne ne score valeur, faisabilité et risque.'],
         ['Workflows manuels', 'Les équipes copient, recollent, consolident et vérifient les mêmes données chaque semaine.'],
@@ -317,9 +317,9 @@ const content = {
       ],
     },
     problems: {
-      title: 'The blockers arrive before the model.',
+      title: 'AI success is determined before the first line of code.',
       subtitle:
-        'You have AI ideas, exports, tools and busy teams. Lucid-Lab turns that raw material into a ranked build plan.',
+        'We transform your manual processes and fragmented data into intelligent, scalable, and secure infrastructure.',
       items: [
         ['Scattered AI ideas', 'Teams list use cases, but no one scores value, feasibility and risk.'],
         ['Manual workflows', 'People copy, paste, consolidate and check the same data each week.'],
@@ -1077,40 +1077,42 @@ function Cases({ lang }: { lang: Locale }) {
   const t = content[lang].cases
 
   return (
-    <Section id="acquis-livres" tone="gray">
+    <Section id="acquis-livres" tone="paper">
       <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
-      <div className="mt-8 grid gap-5 lg:grid-cols-3">
+      
+      <div className="mt-10 flex flex-col">
         {t.items.map((item, idx) => (
-          <motion.article 
+          <motion.div 
             key={item.title} 
-            className="rounded-[8px] border p-6 flex flex-col justify-between hover:shadow-xs hover:scale-[1.015] transition-all duration-300 bg-white" 
+            className="group flex flex-col md:flex-row md:items-center justify-between gap-6 py-6 border-t first:border-0" 
             style={{ borderColor: GRAY_200 }}
-            initial={{ opacity: 0, y: 12 }}
+            initial={{ opacity: 0, y: 15 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4, delay: idx * 0.1 }}
           >
-            <div>
-              <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#8a8276] mb-2">// Impact mesuré</div>
-              <p className="text-[18px] md:text-[20px] font-extrabold tracking-tight text-stone-950 leading-tight">
+            <div className="md:w-1/2">
+              <h3 className="text-[18px] font-bold text-stone-900 tracking-tight">{item.title}</h3>
+              <p className="mt-2 text-[14px] leading-relaxed text-stone-600">
+                {item.body}
+              </p>
+            </div>
+            
+            <div className="md:w-1/3 flex flex-col md:items-end md:text-right">
+              <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276] mb-1.5">// Impact</div>
+              <p className="text-[22px] font-extrabold tracking-tight text-stone-900">
                 {item.metric}
               </p>
-              
-              <div className="mt-6">
-                <h3 className="text-[14px] font-bold tracking-tight text-stone-900 leading-snug">{item.title}</h3>
-                <p className="mt-2 text-[12.5px] leading-[1.5] text-stone-600 font-normal">
-                  {item.body}
-                </p>
-              </div>
             </div>
-          </motion.article>
+          </motion.div>
         ))}
       </div>
-      <div className="mt-6 border-t pt-4 flex justify-between items-center" style={{ borderColor: GRAY_200 }}>
-        <span className="text-[11px] font-mono text-[#8a8276]">// Cas d'études réels</span>
+      
+      <div className="mt-8 border-t pt-5 flex justify-between items-center" style={{ borderColor: GRAY_200 }}>
+        <span className="text-[11px] font-mono text-[#8a8276]">// Anonymisés sur demande</span>
         <TextLink href={routeMap[lang].cases}>{lang === 'en' ? 'Open client cases' : 'Voir les cas clients'}</TextLink>
       </div>
     </Section>
@@ -1122,36 +1124,43 @@ function Enterprise({ lang }: { lang: Locale }) {
 
   return (
     <Section id="enterprise-readiness" tone="ink">
-      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-        <SectionTitle light>{t.title}</SectionTitle>
-        <SectionLede light>{t.subtitle}</SectionLede>
+      <div className="relative">
+        {/* Subtle glow effect behind the section */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-3xl h-full blur-[120px] bg-white/5 opacity-40 pointer-events-none" />
+        
+        <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-start relative z-10">
+          <div className="lg:sticky lg:top-32 max-w-md">
+            <SectionTitle light>{t.title}</SectionTitle>
+            <SectionLede light>{t.subtitle}</SectionLede>
+          </div>
+          
+          <ul className="grid gap-x-8 gap-y-10 sm:grid-cols-2 lg:mt-0 mt-10">
+            {t.items.map((item, index) => {
+              const Icon = readinessIcons[index] ?? ShieldCheck
+              return (
+                <motion.li 
+                  key={item.title} 
+                  className="flex flex-col gap-3 group" 
+                  initial={{ opacity: 0, y: 10 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.05 }}
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="flex items-center justify-center size-8 rounded-[6px] bg-white/5 border border-white/10 group-hover:bg-white/10 transition-colors duration-300">
+                      <Icon className="size-3.5" strokeWidth={2} style={{ color: EMBER }} aria-hidden />
+                    </div>
+                    <h4 className="text-[15px] font-semibold text-[#EEEEEE] tracking-tight">{item.title}</h4>
+                  </div>
+                  <p className="text-[13px] leading-[1.6] text-[#A1A1AA]">
+                    {item.description}
+                  </p>
+                </motion.li>
+              )
+            })}
+          </ul>
+        </div>
       </div>
-      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        {t.items.map((item, index) => {
-          const Icon = readinessIcons[index] ?? ShieldCheck
-          return (
-            <motion.li 
-              key={item.title} 
-              className="flex flex-col gap-2.5 p-5 rounded-[8px] border transition-all duration-300 hover:border-white/20 bg-[#141414] hover:bg-[#181818]" 
-              style={{ borderColor: 'rgba(255,255,255,0.06)' }}
-              initial={{ opacity: 0, y: 15 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.4, delay: index * 0.05 }}
-            >
-              <div className="flex items-center gap-2">
-                <div className="p-1 rounded bg-[#E5E5E5]/10 border border-white/5 shrink-0 flex items-center justify-center">
-                  <Icon className="size-3.5 shrink-0" strokeWidth={1.8} style={{ color: EMBER }} aria-hidden />
-                </div>
-                <h4 className="text-[13.5px] font-bold text-white tracking-tight">{item.title}</h4>
-              </div>
-              <p className="text-[12px] leading-[1.45] text-stone-400 font-normal">
-                {item.description}
-              </p>
-            </motion.li>
-          )
-        })}
-      </ul>
     </Section>
   )
 }
