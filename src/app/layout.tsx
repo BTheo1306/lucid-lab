@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Figtree } from "next/font/google";
+import { Figtree, Syne } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AdminAwareChatWidget } from "@/components/chat-widget/AdminAwareChatWidget";
@@ -8,6 +8,13 @@ import "./globals.css";
 const fontSans = Figtree({
   variable: "--font-figtree",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const fontSyne = Syne({
+  variable: "--font-syne",
+  subsets: ["latin"],
+  weight: ["700", "800"],
   display: "swap",
 });
 
@@ -138,7 +145,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${fontSans.variable} antialiased`}
+      className={`${fontSans.variable} ${fontSyne.variable} antialiased`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
