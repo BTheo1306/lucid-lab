@@ -179,49 +179,64 @@ const content = {
       ],
     },
     cases: {
-      title: 'Cas clients et livrables.',
+      title: 'Cas d\'étude.',
       subtitle:
-        'Les exemples restent anonymisés quand le client le demande. La structure reste lisible : contexte, système livré, effet métier.',
+        'Exemples concrets de déploiements opérationnels et d\'impacts d\'automatisation mesurables.',
       items: [
         {
-          context: 'PME services, finance',
-          title: 'Reporting finance automatisé',
-          problem: 'La DAF consolidait exports ERP et fichiers Excel avant chaque comité.',
-          system: ['Extraction compta', 'Pack reporting généré', 'Alertes écarts budget', 'Envoi automatique'],
-          metric: 'Clôture passée de 4 jours à 2 h',
-          remains: 'Code, documentation, monitoring et procédure de reprise livrés au client.',
+          title: 'Automatisation du Reporting Financier',
+          metric: 'Clôture de 4 jours à 2 heures',
+          body: 'Génération automatisée des rapports consolidés depuis l\'ERP et Excel, avec processus d\'alerte budget et contrôles d\'intégrité.',
         },
         {
-          context: 'Cabinet de services, 80 collaborateurs',
-          title: 'Assistant interne de connaissance',
-          problem: 'Les réponses vivaient dans SharePoint, Notion, Drive et quelques messages Slack.',
-          system: ['Assistant web et Slack', 'Réponses sourcées', 'Permissions par groupe', 'Dashboard usage'],
-          metric: 'Environ 600 requêtes par mois',
-          remains: 'Assistant en production, sources documentées et règles d’accès transférées.',
+          title: 'Assistant de Connaissances Pratiques',
+          metric: '600+ requêtes résolues / mois',
+          body: 'Mise en place d\'une base documentaire intelligente connectée à Slack pour supprimer la recherche manuelle d\'informations.',
         },
         {
-          context: 'B2B SaaS, acquisition',
-          title: 'Qualification leads et support',
-          problem: 'L’équipe triait les demandes entrantes et perdait des signaux dans le CRM.',
-          system: ['Scoring ICP', 'Routage automatique', 'Pré-remplissage CRM', 'Contrôle humain'],
-          metric: '95 % des leads routés en moins de 5 min',
-          remains: 'Agent, intégration CRM, logs et tableau de suivi restent côté client.',
+          title: 'Qualification & Routage de Contacts',
+          metric: 'Qualifiés et routés en < 5 min',
+          body: 'Architecture automatisée de scoring de prospects et synchronisation des fiches CRM avec doublure de contrôle humain.',
         },
       ],
     },
     enterprise: {
-      title: 'Les sujets sérieux entrent dans le build.',
+      title: 'Standards industriels pour la production.',
       subtitle:
-        'Une direction ou une DSI doit voir les risques avant la mise en production. On traite ces points dès l’architecture.',
+        'Le passage à l\'échelle impose une conformité rigoureuse. Nous traitons la sécurité, la gouvernance de données et l\'opérabilité à la source.',
       items: [
-        'RGPD et données personnelles',
-        'Droits d’accès et permissions',
-        'Hébergement et infrastructure EU',
-        'Documentation et runbooks',
-        'Monitoring coût, usage, latence, qualité',
-        'Transfert de propriété',
-        'Formation et adoption',
-        'Gouvernance IA',
+        {
+          title: 'Conformité RGPD',
+          description: 'Anonymisation des flux utilisateurs, hébergement conforme et politique stricte de non-conservation des secrets.'
+        },
+        {
+          title: 'Gestion des Accès',
+          description: 'Mise en place de rôles (RBAC) pour limiter l\'accès aux bases de données et contrôle strict des tokens API.'
+        },
+        {
+          title: 'Infrastructure Européenne',
+          description: 'Hébergement et transit des données basés en Europe (généralement Supabase et Cloudflare) pour une parfaite souveraineté.'
+        },
+        {
+          title: 'Documentation & Runs',
+          description: 'Remise systématique de runbooks opérationnels, schémas d\'architecture et consignes de reprise sur incident.'
+        },
+        {
+          title: 'Suivi des Coûts & Métriques',
+          description: 'Supervision de la consommation (tokens), de la latence, du taux de succès et de la dérive de qualité des modèles.'
+        },
+        {
+          title: 'Propriété Intellectuelle',
+          description: 'Transfert de propriété à 100% de l\'ensemble du code source, de la configuration Cloud et des bases de données.'
+        },
+        {
+          title: 'Adoption et Transfert',
+          description: 'Sessions de formation technique et ateliers pratiques pour garantir l\'autonomie complète de vos équipes internes.'
+        },
+        {
+          title: 'Sécurité de l\'IA',
+          description: 'Audit et limitation des hallucinations via des garde-fous stricts, des schémas d\'évaluation de prompt et du contrôle humain.'
+        }
       ],
     },
     resources: {
@@ -401,49 +416,64 @@ const content = {
       ],
     },
     cases: {
-      title: 'Client cases and deliverables.',
+      title: 'Case studies.',
       subtitle:
-        'Examples stay anonymized when the client asks. The structure remains clear: context, delivered system, business effect.',
+        'Concrete examples of operational deployments and measurable business impact.',
       items: [
         {
-          context: 'Services SME, finance',
-          title: 'Automated finance reporting',
-          problem: 'The finance team consolidated ERP exports and Excel files before each committee.',
-          system: ['Accounting extraction', 'Generated reporting pack', 'Budget variance alerts', 'Automatic delivery'],
-          metric: 'Close moved from 4 days to 2 h',
-          remains: 'Code, documentation, monitoring and recovery procedure delivered to the client.',
+          title: 'Financial Reporting Automation',
+          metric: 'Close from 4 days to 2 hours',
+          body: 'Automated consolidated reporting from ERP and Excel, with real-time budget alerts and deep integrity checks.',
         },
         {
-          context: 'Services firm, 80 people',
-          title: 'Internal knowledge assistant',
-          problem: 'Answers lived in SharePoint, Notion, Drive and scattered Slack messages.',
-          system: ['Web and Slack assistant', 'Sourced answers', 'Group permissions', 'Usage dashboard'],
-          metric: 'Around 600 queries per month',
-          remains: 'Production assistant, documented sources and access rules transferred.',
+          title: 'Knowledge Base Assistant',
+          metric: '600+ queries resolved / month',
+          body: 'Deploying an intelligent company knowledge base integrated into Slack to eliminate manual information lookup.',
         },
         {
-          context: 'B2B SaaS, acquisition',
-          title: 'Lead qualification and support',
-          problem: 'The team sorted inbound requests and lost signals in the CRM.',
-          system: ['ICP scoring', 'Automatic routing', 'CRM pre-fill', 'Human control'],
-          metric: '95% of leads routed in under 5 min',
-          remains: 'Agent, CRM integration, logs and tracking dashboard stay client-side.',
+          title: 'Lead Scoring & Intake Routing',
+          metric: 'Inbound leads routed in < 5 min',
+          body: 'Automated prospect qualification workflows, CRM profile pre-fills, with human oversight fallback.',
         },
       ],
     },
     enterprise: {
-      title: 'Serious topics enter the build.',
+      title: 'Enterprise standards for production.',
       subtitle:
-        'A leader or IT team needs to see risks before production. We treat these points in the architecture, not after launch.',
+        'Scaling up requires absolute compliance rigor. We treat security, data governance, and reliability directly at the source.',
       items: [
-        'GDPR and personal data',
-        'Access rights and permissions',
-        'EU hosting and infrastructure',
-        'Documentation and runbooks',
-        'Cost, usage, latency and quality monitoring',
-        'Ownership transfer',
-        'Training and adoption',
-        'AI governance',
+        {
+          title: 'GDPR Compliance',
+          description: 'Anonymization of user flows, strict compliance on storage policies, and secure API data boundaries.'
+        },
+        {
+          title: 'Access Management',
+          description: 'Role-based access controls (RBAC) to guard production databases and restrict sensitive API credentials.'
+        },
+        {
+          title: 'European Infrastructure',
+          description: 'EU-neutral data hosting and communication (using secure Supabase/Cloudflare components) for sovereign compliance.'
+        },
+        {
+          title: 'Documentation & Runbooks',
+          description: 'Systematic delivery of operating manuals, precise API mapping schemes, and technical incident runbooks.'
+        },
+        {
+          title: 'Cost & SLA Monitoring',
+          description: 'Active monitoring of model latency, token budgets, success counts, and prompt drift values.'
+        },
+        {
+          title: 'Intellectual Property',
+          description: '100% full legal handover of custom source code, databases, prompts, and host cloud accounts.'
+        },
+        {
+          title: 'Enablement & Handover',
+          description: 'Targeted technical workshops and hands-on run drills to guarantee your in-house engineering team is autonomous.'
+        },
+        {
+          title: 'AI Rigor & Guardrails',
+          description: 'Defensive validation criteria and evaluate rules preventing output hallucinations or security leakage.'
+        }
       ],
     },
     resources: {
@@ -1056,7 +1086,7 @@ function Cases({ lang }: { lang: Locale }) {
         {t.items.map((item, idx) => (
           <motion.article 
             key={item.title} 
-            className="rounded-[6px] border p-5 flex flex-col justify-between hover:shadow-sm transition-all duration-300 bg-white" 
+            className="rounded-[8px] border p-6 flex flex-col justify-between hover:shadow-xs hover:scale-[1.015] transition-all duration-300 bg-white" 
             style={{ borderColor: GRAY_200 }}
             initial={{ opacity: 0, y: 12 }}
             whileInView={{ opacity: 1, y: 0 }}
@@ -1064,29 +1094,23 @@ function Cases({ lang }: { lang: Locale }) {
             transition={{ duration: 0.4, delay: idx * 0.1 }}
           >
             <div>
-              <p className="text-[10px] font-mono uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>{item.context}</p>
-              <h3 className="mt-3 text-[15px] font-bold leading-snug" style={{ color: INK }}>{item.title}</h3>
-              <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: GRAY_600 }}>{item.problem}</p>
+              <div className="text-[10px] font-mono uppercase tracking-[0.12em] text-[#8a8276] mb-2">// Impact mesuré</div>
+              <p className="text-[18px] md:text-[20px] font-extrabold tracking-tight text-stone-950 leading-tight">
+                {item.metric}
+              </p>
               
-              <ul className="mt-3 space-y-1 bg-[#FAF9F5] p-3 rounded-[4px] border border-stone-200/50">
-                {item.system.map((part) => (
-                  <li key={part} className="flex gap-2 text-[11.5px] items-center text-stone-800">
-                    <span className="h-1 w-1 rounded-full shrink-0 animate-pulse" style={{ background: EMBER }} />
-                    {part}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            
-            <div className="mt-4 pt-3 border-t" style={{ borderColor: GRAY_200 }}>
-              <p className="font-mono text-[12.5px] font-bold" style={{ color: EMBER }}>{item.metric}</p>
-              <p className="mt-1 text-[11px] leading-tight" style={{ color: GRAY_600 }}>{item.remains}</p>
+              <div className="mt-6">
+                <h3 className="text-[14px] font-bold tracking-tight text-stone-900 leading-snug">{item.title}</h3>
+                <p className="mt-2 text-[12.5px] leading-[1.5] text-stone-600 font-normal">
+                  {item.body}
+                </p>
+              </div>
             </div>
           </motion.article>
         ))}
       </div>
       <div className="mt-6 border-t pt-4 flex justify-between items-center" style={{ borderColor: GRAY_200 }}>
-        <span className="text-[11px] font-mono text-[#8a8276]">// Cas clients validés et chiffrés</span>
+        <span className="text-[11px] font-mono text-[#8a8276]">// Cas d'études réels</span>
         <TextLink href={routeMap[lang].cases}>{lang === 'en' ? 'Open client cases' : 'Voir les cas clients'}</TextLink>
       </div>
     </Section>
@@ -1097,26 +1121,33 @@ function Enterprise({ lang }: { lang: Locale }) {
   const t = content[lang].enterprise
 
   return (
-    <Section id="enterprise-readiness">
+    <Section id="enterprise-readiness" tone="ink">
       <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-        <SectionTitle>{t.title}</SectionTitle>
-        <SectionLede>{t.subtitle}</SectionLede>
+        <SectionTitle light>{t.title}</SectionTitle>
+        <SectionLede light>{t.subtitle}</SectionLede>
       </div>
-      <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {t.items.map((item, index) => {
           const Icon = readinessIcons[index] ?? ShieldCheck
           return (
             <motion.li 
-              key={item} 
-              className="flex items-start gap-3 p-4 rounded-[6px] border bg-[#FDFDFB]" 
-              style={{ borderColor: GRAY_200 }}
-              initial={{ opacity: 0, scale: 0.98 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              key={item.title} 
+              className="flex flex-col gap-2.5 p-5 rounded-[8px] border transition-all duration-300 hover:border-white/20 bg-[#141414] hover:bg-[#181818]" 
+              style={{ borderColor: 'rgba(255,255,255,0.06)' }}
+              initial={{ opacity: 0, y: 15 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
+              transition={{ duration: 0.4, delay: index * 0.05 }}
             >
-              <Icon className="mt-0.5 size-4 p-[1px] shrink-0" strokeWidth={1.8} style={{ color: EMBER }} aria-hidden />
-              <span className="text-[12.5px] leading-relaxed font-medium text-stone-800">{item}</span>
+              <div className="flex items-center gap-2">
+                <div className="p-1 rounded bg-[#E5E5E5]/10 border border-white/5 shrink-0 flex items-center justify-center">
+                  <Icon className="size-3.5 shrink-0" strokeWidth={1.8} style={{ color: EMBER }} aria-hidden />
+                </div>
+                <h4 className="text-[13.5px] font-bold text-white tracking-tight">{item.title}</h4>
+              </div>
+              <p className="text-[12px] leading-[1.45] text-stone-400 font-normal">
+                {item.description}
+              </p>
             </motion.li>
           )
         })}
