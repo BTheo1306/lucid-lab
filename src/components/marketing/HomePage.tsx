@@ -808,7 +808,7 @@ function Pillars({ lang }: { lang: Locale }) {
       <div className="relative">
         <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:min-h-[100vh]">
           
-          <div className="sticky top-20 lg:top-32 flex flex-col gap-6 lg:gap-12 z-20 pb-4 lg:pb-0 self-start">
+          <div className="relative lg:sticky lg:top-32 flex flex-col gap-6 lg:gap-12 z-20 pb-4 lg:pb-0 self-start lg:h-max">
             <div className="grid gap-3 lg:gap-4">
               <SectionTitle>{t.title}</SectionTitle>
               <SectionLede>{t.subtitle}</SectionLede>
@@ -854,7 +854,7 @@ function Pillars({ lang }: { lang: Locale }) {
                     className="sticky w-full h-[450px] lg:h-[380px] rounded-[12px] border p-6 md:p-8 flex flex-col justify-between bg-white shadow-sm top-[var(--card-top-mobile)] lg:top-[var(--card-top-desktop)]"
                     style={{ 
                       borderColor: GRAY_200,
-                      '--card-top-mobile': `calc(35vh + ${index * 16}px)`,
+                      '--card-top-mobile': `calc(130px + ${index * 16}px)`,
                       '--card-top-desktop': `calc(130px + ${index * 16}px)`,
                       zIndex: index
                     } as React.CSSProperties}
