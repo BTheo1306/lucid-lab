@@ -128,9 +128,9 @@ const content = {
       ],
     },
     offers: {
-      title: 'Des formats lisibles avant le devis.',
+      title: 'Nos formats d\'intervention.',
       subtitle:
-        'Le problème fixe le format. Le format réduit le risque avant le build.',
+        'Un cadre contractuel et technique défini pour réduire les risques avant la phase de développement.',
       items: [
         {
           title: 'AI Opportunity Audit',
@@ -350,9 +350,9 @@ const content = {
       ],
     },
     offers: {
-      title: 'Readable formats before a proposal.',
+      title: 'Our intervention formats.',
       subtitle:
-        'The problem sets the format. The format reduces risk before build.',
+        'A fixed contractual and technical framework to reduce risks before the development phase.',
       items: [
         {
           title: 'AI Opportunity Audit',
@@ -769,11 +769,16 @@ function Problems({ lang }: { lang: Locale }) {
                     <h3 className="text-[15px] font-semibold transition-all duration-200" style={{ color: isActive ? INK : GRAY_600 }}>{title}</h3>
                     <span className="text-[10px] font-mono text-[#a3a3a3]">0{index + 1}</span>
                   </div>
-                  <div className={`mt-2 transition-all duration-300 ${isActive ? "opacity-100" : "opacity-40"}`}>
-                    <p className="max-w-[48ch] text-[13px] leading-[1.45]" style={{ color: GRAY_600 }}>
+                  <motion.div
+                    initial={false}
+                    animate={{ height: isActive ? 'auto' : 0, opacity: isActive ? 1 : 0 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className="overflow-hidden"
+                  >
+                    <p className="max-w-[48ch] text-[13px] leading-[1.45] pt-2" style={{ color: GRAY_600 }}>
                       {body}
                     </p>
-                  </div>
+                  </motion.div>
                 </div>
               </li>
             )
