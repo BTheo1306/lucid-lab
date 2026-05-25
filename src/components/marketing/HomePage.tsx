@@ -1022,18 +1022,18 @@ function Delivery({ lang }: { lang: Locale }) {
             >
               <motion.div 
                 className="text-[4rem] md:text-[6.5rem] font-black tracking-tighter transition-colors duration-500 cursor-default select-none"
-                initial={{ color: 'rgba(200, 94, 26, 0.08)' }}
-                whileInView={{ color: 'rgba(200, 94, 26, 0.6)' }}
-                viewport={{ margin: "-35% 0px -35% 0px" }}
+                initial={{ color: '#F2DCC9' }}
+                whileInView={{ color: '#E4A076' }}
+                viewport={{ margin: "-25% 0px -25% 0px" }}
               >
                 0{idx + 1}
               </motion.div>
 
               <motion.h3 
                 className="text-[18px] md:text-[28px] font-bold leading-tight md:leading-snug transition-colors duration-500"
-                initial={{ color: 'rgba(28, 25, 23, 0.25)' }}
-                whileInView={{ color: 'rgba(28, 25, 23, 1)' }}
-                viewport={{ margin: "-35% 0px -35% 0px" }}
+                initial={{ color: '#BDBAB6' }}
+                whileInView={{ color: '#1C1917' }}
+                viewport={{ margin: "-25% 0px -25% 0px" }}
               >
                 {step}
               </motion.h3>
