@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useRef } from 'react'
+import React, { useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
@@ -841,63 +841,64 @@ function Pillars({ lang }: { lang: Locale }) {
             </div>
           </div>
 
-          <div className="flex flex-col relative w-full pb-[60vh] lg:pb-[50vh]">
+          <div className="flex flex-col relative w-full">
             {t.items.map((item, index) => {
               const Icon = pillarIcons[index] ?? SearchCheck
+              const isLast = index === t.items.length - 1
               
               return (
-                <motion.div
-                  key={index}
-                  onViewportEnter={() => setActiveIdx(index)}
-                  viewport={{ margin: "-40% 0px -40% 0px" }}
-                  className="sticky lg:h-[400px] rounded-[12px] border p-6 md:p-8 flex flex-col justify-between bg-white shadow-md overflow-hidden top-[var(--card-top-mobile)] lg:top-[var(--card-top-desktop)]"
-                  style={{ 
-                    borderColor: GRAY_200,
-                    '--card-top-mobile': `calc(35vh + ${index * 16}px)`,
-                    '--card-top-desktop': `calc(130px + ${index * 16}px)`,
-                    marginBottom: '50vh',
-                    zIndex: index
-                  } as React.CSSProperties}
-                >
-                  <div className="absolute inset-x-0 -bottom-[100vh] h-[100vh] bg-white pointer-events-none" aria-hidden="true" />
-                  
-                  <div className="flex flex-col h-full justify-between relative z-10">
-                    <div>
-                      <div className="flex items-center justify-between border-b pb-3 mb-4" style={{ borderColor: GRAY_100 }}>
-                        <div className="flex items-center gap-2">
-                          <Icon className="size-4" style={{ color: EMBER }} />
-                          <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276]">Expertise 0{index + 1}</span>
+                <React.Fragment key={index}>
+                  <motion.div
+                    onViewportEnter={() => setActiveIdx(index)}
+                    viewport={{ margin: "-40% 0px -40% 0px" }}
+                    className="sticky w-full h-[450px] lg:h-[380px] rounded-[12px] border p-6 md:p-8 flex flex-col justify-between bg-white shadow-sm top-[var(--card-top-mobile)] lg:top-[var(--card-top-desktop)]"
+                    style={{ 
+                      borderColor: GRAY_200,
+                      '--card-top-mobile': `calc(35vh + ${index * 16}px)`,
+                      '--card-top-desktop': `calc(130px + ${index * 16}px)`,
+                      zIndex: index
+                    } as React.CSSProperties}
+                  >
+                    <div className="flex flex-col h-full justify-between relative z-10 w-full bg-white">
+                      <div>
+                        <div className="flex items-center justify-between border-b pb-3 mb-4" style={{ borderColor: GRAY_100 }}>
+                          <div className="flex items-center gap-2">
+                            <Icon className="size-4" style={{ color: EMBER }} />
+                            <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276]">Expertise 0{index + 1}</span>
+                          </div>
                         </div>
+
+                        <h3 className="text-[18px] md:text-[20px] font-bold" style={{ color: INK }}>{item.title}</h3>
+                        <p className="mt-2 text-[13.5px] leading-[1.5]" style={{ color: GRAY_600 }}>{item.problem}</p>
+                        
+                        <ul className="mt-5 space-y-2.5">
+                          {item.deliverables.map((deliverable) => (
+                            <li key={deliverable} className="flex gap-2.5 text-[13px] items-center font-medium" style={{ color: INK }}>
+                              <span className="h-1.5 w-1.5 rounded-full" style={{ background: EMBER }} />
+                              {deliverable}
+                            </li>
+                          ))}
+                        </ul>
                       </div>
 
-                      <h3 className="text-[18px] md:text-[20px] font-bold" style={{ color: INK }}>{item.title}</h3>
-                      <p className="mt-2 text-[13.5px] leading-[1.5]" style={{ color: GRAY_600 }}>{item.problem}</p>
-                      
-                      <ul className="mt-5 space-y-2.5">
-                        {item.deliverables.map((deliverable) => (
-                          <li key={deliverable} className="flex gap-2.5 text-[13px] items-center font-medium" style={{ color: INK }}>
-                            <span className="h-1.5 w-1.5 rounded-full" style={{ background: EMBER }} />
-                            {deliverable}
-                          </li>
-                        ))}
-                      </ul>
+                      <div className="mt-6 pt-4 border-t" style={{ borderColor: GRAY_100 }}>
+                        <span className="text-[10px] font-mono text-[#8a8276] block mb-1">Impact final :</span>
+                        <p className="text-[13px] font-semibold leading-[1.5]" style={{ color: EMBER }}>{item.result}</p>
+                        
+                        <Link 
+                          href={resolveHref(lang, item.href)}
+                          className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-bold group"
+                          style={{ color: INK }}
+                        >
+                          {lang === 'en' ? 'Open details' : 'Voir les détails'}
+                          <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
+                        </Link>
+                      </div>
                     </div>
-
-                    <div className="mt-6 pt-4 border-t" style={{ borderColor: GRAY_100 }}>
-                      <span className="text-[10px] font-mono text-[#8a8276] block mb-1">Impact final :</span>
-                      <p className="text-[13px] font-semibold leading-[1.5]" style={{ color: EMBER }}>{item.result}</p>
-                      
-                      <Link 
-                        href={resolveHref(lang, item.href)}
-                        className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-bold group bg-[#F5F5F0] hover:bg-[#EAEAE5] transition-colors py-2 px-3.5 rounded-md"
-                        style={{ color: INK }}
-                      >
-                        {lang === 'en' ? 'Open details' : 'Voir les détails'}
-                        <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
+                  </motion.div>
+                  {/* Space tracker to allow the user to scroll before the next card arrives */}
+                  <div className={isLast ? "h-[30vh] lg:h-[40vh]" : "h-[45vh] lg:h-[55vh]"} />
+                </React.Fragment>
               )
             })}
           </div>
