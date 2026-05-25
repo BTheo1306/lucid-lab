@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import {
   ArrowRight,
   Bot,
@@ -802,18 +802,36 @@ function Problems({ lang }: { lang: Locale }) {
 function Pillars({ lang }: { lang: Locale }) {
   const t = content[lang].pillars
   const [activeIdx, setActiveIdx] = useState<number>(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+
+  const { scrollYProgress } = useScroll({
+    target: containerRef,
+    offset: ["start center", "end center"],
+  })
+
+  useMotionValueEvent(scrollYProgress, "change", (latest) => {
+    const newIndex = Math.min(
+      t.items.length - 1,
+      Math.floor(latest * t.items.length)
+    )
+    if (newIndex !== activeIdx) {
+      setActiveIdx(newIndex)
+    }
+  })
 
   const activeItem = t.items[activeIdx]
   const ActiveIcon = pillarIcons[activeIdx] ?? SearchCheck
 
   return (
     <Section id="expertises" tone="gray">
-      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-        <SectionTitle>{t.title}</SectionTitle>
-        <SectionLede>{t.subtitle}</SectionLede>
-      </div>
+      <div ref={containerRef} className="relative h-[250vh]">
+        <div className="sticky top-32">
+          <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+            <SectionTitle>{t.title}</SectionTitle>
+            <SectionLede>{t.subtitle}</SectionLede>
+          </div>
 
-      <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+          <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
         <div className="flex flex-col gap-1.5 justify-center">
           {t.items.map((item, index) => {
             const Icon = pillarIcons[index] ?? SearchCheck
@@ -821,7 +839,16 @@ function Pillars({ lang }: { lang: Locale }) {
             return (
               <button
                 key={item.title}
-                onClick={() => setActiveIdx(index)}
+                onClick={() => {
+                  if (containerRef.current) {
+                    const rect = containerRef.current.getBoundingClientRect()
+                    const offsetTop = rect.top + window.scrollY
+                    // We go to specific point inside the 250vh track
+                    const scrollPosition = offsetTop + (rect.height * (index / t.items.length))
+                    window.scrollTo({ top: scrollPosition + 10, behavior: 'smooth' })
+                  }
+                  setActiveIdx(index)
+                }}
                 onMouseEnter={() => setActiveIdx(index)}
                 className="flex items-center justify-between p-3.5 rounded-[6px] border text-left transition-all duration-200 outline-none"
                 style={{
@@ -892,6 +919,8 @@ function Pillars({ lang }: { lang: Locale }) {
             </div>
           </motion.div>
         </div>
+        </div>
+      </div>
       </div>
     </Section>
   )
