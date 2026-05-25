@@ -1,21 +1,16 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans, Bricolage_Grotesque } from "next/font/google";
+import { Figtree } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AdminAwareChatWidget } from "@/components/chat-widget/AdminAwareChatWidget";
 import "./globals.css";
 
-const fontSans = Plus_Jakarta_Sans({
+const fontSans = Figtree({
   variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
-const fontDisplay = Bricolage_Grotesque({
-  variable: "--font-display",
-  subsets: ["latin"],
-  display: "swap",
-});
 
 export function generateMetadata(): Metadata {
   const isEn = false;
@@ -143,7 +138,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${fontSans.variable} ${fontDisplay.variable} antialiased`}
+      className={`${fontSans.variable} antialiased`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
