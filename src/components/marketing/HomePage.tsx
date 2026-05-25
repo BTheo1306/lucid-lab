@@ -1,5 +1,6 @@
 'use client'
 
+import { useState } from 'react'
 import Image from 'next/image'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
@@ -21,6 +22,7 @@ import {
 } from 'lucide-react'
 
 import { Header } from '@/components/ui/header'
+import { HeroSection, LogosSection } from '@/components/ui/hero-section'
 import type { Locale } from '@/lib/i18n/client'
 
 const INK = '#0A0A0A'
@@ -523,21 +525,35 @@ function Section({
 }) {
   const bg = tone === 'ink' ? INK : tone === 'gray' ? GRAY_100 : PAPER
   const fg = tone === 'ink' ? PAPER : INK
-  const divider = tone === 'ink' ? 'rgba(250,250,247,0.18)' : GRAY_200
+  const divider = tone === 'ink' ? 'rgba(250,250,247,0.12)' : GRAY_200
 
   return (
     <motion.section
       id={id}
       style={{ background: bg, color: fg, borderTop: `1px solid ${divider}` }}
-      initial={{ opacity: 0, y: 28 }}
+      initial={{ opacity: 0, y: 16 }}
       whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
+      viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
+      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      className="relative"
     >
-      <div className="mx-auto flex h-8 w-full max-w-[1200px] items-start px-6 md:px-10">
-        <span className="mt-[-1px] h-px w-24" style={{ background: EMBER }} />
+      {/* Visual Guide Connecting Sections */}
+      <div className="mx-auto flex flex-col items-center justify-center pt-6 select-none opacity-80">
+        <div className="h-8 w-px relative overflow-hidden" style={{ background: tone === 'ink' ? 'rgba(250,250,247,0.15)' : 'rgba(10,10,10,0.15)' }}>
+          <motion.div
+            className="absolute top-0 left-0 w-full h-1/2"
+            style={{ background: EMBER }}
+            animate={{ y: ['-100%', '200%'] }}
+            transition={{ duration: 2.2, repeat: Infinity, ease: 'linear' }}
+          />
+        </div>
+        {id && (
+          <span className="mt-2 text-[9px] font-mono tracking-widest uppercase opacity-40">
+            {id}
+          </span>
+        )}
       </div>
-      <div className="mx-auto w-full max-w-[1200px] px-6 pb-24 pt-12 md:px-10 md:pb-32 md:pt-16">
+      <div className="mx-auto w-full max-w-[1200px] px-6 pb-12 pt-8 md:px-10 md:pb-16 md:pt-10">
         {children}
       </div>
     </motion.section>
@@ -547,7 +563,7 @@ function Section({
 function SectionTitle({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
   return (
     <h2
-      className="max-w-[30ch] text-[34px] font-semibold leading-[1.06] tracking-[-0.015em] md:text-[50px]"
+      className="max-w-[30ch] text-[22px] font-bold leading-[1.12] tracking-[-0.015em] sm:text-[26px] md:text-[32px]"
       style={{ color: light ? PAPER : INK }}
     >
       {children}
@@ -558,7 +574,7 @@ function SectionTitle({ children, light = false }: { children: React.ReactNode; 
 function SectionLede({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
   return (
     <p
-      className="mt-5 max-w-[62ch] text-[17px] leading-[1.6] md:text-[18px]"
+      className="mt-3 max-w-[60ch] text-[14px] leading-[1.5] md:text-[15px]"
       style={{ color: light ? 'rgba(250,250,247,0.72)' : GRAY_600 }}
     >
       {children}
@@ -717,65 +733,165 @@ function TrustedBand({ lang }: { lang: Locale }) {
 
 function Problems({ lang }: { lang: Locale }) {
   const t = content[lang].problems
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
   return (
     <Section id="problemes">
-      <div className="max-w-[660px]">
-        <SectionTitle>{t.title}</SectionTitle>
-        <SectionLede>{t.subtitle}</SectionLede>
+      <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr] lg:gap-12">
+        <div>
+          <SectionTitle>{t.title}</SectionTitle>
+          <SectionLede>{t.subtitle}</SectionLede>
+          
+          {/* Live Diagnostic Monitor Panel */}
+          <div className="mt-6 hidden lg:block rounded-[8px] border p-4 bg-[#FDFDFB]" style={{ borderColor: GRAY_200 }}>
+            <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276] block mb-2">// Diagnostic en temps réel</span>
+            <div className="space-y-1.5">
+              {t.items.map(([title], i) => (
+                <div key={title} className="flex items-center gap-2 text-[11px] font-mono leading-none">
+                  <span className="h-1.5 w-1.5 rounded-full transition-colors duration-200 animate-pulse" style={{ backgroundColor: hoveredIdx === i ? EMBER : '#E5E5E5' }} />
+                  <span className="transition-all duration-200" style={{ color: hoveredIdx === i ? INK : '#8b8478' }}>
+                    0{i+1}. {title}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+        
+        <ul className="flex flex-col divide-y" style={{ borderColor: GRAY_400 + '30' }}>
+          {t.items.map(([title, body], index) => {
+            const Icon = problemIcons[index] ?? Sparkles
+            const isActive = hoveredIdx === index
+            return (
+              <li
+                key={title}
+                className="py-3 flex gap-4 cursor-pointer transition-colors duration-200 relative pl-4 first:pt-0 last:pb-0 select-none group"
+                onMouseEnter={() => setHoveredIdx(index)}
+                onMouseLeave={() => setHoveredIdx(null)}
+              >
+                {isActive && (
+                  <motion.div
+                    className="absolute left-0 top-0 bottom-0 w-[2px]"
+                    style={{ background: EMBER }}
+                    layoutId="activeProblemIndicator"
+                  />
+                )}
+                <div className="mt-0.5">
+                  <Icon className="size-4 transition-transform duration-200" style={{ color: isActive ? EMBER : GRAY_600, transform: isActive ? 'scale(1.1)' : 'none' }} />
+                </div>
+                <div className="grow">
+                  <div className="flex justify-between items-baseline gap-4">
+                    <h3 className="text-[15px] font-semibold transition-all duration-200" style={{ color: isActive ? INK : GRAY_600 }}>{title}</h3>
+                    <span className="text-[10px] font-mono text-[#a3a3a3]">0{index + 1}</span>
+                  </div>
+                  <div className={`overflow-hidden transition-all duration-300 ${isActive ? 'max-h-[100px] mt-2 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+                    <p className="max-w-[48ch] text-[13px] leading-[1.45]" style={{ color: GRAY_600 }}>
+                      {body}
+                    </p>
+                  </div>
+                </div>
+              </li>
+            )
+          })}
+        </ul>
       </div>
-      <ul className="mt-16 grid gap-x-12 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
-        {t.items.map(([title, body], index) => {
-          const Icon = problemIcons[index] ?? Sparkles
-          return (
-            <li key={title} className="border-t pt-6" style={{ borderColor: GRAY_200 }}>
-              <Icon className="size-5" strokeWidth={1.6} style={{ color: EMBER }} aria-hidden />
-              <h3 className="mt-5 text-[20px] font-semibold leading-[1.18]" style={{ color: INK }}>{title}</h3>
-              <p className="mt-3 max-w-[42ch] text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>{body}</p>
-            </li>
-          )
-        })}
-      </ul>
     </Section>
   )
 }
 
 function Pillars({ lang }: { lang: Locale }) {
   const t = content[lang].pillars
+  const [activeIdx, setActiveIdx] = useState<number>(0)
+
+  const activeItem = t.items[activeIdx]
+  const ActiveIcon = pillarIcons[activeIdx] ?? SearchCheck
 
   return (
     <Section id="expertises" tone="gray">
-      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
-      <div className="mt-16 grid gap-px overflow-hidden rounded-[8px] border md:grid-cols-2" style={{ borderColor: GRAY_200, background: GRAY_200 }}>
-        {t.items.map((item, index) => {
-          const Icon = pillarIcons[index] ?? SearchCheck
-          return (
-            <Link key={item.title} href={resolveHref(lang, item.href)} className="group flex min-h-[380px] flex-col p-7 transition duration-200 hover:-translate-y-1 md:p-9" style={{ background: PAPER }}>
-              <div className="flex items-start justify-between gap-8">
-                <Icon className="size-6" strokeWidth={1.5} style={{ color: INK }} aria-hidden />
-                <span className="font-mono text-[12px]" style={{ color: GRAY_400 }}>0{index + 1}</span>
+
+      <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="flex flex-col gap-1.5 justify-center">
+          {t.items.map((item, index) => {
+            const Icon = pillarIcons[index] ?? SearchCheck
+            const isActive = activeIdx === index
+            return (
+              <button
+                key={item.title}
+                onClick={() => setActiveIdx(index)}
+                onMouseEnter={() => setActiveIdx(index)}
+                className="flex items-center justify-between p-3.5 rounded-[6px] border text-left transition-all duration-200 outline-none"
+                style={{
+                  background: isActive ? PAPER : 'transparent',
+                  borderColor: isActive ? GRAY_200 : 'transparent',
+                  transform: isActive ? 'translateX(4px)' : 'none',
+                }}
+              >
+                <div className="flex items-center gap-3">
+                  <Icon className="size-4 shrink-0" style={{ color: isActive ? EMBER : GRAY_600 }} />
+                  <span className="text-[13.5px] font-semibold" style={{ color: isActive ? INK : GRAY_600 }}>
+                    {item.title}
+                  </span>
+                </div>
+                <span className="font-mono text-[10px]" style={{ color: GRAY_400 }}>0{index + 1}</span>
+              </button>
+            )
+          })}
+        </div>
+
+        <div className="relative min-h-[300px] rounded-[8px] border p-6 flex flex-col justify-between bg-white" style={{ borderColor: GRAY_200 }}>
+          <motion.div
+            key={activeIdx}
+            initial={{ opacity: 0, y: 6 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.25 }}
+            className="flex flex-col h-full justify-between"
+          >
+            <div>
+              <div className="flex items-center justify-between border-b pb-3 mb-3" style={{ borderColor: GRAY_100 }}>
+                <div className="flex items-center gap-2">
+                  <ActiveIcon className="size-4" style={{ color: EMBER }} />
+                  <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276]">Expertise 0{activeIdx + 1}</span>
+                </div>
+                <Link
+                  href={resolveHref(lang, activeItem.href)}
+                  className="text-[11px] font-bold underline decoration-[#C85E1A]/40 decoration-2 hover:decoration-[#C85E1A] text-stone-700 hover:text-stone-950 transition"
+                >
+                  {lang === 'en' ? 'Explore methodology' : 'Explorer la méthode'}
+                </Link>
               </div>
-              <h3 className="mt-9 text-[25px] font-semibold leading-[1.1] tracking-[-0.01em]" style={{ color: INK }}>{item.title}</h3>
-              <p className="mt-4 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>{item.problem}</p>
-              <ul className="mt-6 space-y-2">
-                {item.deliverables.map((deliverable) => (
-                  <li key={deliverable} className="flex gap-2 text-[14px]" style={{ color: INK }}>
-                    <span style={{ color: EMBER }}>•</span>
+
+              <h3 className="text-[16px] md:text-[18px] font-bold" style={{ color: INK }}>{activeItem.title}</h3>
+              <p className="mt-1.5 text-[13px] leading-[1.45]" style={{ color: GRAY_600 }}>{activeItem.problem}</p>
+              
+              <ul className="mt-3.5 space-y-1.5">
+                {activeItem.deliverables.map((deliverable) => (
+                  <li key={deliverable} className="flex gap-2 text-[12.5px] items-center" style={{ color: INK }}>
+                    <span className="h-1 w-1 rounded-full" style={{ background: EMBER }} />
                     {deliverable}
                   </li>
                 ))}
               </ul>
-              <p className="mt-auto border-t pt-5 text-[14px] leading-[1.5]" style={{ borderColor: GRAY_200, color: GRAY_600 }}>{item.result}</p>
-              <span className="mt-5 inline-flex items-center gap-2 text-[14px] font-medium" style={{ color: INK }}>
-                {lang === 'en' ? 'Open page' : 'Voir la page'}
-                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
-              </span>
-            </Link>
-          )
-        })}
+            </div>
+
+            <div className="mt-5 pt-3 border-t" style={{ borderColor: GRAY_100 }}>
+              <span className="text-[10px] font-mono text-[#8a8276] block mb-0.5">Impact final :</span>
+              <p className="text-[12.5px] font-semibold leading-[1.45]" style={{ color: EMBER }}>{activeItem.result}</p>
+              
+              <Link 
+                href={resolveHref(lang, activeItem.href)}
+                className="mt-3.5 inline-flex items-center gap-1.5 text-[12.5px] font-semibold"
+                style={{ color: INK }}
+              >
+                {lang === 'en' ? 'Open details' : 'Voir les détails'}
+                <ArrowRight className="size-3 transition-transform duration-200 group-hover:translate-x-1" />
+              </Link>
+            </div>
+          </motion.div>
+        </div>
       </div>
     </Section>
   )
@@ -786,20 +902,33 @@ function Offers({ lang }: { lang: Locale }) {
 
   return (
     <Section id="offres" tone="ink">
-      <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
+      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <SectionTitle light>{t.title}</SectionTitle>
         <SectionLede light>{t.subtitle}</SectionLede>
       </div>
-      <div className="mt-16 grid gap-px overflow-hidden rounded-[8px] border md:grid-cols-2 lg:grid-cols-5" style={{ borderColor: 'rgba(250,250,247,0.16)', background: 'rgba(250,250,247,0.16)' }}>
-        {t.items.map((item) => (
-          <article key={item.title} className="flex min-h-[290px] flex-col p-6" style={{ background: INK }}>
-            <p className="text-[11px] font-medium uppercase tracking-[0.16em]" style={{ color: EMBER }}>{item.detail}</p>
-            <h3 className="mt-7 text-[22px] font-semibold leading-[1.08] tracking-[-0.01em]" style={{ color: PAPER }}>{item.title}</h3>
-            <p className="mt-4 text-[14px] leading-[1.55]" style={{ color: 'rgba(250,250,247,0.68)' }}>{item.body}</p>
-            <div className="mt-auto pt-8">
+      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+        {t.items.map((item, idx) => (
+          <motion.article 
+            key={item.title} 
+            className="flex min-h-[220px] flex-col justify-between p-5 rounded-[6px] border transition-all duration-300 hover:border-[#C85E1A]/40" 
+            style={{ 
+              background: INK,
+              borderColor: 'rgba(250,250,247,0.12)'
+            }}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: idx * 0.1 }}
+          >
+            <div>
+              <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-orange-500">{item.detail}</span>
+              <h3 className="mt-4 text-[15px] font-bold leading-tight" style={{ color: PAPER }}>{item.title}</h3>
+              <p className="mt-2 text-[12px] leading-normal" style={{ color: 'rgba(250,250,247,0.64)' }}>{item.body}</p>
+            </div>
+            <div className="mt-4 pt-3 border-t border-white/5">
               <TextLink href={resolveHref(lang, item.href)} light>{lang === 'en' ? 'Details' : 'Détails'}</TextLink>
             </div>
-          </article>
+          </motion.article>
         ))}
       </div>
     </Section>
@@ -811,21 +940,45 @@ function Delivery({ lang }: { lang: Locale }) {
 
   return (
     <Section id="comment-on-livre">
-      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
-      <ol className="mt-16 grid gap-px overflow-hidden rounded-[8px] border md:grid-cols-2 lg:grid-cols-7" style={{ borderColor: GRAY_200, background: GRAY_200 }}>
-        {t.steps.map(([title, body], index) => (
-          <li key={title} className="flex min-h-[250px] flex-col p-6" style={{ background: PAPER }}>
-            <span className="font-mono text-[12px]" style={{ color: EMBER }}>0{index + 1}</span>
-            <h3 className="mt-8 text-[18px] font-semibold leading-[1.15]" style={{ color: INK }}>{title}</h3>
-            <p className="mt-3 text-[13px] leading-[1.55]" style={{ color: GRAY_600 }}>{body}</p>
-          </li>
-        ))}
-      </ol>
-      <div className="mt-10">
-        <TextLink href={routeMap[lang].method}>{lang === 'en' ? 'Read the full method' : 'Voir la méthode complète'}</TextLink>
+
+      <div className="mt-8 relative">
+        <div className="absolute left-[3%] right-[3%] top-4 hidden h-[1px] bg-stone-200 lg:block" />
+
+        <ol className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 relative z-10">
+          {t.steps.map(([title, body], index) => (
+            <motion.li 
+              key={title} 
+              className="flex flex-col relative select-none"
+              initial={{ opacity: 0, x: -10 }}
+              whileInView={{ opacity: 1, x: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.35, delay: index * 0.08 }}
+            >
+              <div className="flex items-center gap-3 lg:flex-col lg:items-start lg:gap-0">
+                <div 
+                  className="flex h-8 w-8 items-center justify-center rounded-full border bg-white shadow-sm transition-colors duration-200"
+                  style={{ borderColor: GRAY_200 }}
+                >
+                  <span className="text-[11px] font-mono text-[#C85E1A] font-bold">0{index + 1}</span>
+                </div>
+                
+                <h3 className="mt-2.5 text-[13px] font-bold leading-snug text-stone-900">{title}</h3>
+              </div>
+              <p className="mt-1.5 text-[11.5px] leading-relaxed text-stone-500 lg:pr-1">{body}</p>
+            </motion.li>
+          ))}
+        </ol>
+      </div>
+
+      <div className="mt-8 border-t pt-4 flex justify-between items-center" style={{ borderColor: GRAY_200 }}>
+        <span className="text-[11px] font-mono text-[#8a8276]">// Processus de livraison monitoré</span>
+        <TextLink href={routeMap[lang].method}>
+          {lang === 'en' ? 'Explore full method' : 'Voir la méthode complète'}
+        </TextLink>
       </div>
     </Section>
   )
@@ -836,30 +989,45 @@ function Cases({ lang }: { lang: Locale }) {
 
   return (
     <Section id="acquis-livres" tone="gray">
-      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
-      <div className="mt-16 grid gap-8 lg:grid-cols-3">
-        {t.items.map((item) => (
-          <article key={item.title} className="rounded-[8px] border p-7" style={{ borderColor: GRAY_200, background: PAPER }}>
-            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>{item.context}</p>
-            <h3 className="mt-7 text-[24px] font-semibold leading-[1.12] tracking-[-0.01em]" style={{ color: INK }}>{item.title}</h3>
-            <p className="mt-4 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>{item.problem}</p>
-            <ul className="mt-7 space-y-2">
-              {item.system.map((part) => (
-                <li key={part} className="flex gap-2 text-[14px]" style={{ color: INK }}>
-                  <span style={{ color: EMBER }}>•</span>
-                  {part}
-                </li>
-              ))}
-            </ul>
-            <p className="mt-8 font-mono text-[14px]" style={{ color: EMBER }}>{item.metric}</p>
-            <p className="mt-5 border-t pt-5 text-[13px] leading-[1.55]" style={{ borderColor: GRAY_200, color: GRAY_600 }}>{item.remains}</p>
-          </article>
+      <div className="mt-8 grid gap-5 lg:grid-cols-3">
+        {t.items.map((item, idx) => (
+          <motion.article 
+            key={item.title} 
+            className="rounded-[6px] border p-5 flex flex-col justify-between hover:shadow-sm transition-all duration-300 bg-white" 
+            style={{ borderColor: GRAY_200 }}
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.4, delay: idx * 0.1 }}
+          >
+            <div>
+              <p className="text-[10px] font-mono uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>{item.context}</p>
+              <h3 className="mt-3 text-[15px] font-bold leading-snug" style={{ color: INK }}>{item.title}</h3>
+              <p className="mt-2 text-[12.5px] leading-relaxed" style={{ color: GRAY_600 }}>{item.problem}</p>
+              
+              <ul className="mt-3 space-y-1 bg-[#FAF9F5] p-3 rounded-[4px] border border-stone-200/50">
+                {item.system.map((part) => (
+                  <li key={part} className="flex gap-2 text-[11.5px] items-center text-stone-800">
+                    <span className="h-1 w-1 rounded-full shrink-0 animate-pulse" style={{ background: EMBER }} />
+                    {part}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            
+            <div className="mt-4 pt-3 border-t" style={{ borderColor: GRAY_200 }}>
+              <p className="font-mono text-[12.5px] font-bold" style={{ color: EMBER }}>{item.metric}</p>
+              <p className="mt-1 text-[11px] leading-tight" style={{ color: GRAY_600 }}>{item.remains}</p>
+            </div>
+          </motion.article>
         ))}
       </div>
-      <div className="mt-10">
+      <div className="mt-6 border-t pt-4 flex justify-between items-center" style={{ borderColor: GRAY_200 }}>
+        <span className="text-[11px] font-mono text-[#8a8276]">// Cas clients validés et chiffrés</span>
         <TextLink href={routeMap[lang].cases}>{lang === 'en' ? 'Open client cases' : 'Voir les cas clients'}</TextLink>
       </div>
     </Section>
@@ -871,18 +1039,26 @@ function Enterprise({ lang }: { lang: Locale }) {
 
   return (
     <Section id="enterprise-readiness">
-      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
-      <ul className="mt-16 grid gap-px overflow-hidden rounded-[8px] border md:grid-cols-2 lg:grid-cols-4" style={{ borderColor: GRAY_200, background: GRAY_200 }}>
+      <ul className="mt-8 grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {t.items.map((item, index) => {
           const Icon = readinessIcons[index] ?? ShieldCheck
           return (
-            <li key={item} className="flex min-h-[128px] items-start gap-4 p-6" style={{ background: PAPER }}>
-              <Icon className="mt-1 size-5 shrink-0" strokeWidth={1.5} style={{ color: EMBER }} aria-hidden />
-              <span className="text-[15px] leading-[1.35]" style={{ color: INK }}>{item}</span>
-            </li>
+            <motion.li 
+              key={item} 
+              className="flex items-start gap-3 p-4 rounded-[6px] border bg-[#FDFDFB]" 
+              style={{ borderColor: GRAY_200 }}
+              initial={{ opacity: 0, scale: 0.98 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.3, delay: index * 0.05 }}
+            >
+              <Icon className="mt-0.5 size-4 p-[1px] shrink-0" strokeWidth={1.8} style={{ color: EMBER }} aria-hidden />
+              <span className="text-[12.5px] leading-relaxed font-medium text-stone-800">{item}</span>
+            </motion.li>
           )
         })}
       </ul>
@@ -898,20 +1074,20 @@ function Resources({ lang }: { lang: Locale }) {
 
   return (
     <Section id="blog" tone="gray">
-      <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr]">
+      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div>
           <SectionTitle>{t.title}</SectionTitle>
           <SectionLede>{t.subtitle}</SectionLede>
-          <div className="mt-8">
+          <div className="mt-4">
             <TextLink href={routeMap[lang].blog}>{t.cta}</TextLink>
           </div>
         </div>
-        <ul className="divide-y rounded-[8px] border" style={{ borderColor: GRAY_200, background: PAPER }}>
+        <ul className="divide-y rounded-[6px] border bg-white" style={{ borderColor: GRAY_200 }}>
           {resourceLinks.map((title) => (
             <li key={title}>
-              <Link href={routeMap[lang].blog} className="group flex items-center justify-between gap-8 p-6">
-                <span className="text-[18px] font-semibold" style={{ color: INK }}>{title}</span>
-                <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" style={{ color: EMBER }} aria-hidden />
+              <Link href={routeMap[lang].blog} className="group flex items-center justify-between gap-6 p-4">
+                <span className="text-[14px] font-bold transition-all duration-200 group-hover:text-[#C85E1A]" style={{ color: INK }}>{title}</span>
+                <ArrowRight className="size-3.5 shrink-0 transition-transform group-hover:translate-x-1" style={{ color: EMBER }} aria-hidden />
               </Link>
             </li>
           ))}
@@ -926,19 +1102,19 @@ function FAQ({ lang }: { lang: Locale }) {
 
   return (
     <Section id="faq">
-      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
+      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div>
           <SectionTitle>{t.title}</SectionTitle>
           <SectionLede>{t.subtitle}</SectionLede>
         </div>
-        <div className="divide-y rounded-[8px] border" style={{ borderColor: GRAY_200, background: PAPER }}>
+        <div className="divide-y rounded-[6px] border bg-white" style={{ borderColor: GRAY_200 }}>
           {t.items.map((item) => (
-            <details key={item.question} className="group p-6 open:bg-[#F7F2ED]">
-              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 text-[18px] font-semibold" style={{ color: INK }}>
+            <details key={item.question} className="group p-4 open:bg-[#F7F2ED]/50 transition-colors duration-200">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-6 text-[14.5px] font-bold outline-none" style={{ color: INK }}>
                 {item.question}
-                <span className="mt-1 text-[20px] leading-none" style={{ color: EMBER }}>+</span>
+                <span className="text-[16px] font-mono leading-none transition-transform duration-200 group-open:rotate-45" style={{ color: EMBER }}>+</span>
               </summary>
-              <p className="mt-4 max-w-[68ch] text-[15px] leading-[1.6]" style={{ color: GRAY_600 }}>{item.answer}</p>
+              <p className="mt-2.5 max-w-[64ch] text-[13px] leading-relaxed" style={{ color: GRAY_600 }}>{item.answer}</p>
             </details>
           ))}
         </div>
@@ -952,10 +1128,10 @@ function FinalCTA({ lang }: { lang: Locale }) {
 
   return (
     <section style={{ background: INK, color: PAPER }}>
-      <div className="mx-auto grid w-full max-w-[1200px] gap-10 px-6 py-24 md:grid-cols-[1fr_auto] md:items-end md:px-10 md:py-32">
+      <div className="mx-auto grid w-full max-w-[1200px] gap-8 px-6 py-12 md:grid-cols-[1fr_auto] md:items-center md:px-10 md:py-16">
         <div>
-          <h2 className="max-w-[24ch] text-[40px] font-semibold leading-[1.04] tracking-[-0.02em] md:text-[58px]" style={{ color: PAPER }}>{t.title}</h2>
-          <p className="mt-5 max-w-[58ch] text-[17px] leading-[1.6]" style={{ color: 'rgba(250,250,247,0.72)' }}>{t.subtitle}</p>
+          <h2 className="max-w-[24ch] text-[24px] font-bold leading-[1.1] tracking-[-0.02em] md:text-[32px]" style={{ color: PAPER }}>{t.title}</h2>
+          <p className="mt-3 max-w-[58ch] text-[13.5px] leading-relaxed" style={{ color: 'rgba(250,250,247,0.68)' }}>{t.subtitle}</p>
         </div>
         <PrimaryCta href={routeMap[lang].booking} inverted>{t.cta}</PrimaryCta>
       </div>
@@ -1021,8 +1197,8 @@ export default function HomePage({ lang }: { lang: Locale }) {
     <div className="flex w-full flex-col" style={{ background: PAPER }}>
       <Header />
       <main className="grow">
-        <Hero lang={lang} />
-        <TrustedBand lang={lang} />
+        <HeroSection lang={lang} />
+        <LogosSection lang={lang} />
         <Problems lang={lang} />
         <Pillars lang={lang} />
         <Offers lang={lang} />

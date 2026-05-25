@@ -62,78 +62,83 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
   const t = page[lang]
 
   return (
-    <div className="min-h-screen bg-[#f8f7f3]">
+    <div className="min-h-screen bg-[#f8f7f3] flex flex-col lg:h-screen lg:overflow-hidden">
       <Header />
-      <main className="pt-[68px]">
-        <section className="border-b border-[#dedbd2]">
-          <div className="mx-auto grid max-w-[1264px] gap-10 border-x border-[#dedbd2] px-5 py-12 sm:px-8 md:px-12 md:py-20 lg:grid-cols-[1fr_360px]">
-            <div>
-              <p className="text-[13px] font-semibold uppercase tracking-[0.14em] text-[#1f6f93]">{t.title}</p>
-              <h1 className="mt-5 max-w-4xl text-[42px] font-semibold leading-[1.02] tracking-normal text-[#111111] md:text-[68px]">
-                {t.headline}
-              </h1>
-              <p className="mt-6 max-w-2xl text-[18px] leading-[1.7] text-[#5f5a52]">{t.subtitle}</p>
-            </div>
-            <aside className="self-start rounded-[8px] border border-[#d8d3c9] bg-white p-5">
-              <div className="space-y-3">
-                {t.aside.map((item) => (
-                  <div key={item} className="flex items-center justify-between border-b border-[#ece8df] pb-3 last:border-0 last:pb-0">
-                    <span className="text-[14px] font-semibold text-[#111111]">{item}</span>
-                    <span className="size-2 rounded-full bg-[#1f6f93]" />
-                  </div>
-                ))}
-              </div>
-            </aside>
-          </div>
-        </section>
-
-        <section className="border-b border-[#dedbd2] bg-white">
-          <div className="mx-auto grid max-w-[1264px] gap-10 border-x border-[#dedbd2] px-5 py-12 sm:px-8 md:px-12 md:py-20 lg:grid-cols-[0.8fr_1.2fr]">
-            <div>
-              <h2 className="text-[32px] font-semibold leading-[1.05] text-[#111111] md:text-[46px]">{t.formTitle}</h2>
-              <p className="mt-4 text-[16px] leading-[1.7] text-[#5f5a52]">{t.formSubtitle}</p>
-            </div>
-            <div className="rounded-[8px] border border-[#d8d3c9] bg-[#fbfaf7] p-5 md:p-7">
-              <AuditFlashForm lang={lang} mode="full" />
-            </div>
-          </div>
-        </section>
-
-        <section className="border-b border-[#dedbd2]">
-          <div className="mx-auto grid max-w-[1264px] gap-10 border-x border-[#dedbd2] px-5 py-12 sm:px-8 md:px-12 md:py-20 lg:grid-cols-2">
-            <div className="rounded-[8px] border border-[#d8d3c9] bg-white p-6">
-              <h2 className="text-[30px] font-semibold text-[#111111]">{t.duringTitle}</h2>
-              <ul className="mt-6 space-y-4">
-                {t.during.map((item) => (
-                  <li key={item} className="flex gap-3 text-[15px] leading-[1.6] text-[#5f5a52]">
-                    <span className="mt-2 size-2 shrink-0 rounded-full bg-[#1f6f93]" />
-                    {item}
-                  </li>
-                ))}
-              </ul>
-            </div>
-            <div className="rounded-[8px] border border-[#d8d3c9] bg-[#111111] p-6 text-white">
-              <h2 className="text-[30px] font-semibold">{t.remainsTitle}</h2>
-              <p className="mt-6 text-[16px] leading-[1.8] text-white/68">{t.remains}</p>
-            </div>
-          </div>
-        </section>
-
-        <section>
-          <div className="mx-auto max-w-[1264px] border-x border-[#dedbd2] px-5 py-12 sm:px-8 md:px-12 md:py-20">
-            <h2 className="text-[32px] font-semibold text-[#111111]">{t.faqTitle}</h2>
-            <div className="mt-8 divide-y divide-[#dedbd2] rounded-[8px] border border-[#dedbd2] bg-white">
-              {t.faq.map(([q, a]) => (
-                <div key={q} className="p-6">
-                  <h3 className="text-[18px] font-semibold text-[#111111]">{q}</h3>
-                  <p className="mt-2 text-[15px] leading-[1.65] text-[#5f5a52]">{a}</p>
+      
+      <main className="pt-[68px] flex-1 flex flex-col lg:grid lg:grid-cols-[0.9fr_1.11fr] lg:overflow-hidden">
+        {/* Left Column: Context & Information */}
+        <div className="p-6 md:p-8 lg:p-10 border-b border-[#dedbd2] lg:border-b-0 lg:border-r lg:overflow-y-auto flex flex-col justify-between space-y-6">
+          <div className="space-y-4">
+            <p className="text-[11px] font-bold uppercase tracking-[0.14em] text-[#1f6f93]">{t.title}</p>
+            <h1 className="text-[26px] font-bold leading-[1.1] tracking-tight text-[#111111] md:text-[34px] lg:text-[38px]">
+              {t.headline}
+            </h1>
+            <p className="text-[13.5px] leading-relaxed text-[#5f5a52]">{t.subtitle}</p>
+            
+            {/* Minimalist aside parameters band */}
+            <div className="grid grid-cols-2 gap-2 mt-4 sm:flex sm:flex-wrap sm:gap-2">
+              {t.aside.map((item) => (
+                <div key={item} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] border border-[#d8d3c9]/80 bg-white text-[11.5px] font-bold text-[#111111]">
+                  <span className="size-1.5 rounded-full bg-[#1f6f93]" />
+                  {item}
                 </div>
               ))}
             </div>
           </div>
-        </section>
+
+          {/* During call timeline */}
+          <div className="rounded-[6px] border border-[#d8d3c9]/80 bg-white p-4 space-y-3">
+            <h2 className="text-[15px] font-bold text-[#111111] flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#1f6f93]" />
+              {t.duringTitle}
+            </h2>
+            <ul className="space-y-2">
+              {t.during.map((item, index) => (
+                <li key={item} className="flex gap-2.5 text-[12.5px] leading-relaxed text-[#5a544b]">
+                  <span className="mt-1 font-mono text-[10px] text-[#1f6f93] font-bold">0{index + 1}</span>
+                  {item}
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          {/* What remains */}
+          <div className="rounded-[6px] border border-stone-800 bg-[#111111] p-4 text-white">
+            <h2 className="text-[15px] font-bold text-white flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#C85E1A]" />
+              {t.remainsTitle}
+            </h2>
+            <p className="mt-2 text-[12px] leading-relaxed text-stone-300">{t.remains}</p>
+          </div>
+
+          {/* FAQ quick questions accordion */}
+          <div>
+            <h2 className="text-[15px] font-bold text-[#111111] mb-3">{t.faqTitle}</h2>
+            <div className="divide-y divide-[#dedbd2] border border-[#dedbd2] rounded-[6px] bg-white">
+              {t.faq.slice(0, 2).map(([q, a]) => (
+                <div key={q} className="p-3">
+                  <h3 className="text-[12.5px] font-bold text-[#111111]">{q}</h3>
+                  <p className="mt-1 text-[12px] leading-normal text-[#5f5a52]">{a}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Right Column: Pre-qualification Form */}
+        <div className="p-6 md:p-8 lg:p-10 lg:overflow-y-auto flex flex-col justify-center bg-white">
+          <div className="max-w-[620px] mx-auto w-full space-y-4">
+            <div>
+              <h2 className="text-[20px] font-bold leading-none text-[#111111]">{t.formTitle}</h2>
+              <p className="mt-1 text-[12.5px] leading-normal text-[#5f5a52]">{t.formSubtitle}</p>
+            </div>
+            
+            <div className="rounded-[8px] border border-[#d8d3c9] bg-[#fbfaf7] p-4 md:p-5">
+              <AuditFlashForm lang={lang} mode="full" />
+            </div>
+          </div>
+        </div>
       </main>
-      <MarketingFooter lang={lang} />
     </div>
   )
 }

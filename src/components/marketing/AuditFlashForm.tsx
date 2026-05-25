@@ -71,7 +71,7 @@ const copy = {
 } as const
 
 function fieldClass() {
-  return 'min-h-[44px] w-full rounded-[8px] border border-[#d8d3c9] bg-white px-3 text-[14px] text-[#111111] outline-none transition placeholder:text-[#a39a8d] focus:border-[#1f6f93] focus:ring-2 focus:ring-[#1f6f93]/15'
+  return 'min-h-[36px] w-full rounded-[6px] border border-[#d8d3c9] bg-white px-2.5 text-[13px] text-[#111111] outline-none transition placeholder:text-[#a39a8d] focus:border-[#1f6f93] focus:ring-1.5 focus:ring-[#1f6f93]/15'
 }
 
 function Label({
@@ -84,9 +84,9 @@ function Label({
   optional?: string
 }) {
   return (
-    <label htmlFor={htmlFor} className="mb-2 block text-[13px] font-semibold text-[#2f2b26]">
+    <label htmlFor={htmlFor} className="mb-1 block text-[12px] font-semibold text-[#2f2b26]">
       {children}
-      {optional ? <span className="ml-2 font-normal text-[#8a8276]">{optional}</span> : null}
+      {optional ? <span className="ml-1.5 font-normal text-[#8a8276]">{optional}</span> : null}
     </label>
   )
 }
@@ -189,9 +189,9 @@ export function AuditFlashForm({
   }
 
   return (
-    <form onSubmit={submit} className="space-y-5">
+    <form onSubmit={submit} className="space-y-3">
       <input type="text" name="website" tabIndex={-1} autoComplete="off" className="hidden" aria-hidden="true" />
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <Label htmlFor={`${id}-first`}>{t.full.firstName}</Label>
           <input id={`${id}-first`} name="first_name" required className={fieldClass()} />
@@ -201,7 +201,7 @@ export function AuditFlashForm({
           <input id={`${id}-last`} name="last_name" required className={fieldClass()} />
         </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <Label htmlFor={`${id}-email`}>{t.full.email}</Label>
           <input id={`${id}-email`} name="email" required type="email" className={fieldClass()} />
@@ -211,7 +211,7 @@ export function AuditFlashForm({
           <input id={`${id}-role`} name="role" required className={fieldClass()} />
         </div>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <Label htmlFor={`${id}-company`}>{t.full.company}</Label>
           <input id={`${id}-company`} name="company" required className={fieldClass()} />
@@ -225,7 +225,7 @@ export function AuditFlashForm({
         <Label htmlFor={`${id}-address`}>{t.full.address}</Label>
         <input id={`${id}-address`} name="headquarters_address" required className={fieldClass()} />
       </div>
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-3 sm:grid-cols-2">
         <div>
           <Label htmlFor={`${id}-team`} optional={t.optional}>{t.full.teamSize}</Label>
           <input id={`${id}-team`} name="team_size" className={fieldClass()} />
@@ -242,30 +242,30 @@ export function AuditFlashForm({
           name="need"
           required
           minLength={20}
-          rows={5}
+          rows={3}
           placeholder={t.full.needPlaceholder}
-          className={`${fieldClass()} min-h-[150px] resize-y py-3 leading-[1.55]`}
+          className={`${fieldClass()} min-h-[72px] resize-y py-2 leading-[1.45]`}
         />
       </div>
-      <label className="flex items-start gap-3 text-[13px] leading-[1.5] text-[#5f5a52]">
-        <input name="marketing_consent" type="checkbox" value="true" required className="mt-1 size-4 rounded border-[#d8d3c9]" />
+      <label className="flex items-start gap-2.5 text-[12px] leading-[1.4] text-[#5f5a52] select-none">
+        <input name="marketing_consent" type="checkbox" value="true" required className="mt-0.5 size-3.5 rounded border-[#d8d3c9]" />
         <span>{t.full.consent}</span>
       </label>
-      <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+      <div className="flex flex-col gap-2.5 sm:flex-row sm:items-center">
         <button
           type="submit"
           disabled={state === 'submitting'}
-          className="inline-flex min-h-[48px] items-center justify-center rounded-[8px] bg-[#111111] px-6 text-[14px] font-semibold text-white transition hover:bg-[#2a2926] disabled:cursor-wait disabled:opacity-65"
+          className="inline-flex min-h-[38px] items-center justify-center rounded-[6px] bg-[#111111] px-5 text-[13px] font-semibold text-white transition hover:bg-[#2a2926] disabled:cursor-wait disabled:opacity-65"
         >
-          {state === 'submitting' ? <Loader2 className="mr-2 size-4 animate-spin" aria-hidden /> : null}
+          {state === 'submitting' ? <Loader2 className="mr-2 size-3.5 animate-spin" aria-hidden /> : null}
           {t.full.submit}
         </button>
-        <a href={TIDYCAL_AUDIT_FLASH_URL} className="inline-flex min-h-[48px] items-center justify-center rounded-[8px] border border-[#d8d3c9] px-5 text-[14px] font-semibold text-[#111111]">
+        <a href={TIDYCAL_AUDIT_FLASH_URL} className="inline-flex min-h-[38px] items-center justify-center rounded-[6px] border border-[#d8d3c9] px-4 text-[13px] font-semibold text-[#111111] hover:bg-stone-50 transition">
           {t.openCalendar}
         </a>
       </div>
-      {state === 'success' ? <p className="text-[13px] font-medium text-[#1f6f93]">{t.full.success}</p> : null}
-      {state === 'error' ? <p className="text-[13px] font-medium text-[#9f3a1d]">{t.full.error}</p> : null}
+      {state === 'success' ? <p className="text-[12px] font-medium text-[#1f6f93]">{t.full.success}</p> : null}
+      {state === 'error' ? <p className="text-[12px] font-medium text-[#9f3a1d]">{t.full.error}</p> : null}
     </form>
   )
 }
