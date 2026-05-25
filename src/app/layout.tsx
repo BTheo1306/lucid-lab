@@ -1,20 +1,19 @@
 import type { Metadata } from "next";
-import { Inter, Syne } from "next/font/google";
+import { Plus_Jakarta_Sans, Bricolage_Grotesque } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AdminAwareChatWidget } from "@/components/chat-widget/AdminAwareChatWidget";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-inter",
+const fontSans = Plus_Jakarta_Sans({
+  variable: "--font-sans",
   subsets: ["latin"],
   display: "swap",
 });
 
-const syne = Syne({
-  variable: "--font-syne",
+const fontDisplay = Bricolage_Grotesque({
+  variable: "--font-display",
   subsets: ["latin"],
-  weight: ["700", "800"],
   display: "swap",
 });
 
@@ -144,7 +143,7 @@ export default function RootLayout({
   return (
     <html
       lang="fr"
-      className={`${inter.variable} ${syne.variable} antialiased`}
+      className={`${fontSans.variable} ${fontDisplay.variable} antialiased`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
     >
