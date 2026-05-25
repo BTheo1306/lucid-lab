@@ -825,14 +825,14 @@ function Pillars({ lang }: { lang: Locale }) {
   return (
     <Section id="expertises" tone="gray">
       <div ref={containerRef} className="relative h-[250vh]">
-        <div className="sticky top-32">
-          <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
+        <div className="sticky top-20 lg:top-32">
+          <div className="grid gap-3 lg:gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
             <SectionTitle>{t.title}</SectionTitle>
             <SectionLede>{t.subtitle}</SectionLede>
           </div>
 
-          <div className="mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
-        <div className="flex flex-col gap-1.5 justify-center">
+          <div className="mt-6 lg:mt-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr]">
+        <div className="hidden lg:flex flex-col gap-1.5 justify-center">
           {t.items.map((item, index) => {
             const Icon = pillarIcons[index] ?? SearchCheck
             const isActive = activeIdx === index
