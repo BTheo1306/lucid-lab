@@ -169,13 +169,13 @@ const content = {
       subtitle:
         'Le plan commence par le terrain. Le build avance par cycles courts. Le transfert se prépare dès le premier jour.',
       steps: [
-        ['Diagnostiquer les workflows', 'On lit les tâches, les irritants, les outils et les volumes.'],
-        ['Collecter les cas d’usage', 'Les équipes décrivent les gains attendus, les risques et les dépendances.'],
-        ['Scorer valeur, faisabilité, risque', 'La direction choisit le premier chantier avec une grille claire.'],
-        ['Valider données et accès', 'Les sources, formats, permissions et contraintes RGPD passent avant le code.'],
-        ['Concevoir l’architecture cible', 'On définit outils, modèles, hébergement, logs, monitoring et ownership.'],
-        ['Construire et déployer', 'On livre par cycles courts avec démos, tests et intégrations réelles.'],
-        ['Former, documenter, monitorer', 'Les équipes reçoivent runbooks, modes opératoires et indicateurs de suivi.'],
+        'Audit des workflows terrain pour cartographier vos processus réels.',
+        'Collecte et qualification des cas d’usage à fort impact.',
+        'Scoring des chantiers IA : l\'équilibre parfait entre valeur et risque.',
+        'Sécurisation stricte des accès, données et conformité RGPD.',
+        'Conception d\'une architecture technique solide, monitorée et scalable.',
+        'Développement et intégration par cycles itératifs très courts.',
+        'Formation des équipes clés et transfert définitif de l\'exploitation.',
       ],
     },
     cases: {
@@ -391,13 +391,13 @@ const content = {
       subtitle:
         'The plan starts in the field. The build moves in short cycles. The handover starts on day one.',
       steps: [
-        ['Diagnose workflows', 'We read tasks, irritants, tools and volumes.'],
-        ['Collect use cases', 'Teams describe expected gains, risks and dependencies.'],
-        ['Score value, feasibility, risk', 'Leaders choose the first build with a clear grid.'],
-        ['Validate data and access', 'Sources, formats, permissions and GDPR constraints come before code.'],
-        ['Design the target architecture', 'We define tools, models, hosting, logs, monitoring and ownership.'],
-        ['Build and deploy', 'We ship in short cycles with demos, tests and real integrations.'],
-        ['Train, document, monitor', 'Teams receive runbooks, operating notes and monitoring indicators.'],
+        'Field workflow audit to map out your actual daily processes.',
+        'Collection and deep qualification of high-impact use cases.',
+        'Project scoring : finding the perfect rhythm between value and risk.',
+        'Strict securing of data access, permissions, and GDPR compliance.',
+        'Design of a solid, fully monitored, and scalable technical architecture.',
+        'Development and seamless integration through iterative short cycles.',
+        'Hands-on team training and definitive handover of operations.',
       ],
     },
     cases: {
@@ -1023,18 +1023,14 @@ function Delivery({ lang }: { lang: Locale }) {
             >
               {/* Massive outlined hollow number that softly fills on hover */}
               <div 
-                className="text-[3.5rem] md:text-[6rem] font-black tracking-tighter transition-all duration-500 text-transparent"
-                style={{ 
-                  WebkitTextStroke: '2px rgba(200, 94, 26, 0.2)',
-                }}
+                className="text-[4rem] md:text-[6.5rem] font-black tracking-tighter transition-all duration-500 cursor-default select-none"
+                style={{ color: 'rgba(200, 94, 26, 0.1)' }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.webkitTextStroke = '2px rgba(200, 94, 26, 0.8)';
-                  e.currentTarget.style.color = 'rgba(200, 94, 26, 0.05)';
+                  e.currentTarget.style.color = 'rgba(200, 94, 26, 0.7)';
                   e.currentTarget.style.transform = 'scale(1.05)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.webkitTextStroke = '2px rgba(200, 94, 26, 0.2)';
-                  e.currentTarget.style.color = 'transparent';
+                  e.currentTarget.style.color = 'rgba(200, 94, 26, 0.1)';
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
               >
