@@ -6,7 +6,7 @@ import { AdminAwareChatWidget } from "@/components/chat-widget/AdminAwareChatWid
 import "./globals.css";
 
 const fontSans = Figtree({
-  variable: "--font-sans",
+  variable: "--font-figtree",
   subsets: ["latin"],
   display: "swap",
 });
