@@ -912,40 +912,82 @@ function Pillars({ lang }: { lang: Locale }) {
 function Offers({ lang }: { lang: Locale }) {
   const t = content[lang].offers
 
+  // Creates the Bento Box layout
+  const getBentoClass = (idx: number) => {
+    switch(idx) {
+      case 0: return "lg:col-span-7"
+      case 1: return "lg:col-span-5"
+      case 2: return "lg:col-span-4"
+      case 3: return "lg:col-span-4"
+      case 4: return "lg:col-span-4"
+      default: return "lg:col-span-12"
+    }
+  }
+
   return (
     <Section id="offres" tone="ink">
-      <div className="grid gap-6 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <SectionTitle light>{t.title}</SectionTitle>
-        <SectionLede light>{t.subtitle}</SectionLede>
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 pb-4">
+        <div className="max-w-2xl">
+          <SectionTitle light>{t.title}</SectionTitle>
+          <SectionLede light>{t.subtitle}</SectionLede>
+        </div>
       </div>
-      <div className="mt-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
-        {t.items.map((item, idx) => (
-          <motion.article 
-            key={item.title} 
-            className="flex min-h-[220px] flex-col justify-between p-5 rounded-[6px] border transition-all duration-300 hover:border-[#C85E1A]/40" 
-            style={{ 
-              background: INK,
-              borderColor: 'rgba(250,250,247,0.12)'
-            }}
-            initial={{ opacity: 0, y: 12 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: idx * 0.1 }}
-          >
-            <div>
-              <span className="text-[9px] font-semibold uppercase tracking-[0.14em] text-orange-500">{item.detail}</span>
-              <h3 className="mt-4 text-[15px] font-bold leading-tight" style={{ color: PAPER }}>{item.title}</h3>
-              <p className="mt-2 text-[12px] leading-normal" style={{ color: 'rgba(250,250,247,0.64)' }}>{item.body}</p>
-            </div>
-            <div className="mt-4 pt-3 border-t border-white/5">
-              <TextLink href={resolveHref(lang, item.href)} light>{lang === 'en' ? 'Details' : 'Détails'}</TextLink>
-            </div>
-          </motion.article>
-        ))}
+      
+      <div className="mt-12 grid gap-4 md:grid-cols-2 lg:grid-cols-12 auto-rows-fr">
+        {t.items.map((item, idx) => {
+          const isFirstRow = idx < 2;
+          return (
+            <motion.article 
+              key={item.title} 
+              className={`group relative flex flex-col justify-between overflow-hidden rounded-[16px] border p-6 md:p-8 transition-all duration-500 hover:border-[#C85E1A]/40 hover:-translate-y-1 ${getBentoClass(idx)}`}
+              style={{ 
+                background: 'linear-gradient(180deg, rgba(30,30,30,0.4) 0%, rgba(15,15,15,0.8) 100%)',
+                borderColor: 'rgba(250,250,247,0.1)'
+              }}
+              initial={{ opacity: 0, scale: 0.96 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
+              transition={{ duration: 0.5, delay: idx * 0.1, ease: [0.23, 1, 0.32, 1] }}
+            >
+              {/* Giant watermark number background */}
+              <div className="absolute -top-12 -right-8 opacity-[0.03] transition-opacity duration-500 group-hover:opacity-[0.06] select-none pointer-events-none">
+                <span className="text-[240px] font-black leading-none" style={{ color: PAPER }}>{idx + 1}</span>
+              </div>
+
+              <div className="relative z-10">
+                <div className="flex items-center gap-3 mb-8">
+                  <span className="flex items-center justify-center size-6 rounded-full border border-white/10 text-[10px] font-mono text-white/50 bg-white/5">0{idx + 1}</span>
+                  <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C85E1A]">{item.detail}</span>
+                </div>
+                <h3 className={`font-bold leading-tight ${isFirstRow ? 'text-[22px] md:text-[28px]' : 'text-[18px] md:text-[22px]'}`} style={{ color: PAPER }}>
+                  {item.title}
+                </h3>
+                <p className={`mt-4 leading-[1.6] ${isFirstRow ? 'text-[15px]' : 'text-[14px]'}`} style={{ color: 'rgba(250,250,247,0.64)' }}>
+                  {item.body}
+                </p>
+              </div>
+              
+              <div className="relative z-10 mt-10 flex items-center justify-between pt-4">
+                <Link 
+                  href={resolveHref(lang, item.href)}
+                  className="inline-flex items-center gap-2 text-[14px] font-semibold transition-colors duration-300"
+                  style={{ color: PAPER }}
+                >
+                  <span className="group-hover:text-[#C85E1A] transition-colors">{lang === 'en' ? 'Open details' : 'Voir les détails'}</span>
+                  <ArrowRight className="size-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 group-hover:text-[#C85E1A] transition-all duration-300" />
+                </Link>
+              </div>
+              
+              {/* Subtle hover glow effect built with CSS shadow internally or just a nice gradient overlay */}
+              <div className="absolute inset-0 bg-gradient-to-br from-[#C85E1A]/[0.03] to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 pointer-events-none" />
+            </motion.article>
+          )
+        })}
       </div>
     </Section>
   )
 }
+
 
 function Delivery({ lang }: { lang: Locale }) {
   const t = content[lang].delivery
