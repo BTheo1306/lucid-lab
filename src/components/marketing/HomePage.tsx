@@ -999,44 +999,67 @@ function Delivery({ lang }: { lang: Locale }) {
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
 
-      <div className="mt-8 relative">
-        <div className="absolute left-[3%] right-[3%] top-4 hidden h-[1px] bg-stone-200 lg:block" />
+      <div className="mt-16 md:mt-24 w-full max-w-5xl mx-auto flex flex-col font-sans">
+        {t.steps.map((step, idx) => {
+          // Creates a subtle curve path for the list
+          const offsetClass = [
+            'md:ml-[0%]',
+            'md:ml-[8%]',
+            'md:ml-[16%]',
+            'md:ml-[24%]',
+            'md:ml-[16%]',
+            'md:ml-[8%]',
+            'md:ml-[0%]',
+          ][idx];
 
-        <ol className="grid gap-6 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-7 relative z-10">
-          {t.steps.map(([title, body], index) => (
-            <motion.li 
-              key={title} 
-              className="flex flex-col relative select-none"
-              initial={{ opacity: 0, x: -10 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.35, delay: index * 0.08 }}
+          return (
+            <motion.div 
+              key={idx}
+              className={`group flex items-center gap-5 md:gap-8 p-3 md:p-5 w-full md:w-[80%] ${offsetClass} transition-all duration-500 hover:-translate-y-1 cursor-default`}
+              initial={{ opacity: 0, filter: "blur(4px)", y: 20 }}
+              whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
+              viewport={{ once: true, margin: "-15% 0px -15% 0px" }}
+              transition={{ duration: 0.6, delay: 0.05 }}
             >
-              <div className="flex items-center gap-3 lg:flex-col lg:items-start lg:gap-0">
-                <div 
-                  className="flex h-8 w-8 items-center justify-center rounded-full border bg-white shadow-sm transition-colors duration-200"
-                  style={{ borderColor: GRAY_200 }}
-                >
-                  <span className="text-[11px] font-mono text-[#C85E1A] font-bold">0{index + 1}</span>
-                </div>
-                
-                <h3 className="mt-2.5 text-[13px] font-bold leading-snug text-stone-900">{title}</h3>
+              {/* Massive outlined hollow number that softly fills on hover */}
+              <div 
+                className="text-[3.5rem] md:text-[6rem] font-black tracking-tighter transition-all duration-500 text-transparent"
+                style={{ 
+                  WebkitTextStroke: '2px rgba(200, 94, 26, 0.2)',
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.webkitTextStroke = '2px rgba(200, 94, 26, 0.8)';
+                  e.currentTarget.style.color = 'rgba(200, 94, 26, 0.05)';
+                  e.currentTarget.style.transform = 'scale(1.05)';
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.webkitTextStroke = '2px rgba(200, 94, 26, 0.2)';
+                  e.currentTarget.style.color = 'transparent';
+                  e.currentTarget.style.transform = 'scale(1)';
+                }}
+              >
+                0{idx + 1}
               </div>
-              <p className="mt-1.5 text-[11.5px] leading-relaxed text-stone-500 lg:pr-1">{body}</p>
-            </motion.li>
-          ))}
-        </ol>
+
+              {/* Bold simple text */}
+              <h3 className="text-[18px] md:text-[28px] font-bold text-stone-800 leading-tight md:leading-snug group-hover:text-stone-950 transition-colors duration-500">
+                {step}
+              </h3>
+            </motion.div>
+          )
+        })}
       </div>
 
-      <div className="mt-8 border-t pt-4 flex justify-between items-center" style={{ borderColor: GRAY_200 }}>
-        <span className="text-[11px] font-mono text-[#8a8276]">// Processus de livraison monitoré</span>
-        <TextLink href={routeMap[lang].method}>
+      <div className="mt-16 border-t pt-4 flex justify-between items-center" style={{ borderColor: GRAY_200 }}>
+        <span className="text-[11px] font-mono text-[#8a8276] uppercase tracking-widest">// Processus de livraison monitoré</span>
+        <TextLink href={resolveHref(lang, routeMap[lang].method)}>
           {lang === 'en' ? 'Explore full method' : 'Voir la méthode complète'}
         </TextLink>
       </div>
     </Section>
   )
 }
+
 
 function Cases({ lang }: { lang: Locale }) {
   const t = content[lang].cases
