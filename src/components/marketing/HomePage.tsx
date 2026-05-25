@@ -806,9 +806,9 @@ function Pillars({ lang }: { lang: Locale }) {
   return (
     <Section id="expertises" tone="gray">
       <div className="relative">
-        <div className="grid gap-6 lg:gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:min-h-[100vh]">
+        <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:min-h-[100vh]">
           
-          <div className="sticky top-24 lg:top-32 flex flex-col gap-6 lg:gap-12 z-20">
+          <div className="lg:sticky lg:top-32 flex flex-col gap-8 lg:gap-12 z-20 pb-8 lg:pb-0">
             <div className="grid gap-3 lg:gap-4">
               <SectionTitle>{t.title}</SectionTitle>
               <SectionLede>{t.subtitle}</SectionLede>
@@ -841,7 +841,7 @@ function Pillars({ lang }: { lang: Locale }) {
             </div>
           </div>
 
-          <div className="flex flex-col relative w-full pt-4 lg:pt-0 lg:pb-[30vh]">
+          <div className="flex flex-col relative w-full lg:pb-[30vh]">
             {t.items.map((item, index) => {
               const Icon = pillarIcons[index] ?? SearchCheck
               const isLast = index === t.items.length - 1
@@ -851,53 +851,49 @@ function Pillars({ lang }: { lang: Locale }) {
                   key={index}
                   onViewportEnter={() => setActiveIdx(index)}
                   viewport={{ margin: "-40% 0px -40% 0px" }}
-                  className="sticky min-h-[350px] lg:min-h-[300px] rounded-[8px] border p-6 flex flex-col justify-between bg-white shadow-sm"
+                  className="sticky lg:h-[400px] rounded-[12px] border p-6 md:p-8 flex flex-col justify-between bg-white shadow-md overflow-hidden"
                   style={{ 
                     borderColor: GRAY_200,
-                    top: `calc(90px + ${index * 16}px)`,
-                    marginBottom: isLast ? '0' : '40vh',
+                    top: `calc(100px + ${index * 16}px)`,
+                    marginBottom: isLast ? '0' : '50vh',
                     zIndex: index
                   }}
                 >
-                  <div className="flex flex-col h-full justify-between">
+                  <div className="absolute inset-x-0 -bottom-[100vh] h-[100vh] bg-white pointer-events-none" aria-hidden="true" />
+                  
+                  <div className="flex flex-col h-full justify-between relative z-10">
                     <div>
-                      <div className="flex items-center justify-between border-b pb-3 mb-3" style={{ borderColor: GRAY_100 }}>
+                      <div className="flex items-center justify-between border-b pb-3 mb-4" style={{ borderColor: GRAY_100 }}>
                         <div className="flex items-center gap-2">
                           <Icon className="size-4" style={{ color: EMBER }} />
                           <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276]">Expertise 0{index + 1}</span>
                         </div>
-                        <Link
-                          href={resolveHref(lang, item.href)}
-                          className="text-[11px] font-bold underline decoration-[#C85E1A]/40 decoration-2 hover:decoration-[#C85E1A] text-stone-700 hover:text-stone-950 transition"
-                        >
-                          {lang === 'en' ? 'Explore methodology' : 'Explorer la méthode'}
-                        </Link>
                       </div>
 
-                      <h3 className="text-[16px] md:text-[18px] font-bold" style={{ color: INK }}>{item.title}</h3>
-                      <p className="mt-1.5 text-[13px] leading-[1.45]" style={{ color: GRAY_600 }}>{item.problem}</p>
+                      <h3 className="text-[18px] md:text-[20px] font-bold" style={{ color: INK }}>{item.title}</h3>
+                      <p className="mt-2 text-[13.5px] leading-[1.5]" style={{ color: GRAY_600 }}>{item.problem}</p>
                       
-                      <ul className="mt-3.5 space-y-1.5">
+                      <ul className="mt-5 space-y-2.5">
                         {item.deliverables.map((deliverable) => (
-                          <li key={deliverable} className="flex gap-2 text-[12.5px] items-center" style={{ color: INK }}>
-                            <span className="h-1 w-1 rounded-full" style={{ background: EMBER }} />
+                          <li key={deliverable} className="flex gap-2.5 text-[13px] items-center font-medium" style={{ color: INK }}>
+                            <span className="h-1.5 w-1.5 rounded-full" style={{ background: EMBER }} />
                             {deliverable}
                           </li>
                         ))}
                       </ul>
                     </div>
 
-                    <div className="mt-5 pt-3 border-t" style={{ borderColor: GRAY_100 }}>
-                      <span className="text-[10px] font-mono text-[#8a8276] block mb-0.5">Impact final :</span>
-                      <p className="text-[12.5px] font-semibold leading-[1.45]" style={{ color: EMBER }}>{item.result}</p>
+                    <div className="mt-6 pt-4 border-t" style={{ borderColor: GRAY_100 }}>
+                      <span className="text-[10px] font-mono text-[#8a8276] block mb-1">Impact final :</span>
+                      <p className="text-[13px] font-semibold leading-[1.5]" style={{ color: EMBER }}>{item.result}</p>
                       
                       <Link 
                         href={resolveHref(lang, item.href)}
-                        className="mt-3.5 inline-flex items-center gap-1.5 text-[12.5px] font-semibold group"
+                        className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-bold group bg-[#F5F5F0] hover:bg-[#EAEAE5] transition-colors py-2 px-3.5 rounded-md"
                         style={{ color: INK }}
                       >
                         {lang === 'en' ? 'Open details' : 'Voir les détails'}
-                        <ArrowRight className="size-3 transition-transform duration-200 group-hover:translate-x-1" />
+                        <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
                       </Link>
                     </div>
                   </div>
