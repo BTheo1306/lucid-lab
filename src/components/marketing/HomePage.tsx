@@ -808,7 +808,7 @@ function Pillars({ lang }: { lang: Locale }) {
       <div className="relative">
         <div className="grid gap-8 lg:grid-cols-[0.85fr_1.15fr] lg:items-start lg:min-h-[100vh]">
           
-          <div className="lg:sticky lg:top-32 flex flex-col gap-8 lg:gap-12 z-20 pb-8 lg:pb-0">
+          <div className="sticky top-20 lg:top-32 flex flex-col gap-6 lg:gap-12 z-20 pb-4 lg:pb-0 self-start">
             <div className="grid gap-3 lg:gap-4">
               <SectionTitle>{t.title}</SectionTitle>
               <SectionLede>{t.subtitle}</SectionLede>
@@ -841,23 +841,23 @@ function Pillars({ lang }: { lang: Locale }) {
             </div>
           </div>
 
-          <div className="flex flex-col relative w-full lg:pb-[30vh]">
+          <div className="flex flex-col relative w-full pb-[60vh] lg:pb-[50vh]">
             {t.items.map((item, index) => {
               const Icon = pillarIcons[index] ?? SearchCheck
-              const isLast = index === t.items.length - 1
               
               return (
                 <motion.div
                   key={index}
                   onViewportEnter={() => setActiveIdx(index)}
                   viewport={{ margin: "-40% 0px -40% 0px" }}
-                  className="sticky lg:h-[400px] rounded-[12px] border p-6 md:p-8 flex flex-col justify-between bg-white shadow-md overflow-hidden"
+                  className="sticky lg:h-[400px] rounded-[12px] border p-6 md:p-8 flex flex-col justify-between bg-white shadow-md overflow-hidden top-[var(--card-top-mobile)] lg:top-[var(--card-top-desktop)]"
                   style={{ 
                     borderColor: GRAY_200,
-                    top: `calc(100px + ${index * 16}px)`,
-                    marginBottom: isLast ? '0' : '50vh',
+                    '--card-top-mobile': `calc(35vh + ${index * 16}px)`,
+                    '--card-top-desktop': `calc(130px + ${index * 16}px)`,
+                    marginBottom: '50vh',
                     zIndex: index
-                  }}
+                  } as React.CSSProperties}
                 >
                   <div className="absolute inset-x-0 -bottom-[100vh] h-[100vh] bg-white pointer-events-none" aria-hidden="true" />
                   
