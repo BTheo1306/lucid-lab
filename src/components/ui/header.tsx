@@ -20,9 +20,8 @@ export function Header() {
   const links = [
     { label: t.nav.expertise, href: `${homePrefix}/#expertises` },
     { label: t.nav.offers, href: `${homePrefix}/#offres` },
-    { label: t.nav.delivery, href: `${homePrefix}/#comment-on-livre` },
-    { label: t.nav.cases, href: `${homePrefix}/#acquis-livres` },
-    { label: t.nav.team, href: `${homePrefix}/#equipe` },
+    { label: t.nav.delivery, href: `${homePrefix}${lang === 'en' ? '/method' : '/methode'}` },
+    { label: t.nav.cases, href: `${homePrefix}${lang === 'en' ? '/case-studies' : '/cas-clients'}` },
     { label: t.nav.blog, href: `${homePrefix === '' ? '/blog' : '/en/blog'}` },
     { label: t.nav.contact, href: `${homePrefix}/audit-flash` },
   ]

@@ -22,12 +22,12 @@ export function generateMetadata(): Metadata {
   const isEn = false;
 
   const description = isEn
-    ? "Lucid-Lab builds, deploys and operates AI systems in production: agents, internal tools, automations, integrations, monitoring and documentation."
-    : "Lucid-Lab construit, déploie et opère vos systèmes IA en production : agents, outils internes, automatisations, intégrations, monitoring et documentation.";
+    ? "Lucid-Lab audits workflows, ranks AI opportunities and builds business AI systems in production: agents, internal tools, automations, integrations, monitoring and documentation."
+    : "Lucid-Lab audite vos workflows, priorise les opportunités IA et construit des systèmes métier en production : agents, outils internes, automatisations, intégrations, monitoring et documentation.";
 
   const ogTitle = isEn
-    ? "Lucid-Lab — AI systems built, deployed, operated"
-    : "Lucid-Lab — Systèmes IA construits, déployés, opérés";
+    ? "Lucid-Lab: business AI systems in production"
+    : "Lucid-Lab : systèmes IA métier en production";
 
   const ogDescription = isEn
     ? "We ship agents, internal tools, automations, integrations, monitoring and documentation that run in production."
@@ -42,8 +42,8 @@ export function generateMetadata(): Metadata {
   return {
     title: {
       default: isEn
-        ? "Lucid-Lab — AI systems built, deployed, operated"
-        : "Lucid-Lab — Systèmes IA construits, déployés, opérés",
+        ? "Lucid-Lab: business AI systems in production"
+        : "Lucid-Lab : systèmes IA métier en production",
       template: "%s | Lucid-Lab",
     },
     description,

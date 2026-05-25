@@ -5,9 +5,9 @@ import { getAllPosts } from "@/lib/blog/posts";
 import { CATEGORIES, type PostCategory } from "@/lib/blog/types";
 
 export const metadata: Metadata = {
-  title: "Blog — Automation, AI & systems for SMEs",
+  title: "Blog: automation, AI and systems for SMEs",
   description:
-    "Real cases, real costs, measured ROI. Everything we learn while building systems for French and Belgian SMEs. Zero PowerPoint.",
+    "Real cases, real costs, measured ROI. We document what we learn while building systems for French and Belgian SMEs.",
   alternates: { canonical: "https://lucid-lab.fr/en/blog" },
 };
 
@@ -39,7 +39,7 @@ export default async function BlogIndex() {
         </h1>
         <p className="text-[16px] leading-[1.6] text-zinc-600 sm:text-[18px]">
           Real cases, real costs, measured ROI. We document what we ship for
-          French and Belgian SMEs. Zero PowerPoint.
+          French and Belgian SMEs.
         </p>
       </header>
 

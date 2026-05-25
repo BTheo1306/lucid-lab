@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import { motion } from 'framer-motion'
 import {
   ArrowRight,
   Bot,
@@ -12,7 +13,6 @@ import {
   LockKeyhole,
   MonitorCheck,
   Network,
-  Radio,
   SearchCheck,
   ShieldCheck,
   Sparkles,
@@ -20,12 +20,9 @@ import {
   Workflow,
 } from 'lucide-react'
 
-import { AuditFlashForm } from '@/components/marketing/AuditFlashForm'
 import { Header } from '@/components/ui/header'
 import type { Locale } from '@/lib/i18n/client'
 
-// Brand tokens — see lucid-lab-branding.md (Ink, Paper, Gray 600/400/200, Ember).
-// Single-accent rule: Ember used sparingly; no secondary blue.
 const INK = '#0A0A0A'
 const PAPER = '#FAFAF7'
 const GRAY_600 = '#525252'
@@ -34,426 +31,412 @@ const GRAY_200 = '#E5E5E5'
 const GRAY_100 = '#F2F2EE'
 const EMBER = '#C85E1A'
 
-const auditHref = {
-  fr: '/audit-flash',
-  en: '/en/audit-flash',
-} as const
-
-const blogHref = {
-  fr: '/blog',
-  en: '/en/blog',
+const routeMap = {
+  fr: {
+    booking: '/audit-flash',
+    audit: '/audit-ia',
+    data: '/readiness-data-si',
+    roadmap: '/roadmap-automatisation',
+    agents: '/agents-ia-outils-internes',
+    buildRun: '/build-run',
+    method: '/methode',
+    cases: '/cas-clients',
+    blog: '/blog',
+  },
+  en: {
+    booking: '/en/audit-flash',
+    audit: '/en/audit-ia',
+    data: '/en/readiness-data-si',
+    roadmap: '/en/roadmap-automatisation',
+    agents: '/en/agents-ia-outils-internes',
+    buildRun: '/en/build-run',
+    method: '/en/method',
+    cases: '/en/case-studies',
+    blog: '/en/blog',
+  },
 } as const
 
 const content = {
   fr: {
     hero: {
-      title: 'Vos systèmes IA, construits, déployés, opérés.',
+      title: 'Le bon système IA, livré.',
       subtitle:
-        'On livre des agents, outils internes et automatisations qui tournent en production. Le cadrage sert à démarrer vite. Chaque étape livrée vous reste : propriété, code, documentation.',
-      primary: 'Réserver un Audit Flash (30 min, gratuit)',
-      secondary: 'Tester un agent (Lex)',
-      tertiary: "Voir ce qu'on a livré",
-      proofs: ['Build', 'Run', 'Intégrations', 'Monitoring', 'Documentation'],
+        'Lucid-Lab audite vos workflows, vérifie vos données et priorise les cas d’usage avant de construire agents, outils internes et intégrations.',
+      primary: 'Réserver un audit IA',
+      secondary: 'Voir les cas d’usage',
+      proofs: ['Audit', 'Roadmap', 'Build', 'Run', 'Ownership'],
+    },
+    trusted: {
+      title: 'Les entreprises qui nous ont fait confiance',
+      subtitle:
+        'Des équipes nous ont confié des workflows, des données et des livrables métier. Les cas publics arrivent après validation client.',
+      logos: [
+        { name: 'Turismo', logo: '/logos/logo%20Turismo.png' },
+        { name: 'Kobia', logo: '/logos/logo-wordmark-kobia-black.png' },
+        { name: 'Universal', logo: null },
+        { name: 'Périscope', logo: null },
+      ],
     },
     problems: {
-      title: "Là où les projets IA s'arrêtent d'habitude.",
+      title: 'Les blocages arrivent avant le modèle.',
       subtitle:
-        "Les dirigeants n'ont pas besoin d'un nouveau discours IA. Ils ont besoin d'un premier système fiable qui passe en prod et reste exploitable.",
+        'Vous avez des idées IA, des exports, des outils et des équipes pressées. Lucid-Lab transforme ce matériau en chantier priorisé.',
       items: [
-        ['Idées IA dispersées', 'Beaucoup de tests, peu de systèmes réellement utilisés par les équipes.'],
-        ['Workflows manuels', 'Des tâches répétitives qui mangent des jours entiers chaque mois.'],
-        ['Outils non connectés', 'CRM, fichiers, ERP, boîtes mail et bases internes qui ne se parlent pas.'],
-        ['Données difficiles', 'Accès, qualité, formats et droits insuffisamment clarifiés avant de builder.'],
-        ['Sécurité mal cadrée', 'RGPD, permissions et usages IA sensibles traités trop tard.'],
-        ['Adoption fragile', 'Un pilote existe, mais personne ne sait le surveiller, le reprendre ou l’améliorer.'],
+        ['Idées IA dispersées', 'Les métiers listent des cas d’usage, mais personne ne score valeur, faisabilité et risque.'],
+        ['Workflows manuels', 'Les équipes copient, recollent, consolident et vérifient les mêmes données chaque semaine.'],
+        ['Outils non connectés', 'CRM, ERP, fichiers et boîtes mail gardent chacun une partie du processus.'],
+        ['Données difficiles', 'Les sources existent, mais les accès, formats et droits ralentissent le build.'],
+        ['Sécurité tardive', 'RGPD, permissions et données sensibles entrent dans la discussion trop tard.'],
+        ['Adoption fragile', 'Un pilote sans runbook, owner et monitoring finit en démo oubliée.'],
       ],
     },
     pillars: {
-      title: 'Expertises',
-      subtitle: 'Quatre entrées, un seul objectif : livrer un acquis opérationnel.',
+      title: 'Quatre portes d’entrée, un système livré.',
+      subtitle:
+        'Chaque domaine a sa page, ses livrables et ses cas d’usage. Le parcours reste le même : comprendre, prioriser, construire, transférer.',
       items: [
         {
-          title: 'IA, automatisation & outils internes',
-          problem: 'Un workflow métier peut être confié à un agent ou à un outil interne.',
-          deliverables: ['Agents IA en prod', 'Dashboards métier', 'Portails et interfaces internes'],
-          result: 'Les équipes gagnent un système utilisable tous les jours.',
-          href: '#offres',
+          title: 'Diagnostic & Roadmap',
+          problem: 'Vous devez choisir le premier chantier IA avec des critères métier, data et risque.',
+          deliverables: ['Cartographie workflows', 'Scoring valeur, faisabilité, risque', 'Roadmap de build'],
+          result: 'Vous repartez avec un plan d’exécution exploitable par direction et équipes métier.',
+          href: routeMap.fr.audit,
         },
         {
-          title: 'Build & Run / adoption',
-          problem: 'Le système doit tourner, être surveillé et repris par les équipes.',
-          deliverables: ['Monitoring coût / qualité', 'Runbooks incidents', 'Passage de main clair'],
-          result: 'Le pilote devient un outil opéré, pas une démo oubliée.',
-          href: '#comment-on-livre',
+          title: 'Data & SI Readiness',
+          problem: 'Le build dépend des sources, permissions, formats, outils et règles de sécurité.',
+          deliverables: ['Inventaire sources', 'Matrice droits et accès', 'Architecture cible EU'],
+          result: 'Les blocages techniques et réglementaires sortent avant le développement.',
+          href: routeMap.fr.data,
         },
         {
-          title: 'Data & SI readiness',
-          problem: "Le build échoue si les sources, accès et risques ne sont pas prêts.",
-          deliverables: ['Inventaire sources', 'Droits et permissions', 'Architecture cible EU'],
-          result: 'Les blocages techniques sont visibles avant d’engager le chantier.',
-          href: '#enterprise-readiness',
+          title: 'IA & Outils Internes',
+          problem: 'Un workflow métier doit passer dans un agent, un portail ou une automatisation fiable.',
+          deliverables: ['Agents IA', 'Dashboards métier', 'Connecteurs et interfaces internes'],
+          result: 'Les équipes utilisent un système branché à leurs outils et gardent le contrôle de l’usage.',
+          href: routeMap.fr.agents,
         },
         {
-          title: 'Diagnostic & cadrage',
-          problem: 'Le bon premier chantier doit être choisi vite, sans mois de comité.',
-          deliverables: ['Lecture du besoin', 'Arbitrage rapide / pérenne', 'Séquence de build'],
-          result: 'On sait quoi construire, pourquoi, et ce qui restera au client.',
-          href: auditHref.fr,
+          title: 'Adoption, Formation & Run',
+          problem: 'Le système doit tourner, se surveiller et rester compréhensible par les équipes.',
+          deliverables: ['Runbooks', 'Monitoring coût et qualité', 'Formation ciblée'],
+          result: 'Le client garde le code, la documentation, les accès et la capacité d’opérer.',
+          href: routeMap.fr.buildRun,
         },
       ],
     },
     offers: {
-      title: 'Offres concrètes',
-      subtitle: 'Pas de catalogue public ni de prix affichés. On part du besoin, puis on construit le bon système.',
+      title: 'Des formats lisibles avant le devis.',
+      subtitle:
+        'Le problème fixe le format. Le format réduit le risque avant le build.',
       items: [
         {
-          title: 'Audit Flash',
-          detail: '30 min, gratuit',
-          body: 'Porte d’entrée : pré-qualification, lecture du contexte, premier chantier plausible, orientation honnête.',
-          cta: 'Réserver',
-          featured: true,
+          title: 'AI Opportunity Audit',
+          detail: 'Diagnostic court',
+          body: 'Lecture des workflows, cas d’usage, maturité data, risques et premier chantier IA.',
+          href: routeMap.fr.audit,
         },
         {
-          title: 'Agents IA & outils internes',
-          detail: 'Le coeur',
-          body: 'Agents, dashboards, workflows, connecteurs et interfaces qui remplacent un vrai travail manuel.',
-          cta: 'Cadrer un build',
+          title: 'Data & System Readiness Assessment',
+          detail: 'Préparation SI',
+          body: 'Sources, droits, sécurité, hébergement, outils et architecture cible à valider avant dev.',
+          href: routeMap.fr.data,
         },
         {
-          title: 'Build & Run operations',
-          detail: 'Prod + run',
-          body: 'Déploiement, monitoring, alerting, documentation, runbooks et transfert d’exploitation.',
-          cta: 'En savoir plus',
+          title: 'Automation Roadmap',
+          detail: 'Plan de build',
+          body: 'Priorisation des processus manuels, séquence de livraison, dépendances et ROI attendu.',
+          href: routeMap.fr.roadmap,
         },
         {
-          title: 'Data & SI readiness',
-          detail: 'Préparation technique',
-          body: 'Sources, droits, risques, hébergement EU, modèles et intégrations à sécuriser avant le build.',
-          cta: 'Évaluer ma maturité',
+          title: 'Custom AI Agents & Internal Tools',
+          detail: 'Build métier',
+          body: 'Agents, dashboards, portails, intégrations, workflows et contrôles humains.',
+          href: routeMap.fr.agents,
         },
         {
-          title: 'Forma & adoption',
-          detail: 'Option légère',
-          body: 'Prise en main des équipes, bons réflexes IA, documentation et usages concrets. Sans catalogue public.',
-          cta: 'En parler en call',
+          title: 'Build & Run Operations',
+          detail: 'Prod et maintien',
+          body: 'Déploiement, monitoring, documentation, runbooks, formation et transfert d’exploitation.',
+          href: routeMap.fr.buildRun,
         },
       ],
     },
     delivery: {
-      title: 'Comment on livre',
-      subtitle: 'Le diagnostic sert le build. Le build sert la prod. La prod sert le prochain acquis.',
+      title: 'La méthode Lucid-Lab.',
+      subtitle:
+        'Le plan commence par le terrain. Le build avance par cycles courts. Le transfert se prépare dès le premier jour.',
       steps: [
-        ['Audit Flash', '30 min, gratuit. On qualifie, on comprend le contexte, on décide si Lucid-Lab est pertinent.'],
-        ['Présentation d’offre', 'Second échange : problème lu, système proposé, architecture cible, séquence de livraison.'],
-        ['Build', 'Cycles courts, démos régulières, intégrations réelles, code propriété client.'],
-        ['Mise en prod', 'Monitoring, runbooks, documentation technique et utilisateur, transfert propre.'],
-        ['Forma & adoption', 'Les équipes prennent la main sur les usages importants, pas sur une théorie IA.'],
-        ['Run dans la durée', 'On surveille, on opère, on améliore et on attaque le chantier suivant quand il fait sens.'],
+        ['Diagnostiquer les workflows', 'On lit les tâches, les irritants, les outils et les volumes.'],
+        ['Collecter les cas d’usage', 'Les équipes décrivent les gains attendus, les risques et les dépendances.'],
+        ['Scorer valeur, faisabilité, risque', 'La direction choisit le premier chantier avec une grille claire.'],
+        ['Valider données et accès', 'Les sources, formats, permissions et contraintes RGPD passent avant le code.'],
+        ['Concevoir l’architecture cible', 'On définit outils, modèles, hébergement, logs, monitoring et ownership.'],
+        ['Construire et déployer', 'On livre par cycles courts avec démos, tests et intégrations réelles.'],
+        ['Former, documenter, monitorer', 'Les équipes reçoivent runbooks, modes opératoires et indicateurs de suivi.'],
       ],
-    },
-    rd: {
-      title: "Ce qu'on teste / shippe en ce moment",
-      subtitle:
-        "Le blog sert de carnet d'ingénierie : arbitrages, intégrations, prod, conformité et retours terrain.",
-      updated: 'Mis à jour le 24 mai 2026',
-      cards: [
-        ['Architecture agent IA en production', 'Pourquoi on sépare outils, mémoire, traces, coûts et permissions.'],
-        ['EU AI Act côté implémentation', 'Ce qui change dans la classification des cas, la doc et les logs.'],
-        ['Mistral, Claude, open-source local', 'Quand la souveraineté prime, quand la précision prime, quand le coût prime.'],
-      ],
-      badges: ['Mistral Large', 'Vercel AI SDK', 'Langfuse', 'Supabase EU'],
-    },
-    lex: {
-      title: 'Décris ton cas, Lex te répond.',
-      subtitle:
-        'Cycle 1 : Lex collecte le contexte et on revient avec une vraie analyse sous 24h. Cycle 2 : réponse live câblée sur nos savoir-faire.',
-      placeholder: 'Exemple : notre DAF passe 4 jours par mois à consolider le reporting, avec des exports ERP et Excel...',
     },
     cases: {
-      title: 'Acquis livrés',
-      subtitle: "Des systèmes en prod, pas des recommandations. Chiffres anonymisés jusqu'à validation publique.",
+      title: 'Cas clients et livrables.',
+      subtitle:
+        'Les exemples restent anonymisés quand le client le demande. La structure reste lisible : contexte, système livré, effet métier.',
       items: [
         {
-          context: 'PME services · finance',
+          context: 'PME services, finance',
           title: 'Reporting finance automatisé',
-          problem: 'Clôture mensuelle manuelle, données compta dispersées, pack envoyé trop tard.',
+          problem: 'La DAF consolidait exports ERP et fichiers Excel avant chaque comité.',
           system: ['Extraction compta', 'Pack reporting généré', 'Alertes écarts budget', 'Envoi automatique'],
-          metric: 'Clôture passée de 4 jours à 2h',
-          remains: 'Code propriété, documentation, monitoring.',
+          metric: 'Clôture passée de 4 jours à 2 h',
+          remains: 'Code, documentation, monitoring et procédure de reprise livrés au client.',
         },
         {
-          context: 'Cabinet de services · 80 collaborateurs',
+          context: 'Cabinet de services, 80 collaborateurs',
           title: 'Assistant interne de connaissance',
-          problem: 'Base documentaire éclatée entre SharePoint, Notion et Drive.',
-          system: ['Assistant web + Slack', 'Réponses sourcées', 'Droits calqués AD', 'Usage monitoré'],
-          metric: '~600 requêtes/mois · ~75% utiles',
-          remains: 'Assistant en prod, permissions, dashboard usage.',
+          problem: 'Les réponses vivaient dans SharePoint, Notion, Drive et quelques messages Slack.',
+          system: ['Assistant web et Slack', 'Réponses sourcées', 'Permissions par groupe', 'Dashboard usage'],
+          metric: 'Environ 600 requêtes par mois',
+          remains: 'Assistant en production, sources documentées et règles d’accès transférées.',
         },
         {
-          context: 'SaaS B2B · acquisition',
-          title: 'Qualification leads / support',
-          problem: 'Triage manuel de 200 leads par mois et risque de perte dans le CRM.',
-          system: ['Scoring ICP', 'Routage automatique', 'Pré-remplissage CRM', 'Dashboard pilotage'],
-          metric: '95% des leads routés en moins de 5 min',
-          remains: 'Agent, intégration CRM, tableau de suivi.',
+          context: 'B2B SaaS, acquisition',
+          title: 'Qualification leads et support',
+          problem: 'L’équipe triait les demandes entrantes et perdait des signaux dans le CRM.',
+          system: ['Scoring ICP', 'Routage automatique', 'Pré-remplissage CRM', 'Contrôle humain'],
+          metric: '95 % des leads routés en moins de 5 min',
+          remains: 'Agent, intégration CRM, logs et tableau de suivi restent côté client.',
         },
       ],
-    },
-    team: {
-      title: "L'équipe",
-      subtitle:
-        "Une petite équipe senior, branchée sur un réseau étendu quand le chantier le demande. On compose au cas par cas.",
-      members: [
-        {
-          name: 'Anthony Poirier',
-          role: 'Pilote en mode startup',
-          bio: 'Restructurations d’ampleur pendant que le business continue à facturer. Quand il dit que ça part en prod cette semaine, ça part en prod cette semaine.',
-          image: '/team/anthony.png',
-        },
-        {
-          name: 'Theo Benard',
-          role: 'Code et lit les bilans',
-          bio: 'Software engineer + master finance. Le pont rare entre architecture technique et lecture P&L.',
-          image: '/team/theo.png',
-        },
-        {
-          name: 'Jules Gouron',
-          role: 'Livre les outils IA en prod',
-          bio: 'Expert outils IA, dev pur. Du prototype au truc qui tourne tous les jours, sans détour par la slide.',
-          image: null,
-        },
-      ],
-      network:
-        'Quand le chantier dépasse l’équipe, on plug architectes, data engineers et partenaires sectoriels. On ne facture pas une équipe gonflée.',
     },
     enterprise: {
-      title: 'Enterprise readiness',
+      title: 'Les sujets sérieux entrent dans le build.',
       subtitle:
-        'Les sujets sérieux sont intégrés au build : sécurité, données, conformité, hébergement, opérations.',
+        'Une direction ou une DSI doit voir les risques avant la mise en production. On traite ces points dès l’architecture.',
       items: [
         'RGPD et données personnelles',
-        'EU AI Act : classification des risques, conformité, documentation',
-        'Souveraineté & hébergement EU',
-        'Modèles souverains : Mistral et alternatives open-source EU selon sensibilité',
         'Droits d’accès et permissions',
+        'Hébergement et infrastructure EU',
         'Documentation et runbooks',
         'Monitoring coût, usage, latence, qualité',
         'Transfert de propriété',
-        'Forma et adoption',
+        'Formation et adoption',
         'Gouvernance IA',
       ],
     },
     resources: {
-      title: "Ressources d'ingénierie",
-      subtitle: 'Pas de théorie longue. Des choix d’architecture, des pièges d’intégration, du terrain.',
-      cta: 'Lire le blog',
+      title: 'Ressources pour décider.',
+      subtitle: 'Guides, critères de scoring, sécurité IA, ROI et automatisation des processus métier.',
+      cta: 'Lire les ressources',
+    },
+    faq: {
+      title: 'Questions fréquentes.',
+      subtitle: 'Les questions qui reviennent avant un premier audit IA ou un build métier.',
+      items: [
+        {
+          question: 'Lucid-Lab intervient à quel moment du projet IA ?',
+          answer:
+            'Lucid-Lab intervient dès le cadrage. On aide la direction à choisir le bon chantier, puis on construit le système, on le déploie et on prépare le transfert.',
+        },
+        {
+          question: 'Que contient un AI Opportunity Audit ?',
+          answer:
+            'L’audit couvre workflows, irritants métier, sources de données, outils, risques, gains attendus et priorisation. Le livrable liste les chantiers à lancer, ceux à repousser et les prérequis à régler.',
+        },
+        {
+          question: 'Le client garde quoi après la livraison ?',
+          answer:
+            'Le client garde le code, les workflows, les accès, les runbooks, la documentation utilisateur et les tableaux de monitoring prévus dans le périmètre.',
+        },
+        {
+          question: 'Vous travaillez avec les outils déjà en place ?',
+          answer:
+            'Oui. On connecte CRM, ERP, fichiers, bases internes, boîtes mail, outils no-code ou APIs métier quand ces briques tiennent le besoin. On propose un remplacement seulement si l’existant bloque le run.',
+        },
+        {
+          question: 'Les données sensibles peuvent-elles rester en Europe ?',
+          answer:
+            'Oui. On peut cadrer hébergement EU, modèles adaptés, permissions, logs et règles d’accès selon le niveau de sensibilité du cas d’usage.',
+        },
+        {
+          question: 'Le premier échange engage-t-il un projet complet ?',
+          answer:
+            'Le premier échange sert à qualifier le besoin. Si le chantier sort de notre zone de valeur, on le dit et on oriente vers une solution plus adaptée.',
+        },
+      ],
     },
     final: {
-      title: '30 minutes pour qualifier ton besoin.',
-      subtitle: "Aucun engagement. Si on est pertinents, on enchaîne. Sinon, on t'oriente.",
-      cta: 'Réserver un Audit Flash (gratuit)',
+      title: 'Choisissez le premier système utile.',
+      subtitle:
+        'En 30 minutes, on lit votre contexte, vos workflows et vos contraintes. Vous savez si un audit IA mérite d’être lancé.',
+      cta: 'Réserver un audit',
     },
     footer: {
       description:
-        'Lucid-Lab construit, déploie et opère des systèmes IA qui restent au client : agents, outils internes, automatisations, monitoring, documentation.',
+        'Lucid-Lab audite, construit et opère des systèmes IA métier : agents, outils internes, automatisations, intégrations, monitoring et documentation.',
       product: 'Navigation',
       resources: 'Ressources',
       contact: 'Contact',
-      copyright: '© 2026 Lucid-Lab. Tous droits réservés.',
+      copyright: '© 2026 Lucid-Lab.',
       location: 'Paris, France',
     },
   },
   en: {
     hero: {
-      title: 'Your AI systems, built, deployed, operated.',
+      title: 'The right AI system, delivered.',
       subtitle:
-        'We ship agents, internal tools and automations that run in production. Framing exists to start fast. Every delivered step stays with you: ownership, code, documentation.',
-      primary: 'Book a free Audit Flash (30 min)',
-      secondary: 'Test an agent (Lex)',
-      tertiary: 'See delivered assets',
-      proofs: ['Build', 'Run', 'Integrations', 'Monitoring', 'Documentation'],
+        'Lucid-Lab audits workflows, checks data and ranks AI use cases before building agents, internal tools and integrations.',
+      primary: 'Book an AI audit',
+      secondary: 'See use cases',
+      proofs: ['Audit', 'Roadmap', 'Build', 'Run', 'Ownership'],
+    },
+    trusted: {
+      title: 'Companies that trusted us',
+      subtitle:
+        'Teams trusted us with workflows, data and business deliverables. Public cases follow client validation.',
+      logos: [
+        { name: 'Turismo', logo: '/logos/logo%20Turismo.png' },
+        { name: 'Kobia', logo: '/logos/logo-wordmark-kobia-black.png' },
+        { name: 'Universal', logo: null },
+        { name: 'Periscope', logo: null },
+      ],
     },
     problems: {
-      title: 'Where AI projects usually stop.',
+      title: 'The blockers arrive before the model.',
       subtitle:
-        'Leaders do not need another AI speech. They need a first reliable system that reaches production and remains usable.',
+        'You have AI ideas, exports, tools and busy teams. Lucid-Lab turns that raw material into a ranked build plan.',
       items: [
-        ['Scattered AI ideas', 'Many tests, few systems actually used by teams.'],
-        ['Manual workflows', 'Repetitive tasks consuming whole days every month.'],
-        ['Disconnected tools', 'CRM, files, ERP, inboxes and internal databases do not talk to each other.'],
-        ['Hard-to-use data', 'Access, quality, formats and permissions are unclear before the build.'],
-        ['Security unclear', 'GDPR, permissions and sensitive AI usage are handled too late.'],
-        ['Fragile adoption', 'A pilot exists, but nobody can monitor, own or improve it.'],
+        ['Scattered AI ideas', 'Teams list use cases, but no one scores value, feasibility and risk.'],
+        ['Manual workflows', 'People copy, paste, consolidate and check the same data each week.'],
+        ['Disconnected tools', 'CRM, ERP, files and inboxes each keep part of the process.'],
+        ['Difficult data', 'Sources exist, but access, formats and rights slow the build.'],
+        ['Late security', 'GDPR, permissions and sensitive data enter the discussion too late.'],
+        ['Fragile adoption', 'A pilot without a runbook, owner and monitoring turns into a forgotten demo.'],
       ],
     },
     pillars: {
-      title: 'Expertise',
-      subtitle: 'Four entry points, one objective: deliver an operational asset.',
+      title: 'Four entry points, one delivered system.',
+      subtitle:
+        'Each domain has its page, deliverables and use cases. The path stays clear: understand, rank, build, transfer.',
       items: [
         {
-          title: 'AI, automation & internal tools',
-          problem: 'A business workflow can be handed to an agent or internal tool.',
-          deliverables: ['Production AI agents', 'Business dashboards', 'Internal portals and interfaces'],
-          result: 'Teams get a system they can use every day.',
-          href: '#offres',
+          title: 'Diagnostic & Roadmap',
+          problem: 'You need to choose the first AI build with business, data and risk criteria.',
+          deliverables: ['Workflow map', 'Value, feasibility and risk scoring', 'Build roadmap'],
+          result: 'You leave with an execution plan your leaders and teams can use.',
+          href: routeMap.en.audit,
         },
         {
-          title: 'Build & Run / adoption',
-          problem: 'The system must run, be monitored and be owned by teams.',
-          deliverables: ['Cost / quality monitoring', 'Incident runbooks', 'Clear handover'],
-          result: 'The pilot becomes an operated tool, not a forgotten demo.',
-          href: '#comment-on-livre',
+          title: 'Data & IT Readiness',
+          problem: 'The build depends on sources, permissions, formats, tools and security rules.',
+          deliverables: ['Source inventory', 'Rights and access matrix', 'EU target architecture'],
+          result: 'Technical and compliance blockers surface before development starts.',
+          href: routeMap.en.data,
         },
         {
-          title: 'Data & IT readiness',
-          problem: 'The build fails if sources, access and risks are not ready.',
-          deliverables: ['Source inventory', 'Rights and permissions', 'EU target architecture'],
-          result: 'Technical blockers are visible before committing the build.',
-          href: '#enterprise-readiness',
+          title: 'AI & Internal Tools',
+          problem: 'A business workflow needs a reliable agent, portal or automation.',
+          deliverables: ['AI agents', 'Business dashboards', 'Connectors and internal interfaces'],
+          result: 'Teams use a system connected to their tools, not an isolated prototype.',
+          href: routeMap.en.agents,
         },
         {
-          title: 'Diagnostic & framing',
-          problem: 'The first useful build must be chosen fast, without months of committees.',
-          deliverables: ['Need reading', 'Fast / durable arbitration', 'Build sequence'],
-          result: 'We know what to build, why, and what stays with the client.',
-          href: auditHref.en,
+          title: 'Adoption, Training & Run',
+          problem: 'The system must run, stay monitored and remain clear for the teams.',
+          deliverables: ['Runbooks', 'Cost and quality monitoring', 'Focused training'],
+          result: 'The client keeps the code, documentation, access and operating ability.',
+          href: routeMap.en.buildRun,
         },
       ],
     },
     offers: {
-      title: 'Concrete offers',
-      subtitle: 'No public catalogue or visible pricing. We start from the need, then build the right system.',
+      title: 'Readable formats before a proposal.',
+      subtitle:
+        'The problem sets the format. The format reduces risk before build.',
       items: [
         {
-          title: 'Audit Flash',
-          detail: '30 min, free',
-          body: 'Entry point: pre-qualification, context read, plausible first build, honest orientation.',
-          cta: 'Book',
-          featured: true,
+          title: 'AI Opportunity Audit',
+          detail: 'Short diagnostic',
+          body: 'Workflow review, use cases, data maturity, risks and first AI build.',
+          href: routeMap.en.audit,
         },
         {
-          title: 'AI agents & internal tools',
-          detail: 'Core work',
-          body: 'Agents, dashboards, workflows, connectors and interfaces that replace real manual work.',
-          cta: 'Frame a build',
+          title: 'Data & System Readiness Assessment',
+          detail: 'IT preparation',
+          body: 'Sources, rights, security, hosting, tools and target architecture to validate before dev.',
+          href: routeMap.en.data,
         },
         {
-          title: 'Build & Run operations',
-          detail: 'Prod + run',
-          body: 'Deployment, monitoring, alerting, documentation, runbooks and operational transfer.',
-          cta: 'Learn more',
+          title: 'Automation Roadmap',
+          detail: 'Build plan',
+          body: 'Manual process ranking, delivery sequence, dependencies and expected ROI.',
+          href: routeMap.en.roadmap,
         },
         {
-          title: 'Data & IT readiness',
-          detail: 'Technical preparation',
-          body: 'Sources, rights, risks, EU hosting, models and integrations to secure before build.',
-          cta: 'Assess readiness',
+          title: 'Custom AI Agents & Internal Tools',
+          detail: 'Business build',
+          body: 'Agents, dashboards, portals, integrations, workflows and human controls.',
+          href: routeMap.en.agents,
         },
         {
-          title: 'Training & adoption',
-          detail: 'Light option',
-          body: 'Team onboarding, practical AI habits, documentation and concrete usage. No public catalogue.',
-          cta: 'Discuss on call',
+          title: 'Build & Run Operations',
+          detail: 'Prod and run',
+          body: 'Deployment, monitoring, documentation, runbooks, training and operations handover.',
+          href: routeMap.en.buildRun,
         },
       ],
     },
     delivery: {
-      title: 'How we ship',
-      subtitle: 'Framing serves the build. The build serves production. Production serves the next asset.',
+      title: 'The Lucid-Lab method.',
+      subtitle:
+        'The plan starts in the field. The build moves in short cycles. The handover starts on day one.',
       steps: [
-        ['Audit Flash', '30 min, free. We qualify, understand context and decide if Lucid-Lab is relevant.'],
-        ['Offer presentation', 'Second exchange: problem read, proposed system, target architecture, delivery sequence.'],
-        ['Build', 'Short cycles, regular demos, real integrations, client-owned code.'],
-        ['Production release', 'Monitoring, runbooks, technical and user documentation, clean transfer.'],
-        ['Training & adoption', 'Teams take control of the important usage, not AI theory.'],
-        ['Long-term run', 'We monitor, operate, improve and start the next build when it makes sense.'],
+        ['Diagnose workflows', 'We read tasks, irritants, tools and volumes.'],
+        ['Collect use cases', 'Teams describe expected gains, risks and dependencies.'],
+        ['Score value, feasibility, risk', 'Leaders choose the first build with a clear grid.'],
+        ['Validate data and access', 'Sources, formats, permissions and GDPR constraints come before code.'],
+        ['Design the target architecture', 'We define tools, models, hosting, logs, monitoring and ownership.'],
+        ['Build and deploy', 'We ship in short cycles with demos, tests and real integrations.'],
+        ['Train, document, monitor', 'Teams receive runbooks, operating notes and monitoring indicators.'],
       ],
-    },
-    rd: {
-      title: 'What we test / ship right now',
-      subtitle:
-        'The blog is an engineering notebook: decisions, integrations, production, compliance and field notes.',
-      updated: 'Updated May 24, 2026',
-      cards: [
-        ['Production AI agent architecture', 'Why tools, memory, traces, costs and permissions are separated.'],
-        ['EU AI Act implementation view', 'What changes in use-case classification, documentation and logs.'],
-        ['Mistral, Claude, local open-source', 'When sovereignty wins, when precision wins, when cost wins.'],
-      ],
-      badges: ['Mistral Large', 'Vercel AI SDK', 'Langfuse', 'Supabase EU'],
-    },
-    lex: {
-      title: 'Describe your case. Lex answers.',
-      subtitle:
-        'Cycle 1: Lex collects context and we come back with a real analysis within 24h. Cycle 2: live answer connected to our know-how.',
-      placeholder: 'Example: our finance team spends 4 days each month consolidating reporting from ERP exports and Excel...',
     },
     cases: {
-      title: 'Delivered assets',
-      subtitle: 'Production systems, not recommendations. Figures anonymized until public validation.',
+      title: 'Client cases and deliverables.',
+      subtitle:
+        'Examples stay anonymized when the client asks. The structure remains clear: context, delivered system, business effect.',
       items: [
         {
-          context: 'Services SME · finance',
+          context: 'Services SME, finance',
           title: 'Automated finance reporting',
-          problem: 'Manual monthly close, scattered accounting data, reporting pack sent too late.',
+          problem: 'The finance team consolidated ERP exports and Excel files before each committee.',
           system: ['Accounting extraction', 'Generated reporting pack', 'Budget variance alerts', 'Automatic delivery'],
-          metric: 'Close reduced from 4 days to 2h',
-          remains: 'Owned code, documentation, monitoring.',
+          metric: 'Close moved from 4 days to 2 h',
+          remains: 'Code, documentation, monitoring and recovery procedure delivered to the client.',
         },
         {
-          context: 'Services firm · 80 employees',
+          context: 'Services firm, 80 people',
           title: 'Internal knowledge assistant',
-          problem: 'Documentation split across SharePoint, Notion and Drive.',
-          system: ['Web + Slack assistant', 'Sourced answers', 'AD-like permissions', 'Usage monitoring'],
-          metric: '~600 queries/month · ~75% useful',
-          remains: 'Production assistant, permissions, usage dashboard.',
+          problem: 'Answers lived in SharePoint, Notion, Drive and scattered Slack messages.',
+          system: ['Web and Slack assistant', 'Sourced answers', 'Group permissions', 'Usage dashboard'],
+          metric: 'Around 600 queries per month',
+          remains: 'Production assistant, documented sources and access rules transferred.',
         },
         {
-          context: 'B2B SaaS · acquisition',
-          title: 'Lead qualification / support triage',
-          problem: 'Manual triage of 200 leads per month and CRM loss risk.',
-          system: ['ICP scoring', 'Automatic routing', 'CRM pre-fill', 'Control dashboard'],
+          context: 'B2B SaaS, acquisition',
+          title: 'Lead qualification and support',
+          problem: 'The team sorted inbound requests and lost signals in the CRM.',
+          system: ['ICP scoring', 'Automatic routing', 'CRM pre-fill', 'Human control'],
           metric: '95% of leads routed in under 5 min',
-          remains: 'Agent, CRM integration, tracking dashboard.',
+          remains: 'Agent, CRM integration, logs and tracking dashboard stay client-side.',
         },
       ],
-    },
-    team: {
-      title: 'Team',
-      subtitle:
-        'A small senior team, connected to an extended network when the work requires it. We compose case by case.',
-      members: [
-        {
-          name: 'Anthony Poirier',
-          role: 'Startup-mode operator',
-          bio: 'Large restructurings while the business keeps invoicing. When he says it ships this week, it ships this week.',
-          image: '/team/anthony.png',
-        },
-        {
-          name: 'Theo Benard',
-          role: 'Codes and reads financial statements',
-          bio: 'Software engineer + finance master. A rare bridge between technical architecture and P&L reading.',
-          image: '/team/theo.png',
-        },
-        {
-          name: 'Jules Gouron',
-          role: 'Ships AI tools to production',
-          bio: 'AI tools expert, pure developer. From prototype to daily-running system without a slide detour.',
-          image: null,
-        },
-      ],
-      network:
-        'When the work exceeds the core team, we plug architects, data engineers and sector partners. We do not bill inflated teams.',
     },
     enterprise: {
-      title: 'Enterprise readiness',
+      title: 'Serious topics enter the build.',
       subtitle:
-        'Serious topics are part of the build: security, data, compliance, hosting, operations.',
+        'A leader or IT team needs to see risks before production. We treat these points in the architecture, not after launch.',
       items: [
         'GDPR and personal data',
-        'EU AI Act: risk classification, compliance, documentation',
-        'Sovereignty & EU hosting',
-        'Sovereign models: Mistral and EU open-source alternatives when relevant',
         'Access rights and permissions',
+        'EU hosting and infrastructure',
         'Documentation and runbooks',
         'Cost, usage, latency and quality monitoring',
         'Ownership transfer',
@@ -462,39 +445,72 @@ const content = {
       ],
     },
     resources: {
-      title: 'Engineering resources',
-      subtitle: 'No long theory. Architecture decisions, integration traps and field notes.',
-      cta: 'Read the blog',
+      title: 'Resources for decisions.',
+      subtitle: 'Guides, scoring criteria, AI security, ROI and business process automation.',
+      cta: 'Read resources',
+    },
+    faq: {
+      title: 'Questions leaders ask.',
+      subtitle: 'Questions that come up before a first AI audit or business build.',
+      items: [
+        {
+          question: 'Lucid-Lab joins the project at which stage?',
+          answer:
+            'Lucid-Lab joins from framing. We help leaders choose the right build, then we build the system, deploy it and prepare the handover.',
+        },
+        {
+          question: 'An AI Opportunity Audit contains which deliverables?',
+          answer:
+            'The audit covers workflows, business irritants, data sources, tools, risks, expected gains and prioritization. The deliverable lists builds to launch, builds to postpone and prerequisites to solve.',
+        },
+        {
+          question: 'The client keeps which assets after delivery?',
+          answer:
+            'The client keeps the code, workflows, access, runbooks, user documentation and monitoring dashboards included in the scope.',
+        },
+        {
+          question: 'Lucid-Lab works with existing tools?',
+          answer:
+            'Yes. We connect CRM, ERP, files, internal databases, inboxes, no-code tools or business APIs when these bricks fit the need. We recommend replacement only when the current tool blocks the run.',
+        },
+        {
+          question: 'Sensitive data can stay in Europe?',
+          answer:
+            'Yes. We can frame EU hosting, suitable models, permissions, logs and access rules according to the sensitivity of the use case.',
+        },
+        {
+          question: 'The first call commits the client to a full project?',
+          answer:
+            'The first call qualifies the need. If the build sits outside our value zone, we say it and point to a better fit.',
+        },
+      ],
     },
     final: {
-      title: '30 minutes to qualify your need.',
-      subtitle: 'No commitment. If we are relevant, we continue. Otherwise, we point you elsewhere.',
-      cta: 'Book a free Audit Flash',
+      title: 'Choose the first useful system.',
+      subtitle:
+        'In 30 minutes, we read your context, workflows and constraints. You know whether an AI audit deserves a launch.',
+      cta: 'Book an audit',
     },
     footer: {
       description:
-        'Lucid-Lab builds, deploys and operates AI systems that stay with the client: agents, internal tools, automations, monitoring, documentation.',
+        'Lucid-Lab audits, builds and operates business AI systems: agents, internal tools, automations, integrations, monitoring and documentation.',
       product: 'Navigation',
       resources: 'Resources',
       contact: 'Contact',
-      copyright: '© 2026 Lucid-Lab. All rights reserved.',
+      copyright: '© 2026 Lucid-Lab.',
       location: 'Paris, France',
     },
   },
 } as const
 
-
 const problemIcons = [Sparkles, Workflow, Network, Database, ShieldCheck, UserCheck] as const
-const pillarIcons = [Bot, MonitorCheck, Database, SearchCheck] as const
-const readinessIcons = [LockKeyhole, ShieldCheck, Database, Code2, Network, FileText, Gauge, UserCheck, MonitorCheck, Workflow] as const
+const pillarIcons = [SearchCheck, Database, Bot, MonitorCheck] as const
+const readinessIcons = [LockKeyhole, ShieldCheck, Database, FileText, Gauge, Code2, UserCheck, Network] as const
 
-function localize(lang: Locale, href: string) {
-  if (href === auditHref.fr || href === auditHref.en) return auditHref[lang]
-  if (href === blogHref.fr || href === blogHref.en) return blogHref[lang]
+function resolveHref(lang: Locale, href: string) {
+  if (lang === 'en' && href.startsWith('/') && !href.startsWith('/en')) return `/en${href}`
   return href
 }
-
-// --- Primitives ------------------------------------------------------------
 
 function Section({
   id,
@@ -506,35 +522,33 @@ function Section({
   children: React.ReactNode
 }) {
   const bg = tone === 'ink' ? INK : tone === 'gray' ? GRAY_100 : PAPER
-  const fg = tone === 'ink' ? '#FFFFFF' : INK
+  const fg = tone === 'ink' ? PAPER : INK
+  const divider = tone === 'ink' ? 'rgba(250,250,247,0.18)' : GRAY_200
+
   return (
-    <section
+    <motion.section
       id={id}
-      style={{ background: bg, color: fg, borderTop: `1px solid ${GRAY_200}` }}
+      style={{ background: bg, color: fg, borderTop: `1px solid ${divider}` }}
+      initial={{ opacity: 0, y: 28 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-80px' }}
+      transition={{ duration: 0.65, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="mx-auto w-full max-w-[1200px] px-6 py-24 md:px-10 md:py-32">
+      <div className="mx-auto flex h-8 w-full max-w-[1200px] items-start px-6 md:px-10">
+        <span className="mt-[-1px] h-px w-24" style={{ background: EMBER }} />
+      </div>
+      <div className="mx-auto w-full max-w-[1200px] px-6 pb-24 pt-12 md:px-10 md:pb-32 md:pt-16">
         {children}
       </div>
-    </section>
-  )
-}
-
-function SectionEyebrow({ children }: { children: React.ReactNode }) {
-  return (
-    <p
-      className="text-[12px] font-medium uppercase tracking-[0.16em]"
-      style={{ color: EMBER }}
-    >
-      {children}
-    </p>
+    </motion.section>
   )
 }
 
 function SectionTitle({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
   return (
     <h2
-      className="mt-4 max-w-[34ch] text-[34px] font-semibold leading-[1.08] tracking-[-0.01em] md:text-[48px]"
-      style={{ color: light ? '#FFFFFF' : INK }}
+      className="max-w-[30ch] text-[34px] font-semibold leading-[1.06] tracking-[-0.015em] md:text-[50px]"
+      style={{ color: light ? PAPER : INK }}
     >
       {children}
     </h2>
@@ -544,35 +558,23 @@ function SectionTitle({ children, light = false }: { children: React.ReactNode; 
 function SectionLede({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
   return (
     <p
-      className="mt-5 max-w-[60ch] text-[17px] leading-[1.6] md:text-[18px]"
-      style={{ color: light ? 'rgba(255,255,255,0.72)' : GRAY_600 }}
+      className="mt-5 max-w-[62ch] text-[17px] leading-[1.6] md:text-[18px]"
+      style={{ color: light ? 'rgba(250,250,247,0.72)' : GRAY_600 }}
     >
       {children}
     </p>
   )
 }
 
-function PrimaryCta({ href, children }: { href: string; children: React.ReactNode }) {
+function PrimaryCta({ href, children, inverted = false }: { href: string; children: React.ReactNode; inverted?: boolean }) {
   return (
     <Link
       href={href}
-      className="inline-flex h-[48px] items-center justify-center rounded-[8px] px-6 text-[15px] font-medium transition-colors duration-200"
-      style={{ background: INK, color: PAPER }}
+      className="inline-flex min-h-[48px] items-center justify-center rounded-[8px] px-5 text-[15px] font-medium transition duration-200 hover:-translate-y-0.5"
+      style={{ background: inverted ? PAPER : INK, color: inverted ? INK : PAPER }}
     >
       {children}
       <ArrowRight className="ml-2 size-4" aria-hidden />
-    </Link>
-  )
-}
-
-function SecondaryCta({ href, children }: { href: string; children: React.ReactNode }) {
-  return (
-    <Link
-      href={href}
-      className="inline-flex h-[48px] items-center justify-center rounded-[8px] border px-6 text-[15px] font-medium transition-colors duration-200"
-      style={{ borderColor: GRAY_200, color: INK, background: 'transparent' }}
-    >
-      {children}
     </Link>
   )
 }
@@ -582,80 +584,154 @@ function TextLink({ href, children, light = false }: { href: string; children: R
     <Link
       href={href}
       className="group inline-flex items-center gap-2 text-[14px] font-medium"
-      style={{ color: light ? '#FFFFFF' : INK }}
+      style={{ color: light ? PAPER : INK }}
     >
       <span className="border-b" style={{ borderColor: EMBER }}>{children}</span>
-      <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+      <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-1" aria-hidden />
     </Link>
   )
 }
 
-// --- Hero ------------------------------------------------------------------
+function HeroVisual() {
+  const nodes = ['Workflow', 'Données', 'Agent', 'Runbook']
+
+  return (
+    <div className="relative min-h-[320px] overflow-hidden rounded-[8px] border sm:min-h-[380px] md:min-h-[520px]" style={{ borderColor: GRAY_200, background: PAPER }}>
+      <div className="absolute inset-x-5 top-5 z-10 flex items-center justify-between text-[11px] uppercase tracking-[0.16em]" style={{ color: GRAY_400 }}>
+        <span>Lex</span>
+        <span>Production loop</span>
+      </div>
+
+      <div className="absolute left-5 top-20 z-10 hidden w-[44%] space-y-3 md:block">
+        {nodes.map((node, index) => (
+          <motion.div
+            key={node}
+            className="flex items-center gap-3 rounded-[8px] border px-3 py-2"
+            style={{ borderColor: GRAY_200, color: INK, background: 'rgba(10,10,10,0.03)' }}
+            animate={{ opacity: [0.42, 1, 0.42], x: [0, 6, 0] }}
+            transition={{ duration: 3.4, delay: index * 0.35, repeat: Infinity, ease: 'easeOut' }}
+          >
+            <span className="font-mono text-[11px]" style={{ color: EMBER }}>0{index + 1}</span>
+            <span className="text-[13px]">{node}</span>
+          </motion.div>
+        ))}
+      </div>
+
+      <motion.div
+        className="absolute bottom-0 right-[-4%] h-[86%] w-[82%] sm:right-[-2%] md:h-[88%] md:w-[68%]"
+        animate={{ y: [0, -12, 0], rotate: [0, -1.2, 0.8, 0] }}
+        transition={{ duration: 6, repeat: Infinity, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <Image
+          src="/robot-poster-lit.png"
+          alt="Lex, robot Lucid-Lab"
+          fill
+          priority
+          sizes="(min-width: 1024px) 520px, 80vw"
+          className="object-contain object-bottom mix-blend-multiply"
+        />
+      </motion.div>
+
+      <motion.div
+        className="absolute bottom-5 left-5 right-5 z-10 grid gap-2 md:right-auto md:w-[48%]"
+        initial={{ opacity: 0, y: 18 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.7, delay: 0.25 }}
+      >
+        {['cas scoré', 'données validées', 'run monitoré'].map((label, index) => (
+          <div key={label} className="flex items-center justify-between rounded-[8px] border px-3 py-2" style={{ borderColor: GRAY_200, background: 'rgba(250,250,247,0.78)' }}>
+            <span className="text-[12px]" style={{ color: GRAY_600 }}>{label}</span>
+            <motion.span
+              className="h-2 w-2 rounded-full"
+              style={{ background: index === 1 ? EMBER : INK }}
+              animate={{ scale: [1, 1.35, 1], opacity: [0.55, 1, 0.55] }}
+              transition={{ duration: 2.2, delay: index * 0.25, repeat: Infinity, ease: 'easeOut' }}
+            />
+          </div>
+        ))}
+      </motion.div>
+    </div>
+  )
+}
 
 function Hero({ lang }: { lang: Locale }) {
   const t = content[lang].hero
+  const routes = routeMap[lang]
+
   return (
     <section style={{ background: PAPER, color: INK }} className="pt-[68px]">
-      <div className="mx-auto grid w-full max-w-[1200px] gap-16 px-6 py-24 md:px-10 md:py-32 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
-        <div className="max-w-[640px]">
-          <SectionEyebrow>Lucid-Lab</SectionEyebrow>
+      <div className="mx-auto grid w-full max-w-[1200px] gap-8 px-6 pb-16 pt-10 sm:pt-14 md:grid-cols-[minmax(0,1fr)_320px] md:gap-10 md:px-10 md:pb-24 md:pt-20 lg:grid-cols-[1fr_480px] lg:gap-16 lg:pb-28">
+        <div className="max-w-[680px]">
+          <p className="text-[12px] font-medium uppercase tracking-[0.18em]" style={{ color: EMBER }}>Lucid-Lab</p>
           <h1
-            className="mt-4 text-[44px] font-semibold leading-[1.02] tracking-[-0.02em] md:text-[64px] lg:text-[72px]"
+            className="mt-5 max-w-[10ch] text-[42px] font-semibold leading-[1.02] tracking-normal sm:text-[56px] md:text-[58px] lg:text-[72px] xl:text-[80px]"
             style={{ color: INK }}
           >
             {t.title}
           </h1>
-          <p className="mt-6 max-w-[58ch] text-[18px] leading-[1.55] md:text-[20px]" style={{ color: GRAY_600 }}>
+          <p className="mt-5 max-w-[54ch] text-[16px] leading-[1.55] sm:text-[18px] md:mt-6 md:text-[19px]" style={{ color: GRAY_600 }}>
             {t.subtitle}
           </p>
-          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
-            <PrimaryCta href={auditHref[lang]}>{t.primary}</PrimaryCta>
-            <SecondaryCta href="#lex">{t.secondary}</SecondaryCta>
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center md:mt-9">
+            <PrimaryCta href={routes.booking}>{t.primary}</PrimaryCta>
+            <TextLink href={routes.cases}>{t.secondary}</TextLink>
           </div>
-          <div className="mt-12 flex flex-wrap gap-x-6 gap-y-2 text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
-            {t.proofs.map((proof) => (
-              <span key={proof}>{proof}</span>
-            ))}
+          <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-[12px] font-medium uppercase tracking-[0.14em] md:mt-10" style={{ color: GRAY_400 }}>
+            {t.proofs.map((proof) => <span key={proof}>{proof}</span>)}
           </div>
         </div>
-        <div className="relative aspect-[4/5] w-full max-w-[480px] justify-self-end overflow-hidden rounded-[8px]" style={{ background: GRAY_100 }}>
-          <Image
-            src="/robot-poster-new.png"
-            alt="Lex"
-            fill
-            priority
-            sizes="(min-width: 1024px) 480px, 80vw"
-            className="object-contain object-bottom"
-          />
+
+        <div>
+          <HeroVisual />
         </div>
       </div>
     </section>
   )
 }
 
-// --- Problems --------------------------------------------------------------
+function TrustedBand({ lang }: { lang: Locale }) {
+  const t = content[lang].trusted
+
+  return (
+    <section style={{ background: PAPER, borderTop: `1px solid ${GRAY_200}` }}>
+      <div className="mx-auto grid w-full max-w-[1200px] gap-8 px-6 py-12 md:grid-cols-[0.9fr_1.1fr] md:px-10">
+        <div>
+          <h2 className="text-[22px] font-semibold tracking-[-0.01em]" style={{ color: INK }}>{t.title}</h2>
+          <p className="mt-3 max-w-[52ch] text-[14px] leading-[1.55]" style={{ color: GRAY_600 }}>{t.subtitle}</p>
+        </div>
+        <div className="grid grid-cols-2 gap-px self-start overflow-hidden rounded-[8px] border md:grid-cols-4" style={{ borderColor: GRAY_200, background: GRAY_200 }}>
+          {t.logos.map((company) => (
+            <div key={company.name} className="flex h-24 items-center justify-center px-5" style={{ background: PAPER }}>
+              {company.logo ? (
+                <Image src={company.logo} alt={company.name} width={150} height={48} className="max-h-10 w-auto object-contain grayscale" />
+              ) : (
+                <span className="text-[15px] font-semibold tracking-[-0.01em]" style={{ color: INK }}>{company.name}</span>
+              )}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  )
+}
 
 function Problems({ lang }: { lang: Locale }) {
   const t = content[lang].problems
+
   return (
-    <Section id="problemes" tone="paper">
-      <div className="max-w-[640px]">
-        <SectionEyebrow>{lang === 'en' ? 'Context' : 'Constat'}</SectionEyebrow>
+    <Section id="problemes">
+      <div className="max-w-[660px]">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
-      <ul className="mt-16 grid gap-x-12 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
-        {t.items.map(([title, body], i) => {
-          const Icon = problemIcons[i] ?? Sparkles
+      <ul className="mt-16 grid gap-x-12 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+        {t.items.map(([title, body], index) => {
+          const Icon = problemIcons[index] ?? Sparkles
           return (
             <li key={title} className="border-t pt-6" style={{ borderColor: GRAY_200 }}>
-              <Icon className="size-5" strokeWidth={1.6} style={{ color: INK }} aria-hidden />
-              <h3 className="mt-5 text-[20px] font-semibold leading-[1.2]" style={{ color: INK }}>
-                {title}
-              </h3>
-              <p className="mt-2 max-w-[40ch] text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
-                {body}
-              </p>
+              <Icon className="size-5" strokeWidth={1.6} style={{ color: EMBER }} aria-hidden />
+              <h3 className="mt-5 text-[20px] font-semibold leading-[1.18]" style={{ color: INK }}>{title}</h3>
+              <p className="mt-3 max-w-[42ch] text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>{body}</p>
             </li>
           )
         })}
@@ -664,366 +740,148 @@ function Problems({ lang }: { lang: Locale }) {
   )
 }
 
-// --- Pillars ---------------------------------------------------------------
-
 function Pillars({ lang }: { lang: Locale }) {
   const t = content[lang].pillars
+
   return (
     <Section id="expertises" tone="gray">
-      <div className="max-w-[640px]">
-        <SectionEyebrow>{lang === 'en' ? 'Capabilities' : 'Expertises'}</SectionEyebrow>
+      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
-      <div className="mt-16 grid gap-px overflow-hidden rounded-[8px]" style={{ background: GRAY_200 }}>
-        <div className="grid gap-px md:grid-cols-2" style={{ background: GRAY_200 }}>
-          {t.items.map((item, i) => {
-            const Icon = pillarIcons[i] ?? Bot
-            return (
-              <Link
-                key={item.title}
-                href={localize(lang, item.href)}
-                className="group flex flex-col p-8 transition-colors duration-200 md:p-10"
-                style={{ background: PAPER }}
-              >
-                <div className="flex items-center justify-between">
-                  <Icon className="size-6" strokeWidth={1.5} style={{ color: INK }} aria-hidden />
-                  <span className="font-mono text-[12px]" style={{ color: GRAY_400 }}>
-                    0{i + 1}
-                  </span>
-                </div>
-                <h3 className="mt-10 text-[24px] font-semibold leading-[1.15]" style={{ color: INK }}>
-                  {item.title}
-                </h3>
-                <p className="mt-3 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
-                  {item.problem}
-                </p>
-                <ul className="mt-6 space-y-2">
-                  {item.deliverables.map((d) => (
-                    <li key={d} className="flex items-start gap-2 text-[14px]" style={{ color: INK }}>
-                      <span aria-hidden style={{ color: EMBER }} className="mt-[2px]">·</span>
-                      {d}
-                    </li>
-                  ))}
-                </ul>
-                <p
-                  className="mt-8 border-t pt-5 text-[14px] leading-[1.5]"
-                  style={{ borderColor: GRAY_200, color: GRAY_600 }}
-                >
-                  {item.result}
-                </p>
-                <span
-                  className="mt-6 inline-flex items-center gap-2 text-[14px] font-medium"
-                  style={{ color: INK }}
-                >
-                  {lang === 'en' ? 'Read more' : 'En savoir plus'}
-                  <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
-                </span>
-              </Link>
-            )
-          })}
-        </div>
+      <div className="mt-16 grid gap-px overflow-hidden rounded-[8px] border md:grid-cols-2" style={{ borderColor: GRAY_200, background: GRAY_200 }}>
+        {t.items.map((item, index) => {
+          const Icon = pillarIcons[index] ?? SearchCheck
+          return (
+            <Link key={item.title} href={resolveHref(lang, item.href)} className="group flex min-h-[380px] flex-col p-7 transition duration-200 hover:-translate-y-1 md:p-9" style={{ background: PAPER }}>
+              <div className="flex items-start justify-between gap-8">
+                <Icon className="size-6" strokeWidth={1.5} style={{ color: INK }} aria-hidden />
+                <span className="font-mono text-[12px]" style={{ color: GRAY_400 }}>0{index + 1}</span>
+              </div>
+              <h3 className="mt-9 text-[25px] font-semibold leading-[1.1] tracking-[-0.01em]" style={{ color: INK }}>{item.title}</h3>
+              <p className="mt-4 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>{item.problem}</p>
+              <ul className="mt-6 space-y-2">
+                {item.deliverables.map((deliverable) => (
+                  <li key={deliverable} className="flex gap-2 text-[14px]" style={{ color: INK }}>
+                    <span style={{ color: EMBER }}>•</span>
+                    {deliverable}
+                  </li>
+                ))}
+              </ul>
+              <p className="mt-auto border-t pt-5 text-[14px] leading-[1.5]" style={{ borderColor: GRAY_200, color: GRAY_600 }}>{item.result}</p>
+              <span className="mt-5 inline-flex items-center gap-2 text-[14px] font-medium" style={{ color: INK }}>
+                {lang === 'en' ? 'Open page' : 'Voir la page'}
+                <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" aria-hidden />
+              </span>
+            </Link>
+          )
+        })}
       </div>
     </Section>
   )
 }
-
-// --- Offers ----------------------------------------------------------------
 
 function Offers({ lang }: { lang: Locale }) {
   const t = content[lang].offers
+
   return (
     <Section id="offres" tone="ink">
-      <div className="max-w-[640px]">
-        <p className="text-[12px] font-medium uppercase tracking-[0.16em]" style={{ color: EMBER }}>
-          {lang === 'en' ? 'Offers' : 'Offres'}
-        </p>
+      <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-end">
         <SectionTitle light>{t.title}</SectionTitle>
         <SectionLede light>{t.subtitle}</SectionLede>
       </div>
-      <div className="mt-16 grid gap-px" style={{ background: 'rgba(255,255,255,0.10)' }}>
-        <div className="grid gap-px md:grid-cols-2 lg:grid-cols-3" style={{ background: 'rgba(255,255,255,0.10)' }}>
-          {t.items.map((item, i) => {
-            const featured = 'featured' in item && item.featured
-            return (
-              <Link
-                key={item.title}
-                href={auditHref[lang]}
-                className="group flex flex-col p-8 transition-colors duration-200 md:p-10"
-                style={{ background: featured ? PAPER : INK, color: featured ? INK : '#FFFFFF' }}
-              >
-                <div className="flex items-center justify-between">
-                  <span
-                    className="text-[11px] font-medium uppercase tracking-[0.16em]"
-                    style={{ color: featured ? EMBER : 'rgba(255,255,255,0.5)' }}
-                  >
-                    {item.detail}
-                  </span>
-                  <span
-                    className="font-mono text-[12px]"
-                    style={{ color: featured ? GRAY_400 : 'rgba(255,255,255,0.35)' }}
-                  >
-                    0{i + 1}
-                  </span>
-                </div>
-                <h3 className="mt-10 text-[26px] font-semibold leading-[1.1]">{item.title}</h3>
-                <p
-                  className="mt-3 text-[15px] leading-[1.55]"
-                  style={{ color: featured ? GRAY_600 : 'rgba(255,255,255,0.66)' }}
-                >
-                  {item.body}
-                </p>
-                <span className="mt-8 inline-flex items-center gap-2 text-[14px] font-medium">
-                  {item.cta}
-                  <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
-                </span>
-              </Link>
-            )
-          })}
-        </div>
+      <div className="mt-16 grid gap-px overflow-hidden rounded-[8px] border md:grid-cols-2 lg:grid-cols-5" style={{ borderColor: 'rgba(250,250,247,0.16)', background: 'rgba(250,250,247,0.16)' }}>
+        {t.items.map((item) => (
+          <article key={item.title} className="flex min-h-[290px] flex-col p-6" style={{ background: INK }}>
+            <p className="text-[11px] font-medium uppercase tracking-[0.16em]" style={{ color: EMBER }}>{item.detail}</p>
+            <h3 className="mt-7 text-[22px] font-semibold leading-[1.08] tracking-[-0.01em]" style={{ color: PAPER }}>{item.title}</h3>
+            <p className="mt-4 text-[14px] leading-[1.55]" style={{ color: 'rgba(250,250,247,0.68)' }}>{item.body}</p>
+            <div className="mt-auto pt-8">
+              <TextLink href={resolveHref(lang, item.href)} light>{lang === 'en' ? 'Details' : 'Détails'}</TextLink>
+            </div>
+          </article>
+        ))}
       </div>
     </Section>
   )
 }
-
-// --- Delivery --------------------------------------------------------------
 
 function Delivery({ lang }: { lang: Locale }) {
   const t = content[lang].delivery
+
   return (
-    <Section id="comment-on-livre" tone="paper">
-      <div className="max-w-[640px]">
-        <SectionEyebrow>{lang === 'en' ? 'Method' : 'Méthode'}</SectionEyebrow>
+    <Section id="comment-on-livre">
+      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
-      <ol className="mt-16 grid gap-px overflow-hidden rounded-[8px] md:grid-cols-2 lg:grid-cols-3" style={{ background: GRAY_200 }}>
-        {t.steps.map(([title, body], i) => (
-          <li key={title} className="flex flex-col p-8" style={{ background: PAPER }}>
-            <span className="font-mono text-[12px]" style={{ color: EMBER }}>
-              0{i + 1}
-            </span>
-            <h3 className="mt-8 text-[19px] font-semibold leading-[1.2]" style={{ color: INK }}>
-              {title}
-            </h3>
-            <p className="mt-2 text-[14px] leading-[1.55]" style={{ color: GRAY_600 }}>
-              {body}
-            </p>
+      <ol className="mt-16 grid gap-px overflow-hidden rounded-[8px] border md:grid-cols-2 lg:grid-cols-7" style={{ borderColor: GRAY_200, background: GRAY_200 }}>
+        {t.steps.map(([title, body], index) => (
+          <li key={title} className="flex min-h-[250px] flex-col p-6" style={{ background: PAPER }}>
+            <span className="font-mono text-[12px]" style={{ color: EMBER }}>0{index + 1}</span>
+            <h3 className="mt-8 text-[18px] font-semibold leading-[1.15]" style={{ color: INK }}>{title}</h3>
+            <p className="mt-3 text-[13px] leading-[1.55]" style={{ color: GRAY_600 }}>{body}</p>
           </li>
         ))}
       </ol>
-    </Section>
-  )
-}
-
-// --- R&D Signal ------------------------------------------------------------
-
-function RDSignal({ lang }: { lang: Locale }) {
-  const t = content[lang].rd
-  return (
-    <Section id="rd" tone="paper">
-      <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
-        <div className="max-w-[640px]">
-          <SectionEyebrow>R&D</SectionEyebrow>
-          <SectionTitle>{t.title}</SectionTitle>
-          <SectionLede>{t.subtitle}</SectionLede>
-        </div>
-        <div className="flex flex-wrap gap-2">
-          {t.badges.map((badge) => (
-            <span
-              key={badge}
-              className="rounded-[6px] border px-3 py-1.5 text-[12px] font-medium"
-              style={{ borderColor: GRAY_200, color: INK, background: PAPER }}
-            >
-              {badge}
-            </span>
-          ))}
-        </div>
-      </div>
-      <div className="mt-16 grid gap-8 md:grid-cols-3">
-        {t.cards.map(([title, body]) => (
-          <Link
-            key={title}
-            href={blogHref[lang]}
-            className="group flex flex-col border-t pt-6 transition-colors duration-200"
-            style={{ borderColor: GRAY_200 }}
-          >
-            <Radio className="size-5" strokeWidth={1.5} style={{ color: INK }} aria-hidden />
-            <h3 className="mt-6 text-[20px] font-semibold leading-[1.2]" style={{ color: INK }}>
-              {title}
-            </h3>
-            <p className="mt-2 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
-              {body}
-            </p>
-            <span className="mt-6 inline-flex items-center gap-2 text-[13px] font-medium" style={{ color: INK }}>
-              {lang === 'en' ? 'Read' : 'Lire'}
-              <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
-            </span>
-          </Link>
-        ))}
-      </div>
-      <p className="mt-10 text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
-        {t.updated}
-      </p>
-    </Section>
-  )
-}
-
-// --- Lex Teaser ------------------------------------------------------------
-
-function LexTeaser({ lang }: { lang: Locale }) {
-  const t = content[lang].lex
-  return (
-    <Section id="lex" tone="gray">
-      <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div className="max-w-[520px]">
-          <SectionEyebrow>Lex</SectionEyebrow>
-          <SectionTitle>{t.title}</SectionTitle>
-          <SectionLede>{t.subtitle}</SectionLede>
-        </div>
-        <div className="rounded-[8px] border p-6 md:p-8" style={{ borderColor: GRAY_200, background: PAPER }}>
-          <AuditFlashForm lang={lang} mode="lex" placeholder={t.placeholder} />
-        </div>
+      <div className="mt-10">
+        <TextLink href={routeMap[lang].method}>{lang === 'en' ? 'Read the full method' : 'Voir la méthode complète'}</TextLink>
       </div>
     </Section>
   )
 }
-
-// --- Cases -----------------------------------------------------------------
 
 function Cases({ lang }: { lang: Locale }) {
   const t = content[lang].cases
+
   return (
-    <Section id="acquis-livres" tone="paper">
-      <div className="max-w-[640px]">
-        <SectionEyebrow>{lang === 'en' ? 'Delivered' : 'Acquis livrés'}</SectionEyebrow>
+    <Section id="acquis-livres" tone="gray">
+      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
       <div className="mt-16 grid gap-8 lg:grid-cols-3">
         {t.items.map((item) => (
-          <article
-            key={item.title}
-            className="flex flex-col border-t pt-8"
-            style={{ borderColor: GRAY_200 }}
-          >
-            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
-              {item.context}
-            </p>
-            <h3 className="mt-6 text-[22px] font-semibold leading-[1.2]" style={{ color: INK }}>
-              {item.title}
-            </h3>
-            <p className="mt-3 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
-              {item.problem}
-            </p>
-            <ul className="mt-6 space-y-2">
-              {item.system.map((sys) => (
-                <li key={sys} className="flex items-start gap-2 text-[14px]" style={{ color: INK }}>
-                  <span aria-hidden style={{ color: EMBER }} className="mt-[2px]">·</span>
-                  {sys}
+          <article key={item.title} className="rounded-[8px] border p-7" style={{ borderColor: GRAY_200, background: PAPER }}>
+            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>{item.context}</p>
+            <h3 className="mt-7 text-[24px] font-semibold leading-[1.12] tracking-[-0.01em]" style={{ color: INK }}>{item.title}</h3>
+            <p className="mt-4 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>{item.problem}</p>
+            <ul className="mt-7 space-y-2">
+              {item.system.map((part) => (
+                <li key={part} className="flex gap-2 text-[14px]" style={{ color: INK }}>
+                  <span style={{ color: EMBER }}>•</span>
+                  {part}
                 </li>
               ))}
             </ul>
-            <p className="mt-8 font-mono text-[14px]" style={{ color: EMBER }}>
-              {item.metric}
-            </p>
-            <p
-              className="mt-6 border-t pt-5 text-[13px] leading-[1.55]"
-              style={{ borderColor: GRAY_200, color: GRAY_600 }}
-            >
-              {item.remains}
-            </p>
+            <p className="mt-8 font-mono text-[14px]" style={{ color: EMBER }}>{item.metric}</p>
+            <p className="mt-5 border-t pt-5 text-[13px] leading-[1.55]" style={{ borderColor: GRAY_200, color: GRAY_600 }}>{item.remains}</p>
           </article>
         ))}
+      </div>
+      <div className="mt-10">
+        <TextLink href={routeMap[lang].cases}>{lang === 'en' ? 'Open client cases' : 'Voir les cas clients'}</TextLink>
       </div>
     </Section>
   )
 }
-
-// --- Team ------------------------------------------------------------------
-
-function Team({ lang }: { lang: Locale }) {
-  const t = content[lang].team
-  return (
-    <Section id="equipe" tone="gray">
-      <div className="max-w-[640px]">
-        <SectionEyebrow>{lang === 'en' ? 'Team' : 'Équipe'}</SectionEyebrow>
-        <SectionTitle>{t.title}</SectionTitle>
-        <SectionLede>{t.subtitle}</SectionLede>
-      </div>
-      <div className="mt-16 grid gap-8 md:grid-cols-3">
-        {t.members.map((member) => (
-          <article key={member.name}>
-            <div
-              className="relative aspect-[4/5] w-full overflow-hidden rounded-[8px]"
-              style={{ background: GRAY_200 }}
-            >
-              {member.image ? (
-                <Image
-                  src={member.image}
-                  alt={member.name}
-                  fill
-                  sizes="(min-width: 1024px) 360px, 100vw"
-                  className="object-cover grayscale"
-                />
-              ) : (
-                <div
-                  className="flex h-full w-full items-center justify-center text-[64px] font-semibold"
-                  style={{ background: INK, color: PAPER }}
-                >
-                  {member.name
-                    .split(' ')
-                    .map((part) => part[0])
-                    .join('')}
-                </div>
-              )}
-            </div>
-            <h3 className="mt-6 text-[20px] font-semibold" style={{ color: INK }}>
-              {member.name}
-            </h3>
-            <p className="mt-1 text-[13px] font-medium" style={{ color: EMBER }}>
-              {member.role}
-            </p>
-            <p className="mt-3 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
-              {member.bio}
-            </p>
-          </article>
-        ))}
-      </div>
-      <p className="mt-12 max-w-[60ch] text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
-        <span className="font-semibold" style={{ color: INK }}>
-          {lang === 'en' ? 'Extended network. ' : 'Réseau étendu. '}
-        </span>
-        {t.network}
-      </p>
-    </Section>
-  )
-}
-
-// --- Enterprise readiness --------------------------------------------------
 
 function Enterprise({ lang }: { lang: Locale }) {
   const t = content[lang].enterprise
+
   return (
-    <Section id="enterprise-readiness" tone="paper">
-      <div className="max-w-[640px]">
-        <SectionEyebrow>{lang === 'en' ? 'Readiness' : 'Readiness'}</SectionEyebrow>
+    <Section id="enterprise-readiness">
+      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
       </div>
-      <ul className="mt-16 grid gap-px overflow-hidden rounded-[8px] md:grid-cols-2" style={{ background: GRAY_200 }}>
-        {t.items.map((item, i) => {
-          const Icon = readinessIcons[i] ?? ShieldCheck
+      <ul className="mt-16 grid gap-px overflow-hidden rounded-[8px] border md:grid-cols-2 lg:grid-cols-4" style={{ borderColor: GRAY_200, background: GRAY_200 }}>
+        {t.items.map((item, index) => {
+          const Icon = readinessIcons[index] ?? ShieldCheck
           return (
-            <li
-              key={item}
-              className="flex items-center gap-4 p-6"
-              style={{ background: PAPER }}
-            >
-              <Icon className="size-5 shrink-0" strokeWidth={1.5} style={{ color: INK }} aria-hidden />
-              <span className="text-[15px]" style={{ color: INK }}>
-                {item}
-              </span>
+            <li key={item} className="flex min-h-[128px] items-start gap-4 p-6" style={{ background: PAPER }}>
+              <Icon className="mt-1 size-5 shrink-0" strokeWidth={1.5} style={{ color: EMBER }} aria-hidden />
+              <span className="text-[15px] leading-[1.35]" style={{ color: INK }}>{item}</span>
             </li>
           )
         })}
@@ -1032,32 +890,28 @@ function Enterprise({ lang }: { lang: Locale }) {
   )
 }
 
-// --- Resources -------------------------------------------------------------
-
 function Resources({ lang }: { lang: Locale }) {
   const t = content[lang].resources
-  const rd = content[lang].rd
+  const resourceLinks = lang === 'en'
+    ? ['AI audit deliverables', 'AI, GDPR and internal data', 'Automation ROI for operations']
+    : ['Audit IA : livrables et scoring', 'IA, RGPD et données internes', 'ROI des automatisations métier']
+
   return (
     <Section id="blog" tone="gray">
-      <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
-        <div className="max-w-[480px]">
-          <SectionEyebrow>{lang === 'en' ? 'Resources' : 'Ressources'}</SectionEyebrow>
+      <div className="grid gap-12 lg:grid-cols-[0.85fr_1.15fr]">
+        <div>
           <SectionTitle>{t.title}</SectionTitle>
           <SectionLede>{t.subtitle}</SectionLede>
           <div className="mt-8">
-            <TextLink href={blogHref[lang]}>{t.cta}</TextLink>
+            <TextLink href={routeMap[lang].blog}>{t.cta}</TextLink>
           </div>
         </div>
-        <ul className="divide-y rounded-[8px] border" style={{ borderColor: GRAY_200, background: PAPER, borderStyle: 'solid' }}>
-          {rd.cards.map(([title, body]) => (
+        <ul className="divide-y rounded-[8px] border" style={{ borderColor: GRAY_200, background: PAPER }}>
+          {resourceLinks.map((title) => (
             <li key={title}>
-              <Link href={blogHref[lang]} className="block p-6 transition-colors duration-200">
-                <h3 className="text-[18px] font-semibold" style={{ color: INK }}>
-                  {title}
-                </h3>
-                <p className="mt-2 text-[14px] leading-[1.55]" style={{ color: GRAY_600 }}>
-                  {body}
-                </p>
+              <Link href={routeMap[lang].blog} className="group flex items-center justify-between gap-8 p-6">
+                <span className="text-[18px] font-semibold" style={{ color: INK }}>{title}</span>
+                <ArrowRight className="size-4 shrink-0 transition-transform group-hover:translate-x-1" style={{ color: EMBER }} aria-hidden />
               </Link>
             </li>
           ))}
@@ -1067,132 +921,100 @@ function Resources({ lang }: { lang: Locale }) {
   )
 }
 
-// --- Final CTA -------------------------------------------------------------
+function FAQ({ lang }: { lang: Locale }) {
+  const t = content[lang].faq
+
+  return (
+    <Section id="faq">
+      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
+        <div>
+          <SectionTitle>{t.title}</SectionTitle>
+          <SectionLede>{t.subtitle}</SectionLede>
+        </div>
+        <div className="divide-y rounded-[8px] border" style={{ borderColor: GRAY_200, background: PAPER }}>
+          {t.items.map((item) => (
+            <details key={item.question} className="group p-6 open:bg-[#F7F2ED]">
+              <summary className="flex cursor-pointer list-none items-start justify-between gap-6 text-[18px] font-semibold" style={{ color: INK }}>
+                {item.question}
+                <span className="mt-1 text-[20px] leading-none" style={{ color: EMBER }}>+</span>
+              </summary>
+              <p className="mt-4 max-w-[68ch] text-[15px] leading-[1.6]" style={{ color: GRAY_600 }}>{item.answer}</p>
+            </details>
+          ))}
+        </div>
+      </div>
+    </Section>
+  )
+}
 
 function FinalCTA({ lang }: { lang: Locale }) {
   const t = content[lang].final
+
   return (
-    <section style={{ background: INK, color: '#FFFFFF', borderTop: `1px solid ${GRAY_200}` }}>
+    <section style={{ background: INK, color: PAPER }}>
       <div className="mx-auto grid w-full max-w-[1200px] gap-10 px-6 py-24 md:grid-cols-[1fr_auto] md:items-end md:px-10 md:py-32">
         <div>
-          <p className="text-[12px] font-medium uppercase tracking-[0.16em]" style={{ color: EMBER }}>
-            {lang === 'en' ? 'Next step' : 'Prochaine étape'}
-          </p>
-          <h2
-            className="mt-4 max-w-[24ch] text-[36px] font-semibold leading-[1.05] tracking-[-0.01em] md:text-[56px]"
-            style={{ color: '#FFFFFF' }}
-          >
-            {t.title}
-          </h2>
-          <p className="mt-5 max-w-[52ch] text-[17px] leading-[1.55]" style={{ color: 'rgba(255,255,255,0.72)' }}>
-            {t.subtitle}
-          </p>
+          <h2 className="max-w-[24ch] text-[40px] font-semibold leading-[1.04] tracking-[-0.02em] md:text-[58px]" style={{ color: PAPER }}>{t.title}</h2>
+          <p className="mt-5 max-w-[58ch] text-[17px] leading-[1.6]" style={{ color: 'rgba(250,250,247,0.72)' }}>{t.subtitle}</p>
         </div>
-        <Link
-          href={auditHref[lang]}
-          className="inline-flex h-[52px] items-center justify-center rounded-[8px] px-7 text-[15px] font-medium transition-colors duration-200"
-          style={{ background: PAPER, color: INK }}
-        >
-          {t.cta}
-          <ArrowRight className="ml-2 size-4" aria-hidden />
-        </Link>
+        <PrimaryCta href={routeMap[lang].booking} inverted>{t.cta}</PrimaryCta>
       </div>
     </section>
   )
 }
 
-// --- Footer ----------------------------------------------------------------
-
 export function MarketingFooter({ lang }: { lang: Locale }) {
   const t = content[lang].footer
+  const routes = routeMap[lang]
   const nav: Array<[string, string]> = [
-    [lang === 'en' ? 'Capabilities' : 'Expertises', '#expertises'],
-    [lang === 'en' ? 'Offers' : 'Offres', '#offres'],
-    [lang === 'en' ? 'Method' : 'Méthode', '#comment-on-livre'],
-    [lang === 'en' ? 'Delivered' : 'Acquis livrés', '#acquis-livres'],
+    [lang === 'en' ? 'Expertise' : 'Expertises', '/#expertises'],
+    [lang === 'en' ? 'Offers' : 'Offres', '/#offres'],
+    [lang === 'en' ? 'Method' : 'Méthode', routes.method],
+    [lang === 'en' ? 'Client cases' : 'Cas clients', routes.cases],
   ]
+
   return (
     <footer style={{ background: PAPER, borderTop: `1px solid ${GRAY_200}` }}>
       <div className="mx-auto w-full max-w-[1200px] px-6 py-16 md:px-10">
-        <div className="grid gap-12 md:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr]">
+        <div className="grid gap-12 md:grid-cols-[1.35fr_0.8fr_0.8fr_0.8fr]">
           <div>
             <Link href={lang === 'en' ? '/en' : '/'} className="inline-flex items-center gap-2">
               <Image src="/logo.png" alt="Lucid-Lab" width={28} height={28} className="size-7" />
-              <span className="text-[18px] font-semibold tracking-tight" style={{ color: INK }}>
-                Lucid-Lab
-              </span>
+              <span className="text-[18px] font-semibold tracking-tight" style={{ color: INK }}>Lucid-Lab</span>
             </Link>
-            <p className="mt-5 max-w-[40ch] text-[14px] leading-[1.6]" style={{ color: GRAY_600 }}>
-              {t.description}
-            </p>
+            <p className="mt-5 max-w-[42ch] text-[14px] leading-[1.6]" style={{ color: GRAY_600 }}>{t.description}</p>
           </div>
           <div>
-            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
-              {t.product}
-            </p>
+            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>{t.product}</p>
             <ul className="mt-4 space-y-3">
               {nav.map(([label, href]) => (
                 <li key={label}>
-                  <Link href={href} className="text-[14px]" style={{ color: GRAY_600 }}>
-                    {label}
-                  </Link>
+                  <Link href={lang === 'en' && href.startsWith('/#') ? `/en${href}` : href} className="text-[14px]" style={{ color: GRAY_600 }}>{label}</Link>
                 </li>
               ))}
             </ul>
           </div>
           <div>
-            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
-              {t.resources}
-            </p>
+            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>{t.resources}</p>
             <ul className="mt-4 space-y-3">
-              <li>
-                <Link href={blogHref[lang]} className="text-[14px]" style={{ color: GRAY_600 }}>
-                  Blog
-                </Link>
-              </li>
-              <li>
-                <Link href={auditHref[lang]} className="text-[14px]" style={{ color: GRAY_600 }}>
-                  Audit Flash
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href={lang === 'en' ? '/en/privacy' : '/confidentialite'}
-                  className="text-[14px]"
-                  style={{ color: GRAY_600 }}
-                >
-                  {lang === 'en' ? 'Privacy' : 'Confidentialité'}
-                </Link>
-              </li>
+              <li><Link href={routes.blog} className="text-[14px]" style={{ color: GRAY_600 }}>Blog</Link></li>
+              <li><Link href={routes.audit} className="text-[14px]" style={{ color: GRAY_600 }}>AI Opportunity Audit</Link></li>
+              <li><Link href={routes.buildRun} className="text-[14px]" style={{ color: GRAY_600 }}>Build & Run</Link></li>
             </ul>
           </div>
           <div>
-            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
-              {t.contact}
-            </p>
+            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>{t.contact}</p>
             <ul className="mt-4 space-y-3">
-              <li>
-                <a href="mailto:info@lucid-lab.fr" className="text-[14px]" style={{ color: GRAY_600 }}>
-                  info@lucid-lab.fr
-                </a>
-              </li>
-              <li>
-                <span className="text-[14px]" style={{ color: GRAY_600 }}>
-                  {t.location}
-                </span>
-              </li>
+              <li><a href="mailto:info@lucid-lab.fr" className="text-[14px]" style={{ color: GRAY_600 }}>info@lucid-lab.fr</a></li>
+              <li><span className="text-[14px]" style={{ color: GRAY_600 }}>{t.location}</span></li>
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t pt-6 text-[12px]" style={{ borderColor: GRAY_200, color: GRAY_400 }}>
-          {t.copyright}
-        </div>
+        <div className="mt-12 border-t pt-6 text-[12px]" style={{ borderColor: GRAY_200, color: GRAY_400 }}>{t.copyright}</div>
       </div>
     </footer>
   )
 }
-
-// --- Page ------------------------------------------------------------------
 
 export default function HomePage({ lang }: { lang: Locale }) {
   return (
@@ -1200,16 +1022,15 @@ export default function HomePage({ lang }: { lang: Locale }) {
       <Header />
       <main className="grow">
         <Hero lang={lang} />
+        <TrustedBand lang={lang} />
         <Problems lang={lang} />
         <Pillars lang={lang} />
         <Offers lang={lang} />
         <Delivery lang={lang} />
         <Cases lang={lang} />
-        <RDSignal lang={lang} />
-        <LexTeaser lang={lang} />
-        <Team lang={lang} />
         <Enterprise lang={lang} />
         <Resources lang={lang} />
+        <FAQ lang={lang} />
         <FinalCTA lang={lang} />
       </main>
       <MarketingFooter lang={lang} />

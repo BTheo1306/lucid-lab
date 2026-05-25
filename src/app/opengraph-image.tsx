@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og"
 import { readFileSync } from "fs"
 import { join } from "path"
 
-export const alt = "Lucid-Lab — Vos systèmes IA, construits, déployés, opérés."
+export const alt = "Lucid-Lab : transformez vos opportunités IA en systèmes métier fiables."
 export const size = { width: 1200, height: 630 }
 export const contentType = "image/png"
 
@@ -79,15 +79,15 @@ export default async function Image() {
               flexDirection: "column",
               fontSize: "44px",
               fontWeight: "800",
-              color: "#000",
+              color: "#0A0A0A",
               lineHeight: "1.05",
               letterSpacing: "-0.03em",
               marginBottom: "20px",
             }}
           >
-            <span>Vos systèmes IA,</span>
-            <span>construits, déployés,</span>
-            <span>opérés.</span>
+            <span>Opportunités IA.</span>
+            <span>Systèmes métier</span>
+            <span>fiables.</span>
           </div>
 
           {/* Subtext */}
@@ -101,7 +101,7 @@ export default async function Image() {
               maxWidth: "420px",
             }}
           >
-            Agents, outils internes, automatisations et monitoring qui tournent en production.
+            Audit, roadmap, agents IA, outils internes, monitoring et documentation.
           </div>
 
           {/* Badges */}
@@ -116,7 +116,7 @@ export default async function Image() {
                 fontWeight: "600",
               }}
             >
-              Audit Flash gratuit
+              Audit IA
             </div>
             <div
               style={{

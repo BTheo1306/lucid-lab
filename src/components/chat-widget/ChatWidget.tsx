@@ -7,7 +7,7 @@ import { useChat } from './useChat';
 import { MessageList } from './MessageList';
 import { InputBox } from './InputBox';
 
-const TEASER_DELAY_MS = 4000;
+const TEASER_DELAY_MS = 8000;
 const TEASER_DISMISS_KEY = 'll-chat-teaser-dismissed';
 
 const COPY = {
@@ -57,8 +57,21 @@ export function ChatWidget({ lang = 'fr' }: { lang?: Lang }) {
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (sessionStorage.getItem(TEASER_DISMISS_KEY) === '1') return;
-    const t = window.setTimeout(() => setTeaserVisible(true), TEASER_DELAY_MS);
-    return () => window.clearTimeout(t);
+    let armed = false;
+    const showAfterScroll = () => {
+      if (!armed || window.scrollY < 520) return;
+      setTeaserVisible(true);
+      window.removeEventListener('scroll', showAfterScroll);
+    };
+    const timer = window.setTimeout(() => {
+      armed = true;
+      showAfterScroll();
+    }, TEASER_DELAY_MS);
+    window.addEventListener('scroll', showAfterScroll, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('scroll', showAfterScroll);
+    };
   }, []);
 
   const dismissTeaser = () => {
@@ -211,6 +224,14 @@ const widgetStyles = `
 }
 @media (max-width: 640px) {
   .ll-chat-teaser { display: none; }
+  .ll-chat-toggle {
+    width: 52px; height: 52px; bottom: 14px; right: 14px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.22);
+  }
+  @keyframes ll-toggle-pulse {
+    0%, 100% { box-shadow: 0 5px 18px rgba(0,0,0,0.22), 0 0 0 0 rgba(99,102,241,0.36); }
+    50%      { box-shadow: 0 5px 18px rgba(0,0,0,0.22), 0 0 0 9px rgba(99,102,241,0); }
+  }
 }
 
 .ll-chat-panel {
