@@ -7,7 +7,7 @@ const page = {
     title: 'Audit Flash',
     headline: '30 minutes pour qualifier votre besoin et valider la faisabilité technique.',
     subtitle:
-      'Un échange exploratoire, sans engagement. Partagez votre contexte, nous analysons la maturité de vos données et définissons le chantier IA le plus rentable pour votre organisation.',
+      'Un échange exploratoire de 30 minutes, 100% sans engagement. Partagez votre contexte, nous analysons la maturité de vos données et définissons le chantier IA le plus rentable pour votre organisation.',
     formTitle: 'Pré-qualification technique',
     formSubtitle: 'Ces informations nous permettent d\'analyser votre environnement avant l\'appel. Aucun objectif commercial.',
     duringTitle: 'Déroulé de la session',
@@ -33,7 +33,7 @@ const page = {
     title: 'Audit Flash',
     headline: '30 minutes to qualify your needs and validate technical feasibility.',
     subtitle:
-      'An exploratory call, no commitment. Share your context, we analyze your data maturity and define the most profitable AI initiative for your organization.',
+      'An exploratory 30-minute call, 100% no commitment. Share your context, we analyze your data maturity and define the most profitable AI initiative for your organization.',
     formTitle: 'Technical Pre-qualification',
     formSubtitle: 'This information allows us to review your environment prior to the call. No sales pitches.',
     duringTitle: 'Session outline',
@@ -66,7 +66,7 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
       
       <main className="pt-[68px] flex-1 flex flex-col lg:flex-row max-w-[1400px] mx-auto w-full">
         {/* Left Column: Context & Information */}
-        <div className="p-6 md:p-10 lg:p-14 lg:w-5/12 xl:w-2/5 flex flex-col justify-start space-y-10 lg:sticky lg:top-[68px] lg:h-[calc(100vh-68px)] lg:overflow-y-auto custom-scrollbar">
+        <div className="p-6 md:p-10 lg:p-14 lg:w-5/12 xl:w-2/5 flex flex-col justify-start space-y-10 lg:sticky lg:top-[68px] lg:h-[calc(100vh-68px)] lg:overflow-y-auto custom-scrollbar pb-16">
           
           <div className="space-y-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500">{t.title}</p>
@@ -75,15 +75,6 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
             </h1>
             <p className="text-[14px] leading-relaxed text-stone-600">{t.subtitle}</p>
             
-            {/* Minimalist aside parameters band */}
-            <div className="flex flex-wrap gap-2 mt-6">
-              {t.aside.map((item) => (
-                <div key={item} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-[4px] bg-[#E5E5E5]/40 border border-stone-200 text-[11.5px] font-semibold tracking-wide text-stone-700">
-                  <span className="size-1.5 rounded-full bg-[#EC5A1D]" />
-                  {item}
-                </div>
-              ))}
-            </div>
           </div>
 
           <div className="w-full h-px bg-stone-200/60" />
@@ -128,8 +119,8 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
         </div>
 
         {/* Right Column: Pre-qualification Form */}
-        <div className="lg:w-7/12 xl:w-3/5 p-6 md:p-10 lg:p-14 lg:min-h-[calc(100vh-68px)] flex flex-col justify-center bg-white border-l border-stone-200 shadow-[0_0_40px_rgba(0,0,0,0.02)]">
-          <div className="max-w-[650px] mx-auto w-full space-y-6">
+        <div className="lg:w-7/12 xl:w-3/5 p-6 md:p-12 lg:p-20 xl:p-28 lg:min-h-[calc(100vh-68px)] flex flex-col justify-center bg-white border-l border-stone-200 shadow-[0_0_40px_rgba(0,0,0,0.02)]">
+          <div className="max-w-[680px] w-full mx-auto space-y-8">
             <div>
               <h2 className="text-[24px] font-extrabold tracking-tight text-stone-900">{t.formTitle}</h2>
               <p className="mt-2 text-[14px] leading-relaxed text-stone-500">{t.formSubtitle}</p>
