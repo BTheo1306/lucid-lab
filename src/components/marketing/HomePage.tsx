@@ -2,11 +2,9 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import { motion } from 'framer-motion'
 import {
   ArrowRight,
   Bot,
-  CheckCircle2,
   Code2,
   Database,
   FileText,
@@ -20,12 +18,21 @@ import {
   Sparkles,
   UserCheck,
   Workflow,
-  Zap,
 } from 'lucide-react'
 
 import { AuditFlashForm } from '@/components/marketing/AuditFlashForm'
 import { Header } from '@/components/ui/header'
 import type { Locale } from '@/lib/i18n/client'
+
+// Brand tokens — see lucid-lab-branding.md (Ink, Paper, Gray 600/400/200, Ember).
+// Single-accent rule: Ember used sparingly; no secondary blue.
+const INK = '#0A0A0A'
+const PAPER = '#FAFAF7'
+const GRAY_600 = '#525252'
+const GRAY_400 = '#A3A3A3'
+const GRAY_200 = '#E5E5E5'
+const GRAY_100 = '#F2F2EE'
+const EMBER = '#C85E1A'
 
 const auditHref = {
   fr: '/audit-flash',
@@ -476,9 +483,10 @@ const content = {
   },
 } as const
 
+
 const problemIcons = [Sparkles, Workflow, Network, Database, ShieldCheck, UserCheck] as const
 const pillarIcons = [Bot, MonitorCheck, Database, SearchCheck] as const
-const readinessIcons = [LockKeyhole, ShieldCheck, Database, Code2, Network, FileText, Gauge, CheckCircle2, UserCheck, MonitorCheck] as const
+const readinessIcons = [LockKeyhole, ShieldCheck, Database, Code2, Network, FileText, Gauge, UserCheck, MonitorCheck, Workflow] as const
 
 function localize(lang: Locale, href: string) {
   if (href === auditHref.fr || href === auditHref.en) return auditHref[lang]
@@ -486,501 +494,646 @@ function localize(lang: Locale, href: string) {
   return href
 }
 
-function SectionShell({
+// --- Primitives ------------------------------------------------------------
+
+function Section({
   id,
-  className = '',
+  tone = 'paper',
   children,
 }: {
   id?: string
-  className?: string
+  tone?: 'paper' | 'ink' | 'gray'
   children: React.ReactNode
 }) {
+  const bg = tone === 'ink' ? INK : tone === 'gray' ? GRAY_100 : PAPER
+  const fg = tone === 'ink' ? '#FFFFFF' : INK
   return (
-    <section id={id} className={`border-t border-[#dedbd2] ${className}`}>
-      <div className="mx-auto max-w-[1264px] border-x border-[#dedbd2] px-5 py-16 sm:px-8 md:px-12 md:py-24">
+    <section
+      id={id}
+      style={{ background: bg, color: fg, borderTop: `1px solid ${GRAY_200}` }}
+    >
+      <div className="mx-auto w-full max-w-[1200px] px-6 py-24 md:px-10 md:py-32">
         {children}
       </div>
     </section>
   )
 }
 
-function SectionHeader({
-  title,
-  subtitle,
-  className = '',
-}: {
-  title: string
-  subtitle: string
-  className?: string
-}) {
+function SectionEyebrow({ children }: { children: React.ReactNode }) {
   return (
-    <div className={`mb-10 max-w-3xl md:mb-14 ${className}`}>
-      <h2 className="text-[32px] font-semibold leading-[1.05] tracking-normal text-[#111111] md:text-[48px]">
-        {title}
-      </h2>
-      <p className="mt-4 text-[16px] leading-[1.7] text-[#5f5a52] md:text-[18px]">{subtitle}</p>
-    </div>
+    <p
+      className="text-[12px] font-medium uppercase tracking-[0.16em]"
+      style={{ color: EMBER }}
+    >
+      {children}
+    </p>
   )
 }
 
-function TextLink({ href, children }: { href: string; children: React.ReactNode }) {
+function SectionTitle({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
   return (
-    <Link href={href} className="inline-flex items-center gap-2 text-[14px] font-semibold text-[#111111]">
+    <h2
+      className="mt-4 max-w-[34ch] text-[34px] font-semibold leading-[1.08] tracking-[-0.01em] md:text-[48px]"
+      style={{ color: light ? '#FFFFFF' : INK }}
+    >
       {children}
-      <ArrowRight className="size-4" aria-hidden />
+    </h2>
+  )
+}
+
+function SectionLede({ children, light = false }: { children: React.ReactNode; light?: boolean }) {
+  return (
+    <p
+      className="mt-5 max-w-[60ch] text-[17px] leading-[1.6] md:text-[18px]"
+      style={{ color: light ? 'rgba(255,255,255,0.72)' : GRAY_600 }}
+    >
+      {children}
+    </p>
+  )
+}
+
+function PrimaryCta({ href, children }: { href: string; children: React.ReactNode }) {
+  return (
+    <Link
+      href={href}
+      className="inline-flex h-[48px] items-center justify-center rounded-[8px] px-6 text-[15px] font-medium transition-colors duration-200"
+      style={{ background: INK, color: PAPER }}
+    >
+      {children}
+      <ArrowRight className="ml-2 size-4" aria-hidden />
     </Link>
   )
 }
 
-function HeroVisual() {
+function SecondaryCta({ href, children }: { href: string; children: React.ReactNode }) {
   return (
-    <div className="relative min-h-[460px] overflow-hidden rounded-[8px] border border-[#d7d2c8] bg-[#101112] shadow-[0_24px_80px_rgba(17,17,17,0.18)]">
-      <div
-        aria-hidden
-        className="absolute inset-0"
-        style={{
-          background:
-            'linear-gradient(135deg, rgba(18,19,20,0.98) 0%, rgba(19,31,38,0.96) 55%, rgba(58,44,26,0.9) 100%)',
-        }}
-      />
-      <div aria-hidden className="absolute inset-0 opacity-45 [background-image:linear-gradient(rgba(255,255,255,0.07)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.07)_1px,transparent_1px)] [background-size:56px_56px]" />
-      <div className="absolute inset-x-6 top-6 flex items-center justify-between text-[11px] uppercase tracking-[0.18em] text-white/45">
-        <span>Lex / production console</span>
-        <span>live build</span>
-      </div>
-
-      <motion.div
-        aria-hidden
-        className="absolute left-8 top-28 hidden w-[42%] space-y-3 md:block"
-        initial={{ opacity: 0.65 }}
-        animate={{ opacity: [0.45, 0.9, 0.45] }}
-        transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        {['CRM -> scoring', 'Docs -> assistant', 'ERP -> reporting', 'Runbook -> alert'].map((line, i) => (
-          <div key={line} className="grid grid-cols-[74px_1fr] items-center gap-3 text-[11px] text-white/60">
-            <span className="font-mono text-white/35">0{i + 1}</span>
-            <span className="h-px bg-gradient-to-r from-[#7fc7ff] via-white/35 to-transparent" />
-            <span className="col-start-2 -mt-1 font-mono">{line}</span>
-          </div>
-        ))}
-      </motion.div>
-
-      <div className="absolute bottom-8 left-6 right-6 z-10 grid gap-3 md:left-8 md:right-auto md:w-[44%]">
-        {[
-          ['usage', '1 284 runs', '#7fc7ff'],
-          ['latence', '1.8s p95', '#f6b34b'],
-          ['qualité', '92% validé', '#7acb91'],
-        ].map(([label, value, color]) => (
-          <div key={label} className="flex items-center justify-between rounded-[8px] border border-white/10 bg-white/[0.06] px-3 py-2 backdrop-blur">
-            <span className="text-[12px] text-white/45">{label}</span>
-            <span className="font-mono text-[12px] text-white" style={{ color }}>
-              {value}
-            </span>
-          </div>
-        ))}
-      </div>
-
-      <motion.div
-        className="absolute bottom-0 right-4 h-[68%] w-[58%] overflow-hidden rounded-t-[8px] border border-white/15 bg-[#f8f7f3] shadow-[0_18px_60px_rgba(0,0,0,0.25)] md:right-6 md:w-[43%]"
-        animate={{ y: [0, -8, 0] }}
-        transition={{ duration: 6, repeat: Infinity, ease: 'easeInOut' }}
-      >
-        <div className="absolute inset-x-0 top-0 z-10 flex h-8 items-center justify-between border-b border-[#dedbd2] bg-white/70 px-3 text-[10px] font-mono uppercase tracking-[0.16em] text-[#7a7368]">
-          <span>Lex</span>
-          <span>ready</span>
-        </div>
-        <Image
-          src="/robot-poster-new.png"
-          alt="Lex, robot Lucid-Lab"
-          fill
-          priority
-          sizes="(min-width: 1024px) 560px, 80vw"
-          className="object-contain object-bottom pt-8"
-        />
-      </motion.div>
-    </div>
+    <Link
+      href={href}
+      className="inline-flex h-[48px] items-center justify-center rounded-[8px] border px-6 text-[15px] font-medium transition-colors duration-200"
+      style={{ borderColor: GRAY_200, color: INK, background: 'transparent' }}
+    >
+      {children}
+    </Link>
   )
 }
 
+function TextLink({ href, children, light = false }: { href: string; children: React.ReactNode; light?: boolean }) {
+  return (
+    <Link
+      href={href}
+      className="group inline-flex items-center gap-2 text-[14px] font-medium"
+      style={{ color: light ? '#FFFFFF' : INK }}
+    >
+      <span className="border-b" style={{ borderColor: EMBER }}>{children}</span>
+      <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+    </Link>
+  )
+}
+
+// --- Hero ------------------------------------------------------------------
+
 function Hero({ lang }: { lang: Locale }) {
   const t = content[lang].hero
-
   return (
-    <section className="relative overflow-hidden bg-[#f8f7f3] pt-[68px]">
-      <div className="absolute inset-0 -z-10 bg-[linear-gradient(180deg,#f8f7f3_0%,#ffffff_52%,#f1f4f6_100%)]" />
-      <div className="mx-auto grid max-w-[1264px] gap-10 border-x border-[#dedbd2] px-5 pb-12 pt-12 sm:px-8 md:px-12 md:pb-16 md:pt-16 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.55 }}
-          className="max-w-[680px]"
-        >
-          <h1 className="text-[44px] font-semibold leading-[0.98] tracking-normal text-[#111111] sm:text-[60px] lg:text-[72px]">
+    <section style={{ background: PAPER, color: INK }} className="pt-[68px]">
+      <div className="mx-auto grid w-full max-w-[1200px] gap-16 px-6 py-24 md:px-10 md:py-32 lg:grid-cols-[1.05fr_0.95fr] lg:items-center">
+        <div className="max-w-[640px]">
+          <SectionEyebrow>Lucid-Lab</SectionEyebrow>
+          <h1
+            className="mt-4 text-[44px] font-semibold leading-[1.02] tracking-[-0.02em] md:text-[64px] lg:text-[72px]"
+            style={{ color: INK }}
+          >
             {t.title}
           </h1>
-          <p className="mt-6 max-w-[610px] text-[17px] leading-[1.7] text-[#5f5a52] md:text-[19px]">{t.subtitle}</p>
-          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
-            <Link
-              href={auditHref[lang]}
-              className="inline-flex min-h-[46px] items-center justify-center rounded-[8px] bg-[#111111] px-5 text-[14px] font-semibold text-white transition hover:bg-[#2a2926]"
-            >
-              {t.primary}
-            </Link>
-            <a
-              href="#lex"
-              className="inline-flex min-h-[46px] items-center justify-center rounded-[8px] border border-[#cfcac1] bg-white px-5 text-[14px] font-semibold text-[#111111] transition hover:bg-[#f1eee8]"
-            >
-              {t.secondary}
-            </a>
-            <a href="#acquis-livres" className="inline-flex min-h-[46px] items-center text-[14px] font-semibold text-[#3f3a33]">
-              {t.tertiary}
-            </a>
+          <p className="mt-6 max-w-[58ch] text-[18px] leading-[1.55] md:text-[20px]" style={{ color: GRAY_600 }}>
+            {t.subtitle}
+          </p>
+          <div className="mt-10 flex flex-col gap-3 sm:flex-row sm:items-center">
+            <PrimaryCta href={auditHref[lang]}>{t.primary}</PrimaryCta>
+            <SecondaryCta href="#lex">{t.secondary}</SecondaryCta>
           </div>
-          <div className="mt-7 flex flex-wrap gap-x-4 gap-y-2 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#777064]">
+          <div className="mt-12 flex flex-wrap gap-x-6 gap-y-2 text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
             {t.proofs.map((proof) => (
               <span key={proof}>{proof}</span>
             ))}
           </div>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, scale: 0.98 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 0.65, delay: 0.1 }}
-        >
-          <HeroVisual />
-        </motion.div>
+        </div>
+        <div className="relative aspect-[4/5] w-full max-w-[480px] justify-self-end overflow-hidden rounded-[8px]" style={{ background: GRAY_100 }}>
+          <Image
+            src="/robot-poster-new.png"
+            alt="Lex"
+            fill
+            priority
+            sizes="(min-width: 1024px) 480px, 80vw"
+            className="object-contain object-bottom"
+          />
+        </div>
       </div>
     </section>
   )
 }
 
+// --- Problems --------------------------------------------------------------
+
 function Problems({ lang }: { lang: Locale }) {
   const t = content[lang].problems
   return (
-    <SectionShell id="problemes" className="bg-white">
-      <SectionHeader title={t.title} subtitle={t.subtitle} />
-      <div className="grid gap-px overflow-hidden rounded-[8px] border border-[#dedbd2] bg-[#dedbd2] md:grid-cols-2 lg:grid-cols-3">
+    <Section id="problemes" tone="paper">
+      <div className="max-w-[640px]">
+        <SectionEyebrow>{lang === 'en' ? 'Context' : 'Constat'}</SectionEyebrow>
+        <SectionTitle>{t.title}</SectionTitle>
+        <SectionLede>{t.subtitle}</SectionLede>
+      </div>
+      <ul className="mt-16 grid gap-x-12 gap-y-10 md:grid-cols-2 lg:grid-cols-3">
         {t.items.map(([title, body], i) => {
-          const Icon = problemIcons[i] ?? CheckCircle2
+          const Icon = problemIcons[i] ?? Sparkles
           return (
-            <div key={title} className="min-h-[190px] bg-[#fbfaf7] p-6">
-              <Icon className="size-5 text-[#1f6f93]" strokeWidth={1.8} aria-hidden />
-              <h3 className="mt-8 text-[20px] font-semibold leading-tight text-[#111111]">{title}</h3>
-              <p className="mt-3 text-[14px] leading-[1.65] text-[#625d55]">{body}</p>
-            </div>
+            <li key={title} className="border-t pt-6" style={{ borderColor: GRAY_200 }}>
+              <Icon className="size-5" strokeWidth={1.6} style={{ color: INK }} aria-hidden />
+              <h3 className="mt-5 text-[20px] font-semibold leading-[1.2]" style={{ color: INK }}>
+                {title}
+              </h3>
+              <p className="mt-2 max-w-[40ch] text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
+                {body}
+              </p>
+            </li>
           )
         })}
-      </div>
-    </SectionShell>
+      </ul>
+    </Section>
   )
 }
+
+// --- Pillars ---------------------------------------------------------------
 
 function Pillars({ lang }: { lang: Locale }) {
   const t = content[lang].pillars
   return (
-    <SectionShell id="expertises" className="bg-[#f8f7f3]">
-      <SectionHeader title={t.title} subtitle={t.subtitle} />
-      <div className="grid gap-4 lg:grid-cols-4">
-        {t.items.map((item, i) => {
-          const Icon = pillarIcons[i] ?? CheckCircle2
-          return (
-            <Link
-              key={item.title}
-              href={localize(lang, item.href)}
-              className="group flex min-h-[430px] flex-col rounded-[8px] border border-[#d8d3c9] bg-white p-6 transition duration-300 hover:-translate-y-1 hover:border-[#9fc0d1] hover:shadow-[0_18px_50px_rgba(31,111,147,0.12)]"
-            >
-              <div className="flex items-start justify-between">
-                <Icon className="size-6 text-[#1f6f93]" strokeWidth={1.7} aria-hidden />
-                <span className="font-mono text-[12px] text-[#b0a89b]">0{i + 1}</span>
-              </div>
-              <h3 className="mt-10 text-[24px] font-semibold leading-[1.08] text-[#111111]">{item.title}</h3>
-              <p className="mt-4 text-[14px] leading-[1.65] text-[#625d55]">{item.problem}</p>
-              <div className="mt-7 space-y-3">
-                {item.deliverables.map((d) => (
-                  <div key={d} className="flex items-center gap-2 text-[13px] font-medium text-[#2f2b26]">
-                    <CheckCircle2 className="size-4 text-[#b87721]" aria-hidden />
-                    {d}
-                  </div>
-                ))}
-              </div>
-              <p className="mt-auto border-t border-[#ece8df] pt-5 text-[13px] leading-[1.6] text-[#1f6f93]">{item.result}</p>
-            </Link>
-          )
-        })}
+    <Section id="expertises" tone="gray">
+      <div className="max-w-[640px]">
+        <SectionEyebrow>{lang === 'en' ? 'Capabilities' : 'Expertises'}</SectionEyebrow>
+        <SectionTitle>{t.title}</SectionTitle>
+        <SectionLede>{t.subtitle}</SectionLede>
       </div>
-    </SectionShell>
+      <div className="mt-16 grid gap-px overflow-hidden rounded-[8px]" style={{ background: GRAY_200 }}>
+        <div className="grid gap-px md:grid-cols-2" style={{ background: GRAY_200 }}>
+          {t.items.map((item, i) => {
+            const Icon = pillarIcons[i] ?? Bot
+            return (
+              <Link
+                key={item.title}
+                href={localize(lang, item.href)}
+                className="group flex flex-col p-8 transition-colors duration-200 md:p-10"
+                style={{ background: PAPER }}
+              >
+                <div className="flex items-center justify-between">
+                  <Icon className="size-6" strokeWidth={1.5} style={{ color: INK }} aria-hidden />
+                  <span className="font-mono text-[12px]" style={{ color: GRAY_400 }}>
+                    0{i + 1}
+                  </span>
+                </div>
+                <h3 className="mt-10 text-[24px] font-semibold leading-[1.15]" style={{ color: INK }}>
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
+                  {item.problem}
+                </p>
+                <ul className="mt-6 space-y-2">
+                  {item.deliverables.map((d) => (
+                    <li key={d} className="flex items-start gap-2 text-[14px]" style={{ color: INK }}>
+                      <span aria-hidden style={{ color: EMBER }} className="mt-[2px]">·</span>
+                      {d}
+                    </li>
+                  ))}
+                </ul>
+                <p
+                  className="mt-8 border-t pt-5 text-[14px] leading-[1.5]"
+                  style={{ borderColor: GRAY_200, color: GRAY_600 }}
+                >
+                  {item.result}
+                </p>
+                <span
+                  className="mt-6 inline-flex items-center gap-2 text-[14px] font-medium"
+                  style={{ color: INK }}
+                >
+                  {lang === 'en' ? 'Read more' : 'En savoir plus'}
+                  <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+                </span>
+              </Link>
+            )
+          })}
+        </div>
+      </div>
+    </Section>
   )
 }
+
+// --- Offers ----------------------------------------------------------------
 
 function Offers({ lang }: { lang: Locale }) {
   const t = content[lang].offers
   return (
-    <SectionShell id="offres" className="bg-[#111111] text-white">
-      <SectionHeader title={t.title} subtitle={t.subtitle} className="[&_h2]:text-white [&_p]:text-white/62" />
-      <div className="grid gap-4 lg:grid-cols-[1.15fr_1fr_1fr]">
-        {t.items.map((item, i) => {
-          const featured = 'featured' in item && item.featured
-          return (
-            <Link
-              key={item.title}
-              href={auditHref[lang]}
-              className={`group rounded-[8px] border p-6 transition hover:-translate-y-1 ${
-                featured
-                  ? 'border-[#f6b34b]/70 bg-[#f6b34b] text-[#111111] lg:row-span-2'
-                  : 'border-white/10 bg-white/[0.055] text-white hover:bg-white/[0.08]'
-              }`}
-            >
-              <div className="flex items-center justify-between gap-4">
-                <span className={`text-[12px] font-semibold uppercase tracking-[0.14em] ${featured ? 'text-[#62400d]' : 'text-white/45'}`}>
-                  {item.detail}
-                </span>
-                <span className="font-mono text-[12px] opacity-45">0{i + 1}</span>
-              </div>
-              <h3 className={`mt-8 text-[26px] font-semibold leading-[1.05] ${featured ? 'md:text-[42px]' : ''}`}>{item.title}</h3>
-              <p className={`mt-4 text-[15px] leading-[1.7] ${featured ? 'text-[#3c2a10]' : 'text-white/58'}`}>{item.body}</p>
-              <span className="mt-8 inline-flex items-center gap-2 text-[14px] font-semibold">
-                {item.cta}
-                <ArrowRight className="size-4 transition group-hover:translate-x-1" aria-hidden />
-              </span>
-            </Link>
-          )
-        })}
+    <Section id="offres" tone="ink">
+      <div className="max-w-[640px]">
+        <p className="text-[12px] font-medium uppercase tracking-[0.16em]" style={{ color: EMBER }}>
+          {lang === 'en' ? 'Offers' : 'Offres'}
+        </p>
+        <SectionTitle light>{t.title}</SectionTitle>
+        <SectionLede light>{t.subtitle}</SectionLede>
       </div>
-    </SectionShell>
+      <div className="mt-16 grid gap-px" style={{ background: 'rgba(255,255,255,0.10)' }}>
+        <div className="grid gap-px md:grid-cols-2 lg:grid-cols-3" style={{ background: 'rgba(255,255,255,0.10)' }}>
+          {t.items.map((item, i) => {
+            const featured = 'featured' in item && item.featured
+            return (
+              <Link
+                key={item.title}
+                href={auditHref[lang]}
+                className="group flex flex-col p-8 transition-colors duration-200 md:p-10"
+                style={{ background: featured ? PAPER : INK, color: featured ? INK : '#FFFFFF' }}
+              >
+                <div className="flex items-center justify-between">
+                  <span
+                    className="text-[11px] font-medium uppercase tracking-[0.16em]"
+                    style={{ color: featured ? EMBER : 'rgba(255,255,255,0.5)' }}
+                  >
+                    {item.detail}
+                  </span>
+                  <span
+                    className="font-mono text-[12px]"
+                    style={{ color: featured ? GRAY_400 : 'rgba(255,255,255,0.35)' }}
+                  >
+                    0{i + 1}
+                  </span>
+                </div>
+                <h3 className="mt-10 text-[26px] font-semibold leading-[1.1]">{item.title}</h3>
+                <p
+                  className="mt-3 text-[15px] leading-[1.55]"
+                  style={{ color: featured ? GRAY_600 : 'rgba(255,255,255,0.66)' }}
+                >
+                  {item.body}
+                </p>
+                <span className="mt-8 inline-flex items-center gap-2 text-[14px] font-medium">
+                  {item.cta}
+                  <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+                </span>
+              </Link>
+            )
+          })}
+        </div>
+      </div>
+    </Section>
   )
 }
+
+// --- Delivery --------------------------------------------------------------
 
 function Delivery({ lang }: { lang: Locale }) {
   const t = content[lang].delivery
   return (
-    <SectionShell id="comment-on-livre" className="bg-white">
-      <SectionHeader title={t.title} subtitle={t.subtitle} />
-      <div className="relative grid gap-3 lg:grid-cols-6">
-        {t.steps.map(([title, body], i) => (
-          <div key={title} className="relative rounded-[8px] border border-[#dedbd2] bg-[#fbfaf7] p-5">
-            <span className="font-mono text-[12px] text-[#b0a89b]">0{i + 1}</span>
-            <h3 className="mt-8 text-[18px] font-semibold leading-tight text-[#111111]">{title}</h3>
-            <p className="mt-3 text-[13px] leading-[1.6] text-[#625d55]">{body}</p>
-          </div>
-        ))}
+    <Section id="comment-on-livre" tone="paper">
+      <div className="max-w-[640px]">
+        <SectionEyebrow>{lang === 'en' ? 'Method' : 'Méthode'}</SectionEyebrow>
+        <SectionTitle>{t.title}</SectionTitle>
+        <SectionLede>{t.subtitle}</SectionLede>
       </div>
-    </SectionShell>
+      <ol className="mt-16 grid gap-px overflow-hidden rounded-[8px] md:grid-cols-2 lg:grid-cols-3" style={{ background: GRAY_200 }}>
+        {t.steps.map(([title, body], i) => (
+          <li key={title} className="flex flex-col p-8" style={{ background: PAPER }}>
+            <span className="font-mono text-[12px]" style={{ color: EMBER }}>
+              0{i + 1}
+            </span>
+            <h3 className="mt-8 text-[19px] font-semibold leading-[1.2]" style={{ color: INK }}>
+              {title}
+            </h3>
+            <p className="mt-2 text-[14px] leading-[1.55]" style={{ color: GRAY_600 }}>
+              {body}
+            </p>
+          </li>
+        ))}
+      </ol>
+    </Section>
   )
 }
+
+// --- R&D Signal ------------------------------------------------------------
 
 function RDSignal({ lang }: { lang: Locale }) {
   const t = content[lang].rd
   return (
-    <SectionShell id="rd" className="bg-[#eef3f5]">
-      <div className="grid gap-10 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
-        <SectionHeader title={t.title} subtitle={t.subtitle} className="mb-0" />
-        <div className="flex flex-wrap gap-2 lg:justify-end">
+    <Section id="rd" tone="paper">
+      <div className="flex flex-col gap-10 lg:flex-row lg:items-end lg:justify-between">
+        <div className="max-w-[640px]">
+          <SectionEyebrow>R&D</SectionEyebrow>
+          <SectionTitle>{t.title}</SectionTitle>
+          <SectionLede>{t.subtitle}</SectionLede>
+        </div>
+        <div className="flex flex-wrap gap-2">
           {t.badges.map((badge) => (
-            <span key={badge} className="rounded-[999px] border border-[#c8d8df] bg-white px-3 py-1.5 text-[12px] font-semibold text-[#34515d]">
+            <span
+              key={badge}
+              className="rounded-[6px] border px-3 py-1.5 text-[12px] font-medium"
+              style={{ borderColor: GRAY_200, color: INK, background: PAPER }}
+            >
               {badge}
             </span>
           ))}
         </div>
       </div>
-      <div className="mt-10 grid gap-4 lg:grid-cols-3">
+      <div className="mt-16 grid gap-8 md:grid-cols-3">
         {t.cards.map(([title, body]) => (
-          <Link key={title} href={blogHref[lang]} className="rounded-[8px] border border-[#cad7dd] bg-white p-6 transition hover:-translate-y-1 hover:shadow-[0_18px_50px_rgba(31,111,147,0.12)]">
-            <Radio className="size-5 text-[#1f6f93]" aria-hidden />
-            <h3 className="mt-8 text-[21px] font-semibold leading-tight text-[#111111]">{title}</h3>
-            <p className="mt-3 text-[14px] leading-[1.65] text-[#5f5a52]">{body}</p>
+          <Link
+            key={title}
+            href={blogHref[lang]}
+            className="group flex flex-col border-t pt-6 transition-colors duration-200"
+            style={{ borderColor: GRAY_200 }}
+          >
+            <Radio className="size-5" strokeWidth={1.5} style={{ color: INK }} aria-hidden />
+            <h3 className="mt-6 text-[20px] font-semibold leading-[1.2]" style={{ color: INK }}>
+              {title}
+            </h3>
+            <p className="mt-2 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
+              {body}
+            </p>
+            <span className="mt-6 inline-flex items-center gap-2 text-[13px] font-medium" style={{ color: INK }}>
+              {lang === 'en' ? 'Read' : 'Lire'}
+              <ArrowRight className="size-4 transition-transform duration-200 group-hover:translate-x-0.5" aria-hidden />
+            </span>
           </Link>
         ))}
       </div>
-      <p className="mt-6 text-[12px] font-semibold uppercase tracking-[0.12em] text-[#6c7880]">{t.updated}</p>
-    </SectionShell>
+      <p className="mt-10 text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
+        {t.updated}
+      </p>
+    </Section>
   )
 }
+
+// --- Lex Teaser ------------------------------------------------------------
 
 function LexTeaser({ lang }: { lang: Locale }) {
   const t = content[lang].lex
   return (
-    <SectionShell id="lex" className="bg-[#f8f7f3]">
-      <div className="grid gap-10 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
-        <div>
-          <Bot className="size-8 text-[#1f6f93]" aria-hidden />
-          <h2 className="mt-6 text-[36px] font-semibold leading-[1.05] tracking-normal text-[#111111] md:text-[56px]">{t.title}</h2>
-          <p className="mt-5 max-w-xl text-[17px] leading-[1.7] text-[#5f5a52]">{t.subtitle}</p>
+    <Section id="lex" tone="gray">
+      <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
+        <div className="max-w-[520px]">
+          <SectionEyebrow>Lex</SectionEyebrow>
+          <SectionTitle>{t.title}</SectionTitle>
+          <SectionLede>{t.subtitle}</SectionLede>
         </div>
-        <div className="rounded-[8px] border border-[#d8d3c9] bg-white p-4 shadow-sm md:p-6">
+        <div className="rounded-[8px] border p-6 md:p-8" style={{ borderColor: GRAY_200, background: PAPER }}>
           <AuditFlashForm lang={lang} mode="lex" placeholder={t.placeholder} />
         </div>
       </div>
-    </SectionShell>
+    </Section>
   )
 }
+
+// --- Cases -----------------------------------------------------------------
 
 function Cases({ lang }: { lang: Locale }) {
   const t = content[lang].cases
   return (
-    <SectionShell id="acquis-livres" className="bg-white">
-      <SectionHeader title={t.title} subtitle={t.subtitle} />
-      <div className="grid gap-4 lg:grid-cols-3">
-        {t.items.map((item, i) => (
-          <article key={item.title} className="flex min-h-[520px] flex-col rounded-[8px] border border-[#dedbd2] bg-[#fbfaf7]">
-            <div className="relative h-44 overflow-hidden border-b border-[#dedbd2] bg-[#101112]">
-              <div className="absolute inset-0 opacity-70 [background-image:linear-gradient(rgba(255,255,255,0.08)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.08)_1px,transparent_1px)] [background-size:28px_28px]" />
-              <div className="absolute inset-x-5 top-5 flex items-center justify-between text-[11px] font-mono text-white/45">
-                <span>case_0{i + 1}</span>
-                <span>prod</span>
-              </div>
-              <div className="absolute bottom-5 left-5 right-5 rounded-[8px] border border-white/10 bg-white/[0.07] p-4 text-white backdrop-blur">
-                <p className="text-[12px] text-white/45">{item.context}</p>
-                <p className="mt-2 text-[22px] font-semibold leading-tight">{item.metric}</p>
-              </div>
-            </div>
-            <div className="flex flex-1 flex-col p-6">
-              <h3 className="text-[24px] font-semibold leading-tight text-[#111111]">{item.title}</h3>
-              <p className="mt-3 text-[14px] leading-[1.65] text-[#625d55]">{item.problem}</p>
-              <div className="mt-6 space-y-2">
-                {item.system.map((system) => (
-                  <div key={system} className="flex items-center gap-2 text-[13px] font-medium text-[#2f2b26]">
-                    <Zap className="size-4 text-[#b87721]" aria-hidden />
-                    {system}
-                  </div>
-                ))}
-              </div>
-              <p className="mt-auto border-t border-[#ece8df] pt-5 text-[13px] font-semibold text-[#1f6f93]">{item.remains}</p>
-            </div>
+    <Section id="acquis-livres" tone="paper">
+      <div className="max-w-[640px]">
+        <SectionEyebrow>{lang === 'en' ? 'Delivered' : 'Acquis livrés'}</SectionEyebrow>
+        <SectionTitle>{t.title}</SectionTitle>
+        <SectionLede>{t.subtitle}</SectionLede>
+      </div>
+      <div className="mt-16 grid gap-8 lg:grid-cols-3">
+        {t.items.map((item) => (
+          <article
+            key={item.title}
+            className="flex flex-col border-t pt-8"
+            style={{ borderColor: GRAY_200 }}
+          >
+            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
+              {item.context}
+            </p>
+            <h3 className="mt-6 text-[22px] font-semibold leading-[1.2]" style={{ color: INK }}>
+              {item.title}
+            </h3>
+            <p className="mt-3 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
+              {item.problem}
+            </p>
+            <ul className="mt-6 space-y-2">
+              {item.system.map((sys) => (
+                <li key={sys} className="flex items-start gap-2 text-[14px]" style={{ color: INK }}>
+                  <span aria-hidden style={{ color: EMBER }} className="mt-[2px]">·</span>
+                  {sys}
+                </li>
+              ))}
+            </ul>
+            <p className="mt-8 font-mono text-[14px]" style={{ color: EMBER }}>
+              {item.metric}
+            </p>
+            <p
+              className="mt-6 border-t pt-5 text-[13px] leading-[1.55]"
+              style={{ borderColor: GRAY_200, color: GRAY_600 }}
+            >
+              {item.remains}
+            </p>
           </article>
         ))}
       </div>
-    </SectionShell>
+    </Section>
   )
 }
+
+// --- Team ------------------------------------------------------------------
 
 function Team({ lang }: { lang: Locale }) {
   const t = content[lang].team
   return (
-    <SectionShell id="equipe" className="bg-[#f8f7f3]">
-      <SectionHeader title={t.title} subtitle={t.subtitle} />
-      <div className="grid gap-4 lg:grid-cols-3">
+    <Section id="equipe" tone="gray">
+      <div className="max-w-[640px]">
+        <SectionEyebrow>{lang === 'en' ? 'Team' : 'Équipe'}</SectionEyebrow>
+        <SectionTitle>{t.title}</SectionTitle>
+        <SectionLede>{t.subtitle}</SectionLede>
+      </div>
+      <div className="mt-16 grid gap-8 md:grid-cols-3">
         {t.members.map((member) => (
-          <article key={member.name} className="rounded-[8px] border border-[#d8d3c9] bg-white p-5">
-            <div className="relative h-[260px] overflow-hidden rounded-[8px] bg-[#e6e0d5]">
+          <article key={member.name}>
+            <div
+              className="relative aspect-[4/5] w-full overflow-hidden rounded-[8px]"
+              style={{ background: GRAY_200 }}
+            >
               {member.image ? (
-                <Image src={member.image} alt={member.name} fill sizes="(min-width: 1024px) 360px, 100vw" className="object-cover grayscale" />
+                <Image
+                  src={member.image}
+                  alt={member.name}
+                  fill
+                  sizes="(min-width: 1024px) 360px, 100vw"
+                  className="object-cover grayscale"
+                />
               ) : (
-                <div className="flex h-full w-full items-center justify-center bg-[#111111] text-[72px] font-semibold text-white">JG</div>
+                <div
+                  className="flex h-full w-full items-center justify-center text-[64px] font-semibold"
+                  style={{ background: INK, color: PAPER }}
+                >
+                  {member.name
+                    .split(' ')
+                    .map((part) => part[0])
+                    .join('')}
+                </div>
               )}
             </div>
-            <h3 className="mt-5 text-[22px] font-semibold text-[#111111]">{member.name}</h3>
-            <p className="mt-1 text-[13px] font-semibold uppercase tracking-[0.12em] text-[#1f6f93]">{member.role}</p>
-            <p className="mt-4 text-[14px] leading-[1.65] text-[#625d55]">{member.bio}</p>
+            <h3 className="mt-6 text-[20px] font-semibold" style={{ color: INK }}>
+              {member.name}
+            </h3>
+            <p className="mt-1 text-[13px] font-medium" style={{ color: EMBER }}>
+              {member.role}
+            </p>
+            <p className="mt-3 text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
+              {member.bio}
+            </p>
           </article>
         ))}
       </div>
-      <div className="mt-4 rounded-[8px] border border-[#d8d3c9] bg-white p-6 text-[16px] leading-[1.7] text-[#3f3a33]">
-        <strong className="text-[#111111]">Réseau étendu.</strong> {t.network}
-      </div>
-    </SectionShell>
+      <p className="mt-12 max-w-[60ch] text-[15px] leading-[1.55]" style={{ color: GRAY_600 }}>
+        <span className="font-semibold" style={{ color: INK }}>
+          {lang === 'en' ? 'Extended network. ' : 'Réseau étendu. '}
+        </span>
+        {t.network}
+      </p>
+    </Section>
   )
 }
+
+// --- Enterprise readiness --------------------------------------------------
 
 function Enterprise({ lang }: { lang: Locale }) {
   const t = content[lang].enterprise
   return (
-    <SectionShell id="enterprise-readiness" className="bg-white">
-      <SectionHeader title={t.title} subtitle={t.subtitle} />
-      <div className="grid gap-px overflow-hidden rounded-[8px] border border-[#dedbd2] bg-[#dedbd2] md:grid-cols-2">
+    <Section id="enterprise-readiness" tone="paper">
+      <div className="max-w-[640px]">
+        <SectionEyebrow>{lang === 'en' ? 'Readiness' : 'Readiness'}</SectionEyebrow>
+        <SectionTitle>{t.title}</SectionTitle>
+        <SectionLede>{t.subtitle}</SectionLede>
+      </div>
+      <ul className="mt-16 grid gap-px overflow-hidden rounded-[8px] md:grid-cols-2" style={{ background: GRAY_200 }}>
         {t.items.map((item, i) => {
-          const Icon = readinessIcons[i] ?? CheckCircle2
+          const Icon = readinessIcons[i] ?? ShieldCheck
           return (
-            <div key={item} className="flex min-h-[92px] items-center gap-4 bg-[#fbfaf7] p-5">
-              <Icon className="size-5 shrink-0 text-[#1f6f93]" strokeWidth={1.8} aria-hidden />
-              <span className="text-[15px] font-medium leading-snug text-[#2f2b26]">{item}</span>
-            </div>
+            <li
+              key={item}
+              className="flex items-center gap-4 p-6"
+              style={{ background: PAPER }}
+            >
+              <Icon className="size-5 shrink-0" strokeWidth={1.5} style={{ color: INK }} aria-hidden />
+              <span className="text-[15px]" style={{ color: INK }}>
+                {item}
+              </span>
+            </li>
           )
         })}
-      </div>
-    </SectionShell>
+      </ul>
+    </Section>
   )
 }
+
+// --- Resources -------------------------------------------------------------
 
 function Resources({ lang }: { lang: Locale }) {
   const t = content[lang].resources
   const rd = content[lang].rd
   return (
-    <SectionShell id="blog" className="bg-[#f8f7f3]">
-      <div className="grid gap-10 lg:grid-cols-[0.85fr_1.15fr]">
-        <div>
-          <BookOpenIcon />
-          <h2 className="mt-6 text-[34px] font-semibold leading-[1.05] tracking-normal text-[#111111] md:text-[48px]">{t.title}</h2>
-          <p className="mt-4 text-[16px] leading-[1.7] text-[#5f5a52]">{t.subtitle}</p>
-          <div className="mt-7">
+    <Section id="blog" tone="gray">
+      <div className="grid gap-12 lg:grid-cols-[0.9fr_1.1fr]">
+        <div className="max-w-[480px]">
+          <SectionEyebrow>{lang === 'en' ? 'Resources' : 'Ressources'}</SectionEyebrow>
+          <SectionTitle>{t.title}</SectionTitle>
+          <SectionLede>{t.subtitle}</SectionLede>
+          <div className="mt-8">
             <TextLink href={blogHref[lang]}>{t.cta}</TextLink>
           </div>
         </div>
-        <div className="divide-y divide-[#dedbd2] rounded-[8px] border border-[#dedbd2] bg-white">
+        <ul className="divide-y rounded-[8px] border" style={{ borderColor: GRAY_200, background: PAPER, borderStyle: 'solid' }}>
           {rd.cards.map(([title, body]) => (
-            <Link key={title} href={blogHref[lang]} className="block p-6 transition hover:bg-[#fbfaf7]">
-              <h3 className="text-[20px] font-semibold text-[#111111]">{title}</h3>
-              <p className="mt-2 text-[14px] leading-[1.6] text-[#625d55]">{body}</p>
-            </Link>
+            <li key={title}>
+              <Link href={blogHref[lang]} className="block p-6 transition-colors duration-200">
+                <h3 className="text-[18px] font-semibold" style={{ color: INK }}>
+                  {title}
+                </h3>
+                <p className="mt-2 text-[14px] leading-[1.55]" style={{ color: GRAY_600 }}>
+                  {body}
+                </p>
+              </Link>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
-    </SectionShell>
+    </Section>
   )
 }
 
-function BookOpenIcon() {
-  return (
-    <div className="flex size-10 items-center justify-center rounded-[8px] border border-[#d8d3c9] bg-white">
-      <FileText className="size-5 text-[#1f6f93]" aria-hidden />
-    </div>
-  )
-}
+// --- Final CTA -------------------------------------------------------------
 
 function FinalCTA({ lang }: { lang: Locale }) {
   const t = content[lang].final
   return (
-    <section className="bg-[#111111]">
-      <div className="mx-auto grid max-w-[1264px] gap-8 border-x border-white/10 px-5 py-16 text-white sm:px-8 md:px-12 md:py-20 lg:grid-cols-[1fr_auto] lg:items-center">
+    <section style={{ background: INK, color: '#FFFFFF', borderTop: `1px solid ${GRAY_200}` }}>
+      <div className="mx-auto grid w-full max-w-[1200px] gap-10 px-6 py-24 md:grid-cols-[1fr_auto] md:items-end md:px-10 md:py-32">
         <div>
-          <h2 className="max-w-2xl text-[36px] font-semibold leading-[1.05] tracking-normal md:text-[54px]">{t.title}</h2>
-          <p className="mt-4 max-w-xl text-[17px] leading-[1.65] text-white/62">{t.subtitle}</p>
+          <p className="text-[12px] font-medium uppercase tracking-[0.16em]" style={{ color: EMBER }}>
+            {lang === 'en' ? 'Next step' : 'Prochaine étape'}
+          </p>
+          <h2
+            className="mt-4 max-w-[24ch] text-[36px] font-semibold leading-[1.05] tracking-[-0.01em] md:text-[56px]"
+            style={{ color: '#FFFFFF' }}
+          >
+            {t.title}
+          </h2>
+          <p className="mt-5 max-w-[52ch] text-[17px] leading-[1.55]" style={{ color: 'rgba(255,255,255,0.72)' }}>
+            {t.subtitle}
+          </p>
         </div>
-        <Link href={auditHref[lang]} className="inline-flex min-h-[48px] items-center justify-center rounded-[8px] bg-white px-6 text-[14px] font-semibold text-[#111111] transition hover:bg-[#efece5]">
+        <Link
+          href={auditHref[lang]}
+          className="inline-flex h-[52px] items-center justify-center rounded-[8px] px-7 text-[15px] font-medium transition-colors duration-200"
+          style={{ background: PAPER, color: INK }}
+        >
           {t.cta}
+          <ArrowRight className="ml-2 size-4" aria-hidden />
         </Link>
       </div>
     </section>
   )
 }
 
+// --- Footer ----------------------------------------------------------------
+
 export function MarketingFooter({ lang }: { lang: Locale }) {
   const t = content[lang].footer
-  const nav = [
-    ['Expertises', '#expertises'],
-    ['Offres', '#offres'],
-    [lang === 'en' ? 'How we ship' : 'Comment on livre', '#comment-on-livre'],
-    [lang === 'en' ? 'Delivered assets' : 'Acquis livrés', '#acquis-livres'],
+  const nav: Array<[string, string]> = [
+    [lang === 'en' ? 'Capabilities' : 'Expertises', '#expertises'],
+    [lang === 'en' ? 'Offers' : 'Offres', '#offres'],
+    [lang === 'en' ? 'Method' : 'Méthode', '#comment-on-livre'],
+    [lang === 'en' ? 'Delivered' : 'Acquis livrés', '#acquis-livres'],
   ]
-
   return (
-    <footer className="border-t border-[#dedbd2] bg-[#f8f7f3]">
-      <div className="mx-auto max-w-[1264px] border-x border-[#dedbd2] px-5 py-12 sm:px-8 md:px-12">
-        <div className="grid gap-10 md:grid-cols-[1.35fr_0.8fr_0.8fr_0.8fr]">
+    <footer style={{ background: PAPER, borderTop: `1px solid ${GRAY_200}` }}>
+      <div className="mx-auto w-full max-w-[1200px] px-6 py-16 md:px-10">
+        <div className="grid gap-12 md:grid-cols-[1.4fr_0.8fr_0.8fr_0.8fr]">
           <div>
             <Link href={lang === 'en' ? '/en' : '/'} className="inline-flex items-center gap-2">
               <Image src="/logo.png" alt="Lucid-Lab" width={28} height={28} className="size-7" />
-              <span className="text-[18px] font-bold tracking-normal text-[#111111]" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>
+              <span className="text-[18px] font-semibold tracking-tight" style={{ color: INK }}>
                 Lucid-Lab
               </span>
             </Link>
-            <p className="mt-5 max-w-sm text-[14px] leading-[1.65] text-[#625d55]">{t.description}</p>
+            <p className="mt-5 max-w-[40ch] text-[14px] leading-[1.6]" style={{ color: GRAY_600 }}>
+              {t.description}
+            </p>
           </div>
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#8a8276]">{t.product}</p>
+            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
+              {t.product}
+            </p>
             <ul className="mt-4 space-y-3">
               {nav.map(([label, href]) => (
                 <li key={label}>
-                  <Link href={href} className="text-[14px] text-[#625d55] hover:text-[#111111]">
+                  <Link href={href} className="text-[14px]" style={{ color: GRAY_600 }}>
                     {label}
                   </Link>
                 </li>
@@ -988,30 +1141,62 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
             </ul>
           </div>
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#8a8276]">{t.resources}</p>
+            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
+              {t.resources}
+            </p>
             <ul className="mt-4 space-y-3">
-              <li><Link href={blogHref[lang]} className="text-[14px] text-[#625d55] hover:text-[#111111]">Blog</Link></li>
-              <li><Link href={auditHref[lang]} className="text-[14px] text-[#625d55] hover:text-[#111111]">Audit Flash</Link></li>
-              <li><Link href={lang === 'en' ? '/en/privacy' : '/confidentialite'} className="text-[14px] text-[#625d55] hover:text-[#111111]">{lang === 'en' ? 'Privacy' : 'Confidentialité'}</Link></li>
+              <li>
+                <Link href={blogHref[lang]} className="text-[14px]" style={{ color: GRAY_600 }}>
+                  Blog
+                </Link>
+              </li>
+              <li>
+                <Link href={auditHref[lang]} className="text-[14px]" style={{ color: GRAY_600 }}>
+                  Audit Flash
+                </Link>
+              </li>
+              <li>
+                <Link
+                  href={lang === 'en' ? '/en/privacy' : '/confidentialite'}
+                  className="text-[14px]"
+                  style={{ color: GRAY_600 }}
+                >
+                  {lang === 'en' ? 'Privacy' : 'Confidentialité'}
+                </Link>
+              </li>
             </ul>
           </div>
           <div>
-            <p className="text-[12px] font-semibold uppercase tracking-[0.14em] text-[#8a8276]">{t.contact}</p>
+            <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>
+              {t.contact}
+            </p>
             <ul className="mt-4 space-y-3">
-              <li><a href="mailto:info@lucid-lab.fr" className="text-[14px] text-[#625d55] hover:text-[#111111]">info@lucid-lab.fr</a></li>
-              <li><span className="text-[14px] text-[#625d55]">{t.location}</span></li>
+              <li>
+                <a href="mailto:info@lucid-lab.fr" className="text-[14px]" style={{ color: GRAY_600 }}>
+                  info@lucid-lab.fr
+                </a>
+              </li>
+              <li>
+                <span className="text-[14px]" style={{ color: GRAY_600 }}>
+                  {t.location}
+                </span>
+              </li>
             </ul>
           </div>
         </div>
-        <div className="mt-10 border-t border-[#dedbd2] pt-5 text-[12px] text-[#8a8276]">{t.copyright}</div>
+        <div className="mt-12 border-t pt-6 text-[12px]" style={{ borderColor: GRAY_200, color: GRAY_400 }}>
+          {t.copyright}
+        </div>
       </div>
     </footer>
   )
 }
 
+// --- Page ------------------------------------------------------------------
+
 export default function HomePage({ lang }: { lang: Locale }) {
   return (
-    <div className="flex w-full flex-col bg-[#f8f7f3]">
+    <div className="flex w-full flex-col" style={{ background: PAPER }}>
       <Header />
       <main className="grow">
         <Hero lang={lang} />
@@ -1019,9 +1204,9 @@ export default function HomePage({ lang }: { lang: Locale }) {
         <Pillars lang={lang} />
         <Offers lang={lang} />
         <Delivery lang={lang} />
+        <Cases lang={lang} />
         <RDSignal lang={lang} />
         <LexTeaser lang={lang} />
-        <Cases lang={lang} />
         <Team lang={lang} />
         <Enterprise lang={lang} />
         <Resources lang={lang} />
