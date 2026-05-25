@@ -537,22 +537,7 @@ function Section({
       transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="relative"
     >
-      {/* Visual Guide Connecting Sections */}
-      <div className="mx-auto flex flex-col items-center justify-center pt-6 select-none opacity-80">
-        <div className="h-8 w-px relative overflow-hidden" style={{ background: tone === 'ink' ? 'rgba(250,250,247,0.15)' : 'rgba(10,10,10,0.15)' }}>
-          <motion.div
-            className="absolute top-0 left-0 w-full h-1/2"
-            style={{ background: EMBER }}
-            animate={{ y: ['-100%', '200%'] }}
-            transition={{ duration: 2.2, repeat: Infinity, ease: 'linear' }}
-          />
-        </div>
-        {id && (
-          <span className="mt-2 text-[9px] font-mono tracking-widest uppercase opacity-40">
-            {id}
-          </span>
-        )}
-      </div>
+      
       <div className="mx-auto w-full max-w-[1200px] px-6 pb-12 pt-8 md:px-10 md:pb-16 md:pt-10">
         {children}
       </div>
@@ -784,7 +769,7 @@ function Problems({ lang }: { lang: Locale }) {
                     <h3 className="text-[15px] font-semibold transition-all duration-200" style={{ color: isActive ? INK : GRAY_600 }}>{title}</h3>
                     <span className="text-[10px] font-mono text-[#a3a3a3]">0{index + 1}</span>
                   </div>
-                  <div className={`overflow-hidden transition-all duration-300 ${isActive ? 'max-h-[100px] mt-2 opacity-100' : 'max-h-0 opacity-0 pointer-events-none'}`}>
+                  <div className={`mt-2 transition-all duration-300 ${isActive ? "opacity-100" : "opacity-40"}`}>
                     <p className="max-w-[48ch] text-[13px] leading-[1.45]" style={{ color: GRAY_600 }}>
                       {body}
                     </p>
