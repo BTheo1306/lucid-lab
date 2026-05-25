@@ -1001,7 +1001,6 @@ function Delivery({ lang }: { lang: Locale }) {
 
       <div className="mt-16 md:mt-24 w-full max-w-5xl mx-auto flex flex-col font-sans">
         {t.steps.map((step, idx) => {
-          // Creates a subtle curve path for the list
           const offsetClass = [
             'md:ml-[0%]',
             'md:ml-[8%]',
@@ -1015,32 +1014,29 @@ function Delivery({ lang }: { lang: Locale }) {
           return (
             <motion.div 
               key={idx}
-              className={`group flex items-center gap-5 md:gap-8 p-3 md:p-5 w-full md:w-[80%] ${offsetClass} transition-all duration-500 hover:-translate-y-1 cursor-default`}
-              initial={{ opacity: 0, filter: "blur(4px)", y: 20 }}
-              whileInView={{ opacity: 1, filter: "blur(0px)", y: 0 }}
-              viewport={{ once: true, margin: "-15% 0px -15% 0px" }}
+              className={`group flex items-center gap-5 md:gap-8 p-3 md:p-5 w-full md:w-[80%] ${offsetClass} transition-transform duration-500 cursor-default`}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-10% 0px -10% 0px" }}
               transition={{ duration: 0.6, delay: 0.05 }}
             >
-              {/* Massive outlined hollow number that softly fills on hover */}
-              <div 
-                className="text-[4rem] md:text-[6.5rem] font-black tracking-tighter transition-all duration-500 cursor-default select-none"
-                style={{ color: 'rgba(200, 94, 26, 0.1)' }}
-                onMouseEnter={(e) => {
-                  e.currentTarget.style.color = 'rgba(200, 94, 26, 0.7)';
-                  e.currentTarget.style.transform = 'scale(1.05)';
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.color = 'rgba(200, 94, 26, 0.1)';
-                  e.currentTarget.style.transform = 'scale(1)';
-                }}
+              <motion.div 
+                className="text-[4rem] md:text-[6.5rem] font-black tracking-tighter transition-colors duration-500 cursor-default select-none"
+                initial={{ color: 'rgba(200, 94, 26, 0.08)' }}
+                whileInView={{ color: 'rgba(200, 94, 26, 0.6)' }}
+                viewport={{ margin: "-35% 0px -35% 0px" }}
               >
                 0{idx + 1}
-              </div>
+              </motion.div>
 
-              {/* Bold simple text */}
-              <h3 className="text-[18px] md:text-[28px] font-bold text-stone-800 leading-tight md:leading-snug group-hover:text-stone-950 transition-colors duration-500">
+              <motion.h3 
+                className="text-[18px] md:text-[28px] font-bold leading-tight md:leading-snug transition-colors duration-500"
+                initial={{ color: 'rgba(28, 25, 23, 0.25)' }}
+                whileInView={{ color: 'rgba(28, 25, 23, 1)' }}
+                viewport={{ margin: "-35% 0px -35% 0px" }}
+              >
                 {step}
-              </h3>
+              </motion.h3>
             </motion.div>
           )
         })}
