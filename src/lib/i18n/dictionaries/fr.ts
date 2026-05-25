@@ -16,8 +16,8 @@ export const fr = {
     switchToFrench: 'Français',
   },
   hero: {
-    titleLine1: 'Opportunités IA.',
-    titleLine2: 'Systèmes métier fiables.',
+    titleLine1: 'Expertise IA de pointe.',
+    titleLine2: 'Excellence opérationnelle.',
     subtitle:
       'Lucid-Lab audite vos workflows, vérifie vos données, priorise les cas d’usage IA, puis construit les agents, outils internes et intégrations qui tournent en production.',
     subtitleLine2: 'Audit. Roadmap. Build. Run. Documentation.',

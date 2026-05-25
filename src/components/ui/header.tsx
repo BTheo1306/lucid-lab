@@ -95,12 +95,12 @@ export function Header() {
         <div className="hidden items-center gap-5 lg:flex">
           <a
             href={switchHref}
-            className="group flex h-[32px] w-[32px] items-center justify-center rounded-full border border-[#e5e5e5] bg-white transition-all hover:border-[#ccc] hover:bg-[#f9f9f9]"
+            className="group flex h-[34px] items-center px-3.5 rounded-full border border-stone-200 bg-white transition-all hover:border-stone-300 hover:bg-stone-50 text-stone-500 hover:text-stone-900"
             aria-label={t.languageLabel}
             title={lang === 'en' ? t.switchToFrench : t.switchToEnglish}
           >
-            <span className="text-[14px] leading-none opacity-80 transition-opacity group-hover:opacity-100">
-              {lang === 'en' ? '🇫🇷' : '🇬🇧'}
+            <span className="text-[11px] font-bold tracking-[0.1em] font-mono">
+              {lang === 'en' ? 'FR' : 'EN'}
             </span>
           </a>
           <a
@@ -141,9 +141,10 @@ export function Header() {
             href={switchHref}
             className="flex h-[44px] w-full items-center justify-center gap-2 rounded-[10px] border border-[#e5e5e5] text-[14px] font-medium text-[#444] transition-colors hover:bg-zinc-50"
           >
-            <span className="text-[16px] leading-none">
-              {lang === 'en' ? '🇫🇷' : '🇬🇧'}
+            <span className="text-[12px] font-bold tracking-wider font-mono mr-2">
+              {lang === 'en' ? 'FR' : 'EN'}
             </span>
+            <span className="text-stone-300 mr-1">•</span>
             {lang === 'en' ? t.switchToFrench : t.switchToEnglish}
           </a>
           <a
