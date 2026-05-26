@@ -5,6 +5,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { motion, useScroll, useMotionValueEvent } from 'framer-motion'
 import {
+  CheckCircle2,
   ArrowRight,
   Bot,
   Code2,
@@ -1224,15 +1225,63 @@ function FAQ({ lang }: { lang: Locale }) {
 
 function FinalCTA({ lang }: { lang: Locale }) {
   const t = content[lang].final
+  const isEn = lang === 'en'
 
   return (
-    <section style={{ background: INK, color: PAPER }}>
-      <div className="mx-auto grid w-full max-w-[1200px] gap-8 px-6 py-12 md:grid-cols-[1fr_auto] md:items-center md:px-10 md:py-16">
-        <div>
-          <h2 className="max-w-[24ch] text-[24px] font-bold leading-[1.1] tracking-[-0.02em] md:text-[32px]" style={{ color: PAPER }}>{t.title}</h2>
-          <p className="mt-3 max-w-[58ch] text-[13.5px] leading-relaxed" style={{ color: 'rgba(250,250,247,0.68)' }}>{t.subtitle}</p>
-        </div>
-        <PrimaryCta href={routeMap[lang].booking} inverted>{t.cta}</PrimaryCta>
+    <section className="relative overflow-hidden bg-[#0A0A0A] py-24 md:py-40">
+      {/* Background glow effects */}
+      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#EC5A1D] opacity-20 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute left-[20%] top-[80%] w-[300px] h-[200px] bg-indigo-500 opacity-10 blur-[100px] rounded-full pointer-events-none" />
+
+      {/* Grid pattern */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_20%,transparent_100%)] pointer-events-none" />
+
+      <div className="relative mx-auto flex w-full max-w-[800px] flex-col items-center justify-center px-6 text-center md:px-10">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.95, y: 20 }}
+          whileInView={{ opacity: 1, scale: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
+          className="flex flex-col items-center"
+        >
+          {/* Availability Badge */}
+          <div className="mb-8 flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white backdrop-blur-md shadow-2xl">
+            <span className="relative flex h-2 w-2">
+              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#EC5A1D] opacity-75"></span>
+              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#EC5A1D]"></span>
+            </span>
+            {isEn ? 'Available slots this week' : 'Créneaux disponibles cette semaine'}
+          </div>
+          
+          <h2 className="text-[36px] font-extrabold leading-[1.1] tracking-tight text-white md:text-[52px] lg:text-[64px]">
+            {t.title}
+          </h2>
+          
+          <p className="mt-6 max-w-[560px] text-[15px] leading-relaxed text-stone-400 md:text-[17px]">
+            {t.subtitle}
+          </p>
+
+          <div className="mt-10 flex w-full flex-col items-center justify-center sm:flex-row">
+            <Link
+              href={routeMap[lang].booking}
+              className="group relative flex h-14 min-w-[240px] items-center justify-center overflow-hidden rounded-full bg-white px-8 text-[15px] font-bold text-black transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_40px_-5px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_-5px_rgba(255,255,255,0.4)]"
+            >
+              <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
+                <div className="relative h-full w-8 bg-black/5" />
+              </div>
+              <span className="relative flex items-center gap-2">
+                {t.cta}
+                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+              </span>
+            </Link>
+          </div>
+          
+          {/* Trust text */}
+          <p className="mt-8 flex items-center justify-center gap-2 text-[12.5px] font-medium text-stone-500">
+            <CheckCircle2 className="h-3.5 w-3.5 text-[#EC5A1D]/80" />
+            {isEn ? '100% free. No commitment.' : '100% gratuit. Sans engagement.'}
+          </p>
+        </motion.div>
       </div>
     </section>
   )
