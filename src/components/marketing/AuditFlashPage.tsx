@@ -64,29 +64,28 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
     <div className="h-screen bg-[#FDFDFB] flex flex-col font-sans lg:overflow-hidden">
       <Header />
       
-      <main className="pt-[68px] flex-1 flex flex-col lg:flex-row max-w-[1500px] mx-auto w-full h-[calc(100vh-68px)]">
+      <main className="pt-[68px] flex-1 flex flex-col lg:flex-row max-w-[1500px] mx-auto w-full h-[calc(100vh-68px)] lg:overflow-hidden">
         {/* Left Column: Context & Information */}
-        <div className="p-6 md:p-10 lg:p-14 lg:w-1/2 flex flex-col justify-center lg:overflow-y-auto custom-scrollbar">
-          <div className="max-w-[560px] mx-auto w-full space-y-10 py-10">
+        <div className="p-6 md:p-10 lg:p-14 lg:w-1/2 flex flex-col justify-center lg:overflow-hidden">
+          <div className="max-w-[560px] mx-auto w-full space-y-6 lg:space-y-8">
           
-          <div className="space-y-5">
-            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500">{t.title}</p>
-            <h1 className="text-[28px] font-extrabold leading-[1.1] tracking-tight text-stone-900 md:text-[34px] lg:text-[38px]">
+          <div className="space-y-3">
+            <h1 className="text-[26px] font-extrabold leading-[1.1] tracking-tight text-stone-900 md:text-[30px] lg:text-[34px]">
               {t.headline}
             </h1>
-            <p className="text-[14px] leading-relaxed text-stone-600">{t.subtitle}</p>
+            <p className="text-[13.5px] leading-relaxed text-stone-600">{t.subtitle}</p>
           </div>
 
           <div className="w-full h-px bg-stone-200/60" />
 
           {/* During call timeline */}
-          <div className="space-y-4">
-            <h2 className="text-[14px] font-bold text-stone-900 flex items-center gap-2 uppercase tracking-wide">
+          <div className="space-y-3">
+            <h2 className="text-[13px] font-bold text-stone-900 flex items-center gap-2 uppercase tracking-wide">
               {t.duringTitle}
             </h2>
-            <ul className="space-y-3">
+            <ul className="space-y-2">
               {t.during.map((item, index) => (
-                <li key={item} className="flex gap-3 text-[13px] leading-relaxed text-stone-600">
+                <li key={item} className="flex gap-3 text-[12.5px] leading-relaxed text-stone-600">
                   <span className="mt-[2px] font-mono text-[10px] text-stone-400 font-bold shrink-0">0{index + 1}.</span>
                   <span>{item}</span>
                 </li>
@@ -94,41 +93,31 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
             </ul>
           </div>
 
+          <div className="w-full h-px bg-stone-200/60 hidden lg:block" />
+
           {/* FAQ quick questions accordion */}
-          <div className="pt-2">
-            <h2 className="text-[14px] font-bold text-stone-900 mb-4 uppercase tracking-wide">{t.faqTitle}</h2>
-            <div className="space-y-4">
+          <div className="pt-1">
+            <h2 className="text-[13px] font-bold text-stone-900 mb-3 uppercase tracking-wide">{t.faqTitle}</h2>
+            <div className="space-y-3">
               {t.faq.map(([q, a]) => (
                 <div key={q}>
-                  <h3 className="text-[13px] font-bold text-stone-800">{q}</h3>
-                  <p className="mt-1 text-[12px] leading-relaxed text-stone-500">{a}</p>
+                  <h3 className="text-[12.5px] font-bold text-stone-800">{q}</h3>
+                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-stone-500">{a}</p>
                 </div>
               ))}
             </div>
-          </div>
-
-          <div className="w-full h-px bg-stone-200/60" />
-
-          {/* What remains */}
-          <div className="rounded-[8px] bg-[#0A0A0A] p-5 lg:p-6 text-white shadow-xl shadow-stone-200/50">
-            <h2 className="text-[14px] font-bold text-white flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#EC5A1D]" />
-              {t.remainsTitle}
-            </h2>
-            <p className="mt-3 text-[12.5px] leading-relaxed text-stone-400">{t.remains}</p>
           </div>
           </div>
         </div>
 
         {/* Right Column: Pre-qualification Form */}
-        <div className="lg:w-1/2 p-6 md:p-12 lg:p-16 flex flex-col justify-center bg-white border-l border-stone-200 shadow-[0_0_40px_rgba(0,0,0,0.02)] lg:overflow-y-auto custom-scrollbar">
-          <div className="max-w-[600px] w-full mx-auto space-y-8 py-10">
+        <div className="lg:w-1/2 p-6 md:p-10 lg:p-12 flex flex-col justify-center bg-white border-l border-stone-200 shadow-[0_0_40px_rgba(0,0,0,0.02)] lg:overflow-hidden">
+          <div className="max-w-[500px] w-full mx-auto space-y-5">
             <div>
-              <h2 className="text-[24px] font-extrabold tracking-tight text-stone-900">{t.formTitle}</h2>
-              <p className="mt-2 text-[14px] leading-relaxed text-stone-500">{t.formSubtitle}</p>
+              <h2 className="text-[18px] font-extrabold tracking-tight text-stone-900">{t.formTitle}</h2>
             </div>
             
-            <div className="rounded-[12px] border border-stone-200 bg-[#FDFDFB] p-6 lg:p-8 shadow-sm">
+            <div className="rounded-[10px] border border-stone-200 bg-[#FDFDFB] p-4 lg:p-6 shadow-sm">
               <AuditFlashForm lang={lang} mode="full" />
             </div>
           </div>
