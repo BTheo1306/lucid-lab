@@ -1174,24 +1174,44 @@ function Resources({ lang }: { lang: Locale }) {
 
   return (
     <Section id="blog" tone="gray">
-      <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
-        <div>
+      <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+        <div className="max-w-2xl">
           <SectionTitle>{t.title}</SectionTitle>
           <SectionLede>{t.subtitle}</SectionLede>
-          <div className="mt-4">
-            <TextLink href={routeMap[lang].blog}>{t.cta}</TextLink>
-          </div>
         </div>
-        <ul className="divide-y rounded-[6px] border bg-white" style={{ borderColor: GRAY_200 }}>
-          {resourceLinks.map((title) => (
-            <li key={title}>
-              <Link href={routeMap[lang].blog} className="group flex items-center justify-between gap-6 p-4">
-                <span className="text-[14px] font-bold transition-all duration-200 group-hover:text-[#C85E1A]" style={{ color: INK }}>{title}</span>
-                <ArrowRight className="size-3.5 shrink-0 transition-transform group-hover:translate-x-1" style={{ color: EMBER }} aria-hidden />
-              </Link>
-            </li>
-          ))}
-        </ul>
+        <div className="hidden md:block">
+          <TextLink href={routeMap[lang].blog}>{t.cta}</TextLink>
+        </div>
+      </div>
+      
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        {resourceLinks.map((title) => (
+          <Link 
+            key={title} 
+            href={routeMap[lang].blog} 
+            className="group flex flex-col justify-between rounded-[12px] bg-white p-6 border border-zinc-200/80 transition-all hover:-translate-y-1 hover:border-zinc-300 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.05)] shadow-sm"
+          >
+            <div className="mb-12">
+              <span className="mb-4 inline-flex px-2 py-0.5 rounded-sm bg-zinc-100/80 text-[10.5px] font-bold uppercase tracking-widest text-zinc-500">
+                {lang === 'en' ? 'Article' : 'Article'}
+              </span>
+              <h3 className="text-[17px] font-bold leading-[1.3] tracking-tight transition-colors group-hover:text-[#EC5A1D]" style={{ color: INK }}>
+                {title}
+              </h3>
+            </div>
+            
+            <div className="flex items-center justify-between border-t border-zinc-100 pt-4">
+              <span className="text-[13px] font-medium" style={{ color: EMBER }}>
+                {lang === 'en' ? 'Read' : 'Lire'}
+              </span>
+              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" style={{ color: EMBER }} aria-hidden />
+            </div>
+          </Link>
+        ))}
+      </div>
+      
+      <div className="mt-8 md:hidden">
+        <TextLink href={routeMap[lang].blog}>{t.cta}</TextLink>
       </div>
     </Section>
   )
