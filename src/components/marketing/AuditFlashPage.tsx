@@ -67,7 +67,7 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
       
       <main className="pt-[68px] flex-1 flex flex-col lg:flex-row max-w-[1500px] mx-auto w-full">
         {/* Left Column: Context & Information */}
-        <div className="p-6 md:p-10 lg:pl-20 lg:pr-14 xl:pl-32 xl:pr-20 lg:w-1/2 flex flex-col justify-center py-12 lg:py-24">
+        <div className="p-6 md:p-10 lg:pl-20 lg:pr-14 xl:pl-32 xl:pr-20 lg:w-1/2 flex flex-col justify-start pt-6 lg:pt-10 pb-12 lg:pb-24">
           <div className="max-w-[560px] w-full mx-auto md:ml-auto md:mr-0 lg:ml-auto lg:mr-0 space-y-6 lg:space-y-8">
           
           <div className="space-y-3">
@@ -113,7 +113,7 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
         </div>
 
         {/* Right Column: Pre-qualification Form */}
-        <div className="lg:w-1/2 p-6 md:p-10 lg:p-16 flex flex-col justify-center bg-white border-l border-stone-200 shadow-[0_0_40px_rgba(0,0,0,0.02)] py-12 lg:py-24">
+        <div className="lg:w-1/2 p-6 md:p-10 lg:p-16 flex flex-col justify-start bg-white border-l border-stone-200 shadow-[0_0_40px_rgba(0,0,0,0.02)] pt-6 lg:pt-10 pb-12 lg:pb-24">
           <div className="max-w-[500px] w-full mx-auto space-y-6">
             <div>
               <h2 className="text-[18px] font-extrabold tracking-tight text-stone-900">{t.formTitle}</h2>
