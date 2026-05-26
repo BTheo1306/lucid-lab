@@ -133,7 +133,7 @@ const content = {
         'Un cadre contractuel et technique défini pour réduire les risques avant la phase de développement.',
       items: [
         {
-          title: 'Audit des Opportunités IA',
+          title: 'Audit Flash',
           detail: 'Cadrage métier',
           body: 'Analyse des flux de travail, ciblage des cas d\'usage rentables et évaluation de la maturité technique.',
           href: routeMap.fr.audit,
@@ -254,7 +254,7 @@ const content = {
             'Lucid-Lab intervient dès le cadrage. On aide la direction à choisir le bon chantier, puis on construit le système, on le déploie et on prépare le transfert.',
         },
         {
-          question: 'Que contient un AI Opportunity Audit ?',
+          question: 'Que contient l\'Audit Flash ?',
           answer:
             'L’audit couvre workflows, irritants métier, sources de données, outils, risques, gains attendus et priorisation. Le livrable liste les chantiers à lancer, ceux à repousser et les prérequis à régler.',
         },
@@ -370,7 +370,7 @@ const content = {
         'A fixed contractual and technical framework to reduce risks before the development phase.',
       items: [
         {
-          title: 'AI Opportunity Audit',
+          title: 'Audit Flash',
           detail: 'Business scoping',
           body: 'Workflow analysis, targeting of profitable use cases, and technical maturity evaluation.',
           href: routeMap.en.audit,
@@ -491,7 +491,7 @@ const content = {
             'Lucid-Lab joins from framing. We help leaders choose the right build, then we build the system, deploy it and prepare the handover.',
         },
         {
-          question: 'An AI Opportunity Audit contains which deliverables?',
+          question: 'What does the Audit Flash contain?',
           answer:
             'The audit covers workflows, business irritants, data sources, tools, risks, expected gains and prioritization. The deliverable lists builds to launch, builds to postpone and prerequisites to solve.',
         },
@@ -1273,7 +1273,7 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
             <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>{t.resources}</p>
             <ul className="mt-4 space-y-3">
               <li><Link href={routes.blog} className="text-[14px]" style={{ color: GRAY_600 }}>Blog</Link></li>
-              <li><Link href={routes.audit} className="text-[14px]" style={{ color: GRAY_600 }}>AI Opportunity Audit</Link></li>
+              <li><Link href={routes.audit} className="text-[14px]" style={{ color: GRAY_600 }}>Audit Flash</Link></li>
               <li><Link href={routes.buildRun} className="text-[14px]" style={{ color: GRAY_600 }}>Build & Run</Link></li>
             </ul>
           </div>
