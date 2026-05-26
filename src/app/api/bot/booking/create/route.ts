@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import { checkOrigin, corsHeaders } from '@/lib/bot/middleware/origin-check';
 import { checkRateLimit } from '@/lib/bot/middleware/rate-limiter';
 import { findContactBySessionId, updateContact } from '@/lib/bot/db/queries/contacts';
+import { syncAuditFlashProspect } from '@/lib/bot/db/queries/lead-engine-prospects';
+import { findLeadByContactId } from '@/lib/bot/db/queries/leads';
 import { config } from '@/lib/bot/config';
 import { createBooking } from '@/lib/bot/integrations/tidycal-client';
 import { supabase } from '@/lib/bot/db/supabase';
@@ -28,6 +30,7 @@ export async function POST(req: Request) {
   let body: {
     session_id?: string;
     conversation_id?: string;
+    lead_id?: string | null;
     name?: string;
     email?: string;
     starts_at?: string;
@@ -94,6 +97,22 @@ export async function POST(req: Request) {
   // Update contact email if not yet set
   if (!contact.email) {
     await updateContact(contact.id, { email: body.email.toLowerCase() });
+  }
+
+  try {
+    const lead = await findLeadByContactId(contact.id);
+    await syncAuditFlashProspect({
+      contact,
+      lead,
+      email: body.email,
+      name: body.name,
+      projectBrief: lead?.project_brief ?? null,
+      status: 'meeting_booked',
+      bookingStartsAt: booking.starts_at,
+      tidycalBookingId: booking.id,
+    });
+  } catch (err) {
+    console.error('[booking] lead engine prospect sync failed:', err);
   }
 
   return NextResponse.json(

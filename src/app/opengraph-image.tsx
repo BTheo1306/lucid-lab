@@ -55,21 +55,7 @@ export default async function Image() {
               marginBottom: "44px",
             }}
           >
-            <img
-              src={logoSrc}
-              alt="Lucid-Lab"
-              style={{ width: "36px", height: "36px", objectFit: "contain" }}
-            />
-            <span
-              style={{
-                fontSize: "22px",
-                fontWeight: "700",
-                color: "#0A0A0A",
-                letterSpacing: "-0.01em",
-              }}
-            >
-              Lucid-Lab
-            </span>
+            <img src={logoSrc} alt="Lucid-Lab" style={{ height: "36px", width: "auto", objectFit: "contain" }} />
           </div>
 
           {/* Headline */}

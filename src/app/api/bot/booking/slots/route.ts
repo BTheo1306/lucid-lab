@@ -9,6 +9,12 @@ import { getClientIp } from '@/lib/bot/utils/request';
 export const runtime = 'nodejs';
 export const maxDuration = 15;
 
+function parseDateParam(value: string | null): Date | null {
+  if (!value) return null;
+  const date = new Date(value);
+  return Number.isNaN(date.getTime()) ? null : date;
+}
+
 /** GET /api/bot/booking/slots?days_ahead=14 — Proxy TidyCal availability. */
 export async function GET(req: Request) {
   const origin = req.headers.get('origin');
@@ -30,13 +36,23 @@ export async function GET(req: Request) {
   }
 
   const url = new URL(req.url);
-  const daysAhead = Math.max(1, Math.min(30, parseInt(url.searchParams.get('days_ahead') ?? '14', 10)));
-  const startsAt = new Date();
-  const endsAt = new Date(startsAt.getTime() + daysAhead * 86_400_000);
+  const daysAhead = Math.max(1, Math.min(60, parseInt(url.searchParams.get('days_ahead') ?? '14', 10)));
+  const requestedStartsAt = parseDateParam(url.searchParams.get('starts_at'));
+  const requestedEndsAt = parseDateParam(url.searchParams.get('ends_at'));
+  const now = new Date();
+  const startsAt = requestedStartsAt && requestedStartsAt > now ? requestedStartsAt : now;
+  const defaultEndsAt = new Date(startsAt.getTime() + daysAhead * 86_400_000);
+  const maxEndsAt = new Date(startsAt.getTime() + 60 * 86_400_000);
+  const requestedEnd = requestedEndsAt && requestedEndsAt > startsAt ? requestedEndsAt : defaultEndsAt;
+  const endsAt = requestedEnd > maxEndsAt ? maxEndsAt : requestedEnd;
 
   try {
     const slots = await listAvailableTimes(config.tidycalBookingTypeId, startsAt, endsAt);
-    return NextResponse.json({ slots: slots.slice(0, 20) }, { headers: corsHeaders(origin) });
+    const availableSlots = slots
+      .filter((slot) => slot.available_bookings === undefined || slot.available_bookings > 0)
+      .sort((a, b) => new Date(a.starts_at).getTime() - new Date(b.starts_at).getTime())
+      .slice(0, 250);
+    return NextResponse.json({ slots: availableSlots }, { headers: corsHeaders(origin) });
   } catch (err) {
     console.error('[slots] failed:', err);
     return NextResponse.json({ error: 'Slot lookup failed' }, { status: 502, headers: corsHeaders(origin) });

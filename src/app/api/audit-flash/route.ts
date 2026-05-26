@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { createContact } from '@/lib/bot/db/queries/contacts'
+import { syncAuditFlashProspect } from '@/lib/bot/db/queries/lead-engine-prospects'
 import { createLead } from '@/lib/bot/db/queries/leads'
 import { sendTeamLeadNotification } from '@/lib/bot/integrations/email-client'
 import { checkOrigin, corsHeaders } from '@/lib/bot/middleware/origin-check'
@@ -89,8 +90,9 @@ export async function POST(req: Request) {
   }
 
   const now = new Date().toISOString()
+  const sessionId = randomUUID()
   const contact = await createContact({
-    session_id: randomUUID(),
+    session_id: sessionId,
     email: parsed.email.toLowerCase(),
     first_name: clean(parsed.first_name),
     last_name: clean(parsed.last_name),
@@ -129,6 +131,25 @@ export async function POST(req: Request) {
   })
 
   try {
+    await syncAuditFlashProspect({
+      contact,
+      lead,
+      email: parsed.email,
+      name: [clean(parsed.first_name), clean(parsed.last_name)].filter(Boolean).join(' '),
+      role: clean(parsed.role),
+      company: clean(parsed.company),
+      companyRegistration: clean(parsed.company_registration),
+      headquartersAddress: clean(parsed.headquarters_address),
+      teamSize: clean(parsed.team_size),
+      sector: clean(parsed.sector),
+      projectBrief,
+      status: 'validated',
+    })
+  } catch (error) {
+    console.error('[audit-flash] lead engine prospect sync failed:', error)
+  }
+
+  try {
     await sendTeamLeadNotification({
       email: parsed.email.toLowerCase(),
       firstName: clean(parsed.first_name),
@@ -142,7 +163,7 @@ export async function POST(req: Request) {
     console.error('[audit-flash] team notification failed:', error)
   }
 
-  return NextResponse.json({ ok: true, lead_id: lead.id }, { headers })
+  return NextResponse.json({ ok: true, lead_id: lead.id, session_id: sessionId }, { headers })
 }
 
 export async function OPTIONS(req: Request) {

@@ -20,8 +20,8 @@ export function Header() {
   const links = [
     { label: t.nav.expertise, href: `${homePrefix}/#expertises` },
     { label: t.nav.offers, href: `${homePrefix}/#offres` },
-    { label: t.nav.delivery, href: `${homePrefix}${lang === 'en' ? '/method' : '/methode'}` },
-    { label: t.nav.cases, href: `${homePrefix}${lang === 'en' ? '/case-studies' : '/cas-clients'}` },
+    { label: t.nav.delivery, href: `${homePrefix}/#comment-on-livre` },
+    { label: t.nav.cases, href: `${homePrefix}/#acquis-livres` },
     { label: t.nav.blog, href: `${homePrefix === '' ? '/blog' : '/en/blog'}` },
     { label: t.nav.contact, href: `${homePrefix}/audit-flash` },
   ]
@@ -67,8 +67,7 @@ export function Header() {
       <nav className="mx-auto flex h-[68px] w-full max-w-[1264px] items-center justify-between border-x border-[#e5e5e5] px-[48px] max-lg:px-6">
         {/* Wordmark */}
         <a href={lang === 'en' ? '/en' : '/'} onClick={nav(lang === 'en' ? '/en/#' : '/#')} className="flex items-center gap-2 transition-opacity hover:opacity-70">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/logo.png" alt="Lucid-Lab" className="h-6 w-auto" />
+          <img src="/logo.png" alt="Lucid-Lab" className="size-6" />
           <span
             className="text-[16px] font-bold tracking-tight text-black"
             style={{ fontFamily: 'var(--font-syne), sans-serif' }}

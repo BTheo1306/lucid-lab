@@ -11,7 +11,7 @@ export function AdminSearch() {
   function submitSearch(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const value = query.trim();
-    router.push(value ? `/admin/lucid-os/crm/clients?q=${encodeURIComponent(value)}` : '/admin/lucid-os/crm/clients');
+    router.push(value ? `/admin/lucid-os/clients?q=${encodeURIComponent(value)}` : '/admin/lucid-os/clients');
   }
 
   return (

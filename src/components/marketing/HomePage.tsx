@@ -68,7 +68,7 @@ const content = {
         'Lucid-Lab audite vos workflows, vérifie vos données et priorise les cas d’usage avant de construire agents, outils internes et intégrations.',
       primary: 'Réserver un audit IA',
       secondary: 'Voir les cas d’usage',
-      proofs: ['Audit', 'Roadmap', 'Build', 'Run', 'Ownership'],
+      proofs: ['Audit', 'Roadmap', 'Build', 'Run', 'Documentation', 'Gouvernance'],
     },
     trusted: {
       title: 'Les entreprises qui nous ont fait confiance',
@@ -82,16 +82,16 @@ const content = {
       ],
     },
     problems: {
-      title: 'Le succès d\'un projet IA se joue avant la première ligne de code.',
+      title: 'Le succès d\'un projet de transformation se joue avant la première ligne de code.',
       subtitle:
-        'Nous transformons vos processus manuels et vos données fragmentées en une infrastructure intelligente, scalable et sécurisée.',
+        'Nous transformons vos processus opérationnels et vos données fragmentées en une infrastructure intelligente, scalable et sécurisée.',
       items: [
         ['Idées IA dispersées', 'Les métiers listent des cas d’usage, mais personne ne score valeur, faisabilité et risque.'],
-        ['Workflows manuels', 'Les équipes copient, recollent, consolident et vérifient les mêmes données chaque semaine.'],
+        ['Workflows', 'Les équipes copient, recollent, consolident et vérifient les mêmes données chaque semaine.'],
         ['Outils non connectés', 'CRM, ERP, fichiers et boîtes mail gardent chacun une partie du processus.'],
-        ['Données difficiles', 'Les sources existent, mais les accès, formats et droits ralentissent le build.'],
-        ['Sécurité tardive', 'RGPD, permissions et données sensibles entrent dans la discussion trop tard.'],
-        ['Adoption fragile', 'Un pilote sans runbook, owner et monitoring finit en démo oubliée.'],
+        ['Gouvernance de données', 'Les sources existent, mais les accès, formats et droits ralentissent le build.'],
+        ['Souveraineté & Compliance', 'RGPD, permissions et données sensibles entrent dans la discussion trop tard.'],
+        ['Compréhension', 'Un accompagnement à toutes les étapes de la transformation.'],
       ],
     },
     pillars: {
@@ -107,7 +107,7 @@ const content = {
           href: routeMap.fr.audit,
         },
         {
-          title: 'Data & SI Readiness',
+          title: 'Data & SI Compliance',
           problem: 'Le build dépend des sources, permissions, formats, outils et règles de sécurité.',
           deliverables: ['Inventaire sources', 'Matrice droits et accès', 'Architecture cible EU'],
           result: 'Les blocages techniques et réglementaires sortent avant le développement.',
@@ -123,7 +123,7 @@ const content = {
         {
           title: 'Adoption, Formation & Run',
           problem: 'Le système doit tourner, se surveiller et rester compréhensible par les équipes.',
-          deliverables: ['Runbooks', 'Monitoring coût et qualité', 'Formation ciblée'],
+          deliverables: ['Cartographie', 'Monitoring coût et qualité', 'Formation ciblée'],
           result: 'Le client garde le code, la documentation, les accès et la capacité d’opérer.',
           href: routeMap.fr.buildRun,
         },
@@ -141,13 +141,13 @@ const content = {
           href: routeMap.fr.audit,
         },
         {
-          title: 'Diagnostic Architecture & Données',
+          title: 'Validation d\'architecture des données et cas d\'usage',
           detail: 'Préparation technique',
           body: 'Validation des sources de données, de la sécurité technique et des prérequis d\'hébergement avant développement.',
           href: routeMap.fr.data,
         },
         {
-          title: 'Feuille de Route & Automatisation',
+          title: 'Roadmap inclusion business et premières automatisations',
           detail: 'Stratégie de déploiement',
           body: 'Priorisation des processus à automatiser, séquencement des livraisons et retour sur investissement attendu.',
           href: routeMap.fr.roadmap,
@@ -164,20 +164,27 @@ const content = {
           body: 'Déploiement sécurisé, mise en place des outils de supervision, documentation technique et transfert de compétences.',
           href: routeMap.fr.buildRun,
         },
+        {
+          title: 'Gouvernance et Consultance IA',
+          detail: 'Stratégie & Sécurité',
+          body: 'Mise en place des processus de sécurité, conformité réglementaire, audits réguliers et comités de pilotage stratégique.',
+          href: routeMap.fr.buildRun,
+        },
       ],
     },
     delivery: {
       title: 'La méthode Lucid-Lab.',
       subtitle:
-        'Le plan commence par le terrain. Le build avance par cycles courts. Le transfert se prépare dès le premier jour.',
+        'Propulsé par le top management la transformation digitale et IA avancera en cycles courts avec un transfert dès le premier jour.',
       steps: [
-        'Audit des workflows terrain pour cartographier vos processus réels.',
-        'Collecte et qualification des cas d’usage à fort impact.',
+        'Audit et cartographie de vos processus réels.',
+        'Collecte organisation, et qualification des cas d\'usage à fort impact.',
         'Scoring des chantiers IA : l\'équilibre parfait entre valeur et risque.',
-        'Sécurisation stricte des accès, données et conformité RGPD.',
-        'Conception d\'une architecture technique solide, monitorée et scalable.',
-        'Développement et intégration par cycles itératifs très courts.',
-        'Formation des équipes clés et transfert définitif de l\'exploitation.',
+        'Sécurisation des accès, données et conformité.',
+        'Support à la conception d\'une architecture technique solide, monitorée et scalable.',
+        'Développement et intégration par cas d\'usage.',
+        'Formation et transfert de connaissance.',
+        'Gouvernance et consultance IA.'
       ],
     },
     cases: {
@@ -253,25 +260,25 @@ const content = {
         {
           question: 'Lucid-Lab intervient à quel moment du projet IA ?',
           answer:
-            'Lucid-Lab intervient dès le cadrage. On aide la direction à choisir le bon chantier, puis on construit le système, on le déploie et on prépare le transfert.',
+            'Lucid-Lab intervient en amont de la définition de besoin et vous aide à définir les chantiers, construire le système, on le déploie et on prépare le transfert.',
         },
         {
           question: 'Que contient l\'Audit Flash ?',
           answer:
-            'L’audit couvre workflows, irritants métier, sources de données, outils, risques, gains attendus et priorisation. Le livrable liste les chantiers à lancer, ceux à repousser et les prérequis à régler.',
+            'L\'audit flash est une première approche qui consiste à définir votre besoin, une approche, votre budget et les solutions applicables.',
         },
         {
-          question: 'Le client garde quoi après la livraison ?',
+          question: 'Quels sont les livrables en fin de mission ?',
           answer:
-            'Le client garde le code, les workflows, les accès, les runbooks, la documentation utilisateur et les tableaux de monitoring prévus dans le périmètre.',
+            'Tout dépend de l\'étape mais ce sont le développement et la documentation technique.',
         },
         {
           question: 'Vous travaillez avec les outils déjà en place ?',
           answer:
-            'Oui. On connecte CRM, ERP, fichiers, bases internes, boîtes mail, outils no-code ou APIs métier quand ces briques tiennent le besoin. On propose un remplacement seulement si l’existant bloque le run.',
+            'Oui. On connecte CRM, ERP, fichiers, bases internes, boîtes mail, outils no-code ou APIs métier quand ces briques tiennent le besoin. Nous travaillons avec des partenaires pour des solutions développées dans le cas de solutions non compatibles et sans connecteur qui bloquent les opérations.',
         },
         {
-          question: 'Les données sensibles peuvent-elles rester en Europe ?',
+          question: 'Les données sensibles peuvent-elles être gardées de manière souveraine ?',
           answer:
             'Oui. On peut cadrer hébergement EU, modèles adaptés, permissions, logs et règles d’accès selon le niveau de sensibilité du cas d’usage.',
         },
@@ -707,7 +714,6 @@ function Hero({ lang }: { lang: Locale }) {
           </p>
           <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center md:mt-9">
             <PrimaryCta href={routes.booking}>{t.primary}</PrimaryCta>
-            <TextLink href={routes.cases}>{t.secondary}</TextLink>
           </div>
           <div className="mt-8 flex flex-wrap gap-x-5 gap-y-2 text-[12px] font-medium uppercase tracking-[0.14em] md:mt-10" style={{ color: GRAY_400 }}>
             {t.proofs.map((proof) => <span key={proof}>{proof}</span>)}
@@ -906,15 +912,6 @@ function Pillars({ lang }: { lang: Locale }) {
                       <div className="mt-6 pt-4 border-t" style={{ borderColor: GRAY_100 }}>
                         <span className="text-[10px] font-mono text-[#8a8276] block mb-1">Impact final :</span>
                         <p className="text-[13px] font-semibold leading-[1.5]" style={{ color: EMBER }}>{item.result}</p>
-                        
-                        <Link 
-                          href={resolveHref(lang, item.href)}
-                          className="mt-4 inline-flex items-center gap-1.5 text-[13px] font-bold group"
-                          style={{ color: INK }}
-                        >
-                          {lang === 'en' ? 'Open details' : 'Voir les détails'}
-                          <ArrowRight className="size-3.5 transition-transform duration-200 group-hover:translate-x-1" />
-                        </Link>
                       </div>
                     </div>
                   </motion.div>
@@ -942,6 +939,7 @@ function Offers({ lang }: { lang: Locale }) {
       case 2: return "lg:col-span-4"
       case 3: return "lg:col-span-4"
       case 4: return "lg:col-span-4"
+      case 5: return "lg:col-span-12 lg:row-span-1"
       default: return "lg:col-span-12"
     }
   }
@@ -987,17 +985,6 @@ function Offers({ lang }: { lang: Locale }) {
                 <p className={`mt-4 leading-[1.6] ${isFirstRow ? 'text-[15px]' : 'text-[14px]'}`} style={{ color: 'rgba(250,250,247,0.64)' }}>
                   {item.body}
                 </p>
-              </div>
-              
-              <div className="relative z-10 mt-10 flex items-center justify-between pt-4">
-                <Link 
-                  href={resolveHref(lang, item.href)}
-                  className="inline-flex items-center gap-2 text-[14px] font-semibold transition-colors duration-300"
-                  style={{ color: PAPER }}
-                >
-                  <span className="group-hover:text-[#C85E1A] transition-colors">{lang === 'en' ? 'Open details' : 'Voir les détails'}</span>
-                  <ArrowRight className="size-4 opacity-40 group-hover:opacity-100 group-hover:translate-x-1 group-hover:text-[#C85E1A] transition-all duration-300" />
-                </Link>
               </div>
               
               {/* Subtle hover glow effect built with CSS shadow internally or just a nice gradient overlay */}
@@ -1063,13 +1050,6 @@ function Delivery({ lang }: { lang: Locale }) {
           )
         })}
       </div>
-
-      <div className="mt-16 border-t pt-4 flex justify-between items-center" style={{ borderColor: GRAY_200 }}>
-        <span className="text-[11px] font-mono text-[#8a8276] uppercase tracking-widest">// Processus de livraison monitoré</span>
-        <TextLink href={resolveHref(lang, routeMap[lang].method)}>
-          {lang === 'en' ? 'Explore full method' : 'Voir la méthode complète'}
-        </TextLink>
-      </div>
     </Section>
   )
 }
@@ -1111,11 +1091,6 @@ function Cases({ lang }: { lang: Locale }) {
             </div>
           </motion.div>
         ))}
-      </div>
-      
-      <div className="mt-8 border-t pt-5 flex justify-between items-center" style={{ borderColor: GRAY_200 }}>
-        <span className="text-[11px] font-mono text-[#8a8276]">// Anonymisés sur demande</span>
-        <TextLink href={routeMap[lang].cases}>{lang === 'en' ? 'Open client cases' : 'Voir les cas clients'}</TextLink>
       </div>
     </Section>
   )
@@ -1250,8 +1225,8 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
   const nav: Array<[string, string]> = [
     [lang === 'en' ? 'Expertise' : 'Expertises', '/#expertises'],
     [lang === 'en' ? 'Offers' : 'Offres', '/#offres'],
-    [lang === 'en' ? 'Method' : 'Méthode', routes.method],
-    [lang === 'en' ? 'Client cases' : 'Cas clients', routes.cases],
+    [lang === 'en' ? 'Method' : 'Méthode', '/#comment-on-livre'],
+    [lang === 'en' ? 'Client cases' : 'Cas clients', '/#acquis-livres'],
   ]
 
   return (
@@ -1280,7 +1255,7 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
             <ul className="mt-4 space-y-3">
               <li><Link href={routes.blog} className="text-[14px]" style={{ color: GRAY_600 }}>Blog</Link></li>
               <li><Link href={routes.audit} className="text-[14px]" style={{ color: GRAY_600 }}>Audit Flash</Link></li>
-              <li><Link href={routes.buildRun} className="text-[14px]" style={{ color: GRAY_600 }}>Build & Run</Link></li>
+              <li><Link href={'/#offres'} className="text-[14px]" style={{ color: GRAY_600 }}>Build & Run</Link></li>
             </ul>
           </div>
           <div>

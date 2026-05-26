@@ -614,7 +614,7 @@ export async function getLeadEngineProspectsPageData(): Promise<LeadEngineProspe
       .order('created_at', { ascending: false })),
     selectRows<unknown>(supabase
       .from('prospect_people')
-      .select('company_id, full_name, email_status, last_contacted_at, status, created_at')
+      .select('company_id, full_name, title, email, email_status, phone, linkedin_url, last_contacted_at, status, created_at')
       .in('company_id', companyIds)
       .order('created_at', { ascending: false })),
     selectRows<unknown>(supabase

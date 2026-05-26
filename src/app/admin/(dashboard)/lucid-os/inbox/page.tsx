@@ -466,7 +466,7 @@ export default async function LucidOsInboxPage() {
           ) : (
             <div className="divide-y divide-white/10">
               {clientNextActions.map((client) => (
-                <Link key={client.id} href={`/admin/lucid-os/crm/clients/${client.slug}`} className="block py-4 transition-colors first:pt-0 last:pb-0 hover:bg-white/[0.03]">
+                <Link key={client.id} href={`/admin/lucid-os/clients/${client.slug}`} className="block py-4 transition-colors first:pt-0 last:pb-0 hover:bg-white/[0.03]">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">

@@ -229,9 +229,7 @@ function requireClientActionContext(formData: FormData): { clientId: string; cli
 function revalidateClientWorkspace(clientSlug: string): void {
   revalidatePath('/admin/lucid-os');
   revalidatePath('/admin/lucid-os/clients');
-  revalidatePath('/admin/lucid-os/crm/clients');
   revalidatePath(`/admin/lucid-os/clients/${clientSlug}`);
-  revalidatePath(`/admin/lucid-os/crm/clients/${clientSlug}`);
 }
 
 function clientDocumentsHref(clientSlug: string, params?: Record<string, string>): string {
@@ -242,14 +240,14 @@ function clientDocumentsHref(clientSlug: string, params?: Record<string, string>
 
 function clientActionErrorHref(clientSlug: string, anchor: string, error: unknown): string {
   const params = new URLSearchParams({ client_error: actionErrorMessage(error) });
-  return `/admin/lucid-os/crm/clients/${clientSlug}?${params.toString()}#${anchor}`;
+  return `/admin/lucid-os/clients/${clientSlug}?${params.toString()}#${anchor}`;
 }
 
 function clientEditErrorHref(clientSlug: string | null, error: unknown): string {
   const params = new URLSearchParams({ client_error: actionErrorMessage(error) });
   return clientSlug
-    ? `/admin/lucid-os/crm/clients/${clientSlug}/edit?${params.toString()}`
-    : `/admin/lucid-os/crm/clients/new?${params.toString()}`;
+    ? `/admin/lucid-os/clients/${clientSlug}/edit?${params.toString()}`
+    : `/admin/lucid-os/clients/new?${params.toString()}`;
 }
 
 function actionErrorMessage(error: unknown): string {
@@ -347,9 +345,7 @@ export async function recordClientIntakeAction(formData: FormData): Promise<void
 
   revalidatePath('/admin/lucid-os');
   revalidatePath('/admin/lucid-os/clients');
-  revalidatePath('/admin/lucid-os/crm/clients');
   revalidatePath(`/admin/lucid-os/clients/${result.slug}`);
-  revalidatePath(`/admin/lucid-os/crm/clients/${result.slug}`);
   revalidatePath('/admin/lucid-os/knowledge');
   redirect(`/admin/lucid-os/clients/${result.slug}`);
 }
@@ -367,9 +363,7 @@ export async function updateClientStatusAndLifecycleAction(formData: FormData): 
   }
 
   revalidatePath('/admin/lucid-os/clients');
-  revalidatePath('/admin/lucid-os/crm/clients');
   revalidatePath(`/admin/lucid-os/clients/${clientSlug}`);
-  revalidatePath(`/admin/lucid-os/crm/clients/${clientSlug}`);
   redirect(`/admin/lucid-os/clients/${clientSlug}`);
 }
 
@@ -381,9 +375,7 @@ export async function deleteClientAction(formData: FormData): Promise<void> {
 
   revalidatePath('/admin/lucid-os');
   revalidatePath('/admin/lucid-os/clients');
-  revalidatePath('/admin/lucid-os/crm/clients');
   revalidatePath(`/admin/lucid-os/clients/${clientSlug}`);
-  revalidatePath(`/admin/lucid-os/crm/clients/${clientSlug}`);
   revalidatePath('/admin/lucid-os/knowledge');
   redirect('/admin/lucid-os/clients');
 }

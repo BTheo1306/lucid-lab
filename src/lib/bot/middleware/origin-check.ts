@@ -11,8 +11,11 @@ export async function checkOrigin(req: Request): Promise<boolean> {
   const origin = req.headers.get('origin');
   const allowed = getAllowedOrigins();
 
-  // Dev / same-origin server-to-server calls may have no origin header.
-  if (!origin) return allowed.includes('*');
+  // Same-origin GETs and server-to-server calls may have no Origin header.
+  if (!origin) {
+    const requestOrigin = new URL(req.url).origin;
+    return allowed.includes('*') || allowed.includes(requestOrigin);
+  }
   if (allowed.includes('*')) return true;
   if (allowed.includes(origin)) return true;
 

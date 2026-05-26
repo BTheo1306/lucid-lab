@@ -358,7 +358,7 @@ function VaultEditPanel({ profile, supabaseWriteError }: { profile: VaultClientP
   return (
     <RecordPanel title="Actions">
       <div className="grid gap-3">
-        <Link href={`/admin/lucid-os/crm/clients/${profile.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
+        <Link href={`/admin/lucid-os/clients/${profile.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
           <Edit3 className="size-4" />
           Modifier / rendre éditable
         </Link>
@@ -491,9 +491,9 @@ function VaultOnlyClientPage({ profile, clientError }: { profile: VaultClientPro
         websiteUrl={profile.websiteUrl}
         email={profile.primaryContactEmail}
         phone={profile.primaryContactPhone}
-        backHref="/admin/lucid-os/crm/clients"
+        backHref="/admin/lucid-os/clients"
         actions={(
-          <Link href={`/admin/lucid-os/crm/clients/${profile.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
+          <Link href={`/admin/lucid-os/clients/${profile.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
             <Edit3 className="size-4" />
             Modifier
           </Link>
@@ -1192,9 +1192,9 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
         websiteUrl={client.websiteUrl ?? vaultProfile?.websiteUrl ?? null}
         email={client.primaryContactEmail ?? vaultProfile?.primaryContactEmail ?? null}
         phone={client.primaryContactPhone ?? vaultProfile?.primaryContactPhone ?? null}
-        backHref="/admin/lucid-os/crm/clients"
+        backHref="/admin/lucid-os/clients"
         actions={(
-          <Link href={`/admin/lucid-os/crm/clients/${client.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
+          <Link href={`/admin/lucid-os/clients/${client.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
             <Edit3 className="size-4" />
             Modifier
           </Link>
@@ -1262,7 +1262,7 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
                 />
               </div>
               <div className="grid gap-2 border-t border-white/[0.08] pt-4">
-                <Link href={`/admin/lucid-os/crm/clients/${client.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.07]">
+                <Link href={`/admin/lucid-os/clients/${client.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.07]">
                   <Edit3 className="size-4" />
                   Modifier toute la fiche
                 </Link>

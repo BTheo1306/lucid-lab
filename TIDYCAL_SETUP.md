@@ -24,7 +24,7 @@ Run this from your terminal (replace `$TIDYCAL_API_KEY` with your token):
 
 ```bash
 curl -H "Authorization: Bearer $TIDYCAL_API_KEY" \
-     https://tidycal.com/api/v1/booking-types
+  https://tidycal.com/api/booking-types
 ```
 
 You'll get JSON like:
@@ -53,11 +53,11 @@ Copy the numeric `id` of your **discovery-call** booking type and set it as env 
 ## 3. Verify slots endpoint works
 
 ```bash
-TODAY=$(date -u +%Y-%m-%d)
-NEXT_WEEK=$(date -u -v+7d +%Y-%m-%d 2>/dev/null || date -u -d '+7 days' +%Y-%m-%d)
+TODAY=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+NEXT_WEEK=$(date -u -v+7d +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u -d '+7 days' +%Y-%m-%dT%H:%M:%SZ)
 
 curl -H "Authorization: Bearer $TIDYCAL_API_KEY" \
-     "https://tidycal.com/api/v1/booking-types/$TIDYCAL_BOOKING_TYPE_ID/timeslots?starts_at=$TODAY&ends_at=$NEXT_WEEK"
+  "https://tidycal.com/api/booking-types/$TIDYCAL_BOOKING_TYPE_ID/timeslots?starts_at=$TODAY&ends_at=$NEXT_WEEK"
 ```
 
 You should get an array of available slots. If you get 401/403 — token is wrong. If empty — there's no availability configured in the booking type.
@@ -75,8 +75,8 @@ curl -X POST \
        "name": "Test Booking",
        "email": "your-test-email@example.com",
        "timezone": "Europe/Paris"
-     }' \
-     "https://tidycal.com/api/v1/booking-types/$TIDYCAL_BOOKING_TYPE_ID/bookings"
+    }' \
+    "https://tidycal.com/api/booking-types/$TIDYCAL_BOOKING_TYPE_ID/bookings"
 ```
 
 If it succeeds, the test email will receive TidyCal's standard confirmation email — which is exactly what the bot relies on.
