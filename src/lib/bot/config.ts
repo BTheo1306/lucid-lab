@@ -16,13 +16,22 @@ function optionalEnv(name: string, defaultValue: string): string {
   return value && value.length > 0 ? value : defaultValue;
 }
 
+// Lazy getter — resolved at request time, not at module load / build time.
+function lazyRequiredEnv(name: string, fallback?: string): string {
+  const value = process.env[name] || (fallback ? process.env[fallback] : undefined);
+  if (!value || value.length === 0) {
+    throw new Error(`Missing required environment variable: ${name}`);
+  }
+  return value;
+}
+
 export const config = {
   // Runtime
   nodeEnv: optionalEnv('NODE_ENV', 'development'),
 
-  // Supabase
-  supabaseUrl: requiredEnv('SUPABASE_URL'),
-  supabaseServiceRoleKey: requiredEnv('SUPABASE_SERVICE_ROLE_KEY'),
+  // Supabase — evaluated lazily so next build doesn't throw when env is absent
+  get supabaseUrl() { return lazyRequiredEnv('SUPABASE_URL', 'NEXT_PUBLIC_SUPABASE_URL'); },
+  get supabaseServiceRoleKey() { return lazyRequiredEnv('SUPABASE_SERVICE_ROLE_KEY'); },
 
   // AI provider
   aiProvider: optionalEnv('AI_PROVIDER', 'anthropic') as
@@ -103,7 +112,7 @@ export const config = {
 
   // Billing
   billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '0.20')),
-} as const;
+} // No 'as const' — incompatible with getter properties above
 
 export type Config = typeof config;
 
