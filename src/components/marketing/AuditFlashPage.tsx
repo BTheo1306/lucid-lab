@@ -61,12 +61,13 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
   const t = page[lang]
 
   return (
-    <div className="min-h-screen bg-[#FDFDFB] flex flex-col font-sans">
+    <div className="h-screen bg-[#FDFDFB] flex flex-col font-sans lg:overflow-hidden">
       <Header />
       
-      <main className="pt-[68px] flex-1 flex flex-col lg:flex-row max-w-[1400px] mx-auto w-full">
+      <main className="pt-[68px] flex-1 flex flex-col lg:flex-row max-w-[1500px] mx-auto w-full h-[calc(100vh-68px)]">
         {/* Left Column: Context & Information */}
-        <div className="p-6 md:p-10 lg:p-14 lg:w-5/12 xl:w-2/5 flex flex-col justify-start space-y-10 lg:sticky lg:top-[68px] lg:h-[calc(100vh-68px)] lg:overflow-y-auto custom-scrollbar pb-16">
+        <div className="p-6 md:p-10 lg:p-14 lg:w-1/2 flex flex-col justify-center lg:overflow-y-auto custom-scrollbar">
+          <div className="max-w-[560px] mx-auto w-full space-y-10 py-10">
           
           <div className="space-y-5">
             <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500">{t.title}</p>
@@ -74,7 +75,6 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
               {t.headline}
             </h1>
             <p className="text-[14px] leading-relaxed text-stone-600">{t.subtitle}</p>
-            
           </div>
 
           <div className="w-full h-px bg-stone-200/60" />
@@ -94,19 +94,9 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
             </ul>
           </div>
 
-          {/* What remains */}
-          <div className="rounded-[8px] bg-[#0A0A0A] p-5 lg:p-6 text-white shadow-xl shadow-stone-200/50">
-            <h2 className="text-[14px] font-bold text-white flex items-center gap-2">
-              <span className="h-1.5 w-1.5 rounded-full bg-[#EC5A1D]" />
-              {t.remainsTitle}
-            </h2>
-            <p className="mt-3 text-[12.5px] leading-relaxed text-stone-400">{t.remains}</p>
-          </div>
-
           {/* FAQ quick questions accordion */}
-          <div className="pb-10 pt-4">
-             <div className="w-full h-px bg-stone-200/60 mb-6" />
-            <h2 className="text-[14px] font-bold text-stone-900 mb-4">{t.faqTitle}</h2>
+          <div className="pt-2">
+            <h2 className="text-[14px] font-bold text-stone-900 mb-4 uppercase tracking-wide">{t.faqTitle}</h2>
             <div className="space-y-4">
               {t.faq.map(([q, a]) => (
                 <div key={q}>
@@ -116,11 +106,23 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
               ))}
             </div>
           </div>
+
+          <div className="w-full h-px bg-stone-200/60" />
+
+          {/* What remains */}
+          <div className="rounded-[8px] bg-[#0A0A0A] p-5 lg:p-6 text-white shadow-xl shadow-stone-200/50">
+            <h2 className="text-[14px] font-bold text-white flex items-center gap-2">
+              <span className="h-1.5 w-1.5 rounded-full bg-[#EC5A1D]" />
+              {t.remainsTitle}
+            </h2>
+            <p className="mt-3 text-[12.5px] leading-relaxed text-stone-400">{t.remains}</p>
+          </div>
+          </div>
         </div>
 
         {/* Right Column: Pre-qualification Form */}
-        <div className="lg:w-7/12 xl:w-3/5 p-6 md:p-12 lg:p-20 xl:p-28 lg:min-h-[calc(100vh-68px)] flex flex-col justify-center bg-white border-l border-stone-200 shadow-[0_0_40px_rgba(0,0,0,0.02)]">
-          <div className="max-w-[680px] w-full mx-auto space-y-8">
+        <div className="lg:w-1/2 p-6 md:p-12 lg:p-16 flex flex-col justify-center bg-white border-l border-stone-200 shadow-[0_0_40px_rgba(0,0,0,0.02)] lg:overflow-y-auto custom-scrollbar">
+          <div className="max-w-[600px] w-full mx-auto space-y-8 py-10">
             <div>
               <h2 className="text-[24px] font-extrabold tracking-tight text-stone-900">{t.formTitle}</h2>
               <p className="mt-2 text-[14px] leading-relaxed text-stone-500">{t.formSubtitle}</p>
