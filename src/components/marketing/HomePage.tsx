@@ -1228,60 +1228,43 @@ function FinalCTA({ lang }: { lang: Locale }) {
   const isEn = lang === 'en'
 
   return (
-    <section className="relative overflow-hidden bg-[#0A0A0A] py-24 md:py-40">
-      {/* Background glow effects */}
-      <div className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-[#EC5A1D] opacity-20 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute left-[20%] top-[80%] w-[300px] h-[200px] bg-indigo-500 opacity-10 blur-[100px] rounded-full pointer-events-none" />
-
-      {/* Grid pattern */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff0a_1px,transparent_1px),linear-gradient(to_bottom,#ffffff0a_1px,transparent_1px)] bg-[size:40px_40px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_20%,transparent_100%)] pointer-events-none" />
-
-      <div className="relative mx-auto flex w-full max-w-[800px] flex-col items-center justify-center px-6 text-center md:px-10">
-        <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          whileInView={{ opacity: 1, scale: 1, y: 0 }}
-          viewport={{ once: true, margin: "-100px" }}
-          transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
-          className="flex flex-col items-center"
+    <section className="py-16 md:py-32" style={{ background: PAPER }}>
+      <div className="mx-auto max-w-[1200px] px-6 md:px-10">
+        <div 
+          className="relative flex flex-col items-center justify-center overflow-hidden rounded-[20px] px-6 py-16 text-center md:py-24"
+          style={{ background: INK, color: PAPER }}
         >
-          {/* Availability Badge */}
-          <div className="mb-8 flex items-center gap-3 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.15em] text-white backdrop-blur-md shadow-2xl">
-            <span className="relative flex h-2 w-2">
-              <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#EC5A1D] opacity-75"></span>
-              <span className="relative inline-flex h-2 w-2 rounded-full bg-[#EC5A1D]"></span>
-            </span>
-            {isEn ? 'Available slots this week' : 'Créneaux disponibles cette semaine'}
+          {/* Minimalist architectural lines */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div className="absolute left-1/2 top-0 h-full w-[1px] -translate-x-[300px] bg-gradient-to-b from-transparent via-white/5 to-transparent hidden md:block" />
+            <div className="absolute left-1/2 top-0 h-full w-[1px] translate-x-[300px] bg-gradient-to-b from-transparent via-white/5 to-transparent hidden md:block" />
+            <div className="absolute top-1/2 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-white/5 to-transparent" />
           </div>
           
-          <h2 className="text-[36px] font-extrabold leading-[1.1] tracking-tight text-white md:text-[52px] lg:text-[64px]">
-            {t.title}
-          </h2>
-          
-          <p className="mt-6 max-w-[560px] text-[15px] leading-relaxed text-stone-400 md:text-[17px]">
-            {t.subtitle}
-          </p>
-
-          <div className="mt-10 flex w-full flex-col items-center justify-center sm:flex-row">
-            <Link
-              href={routeMap[lang].booking}
-              className="group relative flex h-14 min-w-[240px] items-center justify-center overflow-hidden rounded-full bg-white px-8 text-[15px] font-bold text-black transition-all hover:scale-[1.02] active:scale-95 shadow-[0_0_40px_-5px_rgba(255,255,255,0.2)] hover:shadow-[0_0_60px_-5px_rgba(255,255,255,0.4)]"
+          <div className="relative z-10 flex flex-col items-center">
+            <span 
+              className="mb-6 inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.15em]"
+              style={{ borderColor: 'rgba(255,255,255,0.12)', color: EMBER }}
             >
-              <div className="absolute inset-0 flex h-full w-full justify-center [transform:skew(-12deg)_translateX(-100%)] group-hover:duration-1000 group-hover:[transform:skew(-12deg)_translateX(100%)]">
-                <div className="relative h-full w-8 bg-black/5" />
-              </div>
-              <span className="relative flex items-center gap-2">
+              <span className="size-1.5 rounded-full" style={{ background: EMBER }}></span>
+              {isEn ? 'Begin the process' : 'Démarrer le processus'}
+            </span>
+            
+            <h2 className="max-w-[18ch] text-[32px] font-extrabold leading-[1.05] tracking-tight md:text-[44px] lg:text-[52px]">
+              {t.title}
+            </h2>
+            
+            <p className="mt-5 max-w-[46ch] text-[15px] leading-relaxed md:text-[16px]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+              {t.subtitle}
+            </p>
+
+            <div className="mt-10">
+              <PrimaryCta href={routeMap[lang].booking} inverted>
                 {t.cta}
-                <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-              </span>
-            </Link>
+              </PrimaryCta>
+            </div>
           </div>
-          
-          {/* Trust text */}
-          <p className="mt-8 flex items-center justify-center gap-2 text-[12.5px] font-medium text-stone-500">
-            <CheckCircle2 className="h-3.5 w-3.5 text-[#EC5A1D]/80" />
-            {isEn ? '100% free. No commitment.' : '100% gratuit. Sans engagement.'}
-          </p>
-        </motion.div>
+        </div>
       </div>
     </section>
   )
