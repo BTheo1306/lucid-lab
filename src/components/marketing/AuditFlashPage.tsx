@@ -1,6 +1,7 @@
 import type { Locale } from '@/lib/i18n/client'
 import { AuditFlashForm } from '@/components/marketing/AuditFlashForm'
 import { Header } from '@/components/ui/header'
+import { MarketingFooter } from '@/components/marketing/HomePage'
 
 const page = {
   fr: {
@@ -61,15 +62,16 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
   const t = page[lang]
 
   return (
-    <div className="h-screen bg-[#FDFDFB] flex flex-col font-sans lg:overflow-hidden">
+    <div className="min-h-screen bg-[#FDFDFB] flex flex-col font-sans">
       <Header />
       
-      <main className="pt-[68px] flex-1 flex flex-col lg:flex-row max-w-[1500px] mx-auto w-full h-[calc(100vh-68px)] lg:overflow-hidden">
+      <main className="pt-[68px] flex-1 flex flex-col lg:flex-row max-w-[1500px] mx-auto w-full">
         {/* Left Column: Context & Information */}
-        <div className="p-6 md:p-10 lg:p-14 lg:w-1/2 flex flex-col justify-center lg:overflow-hidden">
-          <div className="max-w-[560px] mx-auto w-full space-y-6 lg:space-y-8">
+        <div className="p-6 md:p-10 lg:pl-20 lg:pr-14 xl:pl-32 xl:pr-20 lg:w-1/2 flex flex-col justify-center py-12 lg:py-24">
+          <div className="max-w-[560px] w-full mx-auto md:ml-auto md:mr-0 lg:ml-auto lg:mr-0 space-y-6 lg:space-y-8">
           
           <div className="space-y-3">
+            <p className="text-[11px] font-bold uppercase tracking-[0.15em] text-stone-500 mb-2">{t.title}</p>
             <h1 className="text-[26px] font-extrabold leading-[1.1] tracking-tight text-stone-900 md:text-[30px] lg:text-[34px]">
               {t.headline}
             </h1>
@@ -111,8 +113,8 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
         </div>
 
         {/* Right Column: Pre-qualification Form */}
-        <div className="lg:w-1/2 p-6 md:p-10 lg:p-12 flex flex-col justify-center bg-white border-l border-stone-200 shadow-[0_0_40px_rgba(0,0,0,0.02)] lg:overflow-hidden">
-          <div className="max-w-[500px] w-full mx-auto space-y-5">
+        <div className="lg:w-1/2 p-6 md:p-10 lg:p-16 flex flex-col justify-center bg-white border-l border-stone-200 shadow-[0_0_40px_rgba(0,0,0,0.02)] py-12 lg:py-24">
+          <div className="max-w-[500px] w-full mx-auto space-y-6">
             <div>
               <h2 className="text-[18px] font-extrabold tracking-tight text-stone-900">{t.formTitle}</h2>
             </div>
@@ -123,6 +125,7 @@ export function AuditFlashPage({ lang }: { lang: Locale }) {
           </div>
         </div>
       </main>
+      <MarketingFooter lang={lang} />
     </div>
   )
 }
