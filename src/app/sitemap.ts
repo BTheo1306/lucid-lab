@@ -41,6 +41,28 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }),
   )
 
+  const serviceEntries: MetadataRoute.Sitemap = [
+    "/audit-ia",
+    "/readiness-data-si",
+    "/roadmap-automatisation",
+    "/agents-ia-outils-internes",
+    "/build-run",
+    "/methode",
+    "/cas-clients",
+    "/en/audit-ia",
+    "/en/readiness-data-si",
+    "/en/roadmap-automatisation",
+    "/en/agents-ia-outils-internes",
+    "/en/build-run",
+    "/en/method",
+    "/en/case-studies",
+  ].map((path) => ({
+    url: `${SITE}${path}`,
+    lastModified: new Date(),
+    changeFrequency: "monthly",
+    priority: path.includes("cas-clients") || path.includes("case-studies") ? 0.75 : 0.8,
+  }))
+
   return [
     {
       url: SITE,
@@ -54,6 +76,19 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "weekly",
       priority: 1,
     },
+    {
+      url: `${SITE}/audit-flash`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    {
+      url: `${SITE}/en/audit-flash`,
+      lastModified: new Date(),
+      changeFrequency: "weekly",
+      priority: 0.9,
+    },
+    ...serviceEntries,
     {
       url: `${SITE}/confidentialite`,
       lastModified: new Date(),

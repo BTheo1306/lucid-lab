@@ -115,7 +115,7 @@ function prospectTone(record: ClientRecordListItem): 'neutral' | 'good' | 'warni
 }
 
 function RecordRow({ record, acquired }: { record: ClientRecordListItem; acquired: boolean }) {
-  const href = `/admin/lucid-os/crm/clients/${recordSlug(record)}`;
+  const href = `/admin/lucid-os/clients/${recordSlug(record)}`;
   const label = acquired ? 'actif' : prospectLabel(record);
   const tone = acquired ? 'good' : prospectTone(record);
 
@@ -184,7 +184,7 @@ export default async function LucidOsClientsPage({ searchParams }: { searchParam
       <LucidOsHeader
         title="Fiches clients"
         action={(
-          <Link href="/admin/lucid-os/crm/clients/new" className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
+          <Link href="/admin/lucid-os/clients/new" className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
             <Plus className="size-4" />
             Ajouter un client
           </Link>

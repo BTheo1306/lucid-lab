@@ -17,8 +17,8 @@ const COPY = {
   fr: {
     inlineTopicFallback: "ce sujet",
     inlineTitle: (topic: string) => `Bloqué sur ${topic} ?`,
-    inlineBody: "En 30 minutes, on identifie ce qui est faisable et combien ça coûte. Zéro PowerPoint.",
-    inlineCta: "Réserver l'Audit Flash →",
+    inlineBody: "En 30 minutes, on identifie ce qui est faisable, combien ça coûte et quel prérequis bloque le build.",
+    inlineCta: "Réserver un audit IA →",
     blockHref: `${BOOKING_BASE}`,
     bookingHash: "#booking",
     blockTitle: "Audit Flash : 30 minutes pour savoir si c'est faisable.",
@@ -32,8 +32,8 @@ const COPY = {
   en: {
     inlineTopicFallback: "this topic",
     inlineTitle: (topic: string) => `Stuck on ${topic}?`,
-    inlineBody: "In 30 minutes, we identify what's feasible and what it will cost. Zero PowerPoint.",
-    inlineCta: "Book the Audit Flash →",
+    inlineBody: "In 30 minutes, we identify feasibility, cost and the prerequisite blocking the build.",
+    inlineCta: "Book an AI audit →",
     blockHref: `${BOOKING_BASE}`,
     bookingHash: "#booking",
     blockTitle: "Audit Flash: 30 minutes to know if it's feasible.",

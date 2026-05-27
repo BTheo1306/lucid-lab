@@ -128,8 +128,15 @@ export default async function LeadEngineProspectsPage() {
                         </div>
                       )}
                     </td>
-                    <td className="px-4 py-4 text-zinc-600">{prospect.decisionMaker ?? 'Not found'}</td>
-                    <td className="px-4 py-4 text-zinc-600">{prospect.emailStatus ?? 'manual research'}</td>
+                    <td className="px-4 py-4 text-zinc-600">
+                      <div>{prospect.decisionMaker ?? 'Not found'}</div>
+                      {prospect.decisionMakerEmail ? <div className="mt-1 text-xs text-zinc-500">{prospect.decisionMakerEmail}</div> : null}
+                    </td>
+                    <td className="px-4 py-4 text-zinc-600">
+                      {prospect.decisionMakerEmail ? (
+                        <a href={`mailto:${prospect.decisionMakerEmail}`} className="underline-offset-2 hover:underline">{prospect.decisionMakerEmail}</a>
+                      ) : prospect.emailStatus ?? 'manual research'}
+                    </td>
                     <td className="px-4 py-4 text-zinc-500">{formatDateTime(prospect.lastTouchAt)}</td>
                     <td className="px-4 py-4"><StatusBadge tone={statusTone(prospect.status)}>{prospect.status}</StatusBadge></td>
                     <td className="px-4 py-4 text-zinc-500">Review draft</td>

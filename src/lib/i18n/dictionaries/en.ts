@@ -1,41 +1,32 @@
 import type { fr } from './fr';
 
 // Mirror of fr.ts with English translations.
-// Translation principles applied:
-// - "Audit Flash" → kept as-is (brand term).
-// - "Full-Stack Transformation Engine" → kept (already English).
-// - "Roadmap d'Exécution" → "Execution Roadmap".
-// - "Stratégie Opérationnelle" → "Operational Strategy".
-// - "Développement & Déploiement" → "Development & Deployment".
-// - "Accompagnement au changement" → "Change Management".
-// - "Cas clients" → "Case studies".
-// - "RGPD" → "GDPR".
-// - "PME" → "SME"; "paquebot industriel" → "enterprise organization".
-// - "On ne conseille pas. On construit." → "We don't advise. We build."
-
-// Structural shape of fr (without literal types) — lets EN values differ.
+// Structural shape of fr lets EN values differ.
 
 export const en: typeof fr = {
   header: {
     nav: {
-      cases: 'Case studies',
-      method: 'How it works',
+      expertise: 'Expertise',
+      offers: 'Offers',
+      delivery: 'Method',
+      cases: 'Client cases',
+      team: 'Team',
       blog: 'Blog',
       contact: 'Contact',
     },
-    cta: 'Book the Audit Flash',
+    cta: 'AI audit',
     backToHome: '← Back',
     languageLabel: 'Language',
     switchToEnglish: 'English',
     switchToFrench: 'Français',
   },
   hero: {
-    titleLine1: "We don't advise.",
-    titleLine2: 'We build.',
+    titleLine1: 'AI opportunities.',
+    titleLine2: 'Reliable business systems.',
     subtitle:
-      'Lucid-Lab is the **Full-Stack Transformation Engine** that uncovers your operational chaos, maps it, and turns it into autonomous productivity systems.',
-    subtitleLine2: 'Strategy. Software. AI Engineering. **Zero PowerPoint.**',
-    ctaPrimary: 'Book the Audit Flash',
+      'Lucid-Lab audits your workflows, checks your data, ranks AI use cases, then builds the agents, internal tools and integrations that run in production.',
+    subtitleLine2: 'Audit. Roadmap. Build. Run. Documentation.',
+    ctaPrimary: 'Book an AI audit',
     ctaSecondary: 'See case studies',
   },
   pillars: {
@@ -142,35 +133,35 @@ export const en: typeof fr = {
     ],
   },
   faq: {
-    label: 'FAQs',
-    headline: 'A question?',
-    subtitle: 'Everything you need to know before getting started.',
+    label: 'FAQ',
+    headline: 'Questions leaders ask',
+    subtitle: 'Questions that come up before an AI audit or business build.',
     items: [
       {
-        q: 'What exactly is a Full-Stack Transformation Engine?',
-        a: 'A single value chain covering the three links of transformation: Operational Strategy (Process Mapping, Execution Roadmap), Software Dev (APIs, scrapers, integrations), and AI Engineering (autonomous agents, n8n workflows, data pipelines). We solve your bottlenecks through a precise architecture to guarantee a measurable result. Not three prompts and a PowerPoint.',
+        q: 'Lucid-Lab joins the project at which stage?',
+        a: 'Lucid-Lab joins from framing. We help leaders choose the right build, then we build the system, deploy it and prepare the handover.',
       },
       {
-        q: "How are you different from a consulting firm or a no-code shop?",
-        a: "We don't advise. We build. We are Operational Strategists: we take the chaos, map it, and deliver autonomous systems in production on your infrastructure. Code, workflows and docs are 100\u00a0% yours. No lock-in.",
+        q: 'An AI Opportunity Audit contains which deliverables?',
+        a: 'The audit covers workflows, business irritants, data sources, tools, risks, expected gains and prioritization. The deliverable lists builds to launch, builds to postpone and prerequisites to solve.',
       },
       {
-        q: 'What kind of companies do you work with?',
-        a: "From agile startups to industrial enterprises. Recent cases: Turismo (full operational scaling without growing headcount), Universal and our LinkedIn Bots (autonomous lead generation), Périscope (real-time data monitoring), and many small niche businesses: interior design, massage therapists, Mym creators. If it has a process, we can systematize it.",
+        q: 'The client keeps which assets after delivery?',
+        a: 'The client keeps the code, workflows, access, runbooks, user documentation and monitoring dashboards included in the scope.',
       },
       {
-        q: 'And for large enterprises: RFPs, compliance, GDPR?',
-        a: "We have a dedicated 'Change Management' track for large organizations: RFP responses, AI governance, GDPR compliance, sovereign hosting, and internal team training. Humans keep control of strategy; AI executes.",
+        q: 'Sensitive data can stay in Europe?',
+        a: 'Yes. We can frame EU hosting, suitable models, permissions, logs and access rules according to the sensitivity of the use case.',
       },
     ],
   },
   team: {
     label: 'The team',
-    headlineLine1: 'Operational Strategists.',
-    headlineLine2: 'Not project managers.',
+    headlineLine1: 'Business architects.',
+    headlineLine2: 'AI builders.',
     subtitle:
-      "You speak directly with the engineers and architects who build your systems. No intermediaries, no re-briefing, no lost context.",
-    cta: 'Book the Audit Flash',
+      'You speak with the people who frame, architect and build your systems. Context stays inside the delivery team.',
+    cta: 'Book an AI audit',
     ctaSub: '30 min · free · no commitment',
     members: [
       { name: 'Anthony POIRIER', role: 'CEO · Co-founder' },
@@ -179,14 +170,14 @@ export const en: typeof fr = {
     ],
   },
   blueCta: {
-    headlineLine1: "We don't write reports.",
-    headlineLine2: 'We change your operations.',
+    headlineLine1: 'One clear first build.',
+    headlineLine2: 'A system that reaches production.',
     subtitle:
-      "30 minutes to go from your chaos to a costed Execution Roadmap. No PowerPoint. No commitment.",
-    cta: 'Book the Audit Flash',
+      '30 minutes to read your context, qualify the workflow and decide whether an AI audit deserves a launch.',
+    cta: 'Book an AI audit',
   },
   footer: {
-    description: 'Full-Stack Transformation Engine. For startups, SMEs and industrial enterprises.',
+    description: 'Business AI systems for SMEs, services firms and operations leaders.',
     productLabel: 'Product',
     productItems: [
       { label: 'Expertise', href: '#solutions' },
@@ -308,7 +299,7 @@ export const en: typeof fr = {
   privacy: {
     title: 'Privacy policy',
     description:
-      'Privacy policy of Lucid-Lab — how we handle your personal data.',
+      'Lucid-Lab privacy policy: personal data processing.',
     h1: 'Privacy policy',
     updated: 'Last updated: April 2026',
   },
@@ -318,14 +309,14 @@ export const en: typeof fr = {
     h1: 'Legal notice',
   },
   blog: {
-    indexTitle: 'Blog — Automation, AI & systems for SMEs',
+    indexTitle: 'Blog: automation, AI and systems for SMEs',
     indexDescription:
-      "Real cases, real costs, measured ROI. Everything we learn building systems for French and Belgian SMEs. Zero PowerPoint.",
+      'Real cases, real costs, measured ROI. We document what we learn building systems for French and Belgian SMEs.',
     indexHero: {
       eyebrow: 'Lucid-Lab Blog',
-      title: 'What we learn by building.',
+      title: 'Lessons from shipped systems.',
       subtitle:
-        "Real cases, real costs, measured ROI. We document what we do for French and Belgian SMEs. Zero PowerPoint.",
+        'Real cases, real costs, measured ROI. We document what we do for French and Belgian SMEs.',
     },
     pillarTag: '· Pillar guide',
     minRead: 'min read',
@@ -342,14 +333,14 @@ export const en: typeof fr = {
       stickySubtitle: '30 min to know if it\u2019s feasible',
       inlineHook: 'Stuck on',
       inlineGenericTopic: 'this topic',
-      inlineDesc: "In 30 minutes, we identify what's feasible and how much it costs. Zero PowerPoint.",
-      inlineButton: 'Book the Audit Flash →',
+      inlineDesc: 'In 30 minutes, we identify feasibility, cost and the prerequisite blocking the build.',
+      inlineButton: 'Book an AI audit →',
       blockTitle: "Audit Flash: 30 minutes to know if it's feasible.",
       bullet1: 'We qualify your need',
       bullet2: 'You leave with a clear estimate (feasibility, cost, timeline).',
       bullet3: 'No slides, no heavy sales follow-up.',
       blockButton: 'Book the free Audit Flash',
-      tagline: 'Anthony, CEO — France & Belgium',
+      tagline: 'Anthony, CEO, France & Belgium',
     },
     readingMeta: 'Updated on',
     byline: 'Anthony · CEO Lucid-Lab',
@@ -380,13 +371,13 @@ export const en: typeof fr = {
     siteTitle: 'Lucid-Lab',
     titleTemplate: '%s | Lucid-Lab',
     siteDescription:
-      "Lucid-Lab is the Full-Stack Transformation Engine that takes your operational chaos and delivers autonomous systems in production. Operational Strategy, Software Dev and AI Engineering for startups, SMEs and industrial enterprises. We don't advise — we build.",
-    ogTitle: "Lucid-Lab — We don't advise. We build.",
+      'Lucid-Lab audits workflows, ranks AI opportunities and builds business systems in production for SMEs, services firms and operations leaders.',
+    ogTitle: 'Lucid-Lab: business AI systems in production',
     ogDescription:
-      "Full-Stack Transformation Engine. We take your operational chaos, map it, and deliver autonomous systems in production. Free 30-min Audit Flash.",
-    twitterTitle: "Lucid-Lab — We don't advise. We build.",
+      'Workflow audit, AI roadmap, internal tools, agents, integrations, monitoring and documentation.',
+    twitterTitle: 'Lucid-Lab: business AI systems in production',
     twitterDescription:
-      'Full-Stack Transformation Engine. Strategy, Software & AI Engineering. From operational chaos to autonomous systems in production.',
+      'AI audit, roadmap, build, run, monitoring and documentation for business systems in production.',
     ogLocale: 'en_US',
   },
 };

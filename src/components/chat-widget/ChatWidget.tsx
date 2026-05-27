@@ -7,31 +7,31 @@ import { useChat } from './useChat';
 import { MessageList } from './MessageList';
 import { InputBox } from './InputBox';
 
-const TEASER_DELAY_MS = 4000;
+const TEASER_DELAY_MS = 8000;
 const TEASER_DISMISS_KEY = 'll-chat-teaser-dismissed';
 
 const COPY = {
   fr: {
-    teaser: 'Bonjour. Une question sur Lucid-Lab\u00A0? Je suis là pour y répondre.',
+    teaser: 'Je suis Lex. Décris ton cas, je te dirai où chercher le premier système utile.',
     closeMessage: 'Fermer le message',
     closeChat: 'Fermer le chat',
     openChat: 'Ouvrir le chat',
-    dialogLabel: 'Assistant Lucid-Lab',
-    title: 'Lucid',
-    subtitle: 'Assistant Lucid-Lab',
+    dialogLabel: 'Lex, assistant Lucid-Lab',
+    title: 'Lex',
+    subtitle: 'Builder Lucid-Lab',
     closeAria: 'Fermer',
     poweredBy: 'Powered by Lucid-Lab · ',
     legalLink: 'Mentions légales',
     legalHref: '/mentions-legales',
   },
   en: {
-    teaser: 'Hi there. A question about Lucid-Lab\u00A0? I\u2019m here to help.',
+    teaser: 'I am Lex. Describe your case and I will point to the first useful system.',
     closeMessage: 'Close message',
     closeChat: 'Close chat',
     openChat: 'Open chat',
-    dialogLabel: 'Lucid-Lab Assistant',
-    title: 'Lucid',
-    subtitle: 'Lucid-Lab Assistant',
+    dialogLabel: 'Lex, Lucid-Lab assistant',
+    title: 'Lex',
+    subtitle: 'Lucid-Lab builder',
     closeAria: 'Close',
     poweredBy: 'Powered by Lucid-Lab · ',
     legalLink: 'Legal notice',
@@ -51,14 +51,27 @@ export function ChatWidget({ lang = 'fr' }: { lang?: Lang }) {
   const t = COPY[activeLang];
   const [open, setOpen] = useState(false);
   const [teaserVisible, setTeaserVisible] = useState(false);
-  const { messages, sending, error, sessionReady, sendMessage } = useChat({ language: activeLang });
+  const { messages, sending, error, sessionReady, sendMessage } = useChat({ language: activeLang, enabled: open });
 
   // Show the teaser bubble after a delay, unless the user has already dismissed it this session.
   useEffect(() => {
     if (typeof window === 'undefined') return;
     if (sessionStorage.getItem(TEASER_DISMISS_KEY) === '1') return;
-    const t = window.setTimeout(() => setTeaserVisible(true), TEASER_DELAY_MS);
-    return () => window.clearTimeout(t);
+    let armed = false;
+    const showAfterScroll = () => {
+      if (!armed || window.scrollY < 520) return;
+      setTeaserVisible(true);
+      window.removeEventListener('scroll', showAfterScroll);
+    };
+    const timer = window.setTimeout(() => {
+      armed = true;
+      showAfterScroll();
+    }, TEASER_DELAY_MS);
+    window.addEventListener('scroll', showAfterScroll, { passive: true });
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener('scroll', showAfterScroll);
+    };
   }, []);
 
   const dismissTeaser = () => {
@@ -208,6 +221,17 @@ const widgetStyles = `
 @media (prefers-reduced-motion: reduce) {
   .ll-chat-teaser { animation: none; }
   .ll-chat-toggle-pulse { animation: none; }
+}
+@media (max-width: 640px) {
+  .ll-chat-teaser { display: none; }
+  .ll-chat-toggle {
+    width: 52px; height: 52px; bottom: 14px; right: 14px;
+    box-shadow: 0 5px 18px rgba(0,0,0,0.22);
+  }
+  @keyframes ll-toggle-pulse {
+    0%, 100% { box-shadow: 0 5px 18px rgba(0,0,0,0.22), 0 0 0 0 rgba(99,102,241,0.36); }
+    50%      { box-shadow: 0 5px 18px rgba(0,0,0,0.22), 0 0 0 9px rgba(99,102,241,0); }
+  }
 }
 
 .ll-chat-panel {

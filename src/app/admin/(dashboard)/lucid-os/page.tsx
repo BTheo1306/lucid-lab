@@ -136,7 +136,7 @@ export default async function LucidOsPage() {
                 <div key={client.id} className="grid gap-3 py-4 first:pt-0 last:pb-0 md:grid-cols-[minmax(220px,1fr)_minmax(160px,0.6fr)_minmax(220px,1fr)_auto] md:items-center">
                   <div className="min-w-0">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Link href={`/admin/lucid-os/crm/clients/${client.slug}`} className="truncate font-medium text-zinc-50 underline-offset-4 hover:underline">
+                      <Link href={`/admin/lucid-os/clients/${client.slug}`} className="truncate font-medium text-zinc-50 underline-offset-4 hover:underline">
                         {client.name}
                       </Link>
                       <StatusBadge tone={client.status === 'active' ? 'good' : 'neutral'}>{labelFr(client.status)}</StatusBadge>
@@ -151,7 +151,7 @@ export default async function LucidOsPage() {
                     <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-600">Prochaine action</p>
                     <p className="mt-1 truncate text-sm text-zinc-300">{client.nextAction ?? client.intake.nextStep ?? 'Aucune prochaine action enregistrée'}</p>
                   </div>
-                  <Link href={`/admin/lucid-os/crm/clients/${client.slug}`} className="inline-flex h-8 items-center justify-center gap-2 rounded border border-white/10 px-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-zinc-50 md:justify-self-end">
+                  <Link href={`/admin/lucid-os/clients/${client.slug}`} className="inline-flex h-8 items-center justify-center gap-2 rounded border border-white/10 px-2.5 text-sm font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-zinc-50 md:justify-self-end">
                     Ouvrir <ArrowRight className="size-3.5" />
                   </Link>
                 </div>
@@ -307,10 +307,10 @@ export default async function LucidOsPage() {
       <section className="rounded-md border border-white/10 bg-white/[0.03] p-3">
         <div className="grid gap-2 md:grid-cols-4">
           {[
-            ['/admin/lucid-os/crm/clients', 'Clients', 'Fiches clients et contexte de production.', Building2],
+            ['/admin/lucid-os/clients', 'Clients', 'Fiches clients et contexte de production.', Building2],
             ['/admin/lucid-os/delivery/projects', 'Projets', 'Inventaire production et statut.', FolderKanban],
-            ['/admin/lucid-os/growth', 'Croissance', 'Moteur de prospection et outbound.', ShieldCheck],
-            ['/admin/lucid-os/ops/conversations', 'Opérations', 'Conversations bot et rendez-vous.', Inbox],
+            ['/admin/lead-engine', 'Croissance', 'Moteur de prospection et outbound.', ShieldCheck],
+            ['/admin/lucid-os/inbox', 'Opérations', 'Validations, tâches agents et incidents à traiter.', Inbox],
           ].map(([href, title, description, Icon]) => (
             <Link key={String(href)} href={String(href)} className="rounded border border-white/10 bg-black/10 p-3 transition-colors hover:bg-white/[0.05]">
               <div className="flex items-center justify-between gap-2">

@@ -1,6 +1,6 @@
 import { config } from '../config';
 
-const TIDYCAL_BASE = 'https://tidycal.com/api/v1';
+const TIDYCAL_BASE = 'https://tidycal.com/api';
 
 export interface TidyCalBookingType {
   id: number;
@@ -16,6 +16,7 @@ export interface TidyCalTimeSlot {
   starts_at: string;
   /** ISO 8601 timestamp */
   ends_at: string;
+  available_bookings?: number;
 }
 
 export interface TidyCalBooking {
@@ -58,6 +59,20 @@ async function tidycalFetch<T>(path: string, init: RequestInit = {}): Promise<T>
   return (await res.json()) as T;
 }
 
+function parseTidyCalDate(value: string): Date {
+  const normalized = value.replace(/\.(\d{3})\d*(Z|[+-]\d{2}:?\d{2})$/, '.$1$2');
+  const date = new Date(normalized);
+  if (Number.isNaN(date.getTime())) {
+    throw new Error(`Invalid TidyCal timestamp: ${value}`);
+  }
+  return date;
+}
+
+function toTidyCalTimestamp(value: Date | string): string {
+  const date = value instanceof Date ? value : parseTidyCalDate(value);
+  return date.toISOString().replace(/\.\d{3}Z$/, 'Z');
+}
+
 /** List all booking types on the account. */
 export async function listBookingTypes(): Promise<TidyCalBookingType[]> {
   const data = await tidycalFetch<{ data: TidyCalBookingType[] } | TidyCalBookingType[]>(
@@ -73,8 +88,8 @@ export async function listAvailableTimes(
   endsAt: Date,
 ): Promise<TidyCalTimeSlot[]> {
   const params = new URLSearchParams({
-    starts_at: startsAt.toISOString(),
-    ends_at: endsAt.toISOString(),
+    starts_at: toTidyCalTimestamp(startsAt),
+    ends_at: toTidyCalTimestamp(endsAt),
   });
   const data = await tidycalFetch<
     { data: TidyCalTimeSlot[] } | TidyCalTimeSlot[]
@@ -101,7 +116,7 @@ export async function createBooking(
     body: JSON.stringify({
       name: input.name,
       email: input.email,
-      starts_at: input.starts_at,
+      starts_at: toTidyCalTimestamp(input.starts_at),
       timezone: input.timezone ?? 'Europe/Paris',
     }),
   });
