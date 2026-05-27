@@ -226,7 +226,7 @@ export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
               {t.ctaPrimary}
             </a>
             <a
-              href={`${homePrefix}/#cas-clients`}
+              href={`${homePrefix}/#acquis-livres`}
               className="flex h-[40px] items-center rounded-[10px] border border-[#d4d4d4] bg-[#F7F5F1] px-6 text-[14px] font-medium text-[#333] transition-colors hover:bg-[#edeae4]"
             >
               {t.ctaSecondary}

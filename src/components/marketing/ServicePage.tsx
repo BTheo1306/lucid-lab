@@ -260,7 +260,7 @@ const content: Record<Locale, Record<ServicePageKey, ServicePageContent>> = {
   en: {
     audit: {
       eyebrow: 'AI Audit & Opportunities',
-      title: 'Choose the first AI build with the team aligned.',
+      title: 'Choose the first AI build without going in every direction.',
       intro:
         'Lucid-Lab reads your workflows, data, tools and constraints. You leave with use cases to launch, prerequisites to solve and builds to postpone.',
       primary: 'Book an audit',
@@ -278,7 +278,7 @@ const content: Record<Locale, Record<ServicePageKey, ServicePageContent>> = {
         },
         {
           title: 'Result',
-          body: 'You get a clear roadmap your leaders and technical teams can use.',
+          body: 'You get a clear roadmap that is defensible internally and usable by technical teams.',
           items: ['Priorities decided', 'First build scope', 'Risks visible before commitment'],
         },
       ],
@@ -392,7 +392,7 @@ const content: Record<Locale, Record<ServicePageKey, ServicePageContent>> = {
       eyebrow: 'Lucid-Lab Method',
       title: 'From diagnosis to production system.',
       intro:
-        'The method connects advisory, architecture, build and adoption. Each step produces a deliverable leaders can read and teams can use.',
+        'The method connects advisory, architecture, build and adoption. Each step produces a deliverable leadership can review and teams can use.',
       primary: 'Book an audit',
       secondary: 'See client cases',
       sections: [

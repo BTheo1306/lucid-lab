@@ -1,4 +1,6 @@
 import type { Metadata } from "next";
+import { headers } from "next/headers";
+import Script from "next/script";
 import { Figtree, Syne } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -18,9 +20,18 @@ const fontSyne = Syne({
   display: "swap",
 });
 
+type SiteLocale = "fr" | "en";
 
-export function generateMetadata(): Metadata {
-  const isEn = false;
+function localeFromPathname(pathname: string | null): SiteLocale {
+  return pathname === "/en" || pathname?.startsWith("/en/") ? "en" : "fr";
+}
+
+async function getRequestLocale(): Promise<SiteLocale> {
+  return localeFromPathname((await headers()).get("x-pathname"));
+}
+
+export async function generateMetadata(): Promise<Metadata> {
+  const isEn = (await getRequestLocale()) === "en";
 
   const description = isEn
     ? "Lucid-Lab audits workflows, ranks AI opportunities and builds business AI systems in production: agents, internal tools, automations, integrations, monitoring and documentation."
@@ -137,14 +148,17 @@ export function generateMetadata(): Metadata {
   };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const lang = await getRequestLocale();
+  const isEn = lang === "en";
+
   return (
     <html
-      lang="fr"
+      lang={lang}
       className={`${fontSans.variable} ${fontSyne.variable} antialiased`}
       data-scroll-behavior="smooth"
       suppressHydrationWarning
@@ -165,22 +179,37 @@ export default function RootLayout({
                   "@type": "Organization",
                   "@id": "https://lucid-lab.fr/#organization",
                   name: "Lucid-Lab",
-                  alternateName: "Lucid-Lab — Systèmes IA construits, déployés, opérés",
+                  alternateName: isEn
+                    ? "Lucid-Lab: AI systems built, deployed and operated"
+                    : "Lucid-Lab : systèmes IA construits, déployés, opérés",
                   url: "https://lucid-lab.fr",
                   logo: "https://lucid-lab.fr/logo-full.png",
-                  description:
-                    "Lucid-Lab construit, déploie et opère des systèmes IA en production : agents, outils internes, automatisations, intégrations, monitoring et documentation.",
-                  knowsAbout: [
-                    "Agents IA en production",
-                    "Outils internes IA",
-                    "Automatisations métier",
-                    "Intégrations CRM, ERP et data",
-                    "Monitoring IA",
-                    "Workflows n8n",
-                    "Agents IA OpenAI / Claude",
-                    "Mistral et modèles souverains",
-                    "Gouvernance IA, RGPD et EU AI Act",
-                  ],
+                  description: isEn
+                    ? "Lucid-Lab builds, deploys and operates AI systems in production: agents, internal tools, automations, integrations, monitoring and documentation."
+                    : "Lucid-Lab construit, déploie et opère des systèmes IA en production : agents, outils internes, automatisations, intégrations, monitoring et documentation.",
+                  knowsAbout: isEn
+                    ? [
+                        "Production AI agents",
+                        "Internal AI tools",
+                        "Business automations",
+                        "CRM, ERP and data integrations",
+                        "AI monitoring",
+                        "n8n workflows",
+                        "OpenAI and Claude AI agents",
+                        "Mistral and sovereign models",
+                        "AI governance, GDPR and EU AI Act",
+                      ]
+                    : [
+                        "Agents IA en production",
+                        "Outils internes IA",
+                        "Automatisations métier",
+                        "Intégrations CRM, ERP et data",
+                        "Monitoring IA",
+                        "Workflows n8n",
+                        "Agents IA OpenAI / Claude",
+                        "Mistral et modèles souverains",
+                        "Gouvernance IA, RGPD et EU AI Act",
+                      ],
                   foundingDate: "2024",
                   contactPoint: {
                     "@type": "ContactPoint",
@@ -193,19 +222,20 @@ export default function RootLayout({
                 {
                   "@type": "WebSite",
                   "@id": "https://lucid-lab.fr/#website",
-                  url: "https://lucid-lab.fr",
+                  url: isEn ? "https://lucid-lab.fr/en" : "https://lucid-lab.fr",
                   name: "Lucid-Lab",
                   publisher: { "@id": "https://lucid-lab.fr/#organization" },
-                  inLanguage: "fr-FR",
+                  inLanguage: isEn ? "en-US" : "fr-FR",
                 },
                 {
                   "@type": "ProfessionalService",
                   "@id": "https://lucid-lab.fr/#business",
                   name: "Lucid-Lab",
-                  url: "https://lucid-lab.fr",
+                  url: isEn ? "https://lucid-lab.fr/en" : "https://lucid-lab.fr",
                   image: "https://lucid-lab.fr/logo-full.png",
-                  description:
-                    "Lucid-Lab livre des agents, outils internes et automatisations qui tournent en production, avec monitoring, documentation, transfert de propriété et adoption des équipes.",
+                  description: isEn
+                    ? "Lucid-Lab delivers agents, internal tools and automations that run in production, with monitoring, documentation, ownership transfer and team adoption."
+                    : "Lucid-Lab livre des agents, outils internes et automatisations qui tournent en production, avec monitoring, documentation, transfert de propriété et adoption des équipes.",
                   address: {
                     "@type": "PostalAddress",
                     addressLocality: "Paris",
@@ -215,41 +245,60 @@ export default function RootLayout({
                     "@type": "Country",
                     name: "France",
                   },
-                  serviceType: [
-                    "Audit Flash",
-                    "Agents IA et outils internes",
-                    "Automatisations métier",
-                    "Déploiement workflows n8n et APIs",
-                    "Data & SI readiness",
-                    "Monitoring IA",
-                    "Documentation et runbooks",
-                    "Gouvernance IA, RGPD et EU AI Act",
-                  ],
+                  serviceType: isEn
+                    ? [
+                        "Audit Flash",
+                        "AI agents and internal tools",
+                        "Business automations",
+                        "n8n workflow and API deployment",
+                        "Data and IT readiness",
+                        "AI monitoring",
+                        "Documentation and runbooks",
+                        "AI governance, GDPR and EU AI Act",
+                      ]
+                    : [
+                        "Audit Flash",
+                        "Agents IA et outils internes",
+                        "Automatisations métier",
+                        "Déploiement workflows n8n et APIs",
+                        "Data & SI readiness",
+                        "Monitoring IA",
+                        "Documentation et runbooks",
+                        "Gouvernance IA, RGPD et EU AI Act",
+                      ],
                   hasOfferCatalog: {
                     "@type": "OfferCatalog",
-                    name: "Entrées Lucid-Lab",
+                    name: isEn ? "Lucid-Lab entry points" : "Entrées Lucid-Lab",
                     itemListElement: [
                       {
                         "@type": "Offer",
                         name: "Audit Flash",
-                        description: "Appel de 30 minutes gratuit pour qualifier un besoin et identifier le premier système utile à construire.",
+                        description: isEn
+                          ? "Free 30-minute call to qualify a need and identify the first useful system to build."
+                          : "Appel de 30 minutes gratuit pour qualifier un besoin et identifier le premier système utile à construire.",
                         price: "0",
                         priceCurrency: "EUR",
                       },
                       {
                         "@type": "Offer",
-                        name: "Agents IA & outils internes",
-                        description: "Construction d'agents, dashboards, workflows, connecteurs et interfaces internes en production.",
+                        name: isEn ? "AI agents & internal tools" : "Agents IA & outils internes",
+                        description: isEn
+                          ? "Building production agents, dashboards, workflows, connectors and internal interfaces."
+                          : "Construction d'agents, dashboards, workflows, connecteurs et interfaces internes en production.",
                       },
                       {
                         "@type": "Offer",
                         name: "Build & Run",
-                        description: "Déploiement, monitoring, runbooks, documentation et opération dans la durée.",
+                        description: isEn
+                          ? "Deployment, monitoring, runbooks, documentation and long-term operation."
+                          : "Déploiement, monitoring, runbooks, documentation et opération dans la durée.",
                       },
                       {
                         "@type": "Offer",
                         name: "Data & SI readiness",
-                        description: "Sources, accès, risques, hébergement EU et architecture cible avant build.",
+                        description: isEn
+                          ? "Sources, access, risks, EU hosting and target architecture before the build."
+                          : "Sources, accès, risques, hébergement EU et architecture cible avant build.",
                       },
                     ],
                   },
@@ -263,9 +312,21 @@ export default function RootLayout({
           <div className="mx-auto h-full max-w-[1264px] border-x border-[#e5e5e5]" />
         </div>
         {children}
-        <AdminAwareChatWidget lang="fr" />
+        <AdminAwareChatWidget lang={lang} />
         <Analytics />
         <SpeedInsights />
+        
+        {/* Google Analytics */}
+        <Script src="https://www.googletagmanager.com/gtag/js?id=G-CPQT0JQE7N" strategy="afterInteractive" />
+        <Script id="google-analytics" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+
+            gtag('config', 'G-CPQT0JQE7N');
+          `}
+        </Script>
       </body>
     </html>
   );
