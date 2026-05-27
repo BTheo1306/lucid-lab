@@ -25,7 +25,7 @@ import {
 import { Header } from '@/components/ui/header'
 import { HeroSection, LogosSection } from '@/components/ui/hero-section'
 import type { Locale } from '@/lib/i18n/client'
-import { BookingSection } from '@/components/ui/calendar-booking'
+import { AuditFlashBookingSection } from '@/components/marketing/AuditFlashBookingSection'
 
 const INK = '#0A0A0A'
 const PAPER = '#FAFAF7'
@@ -1287,7 +1287,7 @@ export default function HomePage({ lang }: { lang: Locale }) {
         <Enterprise lang={lang} />
         <Resources lang={lang} />
         <FAQ lang={lang} />
-        <BookingSection lang={lang} />
+        <AuditFlashBookingSection lang={lang} />
       </main>
       <MarketingFooter lang={lang} />
     </div>
