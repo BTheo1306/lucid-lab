@@ -93,6 +93,7 @@
   }
   html {
     @apply font-sans;
+    font-family: var(--font-figtree), ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     scroll-behavior: smooth;
     scrollbar-width: none;
     -ms-overflow-style: none;
@@ -104,6 +105,12 @@
   body {
     scrollbar-width: none;
     -ms-overflow-style: none;
+  }
+  button,
+  input,
+  textarea,
+  select {
+    font: inherit;
   }
 }
 
