@@ -14,7 +14,10 @@ export async function GET(request: Request): Promise<NextResponse> {
   }
 
   const filePath = path.join(process.cwd(), 'lucid-lab-brand/00-overview/charte-graphique.html');
-  const content = await readFile(filePath, 'utf-8');
+  const raw = await readFile(filePath, 'utf-8');
+
+  // Rewrite relative brand asset links so they resolve through the admin route handler
+  const content = raw.replaceAll('../05-digital/', '/admin/brand-asset/');
 
   return new NextResponse(content, {
     headers: {
