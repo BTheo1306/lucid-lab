@@ -40,23 +40,21 @@ export async function GET(
   }
 
   const filePath = path.join(process.cwd(), 'lucid-lab-brand', '05-digital', filename);
+  const mimeType = CONTENT_TYPES[ext] ?? 'application/octet-stream';
 
-  let data: Uint8Array;
+  let buf: Buffer;
   try {
-    data = new Uint8Array(await readFile(filePath));
+    buf = await readFile(filePath);
   } catch {
     return new NextResponse('Not found', { status: 404 });
   }
 
-  const contentType = CONTENT_TYPES[ext] ?? 'application/octet-stream';
-  const isHtml = ext === '.html';
+  const blob = new Blob([buf], { type: mimeType });
 
-  return new NextResponse(data, {
+  return new NextResponse(blob, {
     headers: {
-      'Content-Type': contentType,
-      'Content-Disposition': isHtml
-        ? `attachment; filename="${filename}"`
-        : `attachment; filename="${filename}"`,
+      'Content-Type': mimeType,
+      'Content-Disposition': `attachment; filename="${filename}"`,
       'Cache-Control': 'no-store',
     },
   });
