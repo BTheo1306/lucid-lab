@@ -22,10 +22,18 @@ import {
   Workflow,
 } from 'lucide-react'
 
+const LinkedinIcon = ({ className }: { className?: string }) => (
+  <svg className={className} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"></path>
+    <rect x="2" y="9" width="4" height="12"></rect>
+    <circle cx="4" cy="4" r="2"></circle>
+  </svg>
+)
+
 import { Header } from '@/components/ui/header'
 import { HeroSection, LogosSection } from '@/components/ui/hero-section'
 import type { Locale } from '@/lib/i18n/client'
-import { BookingSection } from '@/components/ui/calendar-booking'
+import { AuditFlashBookingSection } from '@/components/marketing/AuditFlashBookingSection'
 
 const INK = '#0A0A0A'
 const PAPER = '#FAFAF7'
@@ -77,6 +85,9 @@ const content = {
       logos: [
         { name: 'Turismo', logo: '/logos/logo%20Turismo.png' },
         { name: 'Kobia', logo: '/logos/logo-wordmark-kobia-black.png' },
+        { name: 'Nextra', logo: '/nextra.png' },
+        { name: 'BSP37', logo: '/bsp37.png' },
+        { name: 'Melting Forme', logo: '/melting-forme.png' },
         { name: 'Universal', logo: null },
         { name: 'Périscope', logo: null },
       ],
@@ -312,7 +323,7 @@ const content = {
         'Lucid-Lab audits workflows, checks data and ranks AI use cases before building agents, internal tools and integrations.',
       primary: 'Book an AI audit',
       secondary: 'See use cases',
-      proofs: ['Audit', 'Roadmap', 'Build', 'Run', 'Ownership'],
+      proofs: ['Audit', 'Roadmap', 'Build', 'Run', 'Documentation', 'Governance'],
     },
     trusted: {
       title: 'Companies that trusted us',
@@ -321,21 +332,24 @@ const content = {
       logos: [
         { name: 'Turismo', logo: '/logos/logo%20Turismo.png' },
         { name: 'Kobia', logo: '/logos/logo-wordmark-kobia-black.png' },
+        { name: 'Nextra', logo: '/nextra.png' },
+        { name: 'BSP37', logo: '/bsp37.png' },
+        { name: 'Melting Forme', logo: '/melting-forme.png' },
         { name: 'Universal', logo: null },
-        { name: 'Periscope', logo: null },
+        { name: 'Périscope', logo: null },
       ],
     },
     problems: {
-      title: 'AI success is determined before the first line of code.',
+      title: 'The success of a transformation project is decided before the first line of code.',
       subtitle:
-        'We transform your manual processes and fragmented data into intelligent, scalable, and secure infrastructure.',
+        'We transform your operational processes and fragmented data into intelligent, scalable and secure infrastructure.',
       items: [
         ['Scattered AI ideas', 'Teams list use cases, but no one scores value, feasibility and risk.'],
-        ['Manual workflows', 'People copy, paste, consolidate and check the same data each week.'],
+        ['Workflows', 'Teams copy, paste, consolidate and check the same data every week.'],
         ['Disconnected tools', 'CRM, ERP, files and inboxes each keep part of the process.'],
-        ['Difficult data', 'Sources exist, but access, formats and rights slow the build.'],
-        ['Late security', 'GDPR, permissions and sensitive data enter the discussion too late.'],
-        ['Fragile adoption', 'A pilot without a runbook, owner and monitoring turns into a forgotten demo.'],
+        ['Data governance', 'Sources exist, but access, formats and rights slow the build.'],
+        ['Sovereignty & Compliance', 'GDPR, permissions and sensitive data enter the discussion too late.'],
+        ['Understanding', 'Support at every stage of the transformation.'],
       ],
     },
     pillars: {
@@ -361,13 +375,13 @@ const content = {
           title: 'AI & Internal Tools',
           problem: 'A business workflow needs a reliable agent, portal or automation.',
           deliverables: ['AI agents', 'Business dashboards', 'Connectors and internal interfaces'],
-          result: 'Teams use a system connected to their tools, not an isolated prototype.',
+          result: 'Teams use a system connected to their tools and keep control of usage.',
           href: routeMap.en.agents,
         },
         {
           title: 'Adoption, Training & Run',
           problem: 'The system must run, stay monitored and remain clear for the teams.',
-          deliverables: ['Runbooks', 'Cost and quality monitoring', 'Focused training'],
+          deliverables: ['Mapping', 'Cost and quality monitoring', 'Focused training'],
           result: 'The client keeps the code, documentation, access and operating ability.',
           href: routeMap.en.buildRun,
         },
@@ -385,27 +399,33 @@ const content = {
           href: routeMap.en.audit,
         },
         {
-          title: 'Architecture & Data Diagnostic',
+          title: 'Data architecture and use-case validation',
           detail: 'Technical preparation',
           body: 'Validation of data sources, technical security, and hosting prerequisites before any development.',
           href: routeMap.en.data,
         },
         {
-          title: 'Roadmap & Process Automation',
+          title: 'Business integration roadmap and first automations',
           detail: 'Deployment strategy',
           body: 'Prioritization of processes to automate, delivery sequencing, and expected return on investment.',
           href: routeMap.en.roadmap,
         },
         {
-          title: 'Custom AI Agents & Tools',
+          title: 'AI Agents & Custom Tools',
           detail: 'Software engineering',
           body: 'Development of intelligent agents, business dashboards, portals, and implementation of human controls.',
           href: routeMap.en.agents,
         },
         {
-          title: 'Production & Operations',
+          title: 'Production Release & Operations',
           detail: 'Deployment and handover',
           body: 'Secure deployment, monitoring setup, technical documentation, and complete skills transfer.',
+          href: routeMap.en.buildRun,
+        },
+        {
+          title: 'AI Governance and Consulting',
+          detail: 'Strategy & Security',
+          body: 'Security processes, regulatory compliance, regular audits and strategic steering committees.',
           href: routeMap.en.buildRun,
         },
       ],
@@ -413,21 +433,22 @@ const content = {
     delivery: {
       title: 'The Lucid-Lab method.',
       subtitle:
-        'The plan starts in the field. The build moves in short cycles. The handover starts on day one.',
+        'Driven by top management, digital and AI transformation moves forward in short cycles with handover from day one.',
       steps: [
-        'Field workflow audit to map out your actual daily processes.',
-        'Collection and deep qualification of high-impact use cases.',
-        'Project scoring : finding the perfect rhythm between value and risk.',
-        'Strict securing of data access, permissions, and GDPR compliance.',
-        'Design of a solid, fully monitored, and scalable technical architecture.',
-        'Development and seamless integration through iterative short cycles.',
-        'Hands-on team training and definitive handover of operations.',
+        'Audit and mapping of your real processes.',
+        'Collect organizational context and qualify high-impact use cases.',
+        'AI build scoring: the perfect balance between value and risk.',
+        'Securing access, data and compliance.',
+        'Support designing a robust, monitored and scalable technical architecture.',
+        'Development and integration by use case.',
+        'Training and knowledge transfer.',
+        'AI governance and consulting.',
       ],
     },
     cases: {
       title: 'Case studies.',
       subtitle:
-        'Concrete examples of operational deployments and measurable business impact.',
+        'Concrete examples of operational deployments and measurable automation impact.',
       items: [
         {
           title: 'Financial Reporting Automation',
@@ -435,53 +456,53 @@ const content = {
           body: 'Automated consolidated reporting from ERP and Excel, with real-time budget alerts and deep integrity checks.',
         },
         {
-          title: 'Knowledge Base Assistant',
+          title: 'Practical Knowledge Assistant',
           metric: '600+ queries resolved / month',
           body: 'Deploying an intelligent company knowledge base integrated into Slack to eliminate manual information lookup.',
         },
         {
-          title: 'Lead Scoring & Intake Routing',
+          title: 'Contact Qualification & Routing',
           metric: 'Inbound leads routed in < 5 min',
-          body: 'Automated prospect qualification workflows, CRM profile pre-fills, with human oversight fallback.',
+          body: 'Automated prospect scoring architecture and CRM record synchronization with human control backup.',
         },
       ],
     },
     enterprise: {
       title: 'Enterprise standards for production.',
       subtitle:
-        'Scaling up requires absolute compliance rigor. We treat security, data governance, and reliability directly at the source.',
+        'Scaling up requires rigorous compliance. We handle security, data governance and operability at the source.',
       items: [
         {
           title: 'GDPR Compliance',
-          description: 'Anonymization of user flows, strict compliance on storage policies, and secure API data boundaries.'
+          description: 'Anonymization of user flows, compliant hosting and a strict policy of not storing secrets.'
         },
         {
           title: 'Access Management',
-          description: 'Role-based access controls (RBAC) to guard production databases and restrict sensitive API credentials.'
+          description: 'Role-based access controls (RBAC) to limit database access and strict control of API tokens.'
         },
         {
           title: 'European Infrastructure',
-          description: 'EU-neutral data hosting and communication (using secure Supabase/Cloudflare components) for sovereign compliance.'
+          description: 'Data hosting and transit based in Europe, generally with Supabase and Cloudflare, for clear sovereignty.'
         },
         {
           title: 'Documentation & Runbooks',
-          description: 'Systematic delivery of operating manuals, precise API mapping schemes, and technical incident runbooks.'
+          description: 'Systematic delivery of operational runbooks, architecture diagrams and incident recovery instructions.'
         },
         {
-          title: 'Cost & SLA Monitoring',
-          description: 'Active monitoring of model latency, token budgets, success counts, and prompt drift values.'
+          title: 'Cost & Metrics Tracking',
+          description: 'Monitoring of consumption, tokens, latency, success rate and model quality drift.'
         },
         {
           title: 'Intellectual Property',
-          description: '100% full legal handover of custom source code, databases, prompts, and host cloud accounts.'
+          description: '100% ownership transfer for all source code, cloud configuration and databases.'
         },
         {
-          title: 'Enablement & Handover',
-          description: 'Targeted technical workshops and hands-on run drills to guarantee your in-house engineering team is autonomous.'
+          title: 'Adoption and Handover',
+          description: 'Technical training sessions and practical workshops to guarantee full autonomy for your internal teams.'
         },
         {
-          title: 'AI Rigor & Guardrails',
-          description: 'Defensive validation criteria and evaluate rules preventing output hallucinations or security leakage.'
+          title: 'AI Security',
+          description: 'Audit and limitation of hallucinations through strict guardrails, prompt evaluation schemes and human control.'
         }
       ],
     },
@@ -491,38 +512,38 @@ const content = {
       cta: 'Read resources',
     },
     faq: {
-      title: 'Questions leaders ask.',
+      title: 'Frequently asked questions.',
       subtitle: 'Questions that come up before a first AI audit or business build.',
       items: [
         {
-          question: 'Lucid-Lab joins the project at which stage?',
+          question: 'When does Lucid-Lab get involved in an AI project?',
           answer:
-            'Lucid-Lab joins from framing. We help leaders choose the right build, then we build the system, deploy it and prepare the handover.',
+            'Lucid-Lab gets involved upstream of need definition and helps you define the builds, construct the system, deploy it and prepare the handover.',
         },
         {
           question: 'What does the Audit Flash contain?',
           answer:
-            'The audit covers workflows, business irritants, data sources, tools, risks, expected gains and prioritization. The deliverable lists builds to launch, builds to postpone and prerequisites to solve.',
+            'The Audit Flash is a first approach that defines your need, an approach, your budget and the applicable solutions.',
         },
         {
-          question: 'The client keeps which assets after delivery?',
+          question: 'What are the deliverables at the end of a mission?',
           answer:
-            'The client keeps the code, workflows, access, runbooks, user documentation and monitoring dashboards included in the scope.',
+            'It depends on the stage, but the core deliverables are development and technical documentation.',
         },
         {
-          question: 'Lucid-Lab works with existing tools?',
+          question: 'Do you work with tools already in place?',
           answer:
-            'Yes. We connect CRM, ERP, files, internal databases, inboxes, no-code tools or business APIs when these bricks fit the need. We recommend replacement only when the current tool blocks the run.',
+            'Yes. We connect CRM, ERP, files, internal databases, inboxes, no-code tools or business APIs when those bricks fit the need. We work with partners on developed solutions when incompatible tools without connectors block operations.',
         },
         {
-          question: 'Sensitive data can stay in Europe?',
+          question: 'Can sensitive data be kept sovereign?',
           answer:
-            'Yes. We can frame EU hosting, suitable models, permissions, logs and access rules according to the sensitivity of the use case.',
+            'Yes. We can frame EU hosting, adapted models, permissions, logs and access rules according to the sensitivity level of the use case.',
         },
         {
-          question: 'The first call commits the client to a full project?',
+          question: 'Does the first exchange commit us to a full project?',
           answer:
-            'The first call qualifies the need. If the build sits outside our value zone, we say it and point to a better fit.',
+            'The first exchange qualifies the need. If the build sits outside our value zone, we say it and point you to a better suited solution.',
         },
       ],
     },
@@ -756,6 +777,7 @@ function TrustedBand({ lang }: { lang: Locale }) {
 
 function Problems({ lang }: { lang: Locale }) {
   const t = content[lang].problems
+  const diagnosticLabel = lang === 'en' ? '// Real-time diagnostic' : '// Diagnostic en temps réel'
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
   return (
@@ -767,7 +789,7 @@ function Problems({ lang }: { lang: Locale }) {
           
           {/* Live Diagnostic Monitor Panel */}
           <div className="mt-6 hidden lg:block rounded-[8px] border p-4 bg-[#FDFDFB]" style={{ borderColor: GRAY_200 }}>
-            <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276] block mb-2">// Diagnostic en temps réel</span>
+            <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276] block mb-2">{diagnosticLabel}</span>
             <div className="space-y-1.5">
               {t.items.map(([title], i) => (
                 <div key={title} className="flex items-center gap-2 text-[11px] font-mono leading-none">
@@ -829,6 +851,8 @@ function Problems({ lang }: { lang: Locale }) {
 
 function Pillars({ lang }: { lang: Locale }) {
   const t = content[lang].pillars
+  const expertiseLabel = lang === 'en' ? 'Expertise' : 'Expertise'
+  const impactLabel = lang === 'en' ? 'Final impact:' : 'Impact final :'
   const [activeIdx, setActiveIdx] = useState<number>(0)
   
   return (
@@ -892,7 +916,7 @@ function Pillars({ lang }: { lang: Locale }) {
                         <div className="flex items-center justify-between border-b pb-3 mb-4" style={{ borderColor: GRAY_100 }}>
                           <div className="flex items-center gap-2">
                             <Icon className="size-4" style={{ color: EMBER }} />
-                            <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276]">Expertise 0{index + 1}</span>
+                            <span className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276]">{expertiseLabel} 0{index + 1}</span>
                           </div>
                         </div>
 
@@ -910,7 +934,7 @@ function Pillars({ lang }: { lang: Locale }) {
                       </div>
 
                       <div className="mt-6 pt-4 border-t" style={{ borderColor: GRAY_100 }}>
-                        <span className="text-[10px] font-mono text-[#8a8276] block mb-1">Impact final :</span>
+                        <span className="text-[10px] font-mono text-[#8a8276] block mb-1">{impactLabel}</span>
                         <p className="text-[13px] font-semibold leading-[1.5]" style={{ color: EMBER }}>{item.result}</p>
                       </div>
                     </div>
@@ -1018,6 +1042,7 @@ function Delivery({ lang }: { lang: Locale }) {
             'md:ml-[16%]',
             'md:ml-[8%]',
             'md:ml-[0%]',
+            'md:ml-[8%]',
           ][idx];
 
           return (
@@ -1084,7 +1109,7 @@ function Cases({ lang }: { lang: Locale }) {
             </div>
             
             <div className="md:w-1/3 flex flex-col md:items-end md:text-right">
-              <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276] mb-1.5">// Impact</div>
+              <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276] mb-1.5">{'// Impact'}</div>
               <p className="text-[22px] font-extrabold tracking-tight text-stone-900">
                 {item.metric}
               </p>
@@ -1145,7 +1170,7 @@ function Enterprise({ lang }: { lang: Locale }) {
 function Resources({ lang }: { lang: Locale }) {
   const t = content[lang].resources
   const resourceLinks = lang === 'en'
-    ? ['AI audit deliverables', 'AI, GDPR and internal data', 'Automation ROI for operations']
+    ? ['AI audit: deliverables and scoring', 'AI, GDPR and internal data', 'Business automation ROI']
     : ['Audit IA : livrables et scoring', 'IA, RGPD et données internes', 'ROI des automatisations métier']
 
   return (
@@ -1239,6 +1264,9 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
               <span className="text-[18px] font-semibold tracking-tight" style={{ color: INK }}>Lucid-Lab</span>
             </Link>
             <p className="mt-5 max-w-[42ch] text-[14px] leading-[1.6]" style={{ color: GRAY_600 }}>{t.description}</p>
+            <a href="https://www.linkedin.com/company/lucid-lab-fr/" target="_blank" rel="noopener noreferrer" className="mt-6 flex items-center transition-colors hover:text-stone-900" style={{ color: GRAY_400 }} aria-label="LinkedIn">
+              <LinkedinIcon className="size-5" />
+            </a>
           </div>
           <div>
             <p className="text-[12px] font-medium uppercase tracking-[0.14em]" style={{ color: GRAY_400 }}>{t.product}</p>
@@ -1255,7 +1283,7 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
             <ul className="mt-4 space-y-3">
               <li><Link href={routes.blog} className="text-[14px]" style={{ color: GRAY_600 }}>Blog</Link></li>
               <li><Link href={routes.audit} className="text-[14px]" style={{ color: GRAY_600 }}>Audit Flash</Link></li>
-              <li><Link href={'/#offres'} className="text-[14px]" style={{ color: GRAY_600 }}>Build & Run</Link></li>
+              <li><Link href={lang === 'en' ? '/en/#offres' : '/#offres'} className="text-[14px]" style={{ color: GRAY_600 }}>Build & Run</Link></li>
             </ul>
           </div>
           <div>
@@ -1266,7 +1294,14 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t pt-6 text-[12px]" style={{ borderColor: GRAY_200, color: GRAY_400 }}>{t.copyright}</div>
+        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t pt-6 text-[12px] sm:flex-row sm:items-center" style={{ borderColor: GRAY_200, color: GRAY_400 }}>
+          <span>{t.copyright}</span>
+          <nav className="flex items-center gap-4">
+            <Link href="/mentions-legales" className="transition-colors hover:text-stone-700">{lang === 'en' ? 'Legal Notice' : 'Mentions légales'}</Link>
+            <Link href="/cgv" className="transition-colors hover:text-stone-700">{lang === 'en' ? 'Terms of Sale' : 'CGV'}</Link>
+            <Link href="/confidentialite" className="transition-colors hover:text-stone-700">{lang === 'en' ? 'Privacy' : 'Confidentialité'}</Link>
+          </nav>
+        </div>
       </div>
     </footer>
   )
@@ -1287,7 +1322,7 @@ export default function HomePage({ lang }: { lang: Locale }) {
         <Enterprise lang={lang} />
         <Resources lang={lang} />
         <FAQ lang={lang} />
-        <BookingSection lang={lang} />
+        <AuditFlashBookingSection lang={lang} />
       </main>
       <MarketingFooter lang={lang} />
     </div>

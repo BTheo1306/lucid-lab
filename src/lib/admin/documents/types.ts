@@ -1,4 +1,4 @@
-export type LucidClientDocumentType = 'bon_de_commande' | 'facture' | 'contrat' | 'proposal' | 'other';
+export type LucidClientDocumentType = 'bon_de_commande' | 'facture' | 'contrat' | 'nda' | 'proposal' | 'other';
 
 export type LucidClientDocumentStatus =
   | 'draft'
@@ -103,6 +103,27 @@ export interface CreateBonDeCommandeDraftResult {
   documentId: string;
   status: LucidClientDocumentStatus;
   validationIssues: LucidDocumentValidationIssue[];
+}
+
+export interface CreateNdaDraftInput {
+  clientId: string;
+  contactId?: string | null;
+  opportunityId?: string | null;
+  googleDriveFolderId?: string | null;
+  /** Short description of the context/purpose of the NDA (pre-fills Article 1). */
+  missionContext?: string | null;
+  /** Confidentiality duration, defaults to "3 ans". */
+  ndaDuration?: string | null;
+  /** Override signer name (falls back to primary contact). */
+  signerName?: string | null;
+  /** Override signer email (falls back to primary contact). */
+  signerEmail?: string | null;
+  notes?: string | null;
+}
+
+export interface CreateNdaDraftResult {
+  documentId: string;
+  status: LucidClientDocumentStatus;
 }
 
 export interface DocuSealSubmitterPayload {
