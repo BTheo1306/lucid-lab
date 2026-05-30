@@ -85,6 +85,9 @@ const content = {
       logos: [
         { name: 'Turismo', logo: '/logos/logo%20Turismo.png' },
         { name: 'Kobia', logo: '/logos/logo-wordmark-kobia-black.png' },
+        { name: 'Nextra', logo: '/nextra.png' },
+        { name: 'BSP37', logo: '/bsp37.png' },
+        { name: 'Melting Forme', logo: '/melting-forme.png' },
         { name: 'Universal', logo: null },
         { name: 'Périscope', logo: null },
       ],
@@ -329,6 +332,9 @@ const content = {
       logos: [
         { name: 'Turismo', logo: '/logos/logo%20Turismo.png' },
         { name: 'Kobia', logo: '/logos/logo-wordmark-kobia-black.png' },
+        { name: 'Nextra', logo: '/nextra.png' },
+        { name: 'BSP37', logo: '/bsp37.png' },
+        { name: 'Melting Forme', logo: '/melting-forme.png' },
         { name: 'Universal', logo: null },
         { name: 'Périscope', logo: null },
       ],
@@ -1288,8 +1294,13 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
             </ul>
           </div>
         </div>
-        <div className="mt-12 border-t pt-6 text-[12px]" style={{ borderColor: GRAY_200, color: GRAY_400 }}>
-          {t.copyright}
+        <div className="mt-12 flex flex-col items-start justify-between gap-3 border-t pt-6 text-[12px] sm:flex-row sm:items-center" style={{ borderColor: GRAY_200, color: GRAY_400 }}>
+          <span>{t.copyright}</span>
+          <nav className="flex items-center gap-4">
+            <Link href="/mentions-legales" className="transition-colors hover:text-stone-700">{lang === 'en' ? 'Legal Notice' : 'Mentions légales'}</Link>
+            <Link href="/cgv" className="transition-colors hover:text-stone-700">{lang === 'en' ? 'Terms of Sale' : 'CGV'}</Link>
+            <Link href="/confidentialite" className="transition-colors hover:text-stone-700">{lang === 'en' ? 'Privacy' : 'Confidentialité'}</Link>
+          </nav>
         </div>
       </div>
     </footer>

@@ -288,27 +288,30 @@ export function LogosSection({ lang: _lang = 'fr' }: { lang?: Locale } = {}) {
 const _mk = (svg: string) => `data:image/svg+xml,${encodeURIComponent(svg)}`
 
 const logos = [
+  { src: '/nextra.png', alt: 'Nextra' },
   {
     // Turismo — bold italic wordmark
     src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 52"><text x="0" y="40" font-family="\'Arial Black\',Impact,sans-serif" font-size="42" fill="#000" font-weight="900" font-style="italic" letter-spacing="-1">TURISMO</text></svg>'),
     alt: 'Turismo',
   },
   {
-    src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 48"><text x="0" y="36" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="26" fill="#000" letter-spacing="6">UNIVERSAL</text></svg>'),
-    alt: 'Universal',
+    src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 56"><text x="0" y="36" font-family="Georgia,\'Times New Roman\',serif" font-size="26" fill="#C85E1A" letter-spacing="12">P\u00c9RISCOPE</text></svg>'),
+    alt: 'P\u00e9riscope',
   },
+  { src: '/bsp37.png', alt: 'BSP37' },
   {
     // Kobia — ultra-bold display wordmark
     src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 220 56"><text x="0" y="46" font-family="\'Arial Black\',Georgia,serif" font-size="52" fill="#000" font-weight="900" letter-spacing="-2">KOBIA</text></svg>'),
     alt: 'Kobia',
   },
   {
-    src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 56"><text x="0" y="36" font-family="Georgia,\'Times New Roman\',serif" font-size="26" fill="#C85E1A" letter-spacing="12">P\u00c9RISCOPE</text></svg>'),
-    alt: 'P\u00e9riscope',
-  },
-  {
     src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 52"><text x="0" y="30" font-family="Arial,Helvetica,sans-serif" font-size="22" fill="#777" letter-spacing="4" font-weight="bold">SINIBALDI</text><text x="2" y="46" font-family="Arial,Helvetica,sans-serif" font-size="12" fill="#aaa" letter-spacing="3">global design</text></svg>'),
     alt: 'Sinibaldi',
+  },
+  { src: '/melting-forme.png', alt: 'Melting Forme' },
+  {
+    src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 48"><text x="0" y="36" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="26" fill="#000" letter-spacing="6">UNIVERSAL</text></svg>'),
+    alt: 'Universal',
   },
   {
     src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 210 52"><text x="24" y="30" font-family="Arial,Helvetica,sans-serif" font-weight="bold" font-size="24" fill="#1B3A8C" letter-spacing="1">APSIDE</text><text x="32" y="46" font-family="Arial,Helvetica,sans-serif" font-size="13" fill="#1B3A8C" letter-spacing="3">BELGIUM</text></svg>'),

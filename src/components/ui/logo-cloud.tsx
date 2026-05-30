@@ -25,12 +25,10 @@ export function LogoCloud({ className, logos, ...props }: LogoCloudProps) {
         {logos.map((logo) => (
           <img
             alt={logo.alt}
-            className="pointer-events-none h-4 select-none opacity-40 md:h-5"
-            height={logo.height || "auto"}
+            className="pointer-events-none h-6 w-auto select-none opacity-40 md:h-8"
             key={`logo-${logo.alt}`}
             loading="lazy"
             src={logo.src}
-            width={logo.width || "auto"}
           />
         ))}
       </InfiniteSlider>
