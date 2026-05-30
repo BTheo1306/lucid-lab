@@ -19,7 +19,7 @@ export default function BrandGuidePage() {
         </div>
         <div className="flex shrink-0 items-center gap-2">
           <a
-            href="/api/admin/brand-guide"
+            href="/admin/brand-guide-serve"
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex h-8 items-center gap-1.5 rounded-md border border-zinc-200 bg-white px-3 text-xs font-medium text-zinc-600 transition hover:bg-zinc-50"
@@ -28,7 +28,7 @@ export default function BrandGuidePage() {
             Ouvrir dans un onglet
           </a>
           <a
-            href="/api/admin/brand-guide"
+            href="/admin/brand-guide-serve"
             download="lucid-lab-charte-graphique.html"
             className="inline-flex h-8 items-center gap-1.5 rounded-md bg-zinc-950 px-3 text-xs font-medium text-white transition hover:bg-zinc-800"
           >
@@ -40,7 +40,7 @@ export default function BrandGuidePage() {
 
       {/* Full-height iframe */}
       <iframe
-        src="/api/admin/brand-guide"
+        src="/admin/brand-guide-serve"
         className="min-h-0 w-full flex-1 border-0"
         title="Charte graphique Lucid-Lab"
       />
