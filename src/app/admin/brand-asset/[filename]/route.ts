@@ -49,7 +49,12 @@ export async function GET(
     return new NextResponse('Not found', { status: 404 });
   }
 
-  const blob = new Blob([buf], { type: mimeType });
+  // Slice out a plain ArrayBuffer (avoids SharedArrayBuffer typing issues)
+  const arrayBuffer = buf.buffer.slice(
+    buf.byteOffset,
+    buf.byteOffset + buf.byteLength
+  ) as ArrayBuffer;
+  const blob = new Blob([arrayBuffer], { type: mimeType });
 
   return new NextResponse(blob, {
     headers: {
