@@ -167,7 +167,7 @@ export default function RootLayout({
                   name: "Lucid-Lab",
                   alternateName: "Lucid-Lab — Systèmes IA construits, déployés, opérés",
                   url: "https://lucid-lab.fr",
-                  logo: "https://lucid-lab.fr/logo-full.png",
+                  logo: "https://lucid-lab.fr/logo.png",
                   description:
                     "Lucid-Lab construit, déploie et opère des systèmes IA en production : agents, outils internes, automatisations, intégrations, monitoring et documentation.",
                   knowsAbout: [
@@ -203,7 +203,7 @@ export default function RootLayout({
                   "@id": "https://lucid-lab.fr/#business",
                   name: "Lucid-Lab",
                   url: "https://lucid-lab.fr",
-                  image: "https://lucid-lab.fr/logo-full.png",
+                  image: "https://lucid-lab.fr/logo.png",
                   description:
                     "Lucid-Lab livre des agents, outils internes et automatisations qui tournent en production, avec monitoring, documentation, transfert de propriété et adoption des équipes.",
                   address: {

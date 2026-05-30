@@ -42,7 +42,7 @@ Lucid-Lab est un partenaire de transformation opérationnelle IA. Pas un cabinet
 | Rôle | Hex | RGB | Usage |
 |---|---|---|---|
 | Ink | `#0A0A0A` | 10, 10, 10 | Texte principal, titres |
-| Paper | `#FAFAF7` | 250, 250, 247 | Fonds clairs, slides, pages |
+| Paper | `#F7F5F1` | 247, 245, 241 | Fonds clairs, slides, pages |
 | Pure white | `#FFFFFF` | 255, 255, 255 | Surfaces, cartes |
 | Gray 600 | `#525252` | 82, 82, 82 | Texte secondaire, légendes |
 | Gray 400 | `#A3A3A3` | 163, 163, 163 | Texte désactivé, hints |
@@ -70,21 +70,21 @@ Lucid-Lab est un partenaire de transformation opérationnelle IA. Pas un cabinet
 
 | Usage | Famille principale | Fallback web | Fallback système |
 |---|---|---|---|
-| **Display & H1-H2** | `Inter` (Display Semibold 600) | `Inter`, `system-ui` | Arial Black, sans-serif |
-| **Body & H3-H6** | `Inter` (Regular 400 / Medium 500) | `Inter`, `system-ui` | Arial, sans-serif |
-| **Editorial / citations** | `IBM Plex Serif` (Regular 400) | `IBM Plex Serif`, Georgia | Georgia, serif |
+| **Display & wordmark** | `Syne` (700 / 800) | `Syne`, `system-ui` | Arial Black, sans-serif |
+| **Body & UI** | `Figtree` (Regular 400 / Medium 500 / Bold 700) | `Figtree`, `system-ui` | Arial, sans-serif |
+| **Editorial / citations** | `Figtree` (Regular 400) | `Figtree`, Georgia | Georgia, serif |
 | **Code & data** | `JetBrains Mono` (Regular 400) | `JetBrains Mono`, `ui-monospace` | Menlo, monospace |
 
-> Inter et IBM Plex Serif sont gratuits, dispo Google Fonts, et alignés avec l'esthétique Nextra/Vercel.
+> Le site utilise déjà Figtree et Syne via `next/font`. La charte doit rester alignée sur ces fontes.
 
 ### Échelle (web et slides)
 
 | Niveau | Taille | Weight | Line-height | Usage |
 |---|---|---|---|---|
-| Display | 56 / 72 | 600 | 1.05 | Hero, ouverture deck |
-| H1 | 36 / 48 | 600 | 1.1 | Titre de page, slide titre |
-| H2 | 24 / 32 | 600 | 1.2 | Section |
-| H3 | 18 / 20 | 500 | 1.3 | Sous-section |
+| Display | 56 / 72 | Syne 800 | 1.05 | Hero, ouverture deck |
+| H1 | 36 / 48 | Syne 700 | 1.1 | Titre de page, slide titre |
+| H2 | 24 / 32 | Figtree 700 | 1.2 | Section |
+| H3 | 18 / 20 | Figtree 600 | 1.3 | Sous-section |
 | Body | 16 / 18 | 400 | 1.55 | Texte courant |
 | Small | 13 / 14 | 400 | 1.4 | Légendes, métadonnées |
 | Code | 14 | 400 | 1.5 | Snippets |
@@ -153,15 +153,15 @@ Lucid-Lab est un partenaire de transformation opérationnelle IA. Pas un cabinet
 
 ### Slides / Présentation
 - Format **16:9**, fond `Paper`.
-- Titre en haut à gauche (H1, Inter 36pt).
+- Titre en haut à gauche (H1, Syne 36pt ou Figtree 700 si le support ne charge pas Syne).
 - Une slide = une idée. Si tu as deux idées, fais deux slides.
 - Numérotation discrète en bas à droite, `Small` `Gray 400`.
 - Pas de transitions animées, pas de templates « moderne 2024 ».
 - Footer optionnel : « lucid-lab.fr » en `Gray 400`.
 
 ### Document (PDF / docx)
-- Marges 2.5 cm, texte Inter 11pt, line-height 1.5.
-- Titre de couverture : Inter Semibold 28pt, accent `Ember` sur 1 mot maximum.
+- Marges 2.5 cm, texte Figtree 11pt, line-height 1.5.
+- Titre de couverture : Syne 28pt ou Figtree Bold 28pt, accent `Ember` sur 1 mot maximum.
 - Tableaux : bordures `Gray 200`, header en `Ink` `Paper`.
 
 ### Web / Landing
@@ -283,8 +283,8 @@ Variations courtes pour OG/meta/hero :
 Tout tient en 5 couleurs, 3 fontes, spacing en base 8.
 
 ```
-Couleurs   ink #0A0A0A · paper #FAFAF7 · gray #525252 / #E5E5E5 · ember #C85E1A
-Fontes     Inter (sans) · IBM Plex Serif (éditorial) · JetBrains Mono (code)
+Couleurs   ink #0A0A0A · paper #F7F5F1 · gray #525252 / #E5E5E5 · ember #C85E1A · lex blue #B4D8FF
+Fontes     Syne (display/wordmark) · Figtree (sans/UI) · JetBrains Mono (code)
 Spacing    multiples de 8px (8, 16, 24, 32, 48, 64, 96)
 Radius     max 8px
 Shadow     aucune par défaut
@@ -300,10 +300,10 @@ Dark mode  inverser ink ↔ paper, garder ember
 |---|---|---|---|
 | **Favicon** | 32×32, 16×16 | `.ico` + `.svg` | Mark seul (pas le wordmark), `Ink` sur transparent |
 | **App icon (PWA)** | 512×512, 192×192 | `.png` | Mark `Ink` centré sur fond `Paper`, padding 20 % |
-| **OG image (par défaut)** | 1200×630 | `.png`/`.jpg` | Fond `Paper`, titre Inter 64pt `Ink`, mark en bas-gauche |
+| **OG image (par défaut)** | 1200×630 | `.png`/`.jpg` | Fond `Paper`, titre Syne 64pt `Ink`, Lex ou mark à droite |
 | **OG image (article)** | 1200×630 | générée | Titre article + auteur + date |
 | **Twitter/X card** | 1600×900 (summary_large) | `.png` | Même template OG |
-| **LinkedIn banner** | 1584×396 | `.png` | Bandeau wordmark + tagline `Ember` |
+| **LinkedIn banner** | 1584×396 | `.png` | 4 variantes : signature, Lex agent, système livré, éditorial sombre. Zone gauche protégée, pas de tagline héritée. |
 | **Email banner** | 600×120 | `.png` | Plain text préféré, banner seulement pour newsletters |
 
 ### Metadata HTML (template par page)
@@ -374,13 +374,13 @@ Exemple :
 ## Quick reference — pour générer un livrable rapidement
 
 ```
-Background:   #FAFAF7  (Paper)
+Background:   #F7F5F1  (Paper)
 Text:         #0A0A0A  (Ink)
 Muted text:   #525252  (Gray 600)
 Border:       #E5E5E5  (Gray 200)
 Accent:       #C85E1A  (Ember)  — usage parcimonieux
-Font sans:    Inter
-Font serif:   IBM Plex Serif (citations / éditorial)
+Font display: Syne
+Font sans:    Figtree
 Font mono:    JetBrains Mono (code / data)
 Spacing base: 8px (multiples de 8)
 Radius max:   8px

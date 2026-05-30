@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="1128" height="191" viewBox="0 0 1128 191" role="img" aria-labelledby="title desc">
+  <title id="title"></title>
+  <desc id="desc"></desc>
+  
+  <rect width="1128" height="191" fill="#0A0A0A"/>
+  
+  <rect width="1128" height="191" fill="#0A0A0A" />
+  <g transform="translate(450, 70)">
+    <text x="0" y="0" fill="#ffffff" font-family="Syne, Arial, sans-serif" font-size="34" font-weight="800">Operational Excellence</text>
+    <text x="0" y="30" fill="#a0a0a0" font-family="Figtree, Arial, sans-serif" font-size="18">LUCID-LAB AI Systems</text>
+  </g>
+</svg>
