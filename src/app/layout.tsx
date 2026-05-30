@@ -183,7 +183,7 @@ export default async function RootLayout({
                     ? "Lucid-Lab: AI systems built, deployed and operated"
                     : "Lucid-Lab : systèmes IA construits, déployés, opérés",
                   url: "https://lucid-lab.fr",
-                  logo: "https://lucid-lab.fr/logo-full.png",
+                  logo: "https://lucid-lab.fr/logo.png",
                   description: isEn
                     ? "Lucid-Lab builds, deploys and operates AI systems in production: agents, internal tools, automations, integrations, monitoring and documentation."
                     : "Lucid-Lab construit, déploie et opère des systèmes IA en production : agents, outils internes, automatisations, intégrations, monitoring et documentation.",
@@ -232,7 +232,7 @@ export default async function RootLayout({
                   "@id": "https://lucid-lab.fr/#business",
                   name: "Lucid-Lab",
                   url: isEn ? "https://lucid-lab.fr/en" : "https://lucid-lab.fr",
-                  image: "https://lucid-lab.fr/logo-full.png",
+                  image: "https://lucid-lab.fr/logo.png",
                   description: isEn
                     ? "Lucid-Lab delivers agents, internal tools and automations that run in production, with monitoring, documentation, ownership transfer and team adoption."
                     : "Lucid-Lab livre des agents, outils internes et automatisations qui tournent en production, avec monitoring, documentation, transfert de propriété et adoption des équipes.",

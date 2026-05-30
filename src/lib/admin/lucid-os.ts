@@ -616,10 +616,19 @@ const emptyStats: LucidOsDashboardData['stats'] = {
 };
 
 function missingLucidOsRelation(error: QueryError): boolean {
-  return error.code === '42P01'
-    || error.code === 'PGRST205'
-    || Boolean(error.message?.includes('does not exist'))
-    || Boolean(error.message?.includes('Could not find the table'));
+  // 42P01 — relation (table/view) does not exist
+  // 42703 — column does not exist
+  // 42501 — insufficient privilege (RLS on non-existent or locked-down table)
+  // PGRST200 — could not find a relationship / ambiguous embedding
+  // PGRST204 — column not found in schema cache
+  // PGRST205 — embedding relation not found
+  const schemaErrorCodes = new Set(['42P01', '42703', '42501', 'PGRST200', 'PGRST204', 'PGRST205']);
+  if (error.code && schemaErrorCodes.has(error.code)) return true;
+  const msg = error.message ?? '';
+  return msg.includes('does not exist')
+    || msg.includes('Could not find the table')
+    || msg.includes('Could not find a relationship')
+    || msg.includes('Could not find the');
 }
 
 async function countRows(query: PromiseLike<CountResult>): Promise<number> {
@@ -1689,6 +1698,7 @@ export async function listLucidAuditEvents(limit = 20): Promise<LucidAuditEventS
 }
 
 export async function getLucidOsDashboardData(): Promise<LucidOsDashboardData> {
+  try {
   const organization = await getLucidOrganization();
   if (!organization) return emptyDashboardData(false, null);
 
@@ -1752,6 +1762,13 @@ export async function getLucidOsDashboardData(): Promise<LucidOsDashboardData> {
     recentKnowledge,
     recentAuditEvents,
   };
+  } catch (err) {
+    // Any unexpected DB error (e.g. schema mismatch, network) → show empty dashboard
+    // rather than crashing the page. In development the error will still surface in
+    // the server terminal for debugging.
+    console.error('[lucid-os] getLucidOsDashboardData failed:', err);
+    return emptyDashboardData(false, null);
+  }
 }
 
 export async function recordLucidAuditEvent(input: RecordAuditEventInput): Promise<void> {

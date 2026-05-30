@@ -21,6 +21,7 @@ import {
   Inbox,
   MessageSquare,
   MonitorCheck,
+  Palette,
   Search,
   Users,
 } from 'lucide-react';
@@ -113,6 +114,7 @@ const navSections: NavSection[] = [
     icon: FileText,
     items: [
       { href: '/admin/blog', label: 'Blog', icon: FileText },
+      { href: '/admin/brand', label: 'Charte graphique', icon: Palette },
     ],
   },
   {
