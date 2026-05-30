@@ -41,9 +41,9 @@ export async function GET(
 
   const filePath = path.join(process.cwd(), 'lucid-lab-brand', '05-digital', filename);
 
-  let data: Buffer;
+  let data: Uint8Array;
   try {
-    data = await readFile(filePath);
+    data = new Uint8Array(await readFile(filePath));
   } catch {
     return new NextResponse('Not found', { status: 404 });
   }
