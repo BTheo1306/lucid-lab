@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <title>Lucid-Lab - Accord de Non-Divulgation (NDA)</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #fff;
+      color: #111;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      font-size: 8.4pt;
+      line-height: 1.27;
+    }
+    .page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      padding: 20mm 22mm 16mm;
+      overflow: hidden;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10mm;
+      margin-bottom: 9mm;
+    }
+    .brand { display: flex; align-items: center; gap: 4mm; min-width: 0; }
+    .logo { width: 10mm; height: 10mm; object-fit: contain; }
+    .wordmark { font-family: Syne, Inter, Arial, sans-serif; font-size: 18pt; font-weight: 800; letter-spacing: 0; }
+    .header-label { font-size: 10pt; font-style: italic; color: #555; white-space: nowrap; }
+    h1 {
+      margin: 0 0 4mm;
+      font-size: 22pt;
+      line-height: 1.1;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+    h2 { margin: 4.8mm 0 1.8mm; font-size: 12pt; line-height: 1.18; font-weight: 800; letter-spacing: 0; }
+    p { margin: 0 0 2mm; }
+    ul { margin: 0.8mm 0 2.4mm 5.5mm; padding: 0; }
+    li { margin-bottom: 0.9mm; }
+    .meta { color: #555; font-size: 9.8pt; margin-bottom: 4.5mm; }
+    .intro { color: #555; font-size: 9.4pt; font-style: italic; line-height: 1.4; margin-bottom: 4.5mm; }
+    .strong { font-weight: 800; }
+    .legal-copy { text-align: justify; }
+    .field-line {
+      display: inline-block;
+      min-height: 4.9mm;
+      border-bottom: 0.25mm solid #777;
+      vertical-align: -0.8mm;
+    }
+    .w-ref    { width: 40mm; }
+    .w-date   { width: 34mm; }
+    .w-client { width: 74mm; }
+    .w-signer { width: 50mm; }
+    .w-email  { width: 51mm; }
+    .w-short  { width: 26mm; }
+    .w-addr   { width: 90mm; }
+    .w-siret  { width: 40mm; }
+    .note-box { border: 0.25mm solid #d0d0d0; min-height: 12mm; padding: 2mm; margin: 1.5mm 0 3mm; }
+    .penalty-box {
+      border-left: 1.2mm solid #C85E1A;
+      background: #fdf6f2;
+      padding: 2.5mm 3.5mm;
+      margin: 2mm 0 3mm;
+    }
+    .penalty-box p { margin: 0 0 1mm; }
+    .penalty-amount { font-size: 11pt; font-weight: 800; color: #C85E1A; }
+    .parties-box {
+      border: 0.25mm solid #d0d0d0;
+      padding: 3mm 4mm;
+      margin-bottom: 3.5mm;
+    }
+    .parties-box .party-label { font-weight: 800; font-size: 9pt; margin-bottom: 0.8mm; }
+    .badge {
+      display: inline-block;
+      background: #0A0A0A;
+      color: #fff;
+      font-size: 7pt;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.8mm 2mm;
+      margin-bottom: 4mm;
+    }
+    .acceptance-box {
+      border: 0.3mm solid #111;
+      padding: 2.6mm 4mm 2.8mm 11mm;
+      margin-top: 3mm;
+      min-height: 13mm;
+      position: relative;
+    }
+    .check-space { position: absolute; left: 4mm; top: 4mm; width: 5mm; height: 5mm; border: 0.25mm solid #777; }
+    .signature-table { margin-top: 3mm; }
+    .signature-table td { height: 19mm; width: 50%; }
+    .signature-box { height: 11mm; border-bottom: 0.25mm solid #777; margin-top: 1.5mm; }
+    table.sig-table { width: 100%; border-collapse: collapse; margin: 1.5mm 0 3mm; }
+    table.sig-table td, table.sig-table th { border: 0.25mm solid #d0d0d0; padding: 1.6mm 2mm; vertical-align: top; }
+    table.sig-table th { background: #f3f3f3; text-align: left; font-weight: 800; }
+    .footer {
+      position: absolute;
+      left: 22mm;
+      right: 22mm;
+      bottom: 8mm;
+      color: #777;
+      font-size: 7.2pt;
+      border-top: 0.25mm solid #ddd;
+      padding-top: 1.5mm;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE 1 -->
+  <main class="page page-1">
+    <header class="header">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M49 10L35 60h18L65 50L49 10Z" fill="black"/>
+        </svg>
+        <div class="wordmark">Lucid-Lab</div>
+      </div>
+      <div class="header-label">Accord de Non-Divulgation</div>
+    </header>
+
+    <div class="badge">Confidentiel — Accord Mutuel</div>
+    <h1>Accord de<br>Non-Divulgation</h1>
+    <p class="meta">Référence : <span class="field-line w-ref" data-docuseal-field="Document Number"></span> &nbsp;·&nbsp; Date : <span class="field-line w-date" data-docuseal-field="Issued Date"></span></p>
+    <p class="intro">Le présent Accord de Non-Divulgation (ci-après « l'Accord » ou « NDA ») encadre les échanges et informations partagées dans le cadre des discussions précontractuelles entre les Parties. Il est conclu à titre mutuel : chaque Partie peut être à la fois Partie Divulgatrice et Partie Réceptrice.</p>
+
+    <h2>Entre les soussignés</h2>
+
+    <div class="parties-box">
+      <p class="party-label">Partie A — Lucid-Lab</p>
+      <p class="legal-copy"><span class="strong">Lucid-Lab</span>, Société par actions simplifiée (SAS) au capital de 999 euros, dont le siège social est situé 47 rue Vivienne, 75002 Paris, France, immatriculée au RCS Paris sous le numéro 104 672 050, numéro de TVA intracommunautaire FR 02 104 672 050, représentée par son Président, Periscope-X SARL, elle-même représentée par Monsieur Anthony Poirier dûment habilité.</p>
+    </div>
+
+    <div class="parties-box">
+      <p class="party-label">Partie B — Le Client / Destinataire</p>
+      <p>Société : <span class="field-line w-client" data-docuseal-field="Client Name"></span></p>
+      <p>Adresse : <span class="field-line w-addr" data-docuseal-field="Client Address"></span></p>
+      <p>SIRET / N° d'immatriculation : <span class="field-line w-siret" data-docuseal-field="Client Registration Number"></span></p>
+      <p>Représentée par : <span class="field-line w-signer" data-docuseal-field="Signer Name"></span>, en qualité de <span class="field-line w-short" data-docuseal-field="Signer Title"></span></p>
+      <p>E-mail : <span class="field-line w-email" data-docuseal-field="Signer Email"></span></p>
+    </div>
+
+    <p>Ensemble dénommées les « <span class="strong">Parties</span> ».</p>
+
+    <h2>Article 1 — Objet et contexte</h2>
+    <p class="legal-copy">Le présent Accord définit les conditions dans lesquelles les Parties s'engagent à protéger la confidentialité des informations échangées dans le cadre des discussions précontractuelles relatives à :</p>
+    <div class="note-box" data-docuseal-field="Mission Context">Intégration IA pour l'expansion sur le marché européen — évaluation de solutions d'intelligence artificielle applicables aux fonctionnalités de suggested orders, de détection de ventes perdues et de chat fournisseur.</div>
+    <p class="legal-copy">Ces discussions peuvent inclure sans s'y limiter : échanges techniques, démonstrations, propositions commerciales, audits de systèmes existants, accès à des données d'exploitation ou à toute autre information sensible.</p>
+
+    <div class="footer">Lucid-Lab · Accord de Non-Divulgation (NDA) · Document signé électroniquement via DocuSeal.</div>
+  </main>
+
+  <!-- PAGE 2 -->
+  <main class="page page-2">
+    <header class="header">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M49 10L35 60h18L65 50L49 10Z" fill="black"/>
+        </svg>
+        <div class="wordmark">Lucid-Lab</div>
+      </div>
+      <div class="header-label">Accord de Non-Divulgation</div>
+    </header>
+
+    <h2>Article 2 — Définition des Informations Confidentielles</h2>
+    <p class="legal-copy">Constituent des « <span class="strong">Informations Confidentielles</span> » toutes les informations, quelle qu'en soit la forme (orale, écrite, électronique, visuelle), communiquées par une Partie (la « Partie Divulgatrice ») à l'autre (la « Partie Réceptrice »), y compris notamment :</p>
+    <ul>
+      <li>les architectures techniques, codes sources, algorithmes propriétaires et configurations logicielles ;</li>
+      <li>les modèles d'IA, prompts système, données d'entraînement, architectures d'agents et intégrations ;</li>
+      <li>les données commerciales, financières, tarifaires, stratégiques et secrets d'affaires ;</li>
+      <li>les processus métier, cahiers des charges, spécifications fonctionnelles et techniques ;</li>
+      <li>les accès, identifiants, clés API, tokens et systèmes d'authentification ;</li>
+      <li>les informations relatives aux fournisseurs, partenaires, clients et prospects ;</li>
+      <li>toute information désignée expressément comme confidentielle ou dont la nature confidentielle est raisonnablement évidente.</li>
+    </ul>
+
+    <h2>Article 3 — Obligations des Parties</h2>
+    <p class="legal-copy">Chaque Partie Réceptrice s'engage à :</p>
+    <ul>
+      <li>traiter les Informations Confidentielles avec le même niveau de protection que ses propres informations confidentielles, et au minimum avec une diligence raisonnable ;</li>
+      <li>ne pas divulguer les Informations Confidentielles à des tiers sans accord écrit préalable de la Partie Divulgatrice ;</li>
+      <li>n'utiliser les Informations Confidentielles qu'aux seules fins des discussions précontractuelles visées à l'Article 1 ;</li>
+      <li>limiter l'accès aux seules personnes ayant besoin d'en connaître, soumises à des obligations équivalentes ;</li>
+      <li>informer sans délai la Partie Divulgatrice en cas de divulgation non autorisée, même accidentelle.</li>
+    </ul>
+
+    <h2>Article 4 — Responsabilité pour les tiers et partenaires</h2>
+    <p class="legal-copy">La Partie Réceptrice s'assure que ses partenaires, consultants, sous-traitants et filiales qui accèdent aux Informations Confidentielles sont liés par des obligations de confidentialité au moins aussi restrictives que celles du présent Accord.</p>
+    <p class="legal-copy"><span class="strong">La Partie Réceptrice est strictement et solidairement responsable de tout manquement au présent Accord commis par ses partenaires, consultants ou filiales</span>, comme si ce manquement était de son propre fait.</p>
+
+    <h2>Article 5 — Informations non confidentielles (Exclusions)</h2>
+    <p class="legal-copy">Les obligations de l'Article 3 ne s'appliquent pas aux informations dont la Partie Réceptrice démontre :</p>
+    <ul>
+      <li>qu'elles étaient dans le domaine public au moment de leur communication, ou qu'elles y sont tombées sans faute de sa part ;</li>
+      <li>qu'elles lui étaient déjà connues avant la communication par la Partie Divulgatrice ;</li>
+      <li>qu'elles ont été développées indépendamment, sans recours aux Informations Confidentielles ;</li>
+      <li>qu'elles ont été légalement obtenues d'un tiers sans obligation de confidentialité ;</li>
+      <li>que leur divulgation est requise par une obligation légale ou judiciaire — dans ce cas, la Partie Réceptrice en informe préalablement la Partie Divulgatrice et limite la divulgation au strict nécessaire.</li>
+    </ul>
+
+    <h2>Article 6 — Durée</h2>
+    <p class="legal-copy">Le présent Accord entre en vigueur à sa signature et reste en vigueur pendant <span class="field-line w-short" data-docuseal-field="NDA Duration">5 ans</span> à compter de la dernière divulgation d'Informations Confidentielles, sauf résiliation anticipée par accord écrit.</p>
+    <p class="legal-copy">Les obligations relatives aux informations constituant des secrets d'affaires au sens de la loi n° 2018-670 du 30 juillet 2018 survivent à l'expiration du présent Accord pour une durée indéfinie.</p>
+
+    <div class="footer">Lucid-Lab · Accord de Non-Divulgation (NDA) · Document signé électroniquement via DocuSeal.</div>
+  </main>
+
+  <!-- PAGE 3 -->
+  <main class="page page-3">
+    <header class="header">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M49 10L35 60h18L65 50L49 10Z" fill="black"/>
+        </svg>
+        <div class="wordmark">Lucid-Lab</div>
+      </div>
+      <div class="header-label">Accord de Non-Divulgation</div>
+    </header>
+
+    <h2>Article 7 — Pénalités et dommages-intérêts</h2>
+    <p class="legal-copy">Les Parties reconnaissent que toute violation du présent Accord causerait à la Partie Divulgatrice un préjudice irréparable pour lequel les seuls dommages-intérêts compensatoires pourraient être insuffisants.</p>
+    <div class="penalty-box">
+      <p>En cas de violation avérée du présent Accord, la Partie contrevenante s'engage à payer à la Partie lésée :</p>
+      <p class="penalty-amount">250 000 € (deux cent cinquante mille euros) par violation constatée</p>
+      <p>à titre de clause pénale au sens de l'article 1231-5 du Code civil, sans préjudice du droit de la Partie lésée à réclamer une compensation supplémentaire pour les pertes réelles excédant ce montant, ainsi que toute mesure d'injonction ou de référé.</p>
+    </div>
+    <p class="legal-copy">Le paiement de cette pénalité ne dispense pas la Partie contrevenante de ses obligations au titre du présent Accord.</p>
+
+    <h2>Article 8 — Non-sollicitation et non-contournement</h2>
+    <p class="legal-copy">Pendant la durée du présent Accord et les vingt-quatre (24) mois suivant son terme, chaque Partie s'interdit de débaucher tout collaborateur ou sous-traitant de l'autre Partie ayant participé aux discussions, et de contacter directement les fournisseurs, partenaires ou prospects dont l'identité aurait été révélée dans le cadre de ces discussions. La violation entraîne une indemnité forfaitaire de <span class="strong">20 000 € par infraction</span>, sans préjudice du recours à l'Article 7.</p>
+
+    <h2>Article 9 — Propriété des Informations Confidentielles</h2>
+    <p class="legal-copy">Le présent Accord ne confère à la Partie Réceptrice aucun droit de propriété intellectuelle, aucune licence, ni aucun autre droit sur les Informations Confidentielles. Toutes les Informations Confidentielles demeurent la propriété exclusive de la Partie Divulgatrice.</p>
+
+    <h2>Article 10 — Retour et destruction des informations</h2>
+    <p class="legal-copy">À la demande écrite de la Partie Divulgatrice, ou à l'expiration de l'Accord sans conclusion d'un contrat de prestation, la Partie Réceptrice restituera ou détruira tous supports contenant des Informations Confidentielles et certifiera par écrit cette exécution dans un délai de quinze (15) jours ouvrés.</p>
+
+    <h2>Article 11 — Protection des données personnelles</h2>
+    <p class="legal-copy">Si des données à caractère personnel sont communiquées dans le cadre des discussions, chaque Partie s'engage à les traiter conformément au RGPD (UE) 2016/679 et à la loi Informatique et Libertés modifiée, aux seules fins nécessaires aux discussions visées à l'Article 1.</p>
+
+    <h2>Article 12 — Droit applicable et juridiction compétente</h2>
+    <p class="legal-copy">Le présent Accord est régi par le droit français. À défaut de résolution amiable dans un délai de trente (30) jours, tout litige sera soumis à la compétence exclusive du Tribunal des activités économiques de Paris.</p>
+
+    <h2>Article 13 — Stipulations diverses</h2>
+    <p class="legal-copy">Le présent Accord constitue l'intégralité de l'accord entre les Parties sur la confidentialité et ne constitue ni engagement à conclure un contrat de prestation, ni exclusivité de négociation. Toute modification fait l'objet d'un avenant écrit signé par les deux Parties. La nullité d'une stipulation n'affecte pas les autres.</p>
+
+    <h2>Acceptation</h2>
+    <div class="acceptance-box">
+      <div class="check-space" data-docuseal-field="NDA Accepted"></div>
+      <p><span class="strong">Bon pour accord sur l'Accord de Non-Divulgation.</span> En cochant cette case et en signant ci-dessous, le Client confirme avoir lu, compris et accepté l'intégralité des stipulations du présent Accord, y compris la clause pénale de 250 000 € par violation (Article 7).</p>
+    </div>
+
+    <h2>Signatures</h2>
+    <p>Fait électroniquement, chaque Partie conservant un exemplaire signé.</p>
+    <table class="sig-table signature-table">
+      <tbody>
+        <tr><th>Pour le Client</th><th>Pour Lucid-Lab</th></tr>
+        <tr>
+          <td><span class="field-line w-signer" data-docuseal-field="Signer Name"></span></td>
+          <td>Anthony Poirier, Président</td>
+        </tr>
+        <tr>
+          <td>Date : <span class="field-line w-date" data-docuseal-field="NDA Signed Date"></span></td>
+          <td>Date :</td>
+        </tr>
+        <tr>
+          <td>Lieu : <span class="field-line w-short" data-docuseal-field="NDA Signing Place"></span></td>
+          <td>Lieu : Paris</td>
+        </tr>
+        <tr>
+          <td>
+            Signature précédée de la mention « Lu et approuvé, bon pour accord » :
+            <div class="signature-box" data-docuseal-field="NDA Signature"></div>
+          </td>
+          <td>
+            Signature précédée de la mention « Lu et approuvé, bon pour accord » :
+            <div class="signature-box"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">Lucid-Lab SAS · RCS Paris 104 672 050 · 47 rue Vivienne, 75002 Paris · Accord de Non-Divulgation signé électroniquement via DocuSeal.</div>
+  </main>
+
+</body>
+</html>
+
+<head>
+  <meta charset="utf-8" />
+  <title>Lucid-Lab - Accord de Non-Divulgation (NDA)</title>
+  <style>
+    @page { size: A4; margin: 0; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: #fff;
+      color: #111;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      font-size: 8.55pt;
+      line-height: 1.28;
+    }
+    .page {
+      position: relative;
+      width: 210mm;
+      height: 297mm;
+      padding: 21mm 22mm 17mm;
+      overflow: hidden;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .header {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+      gap: 10mm;
+      margin-bottom: 10mm;
+    }
+    .brand { display: flex; align-items: center; gap: 4mm; min-width: 0; }
+    .logo { width: 10mm; height: 10mm; object-fit: contain; }
+    .wordmark { font-family: Syne, Inter, Arial, sans-serif; font-size: 18pt; font-weight: 800; letter-spacing: 0; }
+    .header-label { font-size: 10pt; font-style: italic; color: #555; white-space: nowrap; }
+    h1 {
+      margin: 0 0 5mm;
+      font-size: 22pt;
+      line-height: 1.1;
+      font-weight: 850;
+      text-transform: uppercase;
+      letter-spacing: 0;
+    }
+    h2 { margin: 5.2mm 0 2.1mm; font-size: 12.8pt; line-height: 1.18; font-weight: 800; letter-spacing: 0; }
+    h3 { margin: 3.2mm 0 1.5mm; font-size: 9.3pt; line-height: 1.2; font-weight: 800; letter-spacing: 0; }
+    p { margin: 0 0 2.2mm; }
+    ul { margin: 0.8mm 0 2.4mm 5.5mm; padding: 0; }
+    li { margin-bottom: 0.9mm; }
+    table { width: 100%; border-collapse: collapse; margin: 1.5mm 0 3mm; }
+    td, th { border: 0.25mm solid #d0d0d0; padding: 1.6mm 2mm; vertical-align: top; }
+    th { background: #f3f3f3; text-align: left; font-weight: 800; }
+    .meta { color: #555; font-size: 9.8pt; margin-bottom: 5mm; }
+    .intro { color: #555; font-size: 9.8pt; font-style: italic; line-height: 1.4; margin-bottom: 5mm; }
+    .strong { font-weight: 800; }
+    .legal-copy { text-align: justify; }
+    .small { font-size: 7.95pt; line-height: 1.23; }
+    .field-line {
+      display: inline-block;
+      min-height: 4.9mm;
+      border-bottom: 0.25mm solid #777;
+      vertical-align: -0.8mm;
+    }
+    .w-ref    { width: 40mm; }
+    .w-date   { width: 34mm; }
+    .w-client { width: 74mm; }
+    .w-signer { width: 50mm; }
+    .w-email  { width: 51mm; }
+    .w-title  { width: 110mm; }
+    .w-short  { width: 26mm; }
+    .w-addr   { width: 90mm; }
+    .w-siret  { width: 40mm; }
+    .w-ctx    { width: 100%; display: block; }
+    .note-box { border: 0.25mm solid #d0d0d0; min-height: 13mm; padding: 2mm; margin: 1.5mm 0 3mm; }
+    .accent { color: #C85E1A; font-weight: 800; }
+    .badge {
+      display: inline-block;
+      background: #0A0A0A;
+      color: #fff;
+      font-size: 7pt;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 0.8mm 2mm;
+      margin-bottom: 4mm;
+    }
+    .parties-box {
+      border: 0.25mm solid #d0d0d0;
+      padding: 3mm 4mm;
+      margin-bottom: 4mm;
+    }
+    .parties-box .party-label { font-weight: 800; font-size: 9pt; margin-bottom: 0.8mm; }
+    .acceptance-box {
+      border: 0.3mm solid #111;
+      padding: 2.6mm 4mm 2.8mm 11mm;
+      margin-top: 3mm;
+      min-height: 13mm;
+      position: relative;
+    }
+    .check-space { position: absolute; left: 4mm; top: 4mm; width: 5mm; height: 5mm; border: 0.25mm solid #777; }
+    .signature-table { margin-top: 3mm; }
+    .signature-table td { height: 19mm; width: 50%; }
+    .signature-box { height: 11mm; border-bottom: 0.25mm solid #777; margin-top: 1.5mm; }
+    .footer {
+      position: absolute;
+      left: 22mm;
+      right: 22mm;
+      bottom: 9mm;
+      color: #777;
+      font-size: 7.2pt;
+      border-top: 0.25mm solid #ddd;
+      padding-top: 1.5mm;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE 1 -->
+  <main class="page page-1">
+    <header class="header">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M49 10L35 60h18L65 50L49 10Z" fill="black"/>
+        </svg>
+        <div class="wordmark">Lucid-Lab</div>
+      </div>
+      <div class="header-label">Accord de Non-Divulgation</div>
+    </header>
+
+    <div class="badge">Confidentiel</div>
+    <h1>Accord de<br>Non-Divulgation</h1>
+    <p class="meta">Référence : <span class="field-line w-ref" data-docuseal-field="Document Number"></span> &nbsp;·&nbsp; Date : <span class="field-line w-date" data-docuseal-field="Issued Date"></span></p>
+    <p class="intro">Le présent Accord de Non-Divulgation (ci-après « l'Accord » ou « NDA ») encadre les échanges et informations partagées dans le cadre des discussions précontractuelles entre les Parties.</p>
+
+    <h2>Entre les soussignés</h2>
+
+    <div class="parties-box">
+      <p class="party-label">Partie A — Le Prestataire</p>
+      <p class="legal-copy"><span class="strong">Lucid-Lab</span>, Société par actions simplifiée (SAS) au capital de 999 euros, dont le siège social est situé 47 rue Vivienne, 75002 Paris, France, immatriculée au RCS Paris sous le numéro 104 672 050, numéro de TVA intracommunautaire FR 02 104 672 050, représentée par son Président, Periscope-X SARL, elle-même représentée par Monsieur Anthony Poirier dûment habilité, ci-après dénommée « <span class="strong">Lucid-Lab</span> ».</p>
+    </div>
+
+    <div class="parties-box">
+      <p class="party-label">Partie B — Le Client / Le Destinataire</p>
+      <p>Société : <span class="field-line w-client" data-docuseal-field="Client Name"></span></p>
+      <p>Adresse : <span class="field-line w-addr" data-docuseal-field="Client Address"></span></p>
+      <p>SIRET / Numéro d'immatriculation : <span class="field-line w-siret" data-docuseal-field="Client Registration Number"></span></p>
+      <p>Représentée par : <span class="field-line w-signer" data-docuseal-field="Signer Name"></span>, en qualité de <span class="field-line w-short" data-docuseal-field="Signer Title"></span></p>
+      <p>E-mail : <span class="field-line w-email" data-docuseal-field="Signer Email"></span></p>
+      <p>Ci-après dénommée le « <span class="strong">Client</span> ».</p>
+    </div>
+
+    <p>Ensemble dénommées les « <span class="strong">Parties</span> ».</p>
+
+    <h2>Article 1 — Objet et contexte</h2>
+    <p class="legal-copy">Le présent Accord a pour objet de définir les conditions dans lesquelles les Parties s'engagent à protéger la confidentialité des informations échangées dans le cadre des discussions et études précontractuelles relatives à :</p>
+    <div class="note-box" data-docuseal-field="Mission Context">Intégration IA pour l'expansion sur le marché européen — évaluation de solutions d'intelligence artificielle applicables aux fonctionnalités de suggested orders, de détection de ventes perdues et de chat fournisseur.</div>
+    <p class="legal-copy">Ces discussions peuvent inclure sans s'y limiter : échanges techniques, démonstrations, propositions commerciales, audits de systèmes existants, accès à des données d'exploitation ou à toute autre information sensible communiquée par l'une ou l'autre des Parties.</p>
+
+    <div class="footer">Lucid-Lab · Accord de Non-Divulgation (NDA) · Document signé électroniquement via DocuSeal.</div>
+  </main>
+
+  <!-- PAGE 2 -->
+  <main class="page page-2">
+    <header class="header">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M49 10L35 60h18L65 50L49 10Z" fill="black"/>
+        </svg>
+        <div class="wordmark">Lucid-Lab</div>
+      </div>
+      <div class="header-label">Accord de Non-Divulgation</div>
+    </header>
+
+    <h2>Article 2 — Définition des Informations Confidentielles</h2>
+    <p class="legal-copy">Constituent des « <span class="strong">Informations Confidentielles</span> » au sens du présent Accord toutes les informations, quelle qu'en soit la forme (orale, écrite, électronique, visuelle), communiquées par l'une des Parties (la « Partie Divulgatrice ») à l'autre (la « Partie Réceptrice »), y compris notamment :</p>
+    <ul>
+      <li>les données commerciales, financières, tarifaires, contractuelles et stratégiques ;</li>
+      <li>les processus métier, workflows, cahiers des charges, spécifications fonctionnelles et techniques ;</li>
+      <li>les modèles d'IA, prompts système, architectures d'agents, données d'entraînement et configurations ;</li>
+      <li>les accès, identifiants, clés API, tokens et systèmes d'authentification ;</li>
+      <li>les informations relatives aux fournisseurs, partenaires, clients et prospects ;</li>
+      <li>toute information désignée expressément comme confidentielle, ou dont la nature devrait raisonnablement amener la Partie Réceptrice à la considérer comme telle.</li>
+    </ul>
+
+    <h2>Article 3 — Obligations des Parties</h2>
+    <p class="legal-copy">Chaque Partie Réceptrice s'engage, pendant la durée du présent Accord et au-delà (voir Article 5), à :</p>
+    <ul>
+      <li>traiter les Informations Confidentielles avec le même niveau de protection que ses propres informations confidentielles, et en tout état de cause avec un niveau de diligence raisonnable ;</li>
+      <li>ne pas divulguer les Informations Confidentielles à des tiers sans l'accord préalable écrit de la Partie Divulgatrice ;</li>
+      <li>n'utiliser les Informations Confidentielles qu'aux fins exclusives des discussions précontractuelles visées à l'Article 1 ;</li>
+      <li>limiter l'accès aux Informations Confidentielles aux seules personnes au sein de son organisation ayant besoin d'en connaître, et s'assurer qu'elles sont soumises à des obligations de confidentialité équivalentes ;</li>
+      <li>informer sans délai la Partie Divulgatrice en cas de divulgation non autorisée, même accidentelle, d'Informations Confidentielles.</li>
+    </ul>
+
+    <h2>Article 4 — Informations non confidentielles (Exclusions)</h2>
+    <p class="legal-copy">Les obligations prévues à l'Article 3 ne s'appliquent pas aux informations dont la Partie Réceptrice peut démontrer :</p>
+    <ul>
+      <li>qu'elles étaient dans le domaine public au moment de leur communication, ou qu'elles y sont tombées sans faute de sa part ;</li>
+      <li>qu'elles lui étaient déjà connues avant la date de communication par la Partie Divulgatrice ;</li>
+      <li>qu'elles ont été développées indépendamment, sans recours aux Informations Confidentielles ;</li>
+      <li>qu'elles ont été légalement obtenues d'un tiers sans obligation de confidentialité ;</li>
+      <li>que leur divulgation est requise par une obligation légale, réglementaire ou judiciaire — dans ce cas, la Partie Réceptrice en informe préalablement la Partie Divulgatrice dans les meilleurs délais et limite la divulgation au strict nécessaire.</li>
+    </ul>
+
+    <h2>Article 5 — Durée</h2>
+    <p class="legal-copy">Le présent Accord entre en vigueur à la date de sa signature par les deux Parties et est conclu pour une durée de <span class="field-line w-short" data-docuseal-field="NDA Duration">3 ans</span> à compter de cette date, sauf résiliation anticipée par accord écrit entre les Parties.</p>
+    <p class="legal-copy">Les obligations de confidentialité relatives aux Informations Confidentielles constituant des secrets d'affaires au sens de la directive (UE) 2016/943 et de la loi n° 2018-670 du 30 juillet 2018 survivront à l'expiration ou à la résiliation du présent Accord pour une durée indéfinie, jusqu'à ce que ces informations cessent de répondre à cette qualification.</p>
+
+    <div class="footer">Lucid-Lab · Accord de Non-Divulgation (NDA) · Document signé électroniquement via DocuSeal.</div>
+  </main>
+
+  <!-- PAGE 3 -->
+  <main class="page page-3">
+    <header class="header">
+      <div class="brand">
+        <svg class="logo" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M49 10L35 60h18L65 50L49 10Z" fill="black"/>
+        </svg>
+        <div class="wordmark">Lucid-Lab</div>
+      </div>
+      <div class="header-label">Accord de Non-Divulgation</div>
+    </header>
+
+    <h2>Article 6 — Non-sollicitation et non-contournement</h2>
+    <p class="legal-copy">Pendant la durée du présent Accord et pendant les vingt-quatre (24) mois suivant son terme ou la cessation des discussions, chaque Partie s'interdit :</p>
+    <ul>
+      <li>de débaucher, recruter ou engager directement ou indirectement tout collaborateur ou sous-traitant de l'autre Partie ayant participé aux discussions visées à l'Article 1 ;</li>
+      <li>de contacter, approcher ou traiter directement avec les fournisseurs, partenaires, clients ou prospects de l'autre Partie dont l'identité aurait été révélée dans le cadre de ces discussions, aux fins d'obtenir des prestations similaires ou concurrentes.</li>
+    </ul>
+    <p class="legal-copy">La violation de ces engagements exposera la Partie contrevenante au paiement d'une indemnité forfaitaire de vingt mille euros (20 000 €) par infraction constatée, sans préjudice de tout autre recours.</p>
+
+    <h2>Article 7 — Propriété des Informations Confidentielles</h2>
+    <p class="legal-copy">Le présent Accord ne confère à la Partie Réceptrice aucun droit de propriété intellectuelle, aucune licence, ni aucun autre droit sur les Informations Confidentielles communiquées par la Partie Divulgatrice. Toutes les Informations Confidentielles demeurent la propriété exclusive de la Partie Divulgatrice.</p>
+
+    <h2>Article 8 — Retour et destruction des informations</h2>
+    <p class="legal-copy">À la demande écrite de la Partie Divulgatrice, ou à l'expiration du présent Accord sans conclusion d'un contrat de prestation, la Partie Réceptrice s'engage à restituer ou détruire, au choix de la Partie Divulgatrice, l'ensemble des supports contenant des Informations Confidentielles, et à certifier par écrit l'exécution de cette obligation dans un délai de quinze (15) jours ouvrés suivant la demande.</p>
+
+    <h2>Article 9 — Protection des données personnelles</h2>
+    <p class="legal-copy">Si des données à caractère personnel sont communiquées dans le cadre des discussions, chaque Partie s'engage à les traiter conformément au Règlement (UE) 2016/679 (RGPD) et à la loi Informatique et Libertés modifiée. Les données à caractère personnel partagées ne seront utilisées qu'aux fins strictement nécessaires aux discussions visées à l'Article 1.</p>
+
+    <h2>Article 10 — Droit applicable et juridiction compétente</h2>
+    <p class="legal-copy">Le présent Accord est régi par le droit français. En cas de différend relatif à son interprétation ou à son exécution, les Parties s'efforceront de parvenir à une résolution amiable dans un délai de trente (30) jours. À défaut, tout litige sera soumis à la compétence exclusive du Tribunal des activités économiques de Paris.</p>
+
+    <h2>Article 11 — Stipulations diverses</h2>
+    <p class="legal-copy">Le présent Accord constitue l'intégralité de l'accord entre les Parties sur la question de la confidentialité et remplace tout accord antérieur portant sur le même objet. Toute modification doit faire l'objet d'un avenant écrit signé par les deux Parties. La nullité éventuelle d'une stipulation n'affecte pas la validité des autres.</p>
+    <p class="legal-copy">Le présent Accord ne constitue ni un engagement à conclure un contrat de prestation, ni une exclusivité de négociation au profit de l'une ou l'autre des Parties.</p>
+
+    <h2>Acceptation</h2>
+    <div class="acceptance-box">
+      <div class="check-space" data-docuseal-field="NDA Accepted"></div>
+      <p><span class="strong">Bon pour accord sur l'Accord de Non-Divulgation.</span> En cochant cette case et en signant ci-dessous, le Client confirme avoir lu, compris et accepté l'intégralité des stipulations du présent Accord.</p>
+    </div>
+
+    <h2>Signatures</h2>
+    <p>Fait électroniquement, chaque Partie conservant un exemplaire signé.</p>
+    <table class="signature-table">
+      <tbody>
+        <tr><th>Pour le Client</th><th>Pour Lucid-Lab</th></tr>
+        <tr>
+          <td><span class="field-line w-signer" data-docuseal-field="Signer Name"></span></td>
+          <td>Anthony Poirier, Président</td>
+        </tr>
+        <tr>
+          <td>Date : <span class="field-line w-date" data-docuseal-field="NDA Signed Date"></span></td>
+          <td>Date :</td>
+        </tr>
+        <tr>
+          <td>Lieu : <span class="field-line w-short" data-docuseal-field="NDA Signing Place"></span></td>
+          <td>Lieu : Paris</td>
+        </tr>
+        <tr>
+          <td>
+            Signature précédée de la mention « Lu et approuvé, bon pour accord » :
+            <div class="signature-box" data-docuseal-field="NDA Signature"></div>
+          </td>
+          <td>
+            Signature précédée de la mention « Lu et approuvé, bon pour accord » :
+            <div class="signature-box"></div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="footer">Lucid-Lab · Accord de Non-Divulgation (NDA) · Document signé électroniquement via DocuSeal. · Lucid-Lab SAS · RCS Paris 104 672 050 · 47 rue Vivienne, 75002 Paris</div>
+  </main>
+
+</body>
+</html>

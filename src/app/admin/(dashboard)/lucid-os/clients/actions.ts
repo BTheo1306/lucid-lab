@@ -4,7 +4,7 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/admin/auth';
 import { extractClientIntake } from '@/lib/admin/agents/client-intake-agent';
-import { createBonDeCommandeDraft, refreshDocuSealDocumentStatus, sendBonDeCommandeForSignature } from '@/lib/admin/documents/workflow';
+import { createBonDeCommandeDraft, createNdaDraft, refreshDocuSealDocumentStatus, sendBonDeCommandeForSignature, sendNdaForSignature } from '@/lib/admin/documents/workflow';
 import {
   createLucidClientContact,
   createLucidClientImport,
@@ -611,6 +611,44 @@ export async function sendBonDeCommandeForSignatureAction(formData: FormData): P
   } catch (error) {
     const message = actionErrorMessage(error);
     console.error('[send-bdc-action]', message, error);
+    revalidateClientWorkspace(clientSlug);
+    redirect(clientDocumentsHref(clientSlug, { document_error: message }));
+  }
+
+  revalidateClientWorkspace(clientSlug);
+  redirect(clientDocumentsHref(clientSlug));
+}
+
+export async function createNdaDraftAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const { clientId, clientSlug } = requireClientActionContext(formData);
+
+  await createNdaDraft({
+    clientId,
+    contactId: formString(formData, 'contact_id') || null,
+    opportunityId: formString(formData, 'opportunity_id') || null,
+    missionContext: formString(formData, 'mission_context') || null,
+    ndaDuration: formString(formData, 'nda_duration') || null,
+    signerName: formString(formData, 'signer_name') || null,
+    signerEmail: formString(formData, 'signer_email') || null,
+    notes: formString(formData, 'document_notes') || null,
+  });
+
+  revalidateClientWorkspace(clientSlug);
+  redirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
+}
+
+export async function sendNdaForSignatureAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+  const { clientSlug } = requireClientActionContext(formData);
+  const documentId = formString(formData, 'document_id');
+  if (!documentId) throw new Error('Document id is required.');
+
+  try {
+    await sendNdaForSignature(documentId);
+  } catch (error) {
+    const message = actionErrorMessage(error);
+    console.error('[send-nda-action]', message, error);
     revalidateClientWorkspace(clientSlug);
     redirect(clientDocumentsHref(clientSlug, { document_error: message }));
   }

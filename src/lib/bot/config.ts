@@ -94,6 +94,7 @@ export const config = {
   docusealCompletedRedirectUrl: process.env['DOCUSEAL_COMPLETED_REDIRECT_URL'] ?? '',
   docusealSubmissionMode: optionalEnv('DOCUSEAL_SUBMISSION_MODE', 'html') as 'html' | 'pdf',
   docusealBonDeCommandeTemplateId: process.env['DOCUSEAL_BON_DE_COMMANDE_TEMPLATE_ID'] ?? '',
+  docusealNdaTemplateId: process.env['DOCUSEAL_NDA_TEMPLATE_ID'] ?? '',
 
   // Telegram COO agent
   telegramCooBotToken: process.env['TELEGRAM_COO_BOT_TOKEN'] ?? '',

@@ -17,6 +17,8 @@ import { calculateVatAmounts, hasBlockingValidationIssue, resolveBonDeCommandeAm
 import type {
   CreateBonDeCommandeDraftInput,
   CreateBonDeCommandeDraftResult,
+  CreateNdaDraftInput,
+  CreateNdaDraftResult,
   LucidClientDocumentStatus,
   LucidClientDocumentSummary,
   LucidDocumentValidationIssue,
@@ -634,6 +636,234 @@ export async function sendBonDeCommandeForSignature(documentId: string): Promise
   await recordLucidAuditEvent({
     eventType: 'client_document_sent_for_signature',
     summary: `Bon de commande sent for signature: ${asString(document.document_number) ?? documentId}`,
+    actorType: 'admin',
+    clientId: asString(document.client_id),
+    targetTable: 'client_documents',
+    targetId: documentId,
+    riskLevel: 'medium',
+    details: { docuseal_submission_id: submissionId },
+  });
+}
+
+// ─── NDA ──────────────────────────────────────────────────────────────────────
+
+function generateNdaNumber(clientSlug: string | null): string {
+  const date = new Date();
+  const ymd = `${date.getFullYear()}${String(date.getMonth() + 1).padStart(2, '0')}${String(date.getDate()).padStart(2, '0')}`;
+  const slug = (clientSlug ?? 'client').toUpperCase().replace(/[^A-Z0-9]/g, '-').slice(0, 20);
+  return `NDA-${ymd}-${slug}-${Date.now().toString(36).toUpperCase().slice(-6)}`;
+}
+
+function buildNdaFieldValues(
+  document: UnknownRecord,
+  recipient: UnknownRecord,
+  generationPayload: UnknownRecord,
+): Record<string, string> {
+  const client = asRecord(generationPayload.client) ?? {};
+  const signer = asRecord(generationPayload.signer) ?? {};
+  const payloadDocument = asRecord(generationPayload.document) ?? {};
+  const issuedDate = formatFrenchDate(asString(document.issued_at));
+
+  return compactFieldValues({
+    'Document Number': asString(document.document_number) ?? asString(payloadDocument.number),
+    'Issued Date': issuedDate,
+    'Client Name': asString(client.name),
+    'Client Address': asString(client.address),
+    'Client Registration Number': asString(client.registration_number),
+    'Signer Name': asString(recipient.name) ?? asString(signer.name),
+    'Signer Title': asString(signer.title),
+    'Signer Email': asString(recipient.email) ?? asString(signer.email),
+    'Mission Context': asString(payloadDocument.mission_context),
+    'NDA Duration': asString(payloadDocument.nda_duration) ?? '3 ans',
+    'NDA Signed Date': issuedDate,
+  });
+}
+
+export async function createNdaDraft(input: CreateNdaDraftInput): Promise<CreateNdaDraftResult> {
+  const organizationId = await ensureLucidOrganizationId();
+
+  const { data: clientRow, error: clientError } = await supabase
+    .from('clients')
+    .select('id,name,slug,primary_contact_name,primary_contact_email,legal_name,siret,billing_address')
+    .eq('organization_id', organizationId)
+    .eq('id', input.clientId)
+    .maybeSingle();
+  if (clientError) throw new Error(`createNdaDraft client: ${clientError.message}`);
+  const client = asRecord(clientRow);
+  if (!client) throw new Error('Client not found.');
+
+  let contact: UnknownRecord | null = null;
+  if (input.contactId) {
+    const { data: contactRow } = await supabase
+      .from('contacts')
+      .select('id,full_name,email,phone,job_title')
+      .eq('id', input.contactId)
+      .maybeSingle();
+    contact = asRecord(contactRow);
+  }
+
+  const clientName = asString(client.legal_name) ?? asString(client.name);
+  const clientSlug = asString(client.slug);
+  const signerName = asString(input.signerName) ?? asString(contact?.full_name) ?? asString(client.primary_contact_name);
+  const signerEmail = asString(input.signerEmail) ?? asString(contact?.email) ?? asString(client.primary_contact_email);
+  const signerTitle = asString(contact?.job_title);
+  const documentNumber = generateNdaNumber(clientSlug);
+  const title = `NDA — ${clientName ?? 'Client'}`;
+  const missionContext = asString(input.missionContext);
+  const ndaDuration = asString(input.ndaDuration) ?? '5 ans';
+
+  const generationPayload = {
+    client: {
+      id: input.clientId,
+      name: clientName,
+      slug: clientSlug,
+      address: asString(client.billing_address),
+      registration_number: asString(client.siret),
+    },
+    signer: {
+      id: asString(contact?.id),
+      name: signerName,
+      email: signerEmail,
+      title: signerTitle,
+    },
+    document: {
+      number: documentNumber,
+      title,
+      mission_context: missionContext,
+      nda_duration: ndaDuration,
+      notes: asString(input.notes),
+    },
+  };
+
+  const status: LucidClientDocumentStatus = signerEmail ? 'draft' : 'needs_review';
+
+  const { data, error } = await supabase
+    .from('client_documents')
+    .insert({
+      organization_id: organizationId,
+      client_id: input.clientId,
+      opportunity_id: input.opportunityId ?? null,
+      primary_contact_id: asString(contact?.id) ?? null,
+      document_type: 'nda',
+      status,
+      title,
+      document_number: documentNumber,
+      template_key: 'lucid_lab_nda_docuseal_template_v1',
+      template_version: '2026-05-28-nda-v1',
+      google_drive_folder_id: input.googleDriveFolderId ?? null,
+      issued_at: new Date().toISOString(),
+      validation_errors: signerEmail ? [] : [{ code: 'missing_signer_email', field: 'signer_email', message: 'No signer email found — add a contact email before sending.', severity: 'error' }],
+      generation_payload: generationPayload,
+      metadata: {
+        source: 'admin_nda_form',
+        notes: asString(input.notes),
+        mission_context: missionContext,
+        nda_duration: ndaDuration,
+      },
+    })
+    .select('id')
+    .single();
+  if (error) throw new Error(`createNdaDraft: ${error.message}`);
+  const documentId = String(data.id);
+
+  if (signerName || signerEmail) {
+    await supabase.from('client_document_recipients').insert({
+      organization_id: organizationId,
+      client_id: input.clientId,
+      document_id: documentId,
+      contact_id: asString(contact?.id),
+      role: 'Client',
+      name: signerName,
+      email: signerEmail,
+      status: 'pending',
+      external_id: `${documentId}:client`,
+      metadata: { source: 'nda_draft' },
+    });
+  }
+
+  await recordLucidAuditEvent({
+    eventType: 'client_document_drafted',
+    summary: `NDA draft created for ${clientName ?? input.clientId}`,
+    actorType: 'admin',
+    clientId: input.clientId,
+    targetTable: 'client_documents',
+    targetId: documentId,
+    riskLevel: 'low',
+    details: { document_number: documentNumber, status },
+  });
+
+  return { documentId, status };
+}
+
+export async function sendNdaForSignature(documentId: string): Promise<void> {
+  if (!config.docusealNdaTemplateId) throw new Error('DOCUSEAL_NDA_TEMPLATE_ID is required before sending NDA documents.');
+
+  const { document, recipient } = await getDocumentForSend(documentId);
+  if (!recipient || !asString(recipient.email)) throw new Error('Document has no signer email.');
+
+  const generationPayload = asRecord(document.generation_payload) ?? {};
+  const fieldValues = buildNdaFieldValues(document, recipient, generationPayload);
+  const submitters = [buildSubmitterPayload(documentId, document, recipient, fieldValues)];
+  const submissionName = asString(document.title) ?? 'NDA Lucid-Lab';
+  const submissionMetadata = { lucid_document_id: documentId, lucid_client_id: asString(document.client_id) };
+
+  const submission = await createDocuSealSubmission({
+    templateId: config.docusealNdaTemplateId,
+    name: submissionName,
+    variables: generationPayload,
+    sendEmail: false,
+    metadata: submissionMetadata,
+    submitters,
+  });
+
+  const submissionId = asString(submission.id) ?? null;
+  const firstSubmitter = asRecord(submission.submitters?.[0]) ?? null;
+  const signingUrl = buildDocuSealSigningUrl(firstSubmitter);
+  if (!signingUrl) throw new Error('DocuSeal did not return a signing URL for the NDA recipient.');
+  const now = new Date().toISOString();
+
+  await sendDocumentSignatureRequest({
+    to: asString(recipient.email) ?? '',
+    signerName: asString(recipient.name),
+    documentNumber: asString(document.document_number),
+    documentTitle: asString(document.title) ?? 'Accord de Non-Divulgation — Lucid-Lab',
+    signingUrl,
+    replyTo: config.teamNotificationEmail,
+  });
+
+  const { error: documentError } = await supabase
+    .from('client_documents')
+    .update({
+      status: 'sent_for_signature',
+      sent_at: now,
+      docuseal_template_id: config.docusealNdaTemplateId,
+      docuseal_submission_id: submissionId,
+      docuseal_submission_slug: asString(submission.slug),
+      docuseal_submission_url: asString(submission.url),
+      docuseal_audit_log_url: asString(submission.audit_log_url),
+      docuseal_combined_document_url: asString(submission.combined_document_url),
+      docuseal_response: submission,
+    })
+    .eq('id', documentId);
+  if (documentError) throw new Error(`sendNdaForSignature document: ${documentError.message}`);
+
+  if (firstSubmitter) {
+    await supabase
+      .from('client_document_recipients')
+      .update({
+        status: 'sent',
+        docuseal_submitter_id: asString(firstSubmitter.id),
+        docuseal_submitter_uuid: asString(firstSubmitter.uuid),
+        docuseal_submitter_slug: asString(firstSubmitter.slug),
+        docuseal_embed_src: asString(firstSubmitter.embed_src),
+        sent_at: asString(firstSubmitter.sent_at) ?? now,
+      })
+      .eq('id', asString(recipient.id));
+  }
+
+  await recordLucidAuditEvent({
+    eventType: 'client_document_sent_for_signature',
+    summary: `NDA sent for signature: ${asString(document.document_number) ?? documentId}`,
     actorType: 'admin',
     clientId: asString(document.client_id),
     targetTable: 'client_documents',
