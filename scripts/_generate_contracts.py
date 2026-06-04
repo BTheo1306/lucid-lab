@@ -42,41 +42,43 @@ CLIENTS = [
         ),
         "interlocteur": "Sophia Kanouni — BSP 37",
         "lieu": "Lémeré",
-        "mission_title": "Système IA Claude + Obsidian et refonte + maintenance du site web bsp37.com.",
+        "mission_title": "Refonte + maintenance du site web bsp37.com et gestion Meta Ads à partir du 1er septembre 2026.",
         "mission_description": (
-            "Installation et configuration d'un système IA privé (Claude + Obsidian) pour centraliser "
-            "la connaissance opérationnelle de BSP 37, formation à la routine d'utilisation, "
-            "et refonte complète du site web bsp37.com avec maintenance mensuelle."
+            "Refonte complète du site web bsp37.com avec maintenance mensuelle, puis gestion des campagnes "
+            "Meta Ads pour l'activité film solaire à partir du 1er septembre 2026, incluant la création "
+            "de deux publicités de lancement. Le forfait mensuel est de 250,00 € HT, composé de 150,00 € HT "
+            "pour le site web et 100,00 € HT pour la gestion Meta Ads."
         ),
-        "livrable_1": "Vault Obsidian BSP 37 configuré + Claude opérationnel + guide d'installation et d'utilisation Lucid-Lab.",
-        "livrable_2": "Site web bsp37.com refondu sur technologie moderne : catalogue, galerie, services, formulaires, déploiement.",
-        "livrable_3": "Maintenance mensuelle du site : mises à jour, corrections, suivi SEO et performances.",
+        "livrable_1": "Site web bsp37.com refondu sur technologie moderne : catalogue, galerie, services, formulaires, déploiement.",
+        "livrable_2": "Maintenance mensuelle du site : mises à jour, corrections, suivi SEO et performances.",
+        "livrable_3": "Gestion Meta Ads à partir du 1er septembre 2026 + création de deux publicités de lancement.",
         "calendrier": "Démarrage à compter de la signature et réception du premier paiement.",
-        "prix_ht": "2 300,00 € (500 € setup IA + 12 × 150,00 €)",
-        "tva": "460,00 €",
-        "prix_ttc": "2 760,00 €",
-        "modalite": "☑ Setup IA (500 € HT / 600 € TTC) + Mensuel 12 mois — engagement ferme",
-        "echeancier": "600,00 € TTC (setup IA, avant démarrage) + 180,00 € TTC × 12 mois",
+        "prix_ht": "3 250,00 € (250,00 € création de deux publicités + 12 × 250,00 €, dont 150,00 € site web et 100,00 € gestion Meta Ads mensuels)",
+        "tva": "650,00 €",
+        "prix_ttc": "3 900,00 €",
+        "modalite": "☑ Mensuel 12 mois — site web + gestion Meta Ads à partir du 1er septembre 2026 + frais unique création de deux publicités",
+        "echeancier": "300,00 € TTC (création de deux publicités, frais unique) + 300,00 € TTC × 12 mois (180,00 € TTC site web + 120,00 € TTC gestion Meta Ads)",
         "ref_client_rib": "BC-2026-009 / BSP 37",
         "prop_ref_ctr": "PROP-2026-009 — BSP 37 — 23/05/2026",
         "perimetre_ctr": (
-            "installation et configuration d'Obsidian + Claude sur la machine de la cliente, "
-            "création d'un vault BSP 37 dédié (processus, fournisseurs, catalogue, réalisations), "
-            "session d'ingestion initiale et formation à la routine hebdomadaire d'utilisation ; "
             "refonte complète du site web bsp37.com (audit du site Wix existant, développement sur technologie moderne, "
             "intégration du catalogue produits, galerie de réalisations, pages de services et formulaires de contact, "
             "déploiement et configuration du nom de domaine) ; "
-            "maintenance mensuelle du site (mises à jour, corrections, suivi des performances SEO)."
+            "maintenance mensuelle du site (mises à jour, corrections, suivi des performances SEO) ; "
+            "gestion des campagnes Meta Ads pour l'activité film solaire à partir du 1er septembre 2026, "
+            "incluant optimisation, tests visuels, reporting mensuel et création de deux publicités de lancement. "
+            "La gestion Meta Ads est facturée 100,00 € HT par mois et la création des deux publicités est facturée "
+            "250,00 € HT en frais unique."
         ),
         "hors_perimetre": (
-            "toute prestation non explicitement listée dans la Proposition Commerciale, notamment la gestion "
-            "de campagnes publicitaires, la production de contenus vidéo, toute intégration supplémentaire non prévue "
-            "et les coûts d'hébergement ou d'abonnements tiers."
+            "toute prestation non explicitement listée dans la Proposition Commerciale, notamment le budget "
+            "publicitaire Meta Ads, la production de publicités ou contenus supplémentaires au-delà des deux publicités "
+            "prévues, toute intégration supplémentaire non prévue et les coûts d'hébergement ou d'abonnements tiers."
         ),
-        "prix_ht_ctr": "2 300,00 €",
-        "tva_ctr": "460,00 €",
-        "prix_ttc_ctr": "2 760,00 €",
-        "mensualite_ttc": "180,00 €",
+        "prix_ht_ctr": "3 250,00 €",
+        "tva_ctr": "650,00 €",
+        "prix_ttc_ctr": "3 900,00 €",
+        "mensualite_ttc": "300,00 €",
     },
     {
         "id": "clement-sinibaldi",

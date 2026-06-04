@@ -28,25 +28,17 @@ CLIENTS = [
         "slug": "sophia-kanouni-bsp37",
         "display_name": "BSP 37 — Sophia Kanouni",
         "subtitle": (
-            "Refonte du site web, acquisition Meta Ads pour le film solaire "
-            "et système IA Claude + Obsidian."
+            "Refonte du site web et gestion Meta Ads pour le film solaire "
+            "à partir du 1er septembre 2026."
         ),
         "objective": (
             "BSP 37 est un groupement familial ancré dans l'artisanat depuis 1989. "
-            "L'objectif de cet accompagnement est triple : moderniser la présence "
-            "digitale de l'entreprise, ouvrir un nouveau canal d'acquisition pour "
-            "l'activité d'installation de film solaire via Meta Ads (Facebook / Instagram), "
-            "et doter Sophia d'un système IA privé (Claude + Obsidian) pour centraliser et "
-            "exploiter la connaissance opérationnelle de BSP 37 au quotidien."
+            "L'objectif de cet accompagnement est double : moderniser la présence "
+            "digitale de l'entreprise avec un site plus performant, puis ouvrir un canal "
+            "d'acquisition pour l'activité d'installation de film solaire via Meta Ads "
+            "(Facebook / Instagram) à partir du 1er septembre 2026."
         ),
         "scope": [
-            ("Système IA — Claude + Obsidian (installation unique)", [
-                "Installation et configuration d'Obsidian + Claude Code sur votre machine.",
-                "Création d'un vault BSP 37 dédié : processus, fournisseurs, catalogue, réalisations, suivi clients.",
-                "Configuration des sources approuvées et session d'ingestion initiale.",
-                "Formation à la routine hebdomadaire d'utilisation.",
-                "Remise du guide d'installation et du guide d'utilisation Lucid-Lab.",
-            ]),
             ("Refonte du site web — bsp37.com", [
                 "Audit du site Wix existant et recommandations.",
                 "Refonte complète sur une technologie moderne : meilleure performance, SEO et contrôle total sans abonnement Wix.",
@@ -54,35 +46,34 @@ CLIENTS = [
                 "Déploiement et configuration du nom de domaine.",
                 "Maintenance mensuelle : mises à jour, corrections, suivi des performances SEO.",
             ]),
-            ("Meta Ads — Film solaire", [
+            ("Meta Ads — Film solaire à partir du 1er septembre 2026", [
                 "Création et configuration du compte Meta Ads (Facebook / Instagram).",
                 "Définition de la cible locale : zone géographique, audiences et ciblages d'intérêt.",
                 "Création d'une landing page dédiée à la génération de leads film solaire.",
-                "Gestion mensuelle des campagnes : optimisation des budgets, tests visuels, reporting mensuel.",
-                "Production de vidéos pour les campagnes : 150 € HT / vidéo (court format Reels / Stories).",
+                "Création de deux publicités Meta Ads pour le lancement : 250 € HT en frais unique.",
+                "Gestion mensuelle des campagnes : 100 € HT / mois à partir du 1er septembre 2026, incluant optimisation, tests visuels et reporting mensuel.",
                 "Mise en place d'un suivi des leads : formulaire dédié + tableau de bord partagé.",
-                "Commission de 2 % HT sur les devis signés issus directement des leads Meta Ads (traçabilité UTM + déclaration mensuelle).",
-                "Note : le budget publicitaire Meta est distinct des frais de gestion — recommandation de départ : 200–400 € / mois.",
+                "Note : le budget publicitaire Meta est distinct des frais de gestion et reste réglé directement par Sophia auprès de Meta.",
             ]),
         ],
         "calendar": [
-            ("Semaine 1", "Installation Claude + Obsidian, audit du site existant et brief Meta Ads."),
+            ("Semaine 1", "Audit du site existant, cadrage du nouveau site et préparation du brief Meta Ads."),
             ("Semaines 2–3", "Refonte du site web : structure, design, contenus et intégrations."),
-            ("Semaine 4", "Mise en ligne du site, lancement des campagnes Meta Ads et landing page film solaire."),
-            ("Mois 2+", "Gestion mensuelle Meta Ads, production vidéos, optimisations, reporting et évolution du site."),
+            ("Semaine 4", "Mise en ligne du site et validation du parcours de génération de leads film solaire."),
+            ("À partir du 1er septembre 2026", "Création des deux publicités, lancement et gestion mensuelle des campagnes Meta Ads."),
         ],
         "pricing": (
-            "Système IA Claude + Obsidian : 500 € HT (installation unique).\n"
-            "Refonte du site web : [à confirmer] € HT (prestation unique).\n"
-            "Maintenance du site web : 150 € HT / mois.\n"
-            "Gestion Meta Ads — Film solaire : 95 € HT / mois + 2 % HT sur les devis signés issus des leads Meta Ads.\n"
-            "Production vidéo (campagnes Meta Ads) : 150 € HT / vidéo."
+            "Site web — refonte + maintenance : 150 € HT / mois.\n"
+            "Gestion Meta Ads — Film solaire : 100 € HT / mois à partir du 1er septembre 2026.\n"
+            "Forfait mensuel total site + gestion Meta Ads : 250 € HT / mois à partir du 1er septembre 2026.\n"
+            "Création de deux publicités Meta Ads : 250 € HT en frais unique.\n"
+            "Budget publicitaire Meta : non inclus, réglé directement par Sophia auprès de Meta."
         ),
         "next_steps": [
-            "Valider le périmètre et le budget de la refonte du site web.",
-            "Confirmer le budget publicitaire Meta Ads mensuel.",
-            "Confirmer la machine disponible pour l'installation Claude + Obsidian.",
-            "Accès à fournir : hébergement/domaine bsp37.com, accès Wix, compte Meta Business pour la création du compte Ads.",
+            "Valider le périmètre site web et Meta Ads.",
+            "Confirmer le budget publicitaire Meta Ads mensuel à régler directement à Meta.",
+            "Accès à fournir : hébergement/domaine bsp37.com, accès Wix et compte Meta Business.",
+            "Valider le lancement de la gestion Meta Ads au 1er septembre 2026.",
             "Signature de la proposition et règlement du premier mois pour démarrer.",
         ],
     },
