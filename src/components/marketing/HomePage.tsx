@@ -199,24 +199,24 @@ const content = {
       ],
     },
     cases: {
-      title: 'Cas d\'étude.',
+      title: 'Cas clients livrés.',
       subtitle:
-        'Exemples concrets de déploiements opérationnels et d\'impacts d\'automatisation mesurables.',
+        'Trois formats de systèmes déjà cadrés ou livrés : back-office simple, CRM automatisé, feuille de route IA grand compte.',
       items: [
         {
-          title: 'Automatisation du Reporting Financier',
-          metric: 'Clôture de 4 jours à 2 heures',
-          body: 'Génération automatisée des rapports consolidés depuis l\'ERP et Excel, avec processus d\'alerte budget et contrôles d\'intégrité.',
+          title: 'Back-office automatisé pour une petite structure',
+          metric: 'Administration centralisée dans une feuille maître',
+          body: 'Récupération des données clients depuis email, Drive et formulaires, contrôle des pièces, relances automatiques et synchronisation dans un master Excel/Google Sheets exploitable par l\'admin.',
         },
         {
-          title: 'Assistant de Connaissances Pratiques',
-          metric: '600+ requêtes résolues / mois',
-          body: 'Mise en place d\'une base documentaire intelligente connectée à Slack pour supprimer la recherche manuelle d\'informations.',
+          title: 'CRM complet pour un opérateur de mobilité premium',
+          metric: 'Vente, support et opérations dans le même système',
+          body: 'Structuration du CRM, automatisation des processus internes, chatbot commercial, support client et feuille de route IA pour faire évoluer les outils sur plusieurs années.',
         },
         {
-          title: 'Qualification & Routage de Contacts',
-          metric: 'Qualifiés et routés en < 5 min',
-          body: 'Architecture automatisée de scoring de prospects et synchronisation des fiches CRM avec doublure de contrôle humain.',
+          title: 'Feuille de route IA pour un grand compte financier',
+          metric: '90+ cas d\'usage qualifiés et priorisés',
+          body: 'Cartographie Finance, Compliance, Crédit, Legal et Risk, scoring valeur/effort/risque, inventaire data, gouvernance IA, formation des ambassadeurs et déploiement par vagues.',
         },
       ],
     },
@@ -446,24 +446,24 @@ const content = {
       ],
     },
     cases: {
-      title: 'Case studies.',
+      title: 'Delivered client cases.',
       subtitle:
-        'Concrete examples of operational deployments and measurable automation impact.',
+        'Three system formats already scoped or delivered: simple back office, automated CRM, enterprise AI roadmap.',
       items: [
         {
-          title: 'Financial Reporting Automation',
-          metric: 'Close from 4 days to 2 hours',
-          body: 'Automated consolidated reporting from ERP and Excel, with real-time budget alerts and deep integrity checks.',
+          title: 'Automated back office for a small operator',
+          metric: 'Admin work centralized in one master sheet',
+          body: 'Client data collected from email, Drive and forms, document checks, automated reminders and synchronization into a master Excel/Google Sheets file that the admin team can run from.',
         },
         {
-          title: 'Practical Knowledge Assistant',
-          metric: '600+ queries resolved / month',
-          body: 'Deploying an intelligent company knowledge base integrated into Slack to eliminate manual information lookup.',
+          title: 'Full CRM for a premium mobility operator',
+          metric: 'Sales, support and operations in one system',
+          body: 'CRM structuring, internal process automation, commercial chatbot, customer support and a multi-year AI roadmap to evolve the operating stack.',
         },
         {
-          title: 'Contact Qualification & Routing',
-          metric: 'Inbound leads routed in < 5 min',
-          body: 'Automated prospect scoring architecture and CRM record synchronization with human control backup.',
+          title: 'AI roadmap for a large financial account',
+          metric: '90+ use cases qualified and prioritized',
+          body: 'Mapping Finance, Compliance, Credit, Legal and Risk, scoring value/effort/risk, inventorying data, framing AI governance, training ambassadors and sequencing deployment waves.',
         },
       ],
     },
@@ -595,7 +595,7 @@ function Section({
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
       transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
-      className="relative"
+      className="relative scroll-mt-[68px]"
     >
       
       <div className="mx-auto w-full max-w-[1200px] px-6 pb-12 pt-8 md:px-10 md:pb-16 md:pt-10">

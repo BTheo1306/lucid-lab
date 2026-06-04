@@ -222,8 +222,10 @@ const widgetStyles = `
   .ll-chat-teaser { animation: none; }
   .ll-chat-toggle-pulse { animation: none; }
 }
-@media (max-width: 640px) {
+@media (max-width: 1024px) {
   .ll-chat-teaser { display: none; }
+}
+@media (max-width: 640px) {
   .ll-chat-toggle {
     width: 52px; height: 52px; bottom: 14px; right: 14px;
     box-shadow: 0 5px 18px rgba(0,0,0,0.22);
