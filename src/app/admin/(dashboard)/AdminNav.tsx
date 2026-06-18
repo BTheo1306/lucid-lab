@@ -45,6 +45,7 @@ type NavSection = {
 
 const primaryItems: NavItem[] = [
   { href: '/admin/lucid-os', label: 'Tableau de bord', icon: BarChart3, exact: true, activePaths: ['/admin'] },
+  { href: '/admin/lucid-os/metrics', label: 'Métriques', icon: Activity },
   { href: '/admin/lucid-os/inbox', label: 'Actions', icon: Inbox },
 ];
 
