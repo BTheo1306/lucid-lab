@@ -84,6 +84,11 @@ function recordIsAcquired(record: ClientRecordListItem): boolean {
   return recordStatus(record) === 'active';
 }
 
+function recordIsTerminated(record: ClientRecordListItem): boolean {
+  const status = recordStatus(record);
+  return status === 'offboarded' || status === 'archived';
+}
+
 function normalizeListSearch(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
@@ -177,7 +182,8 @@ export default async function LucidOsClientsPage({ searchParams }: { searchParam
   ];
   const filteredRecords = records.filter((record) => recordMatchesQuery(record, normalizedQuery));
   const clientRecords = filteredRecords.filter(recordIsAcquired);
-  const prospectRecords = filteredRecords.filter((record) => !recordIsAcquired(record));
+  const terminatedRecords = filteredRecords.filter(recordIsTerminated);
+  const prospectRecords = filteredRecords.filter((record) => !recordIsAcquired(record) && !recordIsTerminated(record));
 
   return (
     <div className="grid gap-7">
@@ -193,6 +199,7 @@ export default async function LucidOsClientsPage({ searchParams }: { searchParam
 
       <RecordListSection title="Clients" records={clientRecords} acquired emptyLabel="Aucun client actif." />
       <RecordListSection id="prospects" title="Prospects" records={prospectRecords} acquired={false} emptyLabel="Aucun prospect." />
+      <RecordListSection id="termines" title="Perdu / Terminé" records={terminatedRecords} acquired={false} emptyLabel="Aucun client terminé." />
     </div>
   );
 }
