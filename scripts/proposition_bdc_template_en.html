@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 9.5pt;
+      color: #0A0A0A;
+      line-height: 1.5;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* ── Logo ─────────────────────────────────────────────── */
+    .logo-block { margin-bottom: 28px; }
+    .logo-block img { height: 44px; width: auto; display: block; }
+
+    /* ── Title block ──────────────────────────────────────── */
+    .doc-label {
+      font-family: 'Syne', 'Inter', sans-serif;
+      font-size: 21pt;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .doc-client { font-size: 13pt; font-weight: 600; margin-bottom: 5px; }
+    .doc-subtitle { font-size: 10pt; color: #666; margin-bottom: 24px; line-height: 1.45; }
+
+    /* ── Accent rule ──────────────────────────────────────── */
+    .accent-rule { border: none; border-top: 3px solid #FFB451; margin-bottom: 16px; width: 48px; }
+
+    /* ── Intro box ────────────────────────────────────────── */
+    .doc-intro {
+      font-size: 9.5pt;
+      color: #444;
+      font-style: italic;
+      line-height: 1.5;
+      margin-bottom: 18px;
+      padding: 9px 13px;
+      background: #F9F9F7;
+      border-left: 3px solid #FFB451;
+    }
+
+    /* ── Meta table ───────────────────────────────────────── */
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 16px;
+      font-size: 10pt;
+    }
+    .meta-table tr:nth-child(odd) td { background: #F5F5F2; }
+    .meta-table td { padding: 6px 12px; }
+    .meta-table .lbl { font-weight: 700; font-size: 8.5pt; width: 28%; white-space: nowrap; }
+
+    /* ── Section headings ─────────────────────────────────── */
+    h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: 13pt;
+      font-weight: 700;
+      margin-top: 28px;
+      margin-bottom: 12px;
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+    h2 {
+      font-size: 11pt;
+      font-weight: 700;
+      margin-top: 20px;
+      margin-bottom: 8px;
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+
+    /* ── Body text ────────────────────────────────────────── */
+    p { margin-bottom: 9px; }
+    .legal { text-align: justify; }
+
+    /* ── Bullet lists ─────────────────────────────────────── */
+    ul { list-style: none; padding: 0; margin-bottom: 8px; }
+    ul li { padding-left: 18px; position: relative; margin-bottom: 5px; line-height: 1.5; }
+    ul li::before { content: '•'; position: absolute; left: 2px; }
+    li { break-inside: avoid; page-break-inside: avoid; }
+
+    /* ── Timeline ─────────────────────────────────────────── */
+    .timeline {
+      display: flex;
+      position: relative;
+      margin: 22px 0 26px;
+      page-break-inside: avoid;
+    }
+    .tl-line {
+      position: absolute; height: 1.5px; background: #D0D0D0;
+      top: 57px;
+      left: calc(50% / var(--n)); right: calc(50% / var(--n));
+      z-index: 0;
+    }
+    .ms { flex: 1; display: flex; flex-direction: column; align-items: center; }
+    .ms-top {
+      height: 52px; display: flex; flex-direction: column;
+      align-items: center; justify-content: flex-end;
+      padding-bottom: 8px; text-align: center; width: 100%;
+    }
+    .ms-date { font-weight: 700; font-size: 8.5pt; color: #0A0A0A; line-height: 1.2; }
+    .ms-tag { font-size: 6.5pt; font-weight: 700; text-transform: uppercase; color: #FFB451; letter-spacing: 0.06em; margin-top: 3px; }
+    .ms-dot { position: relative; z-index: 1; margin-bottom: 10px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: block; }
+    .dot.accent { background: #FFB451; }
+    .dot.dark   { background: #0A0A0A; }
+    .ms-desc { text-align: center; font-size: 8pt; color: #555; line-height: 1.4; max-width: 90%; }
+
+    /* ── Calendar items ───────────────────────────────────── */
+    .cal-item { margin-bottom: 11px; }
+    .cal-label { font-weight: 700; }
+
+    /* ── Investment / data tables ─────────────────────────── */
+    .inv-table {
+      width: 100%; border-collapse: collapse;
+      margin-top: 10px; font-size: 10pt;
+      page-break-inside: avoid;
+    }
+    .inv-table tr:nth-child(odd) td { background: #F5F5F2; }
+    .inv-table td { padding: 6px 12px; vertical-align: top; }
+    .inv-table .lbl { font-weight: 700; width: 38%; }
+
+    /* ── RIB table ────────────────────────────────────────── */
+    .rib-table {
+      width: 100%; border-collapse: collapse;
+      margin: 8px 0 12px; font-size: 10pt;
+      page-break-inside: avoid;
+    }
+    .rib-table td { padding: 6px 12px; border: 1px solid #DDDDDD; vertical-align: top; }
+    .rib-table .rlbl { font-weight: 700; background: #F5F5F2; width: 30%; }
+
+    /* ── Acceptance box ───────────────────────────────────── */
+    .acceptance-box {
+      border: 1.5px solid #0A0A0A;
+      padding: 11px 14px 11px 40px;
+      margin: 14px 0;
+      position: relative;
+      break-inside: avoid; page-break-inside: avoid;
+    }
+    .check-square {
+      position: absolute; left: 13px; top: 13px;
+      width: 13px; height: 13px; border: 1px solid #777;
+    }
+
+    /* ── Signature page ───────────────────────────────────── */
+    .sig-page { break-inside: avoid; page-break-inside: avoid; }
+    .sig-mention { font-size: 9.5pt; color: #555; margin-bottom: 32px; line-height: 1.6; }
+    .sig-boxes { display: flex; gap: 24px; }
+    .sig-box { flex: 1; border: 1px solid #DDDDDD; padding: 20px 20px 24px; break-inside: avoid; page-break-inside: avoid; }
+    .sig-party { font-weight: 700; font-size: 10.5pt; padding-bottom: 12px; margin-bottom: 16px; border-bottom: 1px solid #EEEEEE; }
+    .sig-field { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 14px; font-size: 9.5pt; color: #444; }
+    .sig-field span { white-space: nowrap; }
+    .sig-underline { flex: 1; border-bottom: 1px solid #CCCCCC; height: 18px; }
+    .sig-area-label { font-size: 9.5pt; color: #444; margin-bottom: 7px; }
+    .sig-area { height: 120px; border: 1px solid #EEEEEE; background: #FAFAFA; }
+
+    /* ── Page break / layout controls ────────────────────── */
+    .subsection-block { break-inside: avoid; page-break-inside: avoid; }
+    .cal-item, .inv-table, .rib-table { break-inside: avoid; page-break-inside: avoid; }
+    .page-break { break-before: page; page-break-before: always; height: 0; margin: 0; padding: 0; }
+    .no-break { break-inside: avoid; page-break-inside: avoid; }
+    .strong-line { font-weight: 700; margin-bottom: 9px; }
+    .mt-sm { margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- PAGE 1 : Title + Parties + Objective -->
+
+  <div class="logo-block"><img src="{{ logo_src }}" alt="Lucid-Lab"></div>
+  <div class="doc-label">SERVICE PROPOSAL</div>
+  <div class="doc-client">{{ client_name }}</div>
+  <div class="doc-subtitle">{{ subtitle }}</div>
+  <hr class="accent-rule">
+
+  <table class="meta-table">
+    {% for label, value in meta %}
+    <tr><td class="lbl">{{ label }}</td><td>{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <p class="doc-intro">
+    By signing this Proposal, the Client fully accepts the offer, enters into a binding Contract,
+    and commits to payment on the terms set out below.
+  </p>
+
+  <h1>Parties</h1>
+  <p class="legal">
+    <strong>The Service Provider</strong>: Lucid-Lab, simplified joint-stock company (SAS) registered under French law,
+    share capital of 999 euros, registered office: 47 rue Vivienne, 75002 Paris, France,
+    registered under number 104 672 050 with the Paris Trade and Companies Registry (R.C.S. Paris),
+    EU VAT number FR 02 104 672 050, represented by its President,
+    Periscope-X SARL, itself represented by Mr Anthony Poirier, duly authorised.
+  </p>
+  <p class="legal mt-sm">{{ client_block_bdc }}</p>
+
+  <!-- PAGE 2 : Objective + Scope -->
+  <div class="page-break"></div>
+
+  <h1>Objective</h1>
+  {% for para in objectif %}<p class="legal">{{ para }}</p>{% endfor %}
+
+  <h1>Scope of Work</h1>
+  {% for block in perimetre %}
+  <div class="subsection-block">
+    <h2>{{ block.title }}</h2>
+    <ul>{% for item in block.bullets %}<li>{{ item }}</li>{% endfor %}</ul>
+  </div>
+  {% endfor %}
+
+  <!-- PAGE 3 : Timeline -->
+  <div class="page-break"></div>
+
+  <h1>Timeline</h1>
+
+  <div class="timeline" style="--n: {{ timeline|length }}">
+    <div class="tl-line"></div>
+    {% for ms in timeline %}
+    <div class="ms">
+      <div class="ms-top">
+        <div class="ms-date">{{ ms.date }}</div>
+        {% if ms.label %}<div class="ms-tag">{{ ms.label }}</div>{% endif %}
+      </div>
+      <div class="ms-dot">
+        <div class="dot {{ 'accent' if (loop.first or loop.last) else 'dark' }}"></div>
+      </div>
+      <div class="ms-desc">{{ ms.description }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% for item in calendrier %}
+  <div class="cal-item">
+    <span class="cal-label">{{ item.label }}&nbsp;&nbsp;</span>{{ item.text }}
+  </div>
+  {% endfor %}
+
+  <h2 style="margin-top: 28px;">Deliverables by Option</h2>
+  <table class="inv-table" style="margin-top: 8px;">
+    {% for label, value in livrables %}
+    <tr><td class="lbl">{{ label }}</td><td>{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <!-- PAGE 4 : Investment + Costs not included -->
+  <div class="page-break"></div>
+
+  <h1>Investment</h1>
+  <table class="inv-table">
+    {% for label, value in investissement %}
+    <tr><td class="lbl">{{ label }}</td><td>{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h1>Costs Not Included</h1>
+  <p>{{ couts_exclus.intro }}</p>
+  <ul>{% for item in couts_exclus.bullets %}<li>{{ item }}</li>{% endfor %}</ul>
+  <p class="mt-sm">{{ couts_exclus.outro }}</p>
+
+  <!-- PAGE 5 : Payment Terms + GTC + Next Steps -->
+  <div class="page-break"></div>
+
+  <h1>Payment Terms</h1>
+  <p class="legal">
+    Payment method: SEPA bank transfer only. No work is started or delivered until the corresponding
+    payment has been effectively credited to Lucid-Lab's account.
+  </p>
+  <table class="rib-table">
+    <tr><td class="rlbl">Account holder</td><td>Lucid-Lab</td></tr>
+    <tr><td class="rlbl">IBAN</td><td>FR76 2823 3000 0119 9177 3651 869</td></tr>
+    <tr><td class="rlbl">BIC</td><td>REVOFRP2</td></tr>
+    <tr><td class="rlbl">Bank</td><td>Revolut Bank UAB</td></tr>
+    <tr><td class="rlbl">Payment reference</td><td>{{ ref_client_rib }}</td></tr>
+  </table>
+
+  <h1>Late Payment Penalties</h1>
+  <p class="legal">
+    Any late payment automatically triggers, from the day following the due date:
+  </p>
+  <ul>
+    <li>late interest at the ECB rate plus 10 percentage points (art. L. 441-10 French Commercial Code);</li>
+    <li>statutory flat indemnity of forty (40) euros for collection costs (art. D. 441-5 French Commercial Code);</li>
+    <li>contractual flat indemnity of two hundred and fifty (250) euros per overdue invoice.</li>
+  </ul>
+  <p class="legal">
+    These penalties are cumulative. If a payment is more than ten (10) days overdue, Lucid-Lab may
+    suspend all Services and declare immediate repayment of all outstanding amounts.
+  </p>
+
+  <h1>General Terms and Conditions</h1>
+  <p class="legal">
+    This Proposal is governed by Lucid-Lab's General Terms and Conditions,
+    available at https://lucid-lab.fr/cgv and attached as an annex.
+    The Client acknowledges having read them and accepts them without reservation before signing.
+  </p>
+
+  <h1>Next Steps</h1>
+  <ul>{% for item in prochaines_etapes %}<li>{{ item }}</li>{% endfor %}</ul>
+
+  <!-- PAGE 6 : Contractual Framework + Acceptance -->
+  <div class="page-break"></div>
+
+  <h1>Contractual Framework</h1>
+  {% for para in cadre_contractuel %}<p class="legal">{{ para }}</p>{% endfor %}
+
+  <h1>Acceptance as Firm Order</h1>
+  <p>{{ acceptation.intro }}</p>
+  <ul>{% for item in acceptation.bullets %}<li>{{ item }}</li>{% endfor %}</ul>
+  <p class="mt-sm legal">{{ acceptation.conclusion }}</p>
+  <p class="strong-line">{{ acceptation.modalite }}</p>
+  <p class="strong-line">{{ acceptation.mention }}</p>
+
+  <div class="acceptance-box">
+    <div class="check-square"></div>
+    <p>
+      <strong>Agreed.</strong> By checking this box and signing below, the Client confirms
+      full agreement with the scope, pricing, and timeline set out in this Proposal.
+    </p>
+  </div>
+
+  <!-- PAGE 7 : Signatures -->
+  <div class="page-break"></div>
+
+  <div class="sig-page">
+    <h1 style="margin-top: 0;">Signatures</h1>
+    <p class="sig-mention">
+      Each signature must be preceded by the handwritten note:<br>
+      <strong>"{{ mention_manuscrite }}"</strong>
+    </p>
+    <div class="sig-boxes">
+      <div class="sig-box">
+        <div class="sig-party">For {{ signature.client }}</div>
+        <div class="sig-field"><span>Date:</span><span class="sig-underline"></span></div>
+        <div class="sig-field"><span>Place:</span><span class="sig-underline"></span></div>
+        <div class="sig-area-label">Signature:</div>
+        <div class="sig-area"></div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-party">For Lucid-Lab</div>
+        <div class="sig-field"><span>Date:</span><span class="sig-underline"></span></div>
+        <div class="sig-field"><span>Place:</span><span class="sig-underline"></span></div>
+        <div class="sig-area-label">Signature:</div>
+        <div class="sig-area"></div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>

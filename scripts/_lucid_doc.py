@@ -18,7 +18,7 @@ from docx.enum.table import WD_TABLE_ALIGNMENT, WD_CELL_VERTICAL_ALIGNMENT
 from docx.enum.text import WD_ALIGN_PARAGRAPH, WD_BREAK
 from docx.oxml import OxmlElement
 from docx.oxml.ns import qn
-from docx.shared import Cm, Mm, Pt, RGBColor, Inches
+from docx.shared import Cm, Mm, Pt, RGBColor, Inches, Emu
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -306,6 +306,105 @@ def add_kv_row(doc, label: str, value: str):
     val = p.add_run(value)
     _set_font(val, family="Inter", size=10.5, color=MUTED)
     return p
+
+def _set_cell_border(cell, top=None, bottom=None, left=None, right=None):
+    """Set cell borders. Each param: (color_hex, size_in_8pt_units) or None to clear."""
+    tc = cell._tc
+    tcPr = tc.get_or_add_tcPr()
+    tcBorders = tcPr.find(qn("w:tcBorders"))
+    if tcBorders is None:
+        tcBorders = OxmlElement("w:tcBorders")
+        tcPr.append(tcBorders)
+    for side_name, val in [("top", top), ("bottom", bottom), ("left", left), ("right", right)]:
+        existing = tcBorders.find(qn(f"w:{side_name}"))
+        if existing is not None:
+            tcBorders.remove(existing)
+        el = OxmlElement(f"w:{side_name}")
+        if val is None:
+            el.set(qn("w:val"), "none")
+        else:
+            el.set(qn("w:val"), "single")
+            el.set(qn("w:sz"), str(val[1]))
+            el.set(qn("w:space"), "0")
+            el.set(qn("w:color"), val[0])
+        tcBorders.append(el)
+
+
+def add_timeline(doc, milestones: list[dict], usable_width_emu: int = 5_548_320):
+    """
+    Draws a visual horizontal timeline suitable for project roadmaps.
+
+    milestones: list of dict with:
+        date: str           — bold label above the dot
+        label: str|None     — optional tag below date in orange (e.g. 'DÉMARRAGE')
+        lines: list[str]    — short description lines below the dot
+
+    First and last milestones get an orange dot; intermediate ones are dark.
+    """
+    n = len(milestones)
+    col_w = usable_width_emu // n
+
+    table = doc.add_table(rows=3, cols=n)
+    table.autofit = False
+
+    tblPr = table._tbl.find(qn("w:tblPr"))
+    if tblPr is None:
+        tblPr = OxmlElement("w:tblPr")
+        table._tbl.insert(0, tblPr)
+    tbl_borders = OxmlElement("w:tblBorders")
+    for side in ("top", "left", "bottom", "right", "insideH", "insideV"):
+        el = OxmlElement(f"w:{side}")
+        el.set(qn("w:val"), "none")
+        tbl_borders.append(el)
+    tblPr.append(tbl_borders)
+
+    for j, ms in enumerate(milestones):
+        is_accent = (j == 0 or j == n - 1)
+
+        # Row 0 : date + optional tag
+        c0 = table.cell(0, j)
+        c0.width = Emu(col_w)
+        _set_cell_border(c0, top=None, bottom=None, left=None, right=None)
+        p = c0.paragraphs[0]
+        p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p.paragraph_format.space_before = Pt(0)
+        p.paragraph_format.space_after = Pt(3)
+        r = p.add_run(ms["date"])
+        _set_font(r, family="Inter", size=9, bold=True, color=INK)
+        if ms.get("label"):
+            pl = c0.add_paragraph()
+            pl.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            pl.paragraph_format.space_before = Pt(0)
+            pl.paragraph_format.space_after = Pt(2)
+            rl = pl.add_run(ms["label"].upper())
+            _set_font(rl, family="Inter", size=7, bold=True, color=ACCENT)
+
+        # Row 1 : dot; top border = the connecting horizontal line
+        c1 = table.cell(1, j)
+        c1.width = Emu(col_w)
+        _set_cell_border(c1, top=(SOFT, 6), bottom=None, left=None, right=None)
+        p1 = c1.paragraphs[0]
+        p1.alignment = WD_ALIGN_PARAGRAPH.CENTER
+        p1.paragraph_format.space_before = Pt(2)
+        p1.paragraph_format.space_after = Pt(2)
+        r1 = p1.add_run("●")
+        _set_font(r1, family="Inter", size=9, color=ACCENT if is_accent else INK)
+
+        # Row 2 : description lines
+        c2 = table.cell(2, j)
+        c2.width = Emu(col_w)
+        _set_cell_border(c2, top=None, bottom=None, left=None, right=None)
+        for k, line in enumerate(ms.get("lines", [])):
+            p2 = c2.paragraphs[0] if k == 0 else c2.add_paragraph()
+            p2.alignment = WD_ALIGN_PARAGRAPH.CENTER
+            p2.paragraph_format.space_before = Pt(0)
+            p2.paragraph_format.space_after = Pt(2)
+            r2 = p2.add_run(line)
+            _set_font(r2, family="Inter", size=8, color=MUTED)
+
+    sp = doc.add_paragraph()
+    sp.paragraph_format.space_after = Pt(18)
+
 
 def add_signature_block(doc, client_name: str):
     h = add_section(doc, "Validation & Signatures", new_page=False)

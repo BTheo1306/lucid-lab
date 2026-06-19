@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 9.5pt;
+      color: #0A0A0A;
+      line-height: 1.5;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* ── Logo ─────────────────────────────────────────────── */
+    .logo-block { margin-bottom: 24px; }
+    .logo-block img { height: 36px; width: auto; display: block; }
+
+    /* ── Title block ──────────────────────────────────────── */
+    .doc-label {
+      font-family: 'Syne', 'Inter', sans-serif;
+      font-size: 17pt;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.15;
+      margin-bottom: 12px;
+    }
+    .accent-rule {
+      border: none;
+      border-top: 3px solid #FFB451;
+      margin-bottom: 14px;
+      width: 48px;
+    }
+    .doc-meta { font-size: 9pt; color: #555; margin-bottom: 10px; }
+    .doc-intro {
+      font-size: 9.5pt;
+      color: #444;
+      font-style: italic;
+      line-height: 1.5;
+      margin-bottom: 22px;
+      padding: 10px 14px;
+      background: #F9F9F7;
+      border-left: 3px solid #FFB451;
+    }
+
+    /* ── Headings ─────────────────────────────────────────── */
+    h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: 11pt;
+      font-weight: 700;
+      margin-top: 24px;
+      margin-bottom: 10px;
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+
+    /* ── Body text ────────────────────────────────────────── */
+    p { margin-bottom: 8px; }
+    .legal { text-align: justify; }
+    .bold { font-weight: 700; }
+
+    /* ── Lists ────────────────────────────────────────────── */
+    ul { list-style: none; padding: 0; margin-bottom: 10px; }
+    ul li { padding-left: 16px; position: relative; margin-bottom: 5px; line-height: 1.45; }
+    ul li::before { content: '•'; position: absolute; left: 2px; }
+    li { break-inside: avoid; page-break-inside: avoid; }
+
+    /* ── Financial table ──────────────────────────────────── */
+    .fin-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 14px;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+    }
+    .fin-table tr:nth-child(odd) td { background: #F5F5F2; }
+    .fin-table td { padding: 6px 10px; vertical-align: top; }
+    .fin-table .lbl { font-weight: 700; width: 38%; }
+
+    /* ── RIB table ────────────────────────────────────────── */
+    .rib-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 8px 0 14px;
+      font-size: 9.5pt;
+      page-break-inside: avoid;
+    }
+    .rib-table td { padding: 6px 10px; border: 1px solid #DDDDDD; vertical-align: top; }
+    .rib-table .rlbl { font-weight: 700; background: #F5F5F2; width: 32%; }
+
+    /* ── Acceptance box ───────────────────────────────────── */
+    .acceptance-box {
+      border: 1.5px solid #0A0A0A;
+      padding: 10px 14px 10px 36px;
+      margin: 14px 0;
+      position: relative;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .check-square {
+      position: absolute;
+      left: 12px;
+      top: 12px;
+      width: 12px;
+      height: 12px;
+      border: 1px solid #777;
+    }
+
+    /* ── Signature blocks ─────────────────────────────────── */
+    .sig-page { break-inside: avoid; page-break-inside: avoid; }
+    .sig-boxes { display: flex; gap: 20px; margin-top: 14px; }
+    .sig-box {
+      flex: 1;
+      border: 1px solid #DDDDDD;
+      padding: 14px 16px 18px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .sig-party {
+      font-weight: 700;
+      font-size: 9.5pt;
+      padding-bottom: 10px;
+      margin-bottom: 12px;
+      border-bottom: 1px solid #EEEEEE;
+    }
+    .sig-field { display: flex; align-items: flex-end; gap: 8px; margin-bottom: 12px; font-size: 9pt; color: #444; }
+    .sig-field span { white-space: nowrap; }
+    .sig-underline { flex: 1; border-bottom: 1px solid #CCCCCC; height: 16px; }
+    .sig-area-label { font-size: 9pt; color: #444; margin-bottom: 6px; }
+    .sig-area { height: 90px; border: 1px solid #EEEEEE; background: #FAFAFA; }
+
+    /* ── Page breaks ──────────────────────────────────────── */
+    .page-break { break-before: page; page-break-before: always; height: 0; margin: 0; padding: 0; }
+    .no-break { break-inside: avoid; page-break-inside: avoid; }
+    .mt-sm { margin-top: 8px; }
+    .mt-md { margin-top: 16px; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PAGE 1 — Parties + Objet                           -->
+  <!-- ═══════════════════════════════════════════════════ -->
+
+  <div class="logo-block"><img src="{{ logo_src }}" alt="Lucid-Lab"></div>
+  <div class="doc-label">PROPOSITION COMMERCIALE<br>VALANT BON DE COMMANDE</div>
+  <hr class="accent-rule">
+  <p class="doc-meta">
+    Référence : <strong>{{ bdc_ref }}</strong>
+    &nbsp;·&nbsp; Date d'émission : <strong>{{ date }}</strong>
+    &nbsp;·&nbsp; Valable 30 jours à compter de la date d'émission
+  </p>
+  <p class="doc-intro">
+    La signature de la présente Proposition par le Client vaut acceptation pleine et entière de l'offre,
+    formation du Contrat et engagement ferme de payer aux conditions ci-dessous.
+  </p>
+
+  <h1>Parties</h1>
+  <p class="legal">
+    <span class="bold">Le Prestataire</span> — Lucid-Lab, Société par actions simplifiée (SAS) au capital
+    de 999 euros, siège social : 47 rue Vivienne, 75002 Paris, France, immatriculée au 104 672 050 R.C.S.
+    Paris, numéro de TVA intracommunautaire FR 02 104 672 050, représentée par son Président,
+    Periscope-X SARL, elle-même représentée par Monsieur Anthony Poirier dûment habilité.
+  </p>
+  <p class="legal mt-sm">{{ client_block_bdc }}</p>
+
+  <h1>Objet et périmètre de la prestation</h1>
+  <div class="no-break">
+    <p><span class="bold">Intitulé de la mission :</span> {{ mission_title }}</p>
+  </div>
+  <p class="legal mt-sm">{{ mission_description }}</p>
+  <p class="bold mt-sm">Livrables attendus :</p>
+  <ul>
+    {% for l in livrables %}<li>{{ l }}</li>{% endfor %}
+  </ul>
+  <p><span class="bold">Calendrier :</span> {{ calendrier_bdc }}</p>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PAGE 2 — Conditions financières + Pénalités        -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="page-break"></div>
+
+  <h1>Conditions financières</h1>
+  <table class="fin-table">
+    <tr><td class="lbl">Prix HT total</td><td>{{ prix_ht }}</td></tr>
+    <tr><td class="lbl">TVA (20 %)</td><td>{{ tva }}</td></tr>
+    <tr><td class="lbl">Prix TTC total</td><td><strong>{{ prix_ttc }}</strong></td></tr>
+    <tr><td class="lbl">Modalité retenue</td><td>{{ modalite_bdc }}</td></tr>
+    <tr><td class="lbl">Échéancier</td><td>{{ echeancier_bdc }}</td></tr>
+  </table>
+  <p class="legal">
+    Moyen de paiement : virement SEPA exclusivement, sur le compte ci-après.
+    Aucune prestation n'est engagée ni livrée tant que la fraction de prix correspondante
+    n'a pas été effectivement créditée sur le compte de Lucid-Lab.
+  </p>
+  <table class="rib-table">
+    <tr><td class="rlbl">Titulaire</td><td>Lucid-Lab</td></tr>
+    <tr><td class="rlbl">IBAN</td><td>FR76 2823 3000 0119 9177 3651 869</td></tr>
+    <tr><td class="rlbl">BIC</td><td>REVOFRP2</td></tr>
+    <tr><td class="rlbl">Banque</td><td>Revolut Bank UAB</td></tr>
+    <tr><td class="rlbl">Référence à indiquer</td><td>{{ ref_client_rib }}</td></tr>
+  </table>
+
+  <h1>Pénalités de retard et frais de recouvrement</h1>
+  <p class="legal">
+    Conformément à l'article 6 des Conditions Générales de Vente, tout retard de paiement entraîne
+    de plein droit, dès le jour suivant la date d'exigibilité :
+  </p>
+  <ul>
+    <li>intérêts moratoires au taux de la BCE majoré de 10 points (art. L. 441-10 C.com.) ;</li>
+    <li>indemnité forfaitaire légale de quarante (40) euros pour frais de recouvrement (art. D. 441-5 C.com.) ;</li>
+    <li>indemnité forfaitaire contractuelle de deux cent cinquante (250) euros par facture en retard.</li>
+  </ul>
+  <p class="legal">
+    Ces trois pénalités sont cumulables. En cas de retard supérieur à dix (10) jours, Lucid-Lab pourra
+    suspendre l'exécution des Prestations et, le cas échéant, prononcer la déchéance du terme.
+  </p>
+
+  <h1>Coûts exclus du forfait</h1>
+  <p class="legal">
+    Le prix ci-dessus rémunère exclusivement le travail de Lucid-Lab. Sont expressément exclus et restent
+    à la charge directe du Client : les crédits API des modèles IA tiers, les coûts d'hébergement et de
+    stockage selon usage réel, les accès aux API tierces au-delà des quotas gratuits, les budgets
+    publicitaires, et tout abonnement ou licence d'outil tiers.
+  </p>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PAGE 3 — CGV + Acceptation + Signatures            -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="page-break"></div>
+
+  <h1>Conditions Générales de Vente</h1>
+  <p class="legal">
+    Le présent Bon de Commande est régi par les Conditions Générales de Vente de Lucid-Lab,
+    accessibles à https://lucid-lab.fr/cgv et jointes en annexe.
+    Le Client reconnaît en avoir pris connaissance et les accepte sans réserve avant la signature.
+  </p>
+  <p class="legal">
+    Sauf accord écrit exprès, les présentes CGV prévalent sur tout document du Client,
+    en particulier ses conditions générales d'achat.
+  </p>
+
+  <h1>Acceptation valant commande ferme</h1>
+  <p>Le Client déclare avoir pris connaissance et accepter sans réserve :</p>
+  <ul>
+    <li>le périmètre, les livrables et le calendrier décrits ci-dessus ;</li>
+    <li>la modalité tarifaire retenue et l'échéancier de paiement associé ;</li>
+    <li>les Conditions Générales de Vente Lucid-Lab accessibles sur lucid-lab.fr/cgv ;</li>
+    <li>l'obligation de paiement préalable au démarrage des Prestations ;</li>
+    <li>le caractère ferme et irrévocable de la commande.</li>
+  </ul>
+  <p class="legal">
+    La signature de la présente Proposition vaut acceptation de l'offre, formation du Contrat et commande
+    ferme, et déclenche l'émission d'une facture pro forma puis l'exécution des Prestations à compter de
+    la réception effective du premier paiement.
+  </p>
+  <p class="bold mt-sm">Mention manuscrite obligatoire : « {{ mention_manuscrite }} ».</p>
+
+  <div class="acceptance-box">
+    <div class="check-square"></div>
+    <p>
+      <strong>Bon pour accord.</strong> En cochant cette case et en signant, le Client confirme son accord
+      sur le périmètre, les conditions financières et le démarrage de la prestation.
+    </p>
+  </div>
+
+  <div class="sig-page">
+    <div class="sig-boxes">
+      <div class="sig-box">
+        <div class="sig-party">Pour le Client<br>{{ client_short }}</div>
+        <div class="sig-field"><span>Date :</span><span class="sig-underline"></span></div>
+        <div class="sig-field"><span>Lieu :</span><span class="sig-underline"></span></div>
+        <div class="sig-area-label">Signature :</div>
+        <div class="sig-area"></div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-party">Pour Lucid-Lab</div>
+        <div class="sig-field"><span>Date :</span><span class="sig-underline"></span></div>
+        <div class="sig-field"><span>Lieu :</span><span class="sig-underline"></span></div>
+        <div class="sig-area-label">Signature :</div>
+        <div class="sig-area"></div>
+      </div>
+    </div>
+  </div>
+
+  <h1 style="margin-top: 20px;">Annexes</h1>
+  <ul>
+    <li>Annexe 1 — Conditions Générales de Vente Lucid-Lab — https://lucid-lab.fr/cgv</li>
+    <li>Annexe 2 — RIB Lucid-Lab</li>
+    <li>Annexe 3 — Attestation Responsabilité Civile Professionnelle — sur demande</li>
+  </ul>
+
+</body>
+</html>

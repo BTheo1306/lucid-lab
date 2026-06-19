@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Syne:wght@700&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+      font-size: 10.5pt;
+      color: #0A0A0A;
+      line-height: 1.55;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    /* ── Logo ─────────────────────────────────────────────── */
+    .logo-block { margin-bottom: 36px; }
+    .logo-block img { height: 44px; width: auto; display: block; }
+
+    /* ── Title block ──────────────────────────────────────── */
+    .doc-label {
+      font-family: 'Syne', 'Inter', sans-serif;
+      font-size: 22pt;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+      margin-bottom: 10px;
+    }
+    .doc-client {
+      font-size: 13pt;
+      font-weight: 600;
+      margin-bottom: 5px;
+    }
+    .doc-subtitle {
+      font-size: 10pt;
+      color: #666;
+      margin-bottom: 32px;
+      line-height: 1.45;
+    }
+
+    /* ── Accent rule ──────────────────────────────────────── */
+    .accent-rule {
+      border: none;
+      border-top: 3px solid #FFB451;
+      margin-bottom: 20px;
+      width: 48px;
+    }
+
+    /* ── Meta table ───────────────────────────────────────── */
+    .meta-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 44px;
+      font-size: 10pt;
+    }
+    .meta-table tr:nth-child(odd) td { background: #F5F5F2; }
+    .meta-table td { padding: 7px 12px; }
+    .meta-table .lbl {
+      font-weight: 700;
+      font-size: 8.5pt;
+      width: 28%;
+      white-space: nowrap;
+    }
+
+    /* ── Section headings ─────────────────────────────────── */
+    h1 {
+      font-family: 'Inter', sans-serif;
+      font-size: 13pt;
+      font-weight: 700;
+      margin-top: 36px;
+      margin-bottom: 14px;
+      page-break-after: avoid;
+    }
+    h2 {
+      font-size: 11pt;
+      font-weight: 700;
+      margin-top: 22px;
+      margin-bottom: 8px;
+      page-break-after: avoid;
+    }
+
+    /* ── Body text ────────────────────────────────────────── */
+    p { margin-bottom: 10px; }
+
+    /* ── Bullet lists ─────────────────────────────────────── */
+    ul { list-style: none; padding: 0; margin-bottom: 8px; }
+    ul li {
+      padding-left: 18px;
+      position: relative;
+      margin-bottom: 5px;
+      line-height: 1.5;
+    }
+    ul li::before {
+      content: '•';
+      position: absolute;
+      left: 2px;
+    }
+
+    /* ── Timeline ─────────────────────────────────────────── */
+    /*
+      Layout: one .tl-line (absolute) draws the connecting bar
+      from the center of the first column to the center of the last.
+      Dots sit on top (z-index: 1). ms-top has a fixed height so all
+      dots land at the same Y regardless of label presence.
+    */
+    .timeline {
+      display: flex;
+      position: relative;
+      margin: 24px 0 28px;
+      page-break-inside: avoid;
+    }
+    .tl-line {
+      position: absolute;
+      height: 1.5px;
+      background: #D0D0D0;
+      /* top = ms-top fixed height (52px) + half dot (5px) = 57px */
+      top: 57px;
+      /* left/right = half of one column width = 50% / n-milestones */
+      left: calc(50% / var(--n));
+      right: calc(50% / var(--n));
+      z-index: 0;
+    }
+    .ms {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .ms-top {
+      height: 52px; /* fixed — aligns all dots to the same Y */
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-end;
+      padding-bottom: 8px;
+      text-align: center;
+      width: 100%;
+    }
+    .ms-date {
+      font-weight: 700;
+      font-size: 8.5pt;
+      color: #0A0A0A;
+      line-height: 1.2;
+    }
+    .ms-tag {
+      font-size: 6.5pt;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: #FFB451;
+      letter-spacing: 0.06em;
+      margin-top: 3px;
+    }
+    .ms-dot {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 10px;
+      margin-top: 0;
+    }
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      display: block;
+    }
+    .dot.accent { background: #FFB451; }
+    .dot.dark   { background: #0A0A0A; }
+    .ms-desc {
+      text-align: center;
+      font-size: 8pt;
+      color: #555;
+      line-height: 1.4;
+      max-width: 90%;
+    }
+
+    /* ── Calendar text detail ─────────────────────────────── */
+    .cal-item { margin-bottom: 12px; }
+    .cal-label { font-weight: 700; }
+
+    /* ── Investment table ─────────────────────────────────── */
+    .inv-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 12px;
+      font-size: 10pt;
+      page-break-inside: avoid;
+    }
+    .inv-table tr:nth-child(odd) td { background: #F5F5F2; }
+    .inv-table td { padding: 7px 12px; vertical-align: top; }
+    .inv-table .lbl { font-weight: 700; width: 38%; }
+
+    /* ── Signature page ──────────────────────────────────── */
+    .sig-page {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .sig-mention {
+      font-size: 9.5pt;
+      color: #555;
+      margin-bottom: 36px;
+      line-height: 1.6;
+    }
+    .sig-boxes {
+      display: flex;
+      gap: 24px;
+    }
+    .sig-box {
+      flex: 1;
+      border: 1px solid #DDDDDD;
+      padding: 20px 20px 24px;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    .sig-party {
+      font-weight: 700;
+      font-size: 10.5pt;
+      padding-bottom: 14px;
+      margin-bottom: 18px;
+      border-bottom: 1px solid #EEEEEE;
+    }
+    .sig-field {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      margin-bottom: 16px;
+      font-size: 9.5pt;
+      color: #444;
+    }
+    .sig-field span { white-space: nowrap; }
+    .sig-underline {
+      flex: 1;
+      border-bottom: 1px solid #CCCCCC;
+      height: 18px;
+    }
+    .sig-area-label {
+      font-size: 9.5pt;
+      color: #444;
+      margin-bottom: 8px;
+    }
+    .sig-area {
+      height: 120px;
+      border: 1px solid #EEEEEE;
+      background: #FAFAFA;
+    }
+
+    /* ── Bold paragraphs ──────────────────────────────────── */
+    .strong-line { font-weight: 700; margin-bottom: 10px; }
+
+    /* ── Page break control ──────────────────────────────── */
+    /*
+      h1/h2 : break-after:avoid ensures the heading is never
+      stranded alone at the bottom — the browser moves it to
+      the next page together with the content that follows.
+    */
+    h1, h2 {
+      break-after: avoid;
+      page-break-after: avoid;
+    }
+    /*
+      li : break-inside:avoid prevents a single bullet from
+      being split across two pages.
+    */
+    li {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    /*
+      .subsection-block : wraps h2 + ul so they move together
+      when the block fits on the remaining page space.
+    */
+    .subsection-block {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    /*
+      Calendar detail items and signature table must stay whole.
+    */
+    .cal-item, .inv-table {
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+
+    /* ── Explicit page breaks ────────────────────────────── */
+    .page-break {
+      break-before: page;
+      page-break-before: always;
+      height: 0;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* ── Utilities ────────────────────────────────────────── */
+    .no-break { page-break-inside: avoid; }
+    .mt-sm { margin-top: 10px; }
+  </style>
+</head>
+<body>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PAGE 1 — Titre + Objectif                         -->
+  <!-- ═══════════════════════════════════════════════════ -->
+
+  <div class="logo-block">
+    <img src="{{ logo_src }}" alt="Lucid-Lab">
+  </div>
+
+  <div class="doc-label">PROPOSITION D'ACCOMPAGNEMENT</div>
+  <div class="doc-client">{{ client_name }}</div>
+  <div class="doc-subtitle">{{ subtitle }}</div>
+  <hr class="accent-rule">
+
+  <table class="meta-table">
+    {% for label, value in meta %}
+    <tr><td class="lbl">{{ label }}</td><td>{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h1>Objectif</h1>
+  {% for para in objectif %}<p>{{ para }}</p>{% endfor %}
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PAGE 2 — Périmètre                                 -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="page-break"></div>
+
+  <h1>Périmètre</h1>
+  {% for block in perimetre %}
+  <div class="subsection-block">
+    <h2>{{ block.title }}</h2>
+    <ul>{% for item in block.bullets %}<li>{{ item }}</li>{% endfor %}</ul>
+  </div>
+  {% endfor %}
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PAGE 3 — Calendrier                                -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="page-break"></div>
+
+  <h1>Calendrier</h1>
+
+  <div class="timeline" style="--n: {{ timeline|length }}">
+    <div class="tl-line"></div>
+    {% for ms in timeline %}
+    <div class="ms">
+      <div class="ms-top">
+        <div class="ms-date">{{ ms.date }}</div>
+        {% if ms.label %}<div class="ms-tag">{{ ms.label }}</div>{% endif %}
+      </div>
+      <div class="ms-dot">
+        <div class="dot {{ 'accent' if (loop.first or loop.last) else 'dark' }}"></div>
+      </div>
+      <div class="ms-desc">{{ ms.description }}</div>
+    </div>
+    {% endfor %}
+  </div>
+
+  {% for item in calendrier %}
+  <div class="cal-item">
+    <span class="cal-label">{{ item.label }}&nbsp;&nbsp;</span>{{ item.text }}
+  </div>
+  {% endfor %}
+
+  <h2 style="margin-top: 32px;">Livrables par phase</h2>
+  <table class="inv-table" style="margin-top: 10px;">
+    {% for label, value in livrables %}
+    <tr><td class="lbl">{{ label }}</td><td>{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PAGE 4 — Investissement + Coûts exclus             -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="page-break"></div>
+
+  <h1>Investissement</h1>
+  <table class="inv-table">
+    {% for label, value in investissement %}
+    <tr><td class="lbl">{{ label }}</td><td>{{ value }}</td></tr>
+    {% endfor %}
+  </table>
+
+  <h1>Coûts exclus du forfait</h1>
+  <p>{{ couts_exclus.intro }}</p>
+  <ul>{% for item in couts_exclus.bullets %}<li>{{ item }}</li>{% endfor %}</ul>
+  <p class="mt-sm">{{ couts_exclus.outro }}</p>
+  <p>{{ couts_exclus.cgv }}</p>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PAGE 5 — Prochaines étapes + Cadre + Acceptation  -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="page-break"></div>
+
+  <h1>Prochaines étapes</h1>
+  <ul>{% for item in prochaines_etapes %}<li>{{ item }}</li>{% endfor %}</ul>
+
+  <h1>Cadre contractuel et démarrage</h1>
+  {% for para in cadre_contractuel %}<p>{{ para }}</p>{% endfor %}
+
+  <h1>Acceptation valant commande ferme</h1>
+  <p>{{ acceptation.intro }}</p>
+  <ul>{% for item in acceptation.bullets %}<li>{{ item }}</li>{% endfor %}</ul>
+  <p class="mt-sm">{{ acceptation.conclusion }}</p>
+  <p class="strong-line">{{ acceptation.modalite }}</p>
+  <p class="strong-line">{{ acceptation.mention }}</p>
+
+  <!-- ═══════════════════════════════════════════════════ -->
+  <!-- PAGE 6 — Signature                                 -->
+  <!-- ═══════════════════════════════════════════════════ -->
+  <div class="page-break"></div>
+
+  <div class="sig-page">
+    <h1 style="margin-top: 0;">Signatures</h1>
+    <p class="sig-mention">
+      Faire précéder chaque signature de la mention manuscrite obligatoire :<br>
+      <strong>« Lu et approuvé, bon pour accord et commande ferme, Prix : 10 800,00 € TTC, Modalité : Forfait Phase 1 B2B »</strong>
+    </p>
+
+    <div class="sig-boxes">
+      <div class="sig-box">
+        <div class="sig-party">Pour {{ signature.client }}</div>
+        <div class="sig-field"><span>Date :</span><span class="sig-underline"></span></div>
+        <div class="sig-field"><span>Lieu :</span><span class="sig-underline"></span></div>
+        <div class="sig-area-label">Signature :</div>
+        <div class="sig-area"></div>
+      </div>
+      <div class="sig-box">
+        <div class="sig-party">Pour Lucid-Lab</div>
+        <div class="sig-field"><span>Date :</span><span class="sig-underline"></span></div>
+        <div class="sig-field"><span>Lieu :</span><span class="sig-underline"></span></div>
+        <div class="sig-area-label">Signature :</div>
+        <div class="sig-area"></div>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
