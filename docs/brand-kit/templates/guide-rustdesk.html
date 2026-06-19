@@ -1,0 +1,337 @@
+<!-- @dsCard group="Templates" viewport="900x1180" name="Guide RustDesk" subtitle="Client install guide, Windows + Mac, illustrated, FR + EN (4 pages)" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Guide RustDesk</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="_doc-base.css">
+<style>
+  /* ── Guide-specific components, token-driven. Dark blocks use literal
+       colors because Chrome's print path drops var()/positioned bg. ── */
+  .lead { font-size: 14.5px; line-height: 1.65; color: var(--text-secondary); margin: 18px 0 0; max-width: 66ch; }
+  .lead b { color: var(--text-primary); font-weight: 600; }
+
+  .assure { margin-top: 18px; background-color: #0A0A0A; border-radius: var(--radius-lg); padding: 20px 24px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }
+  .assure .it .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: #E0894E; margin-bottom: 7px; }
+  .assure .it .t { color: #ffffff; font-family: var(--font-display); font-weight: 600; font-size: 13.5px; line-height: 1.4; }
+
+  /* Step heading */
+  .stp { display: flex; align-items: baseline; gap: 12px; margin-top: 26px; }
+  .stp .num { font-family: var(--font-mono); font-weight: 600; font-size: 13px; color: var(--text-accent); letter-spacing: 0.04em; }
+  .stp h3 { font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: -0.015em; margin: 0; }
+  .stp .only { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-accent); border: 1px solid var(--color-ember-700); border-radius: 999px; padding: 2px 9px; margin-left: auto; align-self: center; }
+  .sub { font-size: 13px; line-height: 1.6; color: var(--text-secondary); margin: 8px 0 0; }
+  .sub b { color: var(--text-primary); font-weight: 600; }
+
+  /* OS split columns */
+  .os-split { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 13px; }
+  .os { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 15px 17px; }
+  .os-hd { display: flex; align-items: center; gap: 11px; padding-bottom: 11px; margin-bottom: 12px; border-bottom: 1px solid var(--border-default); }
+  .os-glyph { width: 32px; height: 32px; border-radius: 8px; background-color: #0A0A0A; color: #fff; display: flex; align-items: center; justify-content: center; flex: 0 0 auto; font-size: 17px; }
+  .os-glyph svg { width: 16px; height: 16px; display: block; }
+  .os-name { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; line-height: 1.1; }
+  .os-name em { display: block; font-style: normal; font-family: var(--font-mono); font-size: 9px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-weight: 500; margin-top: 3px; }
+  .os ol { margin: 0; padding: 0; list-style: none; counter-reset: s; }
+  .os li { position: relative; padding-left: 22px; font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); margin-bottom: 9px; counter-increment: s; }
+  .os li:last-child { margin-bottom: 0; }
+  .os li::before { content: counter(s); position: absolute; left: 0; top: 0; font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text-accent); }
+  .os li b { color: var(--text-primary); font-weight: 600; }
+  .kbd { font-family: var(--font-mono); font-size: 10.5px; background: var(--color-gray-100); border: 1px solid var(--border-default); border-radius: 5px; padding: 1px 6px; color: var(--text-primary); white-space: nowrap; }
+
+  /* Window-chrome mockup ("screenshot") */
+  .shot { margin-top: 13px; border: 1px solid var(--border-strong); border-radius: 11px; overflow: hidden; }
+  .shot-bar { background-color: #EBE8E2; padding: 9px 14px; display: flex; align-items: center; gap: 7px; }
+  .shot-bar i { width: 10px; height: 10px; border-radius: 50%; display: block; }
+  .shot-bar .t { margin-left: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.03em; color: #6B6862; }
+  .shot-body { background: var(--color-white); padding: 15px 18px; }
+
+  /* macOS permission rows */
+  .psec { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin: 0 0 8px; }
+  .psec.mt { margin-top: 16px; }
+  .prow { display: flex; align-items: center; justify-content: space-between; padding: 9px 0; border-top: 1px solid var(--border-default); }
+  .papp { display: flex; align-items: center; gap: 11px; }
+  .papp .ic { width: 28px; height: 28px; border-radius: 7px; background-color: #0A0A0A; color: #fff; display: flex; align-items: center; justify-content: center; font-family: var(--font-display); font-weight: 700; font-size: 14px; flex: 0 0 auto; }
+  .papp .nm { font-size: 13px; font-weight: 600; color: var(--text-primary); }
+  .tgl { width: 40px; height: 23px; border-radius: 999px; background-color: #C85E1A; position: relative; flex: 0 0 auto; }
+  .tgl::after { content: ""; position: absolute; top: 2.5px; right: 2.5px; width: 18px; height: 18px; border-radius: 50%; background: #fff; }
+  .tcap { font-family: var(--font-mono); font-size: 11px; color: var(--text-accent); margin-top: 11px; }
+
+  /* RustDesk ID card */
+  .rd-id { display: flex; align-items: center; justify-content: space-between; padding: 13px 18px; }
+  .rd-id + .rd-id { border-top: 1px solid var(--border-default); }
+  .rd-id .k { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+  .rd-id .v { font-family: var(--font-mono); font-weight: 500; font-size: 22px; letter-spacing: 0.09em; color: var(--text-primary); }
+  .rd-note { background-color: #0A0A0A; padding: 11px 18px; display: flex; align-items: center; gap: 9px; }
+  .rd-note .pt { width: 7px; height: 7px; border-radius: 50%; background-color: #C85E1A; flex: 0 0 auto; }
+  .rd-note span { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.02em; color: rgba(255,255,255,0.82); }
+
+  .safe { margin-top: 20px; border: 1px solid var(--border-default); border-left: 3px solid var(--color-ember-700); border-radius: var(--radius-md); background: var(--color-white); padding: 14px 20px; }
+  .safe .lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 8px; }
+  .safe p { font-size: 12.5px; line-height: 1.6; color: var(--text-secondary); margin: 0; }
+  .safe p b { color: var(--text-primary); font-weight: 600; }
+
+  @media print {
+    .sheet { padding: 10mm 15mm; }
+    .doc-head { padding-bottom: 12px; }
+    .lead { margin-top: 11px; line-height: 1.55; }
+    .assure { margin-top: 12px; padding: 12px 20px; }
+    .stp { margin-top: 14px; }
+    .sub { margin-top: 6px; line-height: 1.5; }
+    .os-split { margin-top: 10px; }
+    .os li { margin-bottom: 7px; }
+    .shot { margin-top: 9px; }
+    .shot-body { padding: 12px 18px; }
+    .prow { padding: 7px 0; }
+    .psec.mt { margin-top: 12px; }
+    .tcap { margin-top: 8px; }
+    .rd-id { padding: 11px 18px; }
+    .safe { margin-top: 13px; }
+    .doc-foot { padding-top: 12px; }
+  }
+  @media (max-width: 680px) { .assure, .os-split { grid-template-columns: 1fr; gap: 13px; } }
+</style>
+</head>
+<body>
+
+<!-- ░░░ PAGE 1 · FR · INSTALLER ░░░ -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Guide RustDesk</h1>
+      <div class="meta">Prise en main à distance<br>Étape <b>1 sur 2</b> · Installer · FR</div>
+    </div>
+  </header>
+
+  <p class="lead">
+    Pendant l'installation de Claude, votre interlocuteur Lucid-Lab peut, <b>avec votre accord</b>,
+    voir votre écran et réaliser les réglages à distance grâce à RustDesk, un outil gratuit et sécurisé.
+    <b>Vous gardez la main à tout moment.</b> Comptez 3 minutes, à faire une seule fois.
+  </p>
+
+  <div class="assure">
+    <div class="it"><div class="k">Sous votre contrôle</div><div class="t">Vous voyez tout à l'écran, en direct</div></div>
+    <div class="it"><div class="k">Accès temporaire</div><div class="t">Un mot de passe valable le temps de la session</div></div>
+    <div class="it"><div class="k">À votre rythme</div><div class="t">Vous coupez la connexion quand vous voulez</div></div>
+  </div>
+
+  <div class="stp"><span class="num">01</span><h3>Télécharger RustDesk</h3></div>
+  <p class="sub">Ouvrez votre navigateur, allez sur <b>rustdesk.com</b> et cliquez sur le bouton de téléchargement. Le site propose la bonne version selon votre ordinateur.</p>
+
+  <div class="stp"><span class="num">02</span><h3>Installer le logiciel</h3></div>
+  <p class="sub">L'installation diffère légèrement selon votre ordinateur. Suivez la colonne qui vous concerne.</p>
+  <div class="os-split">
+    <div class="os">
+      <div class="os-hd">
+        <div class="os-glyph"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="9" height="9" rx="1"/><rect x="13" y="2" width="9" height="9" rx="1"/><rect x="2" y="13" width="9" height="9" rx="1"/><rect x="13" y="13" width="9" height="9" rx="1"/></svg></div>
+        <div class="os-name">Windows<em>PC</em></div>
+      </div>
+      <ol>
+        <li>Ouvrez le fichier <b>.exe</b> téléchargé (dossier Téléchargements).</li>
+        <li>Si un écran bleu apparaît, cliquez <span class="kbd">Informations complémentaires</span> puis <span class="kbd">Exécuter quand même</span>.</li>
+        <li>Répondez <b>Oui</b> à la fenêtre de Windows. C'est installé.</li>
+      </ol>
+    </div>
+    <div class="os">
+      <div class="os-hd">
+        <div class="os-glyph">⌘</div>
+        <div class="os-name">Mac<em>macOS</em></div>
+      </div>
+      <ol>
+        <li>Ouvrez le fichier <b>.dmg</b> téléchargé.</li>
+        <li>Glissez l'icône <b>RustDesk</b> dans le dossier <b>Applications</b>.</li>
+        <li>Clic droit sur RustDesk puis <span class="kbd">Ouvrir</span>, et confirmez. Passez ensuite à l'étape 3.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="stp"><span class="num">03</span><h3>Autoriser le partage d'écran</h3><span class="only">Mac uniquement</span></div>
+  <p class="sub">Au premier lancement, macOS demande deux autorisations. Ouvrez <b>Réglages Système</b> puis <b>Confidentialité et sécurité</b>, et activez l'interrupteur en face de RustDesk, comme ci-dessous. Sans cela, le partage ne fonctionne pas.</p>
+  <div class="shot">
+    <div class="shot-bar"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i><span class="t">Confidentialité et sécurité</span></div>
+    <div class="shot-body">
+      <p class="psec">Enregistrement de l'écran</p>
+      <div class="prow"><div class="papp"><span class="ic">R</span><span class="nm">RustDesk</span></div><span class="tgl"></span></div>
+      <p class="psec mt">Accessibilité</p>
+      <div class="prow"><div class="papp"><span class="ic">R</span><span class="nm">RustDesk</span></div><span class="tgl"></span></div>
+      <p class="tcap">Interrupteur orange = autorisation activée.</p>
+    </div>
+  </div>
+
+  <footer class="doc-foot">
+    <div>Lucid-Lab · Agence IA · Paris<br>Une question ? <a href="mailto:contact@lucid-lab.fr">contact@lucid-lab.fr</a></div>
+    <div class="right">Vous gardez le contrôle<br>à tout moment</div>
+  </footer>
+
+</section>
+
+<!-- ░░░ PAGE 2 · FR · SE CONNECTER ░░░ -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Guide RustDesk</h1>
+      <div class="meta">Prise en main à distance<br>Étape <b>2 sur 2</b> · Se connecter · FR</div>
+    </div>
+  </header>
+
+  <div class="stp"><span class="num">04</span><h3>Ouvrir RustDesk et repérer vos identifiants</h3></div>
+  <p class="sub">Au lancement, l'écran d'accueil affiche <b>votre identifiant (ID)</b> et <b>un mot de passe</b>. Ce sont les deux informations à transmettre, rien d'autre.</p>
+  <div class="shot">
+    <div class="shot-bar"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i><span class="t">RustDesk · Votre poste</span></div>
+    <div class="shot-body" style="padding:0">
+      <div class="rd-id"><span class="k">Votre ID</span><span class="v">742 901 386</span></div>
+      <div class="rd-id"><span class="k">Mot de passe</span><span class="v">k7m 204</span></div>
+    </div>
+    <div class="rd-note"><span class="pt"></span><span>Communiquez ces deux informations à votre interlocuteur Lucid-Lab.</span></div>
+  </div>
+
+  <div class="stp"><span class="num">05</span><h3>Communiquer l'ID et le mot de passe</h3></div>
+  <p class="sub">Transmettez-les par téléphone ou par message pendant notre échange. La connexion s'ouvre alors sur votre écran et l'installation commence. Vous suivez chaque action en direct.</p>
+
+  <div class="stp"><span class="num">06</span><h3>Terminer la session</h3></div>
+  <p class="sub">Une fois l'installation finie, fermez simplement RustDesk. L'accès se coupe immédiatement et le mot de passe n'est plus valable.</p>
+
+  <div class="safe">
+    <div class="lbl">Bon à savoir</div>
+    <p>Ne communiquez votre ID et votre mot de passe <b>qu'à votre interlocuteur Lucid-Lab identifié</b>, et uniquement pour ce rendez-vous. Pendant toute la session vous suivez chaque action à l'écran, et vous pouvez reprendre la main ou fermer le logiciel à tout instant.</p>
+  </div>
+
+  <footer class="doc-foot">
+    <div>Lucid-Lab · Agence IA · Paris<br>Une question ? <a href="mailto:contact@lucid-lab.fr">contact@lucid-lab.fr</a></div>
+    <div class="right">Vous gardez le contrôle<br>à tout moment</div>
+  </footer>
+
+</section>
+
+<!-- ░░░ PAGE 3 · EN · INSTALL ░░░ -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>AI Studio · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>RustDesk guide</h1>
+      <div class="meta">Remote assistance<br>Step <b>1 of 2</b> · Install · EN</div>
+    </div>
+  </header>
+
+  <p class="lead">
+    During your Claude setup, your Lucid-Lab contact can, <b>with your permission</b>, view your screen
+    and handle the configuration remotely using RustDesk, a free and secure tool.
+    <b>You stay in control at all times.</b> It takes about 3 minutes, just once.
+  </p>
+
+  <div class="assure">
+    <div class="it"><div class="k">In your control</div><div class="t">You see everything on screen, live</div></div>
+    <div class="it"><div class="k">Temporary access</div><div class="t">A password that lasts only for the session</div></div>
+    <div class="it"><div class="k">On your terms</div><div class="t">You close the connection whenever you want</div></div>
+  </div>
+
+  <div class="stp"><span class="num">01</span><h3>Download RustDesk</h3></div>
+  <p class="sub">Open your browser, go to <b>rustdesk.com</b> and click the download button. The site offers the right version for your computer.</p>
+
+  <div class="stp"><span class="num">02</span><h3>Install the software</h3></div>
+  <p class="sub">Installation differs slightly depending on your computer. Follow the column that applies to you.</p>
+  <div class="os-split">
+    <div class="os">
+      <div class="os-hd">
+        <div class="os-glyph"><svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="9" height="9" rx="1"/><rect x="13" y="2" width="9" height="9" rx="1"/><rect x="2" y="13" width="9" height="9" rx="1"/><rect x="13" y="13" width="9" height="9" rx="1"/></svg></div>
+        <div class="os-name">Windows<em>PC</em></div>
+      </div>
+      <ol>
+        <li>Open the downloaded <b>.exe</b> file (Downloads folder).</li>
+        <li>If a blue screen appears, click <span class="kbd">More info</span> then <span class="kbd">Run anyway</span>.</li>
+        <li>Answer <b>Yes</b> to the Windows prompt. Done.</li>
+      </ol>
+    </div>
+    <div class="os">
+      <div class="os-hd">
+        <div class="os-glyph">⌘</div>
+        <div class="os-name">Mac<em>macOS</em></div>
+      </div>
+      <ol>
+        <li>Open the downloaded <b>.dmg</b> file.</li>
+        <li>Drag the <b>RustDesk</b> icon into your <b>Applications</b> folder.</li>
+        <li>Right-click RustDesk then <span class="kbd">Open</span> and confirm. Then go to step 3.</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="stp"><span class="num">03</span><h3>Allow screen sharing</h3><span class="only">Mac only</span></div>
+  <p class="sub">On first launch, macOS asks for two permissions. Open <b>System Settings</b> then <b>Privacy & Security</b>, and turn on the switch next to RustDesk, as shown below. Without this, sharing will not work.</p>
+  <div class="shot">
+    <div class="shot-bar"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i><span class="t">Privacy & Security</span></div>
+    <div class="shot-body">
+      <p class="psec">Screen Recording</p>
+      <div class="prow"><div class="papp"><span class="ic">R</span><span class="nm">RustDesk</span></div><span class="tgl"></span></div>
+      <p class="psec mt">Accessibility</p>
+      <div class="prow"><div class="papp"><span class="ic">R</span><span class="nm">RustDesk</span></div><span class="tgl"></span></div>
+      <p class="tcap">Orange switch = permission turned on.</p>
+    </div>
+  </div>
+
+  <footer class="doc-foot">
+    <div>Lucid-Lab · AI Studio · Paris<br>A question? <a href="mailto:contact@lucid-lab.fr">contact@lucid-lab.fr</a></div>
+    <div class="right">You stay in control<br>at all times</div>
+  </footer>
+
+</section>
+
+<!-- ░░░ PAGE 4 · EN · CONNECT ░░░ -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>AI Studio · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>RustDesk guide</h1>
+      <div class="meta">Remote assistance<br>Step <b>2 of 2</b> · Connect · EN</div>
+    </div>
+  </header>
+
+  <div class="stp"><span class="num">04</span><h3>Open RustDesk and find your credentials</h3></div>
+  <p class="sub">On launch, the home screen shows <b>your ID</b> and <b>a password</b>. These are the two details to share, nothing else.</p>
+  <div class="shot">
+    <div class="shot-bar"><i style="background:#FF5F57"></i><i style="background:#FEBC2E"></i><i style="background:#28C840"></i><span class="t">RustDesk · Your desk</span></div>
+    <div class="shot-body" style="padding:0">
+      <div class="rd-id"><span class="k">Your ID</span><span class="v">742 901 386</span></div>
+      <div class="rd-id"><span class="k">Password</span><span class="v">k7m 204</span></div>
+    </div>
+    <div class="rd-note"><span class="pt"></span><span>Share these two details with your Lucid-Lab contact.</span></div>
+  </div>
+
+  <div class="stp"><span class="num">05</span><h3>Share your ID and password</h3></div>
+  <p class="sub">Send them by phone or message during our call. The connection then opens on your screen and the setup begins. You follow every action live.</p>
+
+  <div class="stp"><span class="num">06</span><h3>End the session</h3></div>
+  <p class="sub">Once the setup is done, simply close RustDesk. Access stops immediately and the password is no longer valid.</p>
+
+  <div class="safe">
+    <div class="lbl">Good to know</div>
+    <p>Only share your ID and password <b>with your identified Lucid-Lab contact</b>, and only for this appointment. Throughout the session you watch every action on screen, and you can take back control or close the software at any time.</p>
+  </div>
+
+  <footer class="doc-foot">
+    <div>Lucid-Lab · AI Studio · Paris<br>A question? <a href="mailto:contact@lucid-lab.fr">contact@lucid-lab.fr</a></div>
+    <div class="right">You stay in control<br>at all times</div>
+  </footer>
+
+</section>
+
+</body>
+</html>

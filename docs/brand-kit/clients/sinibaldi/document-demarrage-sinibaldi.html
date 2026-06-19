@@ -1,0 +1,396 @@
+<!-- Lucid-Lab · Document de démarrage · Sinibaldi Agency -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Démarrage · Sinibaldi Agency</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-gray-100); font-family: var(--font-body); color: var(--text-primary); -webkit-font-smoothing: antialiased; padding: 40px 20px; }
+
+  .page { position: relative; width: 820px; max-width: 100%; min-height: 1160px; margin: 0 auto 28px; background: var(--color-paper); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 52px 56px 64px; display: flex; flex-direction: column; overflow: hidden; }
+
+  .run { display: flex; align-items: center; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--border-default); }
+  .brand { display: flex; align-items: center; gap: 9px; }
+  .brand img { width: 20px; height: 20px; display: block; }
+  .wordmark { font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.08em; font-size: 14px; }
+  .run__meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .pagenum { position: absolute; bottom: 26px; right: 56px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); }
+  .foot-rule { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: center; }
+  .foot-rule .path { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
+  .foot-rule .contact { font-size: 12.5px; color: var(--text-secondary); }
+  .foot-rule .contact a { color: var(--text-accent); text-decoration: none; }
+
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-accent); }
+  .sec-title { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 12px 0 0; }
+  .sec-intro { font-size: 14.5px; line-height: 1.6; color: var(--text-secondary); margin: 14px 0 0; max-width: 64ch; }
+  .ic { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* P1 COVER */
+  .cover-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; }
+  .cover-eyebrow { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 22px; }
+  .cover-ember-rule { height: 2px; width: 52px; background: var(--color-ember); border-radius: 2px; margin-bottom: 28px; }
+  h1.cover-title { font-family: var(--font-display); font-weight: 700; font-size: 62px; line-height: 1.0; letter-spacing: -0.03em; margin: 0 0 26px; }
+  .cover-lead { font-size: 17px; line-height: 1.65; color: var(--text-secondary); max-width: 58ch; margin: 0 0 28px; }
+  .cover-meta { display: flex; gap: 40px; margin: 0 0 40px; }
+  .cover-meta .cm__k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .cover-meta .cm__v { font-family: var(--font-display); font-weight: 600; font-size: 15px; }
+  .toc { border-top: 1px solid var(--border-default); }
+  .toc__row { display: flex; align-items: baseline; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--border-default); }
+  .toc__n { font-family: var(--font-mono); font-size: 12px; color: var(--text-accent); letter-spacing: 0.1em; }
+  .toc__t { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+  .toc__dots { flex: 1; border-bottom: 1px dotted var(--border-strong); transform: translateY(-3px); }
+  .toc__p { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+
+  /* Access cards (P2) */
+  .access { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 20px 22px; margin-top: 14px; }
+  .access__head { display: flex; align-items: center; gap: 12px; }
+  .access__icon { width: 36px; height: 36px; border-radius: 9px; background: var(--color-gray-100); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .access__icon .ic { width: 19px; height: 19px; color: var(--text-primary); }
+  .access__cat { font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+  .access__sub { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; color: var(--text-muted); margin-top: 2px; }
+  .access__badge { margin-left: auto; font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-on); background: var(--color-ember); border-radius: var(--radius-full); padding: 5px 11px; }
+  .access__list { margin: 14px 0 0; padding: 0; list-style: none; }
+  .access__list li { position: relative; padding: 8px 0 8px 22px; font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); border-top: 1px solid var(--border-subtle); }
+  .access__list li:first-child { border-top: none; }
+  .access__list li::before { content: ''; position: absolute; left: 3px; top: 15px; width: 6px; height: 6px; border-radius: 50%; background: var(--color-ember); }
+  .access__list li b { color: var(--text-primary); font-weight: 600; }
+
+  /* Numbered steps (P3) */
+  .nsteps { margin-top: 18px; }
+  .nstep { display: grid; grid-template-columns: 38px 1fr; gap: 16px; padding: 14px 0; border-top: 1px solid var(--border-default); align-items: start; }
+  .nstep:first-child { border-top: none; }
+  .nstep__n { width: 30px; height: 30px; border-radius: 50%; border: 1.5px solid var(--color-ember); color: var(--color-ember); font-family: var(--font-mono); font-size: 13px; display: flex; align-items: center; justify-content: center; }
+  .nstep__b { font-size: 14px; line-height: 1.55; color: var(--text-primary); margin: 4px 0 0; }
+  .nstep__b b { font-weight: 600; }
+  .mono-mail { font-family: var(--font-mono); font-size: 13px; color: var(--text-accent); background: var(--color-gray-100); border: 1px solid var(--border-default); border-radius: 6px; padding: 2px 9px; white-space: nowrap; }
+
+  .reassure { margin-top: 22px; border-left: 3px solid var(--color-ember); background: var(--color-white); border: 1px solid var(--border-default); border-left: 3px solid var(--color-ember); border-radius: 0 var(--radius-md) var(--radius-md) 0; padding: 17px 22px; }
+  .reassure .k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 7px; }
+  .reassure p { font-size: 14px; line-height: 1.55; color: var(--text-primary); margin: 0; }
+
+  /* Plan flow (P4 · dark) */
+  .page--dark { background: #0A0A0A; border-color: rgba(255,255,255,0.08); padding: 0; }
+  .darkwrap { flex: 1; display: flex; flex-direction: column; background-color: #0A0A0A; color: rgba(255,255,255,0.92); padding: 52px 56px 64px; }
+  .page--dark .run { border-bottom-color: rgba(255,255,255,0.12); }
+  .page--dark .wordmark { color: rgba(255,255,255,0.92); }
+  .page--dark .run__meta { color: rgba(255,255,255,0.6); }
+  .page--dark .pagenum { color: rgba(255,255,255,0.5); }
+  .page--dark .kicker { color: #E07B3A; }
+  .page--dark .sec-title { color: rgba(255,255,255,0.95); }
+  .page--dark .sec-intro { color: rgba(255,255,255,0.6); }
+  .page--dark .foot-rule { border-top-color: rgba(255,255,255,0.12); }
+  .page--dark .foot-rule .path, .page--dark .foot-rule .contact { color: rgba(255,255,255,0.6); }
+
+  .flow { margin-top: 26px; }
+  .fstep { display: grid; grid-template-columns: 44px 1fr; gap: 20px; padding-bottom: 22px; position: relative; }
+  .fstep:last-child { padding-bottom: 0; }
+  .fstep::before { content: ''; position: absolute; left: 19px; top: 44px; bottom: -4px; width: 2px; background: rgba(255,255,255,0.13); }
+  .fstep:last-child::before { display: none; }
+  .fstep__n { width: 40px; height: 40px; border-radius: 50%; background: #C85E1A; color: #fff; font-family: var(--font-display); font-weight: 700; font-size: 13px; display: flex; align-items: center; justify-content: center; position: relative; z-index: 1; text-align: center; line-height: 1.05; }
+  .fstep__t { font-family: var(--font-display); font-weight: 700; font-size: 17px; color: #fff; margin: 8px 0 6px; letter-spacing: -0.01em; }
+  .fstep__d { font-size: 13px; line-height: 1.6; color: rgba(255,255,255,0.62); margin: 0; }
+  .fstep__d b { color: rgba(255,255,255,0.92); font-weight: 600; }
+
+  .outcome { margin-top: 8px; margin-left: 64px; border: 1px solid rgba(200,94,26,0.45); background: rgba(200,94,26,0.10); border-radius: var(--radius-md); padding: 16px 20px; display: flex; gap: 14px; align-items: flex-start; }
+  .outcome .ic { width: 20px; height: 20px; color: #E07B3A; flex-shrink: 0; margin-top: 1px; }
+  .outcome .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.12em; text-transform: uppercase; color: #E07B3A; margin-bottom: 6px; }
+  .outcome p { font-size: 13.5px; line-height: 1.55; color: rgba(255,255,255,0.92); margin: 0; }
+  .outcome p b { font-weight: 600; color: #fff; }
+
+  /* Next steps (P5) */
+  .nextcols { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 22px; }
+  .ncol { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 22px 24px; }
+  .ncol.you { border-color: var(--color-ember); }
+  .ncol__h { display: flex; align-items: center; gap: 9px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 6px; }
+  .ncol.you .ncol__h { color: var(--text-accent); }
+  .ncol__hint { font-size: 12px; color: var(--text-muted); margin-bottom: 14px; }
+  .ncol__list { margin: 0; padding: 0; list-style: none; }
+  .ncol__list li { position: relative; padding: 10px 0 10px 26px; font-size: 13.5px; line-height: 1.5; color: var(--text-secondary); border-top: 1px solid var(--border-subtle); }
+  .ncol__list li:first-child { border-top: none; }
+  .ncol__list li::before { content: ''; position: absolute; left: 1px; top: 13px; width: 9px; height: 9px; border: 1.5px solid var(--border-strong); border-radius: 3px; }
+  .ncol.you .ncol__list li::before { border-color: var(--color-ember); }
+  .ncol__list li b { color: var(--text-primary); font-weight: 600; }
+
+  .pay { margin-top: 22px; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 18px 22px; }
+  .pay .k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 9px; }
+  .pay__grid { display: grid; grid-template-columns: auto 1fr; gap: 4px 18px; font-size: 13.5px; line-height: 1.6; }
+  .pay__grid .pk { color: var(--text-muted); }
+  .pay__grid .pv { color: var(--text-primary); font-family: var(--font-mono); }
+  .pay__grid .pv b { color: var(--text-accent); font-weight: 600; }
+
+  .signoff { margin-top: 24px; border-top: 1px solid var(--border-default); padding-top: 20px; display: flex; align-items: flex-end; justify-content: space-between; gap: 28px; }
+  .signoff__msg { font-size: 14px; line-height: 1.65; color: var(--text-secondary); max-width: 52ch; margin: 0; }
+  .signoff__who { text-align: right; flex-shrink: 0; }
+  .signoff__who .nm { font-family: var(--font-display); font-weight: 700; font-size: 17px; letter-spacing: -0.01em; }
+  .signoff__who .rl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin-top: 5px; }
+  .signoff__who .ml { font-size: 12.5px; color: var(--text-accent); margin-top: 8px; }
+
+  @page { size: A4; margin: 0; }
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; padding: 0; }
+    .page { border: none; border-radius: 0; margin: 0; width: 210mm; min-height: 297mm; padding: 13mm 15mm; break-after: page; break-inside: avoid; }
+    .page:last-child { break-after: auto; }
+    .access { margin-top: 11px; padding: 16px 20px; }
+    .access__list li { padding: 6px 0 6px 22px; }
+    .nstep { padding: 11px 0; }
+    .reassure { margin-top: 16px; }
+    .flow { margin-top: 20px; }
+    .fstep { padding-bottom: 17px; }
+    .fstep::before { top: 42px; }
+    .nextcols { margin-top: 16px; }
+    .signoff { margin-top: 20px; padding-top: 18px; }
+    section.page--dark { padding: 0; }
+    .darkwrap { padding: 13mm 15mm; }
+  }
+  @media (max-width: 680px) {
+    .page { padding: 32px 22px 54px; }
+    h1.cover-title { font-size: 40px; }
+    .nextcols { grid-template-columns: 1fr; }
+    .cover-meta { flex-direction: column; gap: 16px; }
+    .signoff { flex-direction: column; align-items: flex-start; }
+    .signoff__who { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<!-- P1 · COUVERTURE -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Document de démarrage · Sinibaldi Agency</span>
+  </div>
+  <div class="cover-body">
+    <div class="cover-eyebrow">Récapitulatif de lancement</div>
+    <div class="cover-ember-rule"></div>
+    <h1 class="cover-title">On démarre<br>votre projet.</h1>
+    <p class="cover-lead">Merci pour votre confiance et pour le temps passé à présenter votre activité lors de l'appel de démarrage. Nous avons désormais une vision claire de la plateforme IA de génération de dossiers de permis de construire à bâtir en Phase 1. Voici le récapitulatif : la manière dont nous démarrons (en validant d'abord la faisabilité technique), ce dont nous avons besoin de votre part, et le palier de viabilité à un mois qui sécurise l'investissement des deux côtés.</p>
+    <div class="cover-meta">
+      <div><div class="cm__k">À l'attention de</div><div class="cm__v">Clément Sinibaldi</div></div>
+      <div><div class="cm__k">Projet</div><div class="cm__v">Plateforme IA permis de construire · Phase 1 B2B</div></div>
+      <div><div class="cm__k">Date</div><div class="cm__v">19 juin 2026</div></div>
+    </div>
+    <div class="toc">
+      <div class="toc__row"><span class="toc__n">01</span><span class="toc__t">Notre approche : la faisabilité d'abord</span><span class="toc__dots"></span><span class="toc__p">p. 02</span></div>
+      <div class="toc__row"><span class="toc__n">02</span><span class="toc__t">Ce dont nous avons besoin de vous</span><span class="toc__dots"></span><span class="toc__p">p. 03</span></div>
+      <div class="toc__row"><span class="toc__n">03</span><span class="toc__t">Le déroulé et le palier à un mois</span><span class="toc__dots"></span><span class="toc__p">p. 04</span></div>
+      <div class="toc__row"><span class="toc__n">04</span><span class="toc__t">Cadre commercial et prochaines étapes</span><span class="toc__dots"></span><span class="toc__p">p. 05</span></div>
+    </div>
+  </div>
+  <div class="foot-rule">
+    <span class="path">comprendre → construire → transférer</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> · lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">01 / 05</span>
+</section>
+
+<!-- P2 · NOTRE APPROCHE -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">01 · Notre approche</span>
+  </div>
+  <div style="margin-top:30px">
+    <span class="kicker">Étape 01</span>
+    <h2 class="sec-title" style="font-size:31px">Valider la faisabilité avant de construire.</h2>
+    <p class="sec-intro">Le cœur de la plateforme est la génération automatique, par IA, des pièces graphiques d'un dossier : plans de situation, plans cadastraux, élévations de façades et rendus. C'est la brique la plus innovante du projet, et donc la plus incertaine techniquement. Plutôt que d'engager d'emblée les trois mois de développement, nous démarrons par une étude de faisabilité ciblée.</p>
+  </div>
+
+  <div class="access">
+    <div class="access__head">
+      <div class="access__icon"><svg class="ic" viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6"/><path d="M8 13h8"/><path d="M8 17h5"/></svg></div>
+      <div><div class="access__cat">Génération des pièces par IA</div><div class="access__sub">Le cœur de la plateforme</div></div>
+      <span class="access__badge">À valider</span>
+    </div>
+    <ul class="access__list">
+      <li>Plans de situation et cadastraux générés à partir d'<b>adresses et de références parcellaires réelles</b> (API Géoportail et cadastre).</li>
+      <li>Élévations de façades (<b>état existant et état projet</b>) générées par IA à partir de photos de constructions réelles.</li>
+      <li>Évaluation de la <b>qualité et de la conformité</b> des pièces au regard des exigences des services instructeurs.</li>
+      <li>Première estimation des <b>coûts variables réels</b> (crédits API, hébergement) en conditions d'usage.</li>
+    </ul>
+  </div>
+
+  <div class="reassure">
+    <div class="k">Pourquoi commencer par là</div>
+    <p>Cette étude confirme, sur vos dossiers réels, que l'IA atteint le standard attendu par les services instructeurs avant d'industrialiser le reste de la plateforme. L'objectif est simple : ne pas engager de frais de développement, d'infrastructure ou de crédits IA sur une voie qui n'aboutirait pas.</p>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">D'abord prouver, ensuite construire.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">02 / 05</span>
+</section>
+
+<!-- P3 · CE DONT NOUS AVONS BESOIN -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">02 · De votre côté</span>
+  </div>
+  <div style="margin-top:30px">
+    <span class="kicker">Étape 02</span>
+    <h2 class="sec-title" style="font-size:31px">Votre process de permis de construire, étape par étape.</h2>
+    <p class="sec-intro">Pour modéliser fidèlement votre métier dans la plateforme, nous avons besoin de comprendre précisément comment vous produisez un dossier aujourd'hui. Un plan détaillé, étape par étape, de votre process.</p>
+  </div>
+
+  <div class="nsteps">
+    <div class="nstep">
+      <div class="nstep__n">1</div>
+      <p class="nstep__b">La <b>liste ordonnée de toutes les étapes</b>, du premier contact ou relevé jusqu'au dépôt du dossier complet.</p>
+    </div>
+    <div class="nstep">
+      <div class="nstep__n">2</div>
+      <p class="nstep__b">Pour chaque étape : les <b>données d'entrée</b> nécessaires, les actions réalisées, les <b>outils ou logiciels</b> utilisés, et les pièces produites en sortie.</p>
+    </div>
+    <div class="nstep">
+      <div class="nstep__n">3</div>
+      <p class="nstep__b">La <b>composition d'un dossier complet</b> de Déclaration Préalable ou de Permis de Construire : plans de situation, cadastraux, élévations existant et projet, notices, rendus, formulaires CERFA.</p>
+    </div>
+    <div class="nstep">
+      <div class="nstep__n">4</div>
+      <p class="nstep__b">Les <b>exigences connues des services instructeurs</b> : formats, échelles, mentions obligatoires, motifs de refus fréquents.</p>
+    </div>
+    <div class="nstep">
+      <div class="nstep__n">5</div>
+      <p class="nstep__b">Un à deux <b>dossiers réels anonymisés</b>, qui serviront de base de test à l'étude de faisabilité.</p>
+    </div>
+  </div>
+
+  <div class="reassure">
+    <div class="k">Pour tenir le démarrage en juillet</div>
+    <p>Idéalement transmis avant le 30 juin 2026. Plus votre process est détaillé, plus l'étude de faisabilité sera précise et rapide.</p>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Votre savoir-faire, modélisé fidèlement.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">03 / 05</span>
+</section>
+
+<!-- P4 · LE DÉROULÉ (SOMBRE) -->
+<section class="page page--dark">
+  <div class="darkwrap">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo-white-on-black.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">03 · Le déroulé</span>
+  </div>
+  <div style="margin-top:28px">
+    <span class="kicker">Étape 03</span>
+    <h2 class="sec-title" style="font-size:30px">Le déroulé et le palier à un mois.</h2>
+    <p class="sec-intro">Nous validons la viabilité du projet en un mois maximum. Une décision claire, Go ou No-Go, avant d'engager la suite du développement.</p>
+  </div>
+
+  <div class="flow">
+    <div class="fstep">
+      <div class="fstep__n">JUIN</div>
+      <div>
+        <div class="fstep__t">Lancement</div>
+        <p class="fstep__d">Signature, versement de l'<b>acompte de 40 %</b> et transmission de votre process de permis de construire détaillé avec un à deux dossiers réels.</p>
+      </div>
+    </div>
+    <div class="fstep">
+      <div class="fstep__n">JUIL</div>
+      <div>
+        <div class="fstep__t">Étude de faisabilité</div>
+        <p class="fstep__d">Génération automatique de <b>plans et d'élévations par IA</b>, testée sur vos cas réels, et évaluation face au standard des services instructeurs.</p>
+      </div>
+    </div>
+    <div class="fstep">
+      <div class="fstep__n">BILAN</div>
+      <div>
+        <div class="fstep__t">Décision Go / No-Go</div>
+        <p class="fstep__d">Remise d'un <b>rapport de viabilité</b> sous un mois maximum à compter du démarrage, avec une recommandation claire de poursuite ou d'arrêt.</p>
+      </div>
+    </div>
+    <div class="fstep">
+      <div class="fstep__n">M2-3</div>
+      <div>
+        <div class="fstep__t">Construction, si Go</div>
+        <p class="fstep__d">Développement de la plateforme (interface, notices, CERFA, génération PDF, onboarding) jusqu'à la <b>livraison du MVP, fin septembre 2026</b>.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="outcome">
+    <svg class="ic" viewBox="0 0 24 24"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/></svg>
+    <div>
+      <div class="k">Le palier de viabilité</div>
+      <p>Si <b>Go</b> (faisabilité confirmée), nous poursuivons et le solde du forfait (30 % puis 30 %) devient exigible selon l'échéancier du contrat. Si <b>No-Go</b>, nous arrêtons sans frais supplémentaires : l'acompte de 40 %, obligatoire et non remboursable, rémunère l'étude de faisabilité réalisée.</p>
+    </div>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Un mois pour décider, sans frais inutiles.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">04 / 05</span>
+  </div>
+</section>
+
+<!-- P5 · CADRE COMMERCIAL + PROCHAINES ÉTAPES -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">04 · Prochaines étapes</span>
+  </div>
+  <div style="margin-top:30px">
+    <span class="kicker">Étape 04</span>
+    <h2 class="sec-title" style="font-size:31px">Cadre commercial et prochaines étapes.</h2>
+    <p class="sec-intro">Le forfait Phase 1 (réf. PROP-2026-010, 8 000 € HT) est réglé selon l'échéancier 40 / 30 / 30. Quelques actions de votre côté débloquent le démarrage ; pendant ce temps, nous préparons l'étude de faisabilité.</p>
+  </div>
+
+  <div class="nextcols">
+    <div class="ncol you">
+      <div class="ncol__h"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M20 6 9 17l-5-5"/></svg>De votre côté</div>
+      <div class="ncol__hint">À faire dès que possible</div>
+      <ul class="ncol__list">
+        <li>Procéder au <b>1er versement</b> (acompte 40 %, obligatoire et non remboursable) pour déclencher le démarrage.</li>
+        <li>Nous transmettre votre <b>process PC détaillé</b> et un à deux dossiers réels anonymisés, avant le 30 juin.</li>
+      </ul>
+    </div>
+    <div class="ncol">
+      <div class="ncol__h"><svg class="ic" viewBox="0 0 24 24" style="width:15px;height:15px"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>De notre côté</div>
+      <div class="ncol__hint">Dès réception</div>
+      <ul class="ncol__list">
+        <li>Lancer l'<b>étude de faisabilité</b> (génération de plans et d'élévations par IA).</li>
+        <li>Remettre le <b>rapport de viabilité</b> et la décision Go / No-Go sous un mois.</li>
+        <li>Si Go : construire la plateforme jusqu'à la <b>livraison du MVP</b>, fin septembre.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="pay">
+    <div class="k">Premier versement · Acompte 40 % (Phase 1)</div>
+    <div class="pay__grid">
+      <div class="pk">Montant</div><div class="pv"><b>3 200,00 € HT</b> (3 840,00 € TTC)</div>
+      <div class="pk">Bénéficiaire</div><div class="pv">Lucid-Lab</div>
+      <div class="pk">IBAN</div><div class="pv">FR76 2823 3000 0119 9177 3651 869</div>
+      <div class="pk">BIC</div><div class="pv">REVOFRP2 · Revolut Bank UAB</div>
+      <div class="pk">Communication</div><div class="pv">PROP-2026-010 / Sinibaldi</div>
+    </div>
+  </div>
+
+  <div class="signoff">
+    <p class="signoff__msg">N'hésitez pas à revenir vers nous pour toute question. Nous restons disponibles et avons hâte de démarrer sur ce projet.</p>
+    <div class="signoff__who">
+      <div class="nm">Jules Gouron</div>
+      <div class="rl">Lucid-Lab</div>
+      <div class="ml">info@lucid-lab.fr</div>
+    </div>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">comprendre → construire → transférer</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> · lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">05 / 05</span>
+</section>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+/* ─── Lucid-Lab · Business document base ──────────────────────────────────────
+ * Shared layout for devis / bon de commande / bon pour accord / contrat.
+ * Link order in each doc:  ../styles.css  then  ./_doc-base.css
+ * Token-driven. A4 print-ready. No em dashes, no // (per README §2.9).
+ * Dark elements use LITERAL colors (Chrome's print path drops var() / positioned bg).
+ * ──────────────────────────────────────────────────────────────────────────── */
+
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--color-gray-100); font-family: var(--font-body); color: var(--text-primary); -webkit-font-smoothing: antialiased; padding: 40px 20px; }
+.sheet { width: 820px; max-width: 100%; min-height: 1160px; margin: 0 auto 28px; background: var(--color-paper); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 50px 54px 56px; display: flex; flex-direction: column; }
+
+/* Header */
+.doc-head { display: flex; justify-content: space-between; align-items: flex-start; padding-bottom: 20px; border-bottom: 2px solid var(--color-ink); }
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand img { width: 24px; height: 24px; display: block; }
+.brand b { font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.08em; font-size: 16px; }
+.brand small { display: block; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-muted); letter-spacing: 0.04em; margin-top: 3px; }
+.doc-type { text-align: right; }
+.doc-type h1 { font-family: var(--font-display); font-weight: 700; font-size: 24px; letter-spacing: -0.01em; margin: 0; text-transform: uppercase; }
+.doc-type .meta { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); margin-top: 8px; line-height: 1.8; }
+.doc-type .meta b { color: var(--text-primary); font-weight: 500; }
+
+/* Parties */
+.parties { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 24px; }
+.party { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 16px 18px; }
+.party .lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 9px; }
+.party .name { font-family: var(--font-display); font-weight: 600; font-size: 15px; }
+.party .lines { font-size: 13px; line-height: 1.7; color: var(--text-secondary); margin-top: 5px; }
+
+/* Section label */
+.sec { margin-top: 28px; }
+.sec > .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-bottom: 12px; display: block; }
+
+/* Items table */
+.items { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+.items th { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); text-align: left; padding: 0 12px 11px; border-bottom: 1px solid var(--border-strong); font-weight: 500; }
+.items th.num, .items td.num { text-align: right; white-space: nowrap; }
+.items td { padding: 14px 12px; border-bottom: 1px solid var(--border-default); vertical-align: top; }
+.items .t { font-weight: 600; color: var(--text-primary); }
+.items .s { font-size: 12px; color: var(--text-secondary); margin-top: 3px; line-height: 1.5; }
+.items td.num { font-family: var(--font-mono); color: var(--text-primary); }
+
+/* Totals */
+.totals { display: flex; justify-content: flex-end; margin-top: 18px; }
+.totals .box { width: 320px; }
+.totals .row { display: flex; justify-content: space-between; padding: 8px 0; font-size: 13.5px; color: var(--text-secondary); }
+.totals .row .v { font-family: var(--font-mono); color: var(--text-primary); }
+.totals .row.grand { border-top: 2px solid var(--color-ink); margin-top: 6px; padding-top: 13px; font-family: var(--font-display); font-weight: 700; font-size: 19px; color: var(--text-primary); }
+.totals .row.grand .v { color: var(--text-accent); font-size: 19px; }
+
+/* Articles (contrat) */
+.article { margin-top: 20px; break-inside: avoid; }
+.article h3 { font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: -0.01em; margin: 0; }
+.article h3 .n { color: var(--text-accent); font-family: var(--font-mono); font-size: 13px; margin-right: 9px; }
+.article p { font-size: 13.5px; line-height: 1.65; color: var(--text-secondary); margin: 7px 0 0; }
+
+/* Dark amount band (literal colors for print) */
+.amount-band { margin-top: 24px; background-color: #0A0A0A; color: rgba(255,255,255,0.92); border-radius: var(--radius-lg); padding: 24px 30px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+.amount-band .k { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-bottom: 8px; }
+.amount-band .big { font-family: var(--font-display); font-weight: 700; font-size: 28px; letter-spacing: -0.02em; color: #ffffff; }
+.amount-band .big .ht { font-size: 14px; color: rgba(255,255,255,0.55); font-weight: 500; margin-left: 8px; }
+.amount-band .side { text-align: right; font-family: var(--font-mono); font-size: 11.5px; color: rgba(255,255,255,0.6); line-height: 1.7; }
+
+/* Conditions / notes */
+.notes { margin-top: 22px; font-size: 12.5px; line-height: 1.7; color: var(--text-secondary); }
+.notes b { color: var(--text-primary); font-weight: 600; }
+.notes .accent { color: var(--text-accent); }
+
+/* Signatures */
+.signs { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-top: 30px; break-inside: avoid; }
+.sign { border: 1px solid var(--border-default); border-radius: var(--radius-md); padding: 15px 18px 58px; background: var(--color-white); }
+.sign .lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+.sign .who { font-family: var(--font-display); font-weight: 600; font-size: 14px; margin-top: 4px; }
+.sign .note { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); margin-top: 11px; }
+
+/* Footer (legal) */
+.doc-foot { margin-top: auto; padding-top: 20px; border-top: 1px solid var(--border-default); font-family: var(--font-mono); font-size: 10.5px; line-height: 1.7; color: var(--text-muted); display: flex; justify-content: space-between; gap: 20px; }
+.doc-foot a { color: var(--text-accent); text-decoration: none; }
+.doc-foot .right { text-align: right; }
+
+@page { size: A4; margin: 0; }
+@media print {
+  * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  body { background: #fff; padding: 0; }
+  .sheet { border: none; border-radius: 0; width: 210mm; min-height: 297mm; margin: 0; padding: 12mm 16mm; break-after: page; }
+  .sheet:last-child { break-after: auto; }
+  /* compress vertical rhythm so each sheet fits one A4 */
+  .parties { margin-top: 15px; }
+  .sec { margin-top: 16px; }
+  .items td { padding: 9px 12px; }
+  .totals { margin-top: 12px; }
+  .notes { margin-top: 13px; }
+  .signs { margin-top: 14px; }
+  .sign { padding-bottom: 34px; }
+  .article { margin-top: 13px; }
+  .doc-head { padding-bottom: 16px; }
+}
+@media (max-width: 680px) {
+  .sheet { padding: 30px 22px; }
+  .parties, .signs { grid-template-columns: 1fr; }
+  .totals .box { width: 100%; }
+  .amount-band { flex-direction: column; align-items: flex-start; } .amount-band .side { text-align: left; }
+}

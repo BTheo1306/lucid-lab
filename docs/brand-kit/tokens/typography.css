@@ -1,0 +1,106 @@
+/* ─── Lucid-Lab · Typography Tokens ──────────────────────────────────────────
+ * SINGLE SOURCE OF TRUTH for type. Matches production (lucid-lab.fr).
+ *
+ * Rule of weight: bigger = heavier is allowed, never the reverse.
+ *   800  large numerals / deck cover only
+ *   700  display + section titles (the workhorse heading weight)
+ *   600  sub-headings, emphasis
+ *   500  UI labels, buttons
+ *   400  body
+ * Figtree is the only heading + body face. Syne is wordmark-only. Mono = data.
+ * ────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Families ── */
+  --font-display:  'Figtree', system-ui, -apple-system, sans-serif;  /* Headings · production face */
+  --font-body:     'Figtree', system-ui, -apple-system, sans-serif;  /* Body, UI */
+  --font-wordmark: 'Syne', var(--font-display);                       /* "LUCID-LAB" lockup ONLY */
+  --font-mono:     'Geist Mono', ui-monospace, 'SFMono-Regular', Menlo, monospace; /* Code, data, labels · slashed zero */
+
+  /* ── Weights ── */
+  --weight-regular:   400;
+  --weight-medium:    500;
+  --weight-semibold:  600;
+  --weight-bold:      700;
+  --weight-extrabold: 800;
+
+  /* ── WEB / DOCUMENT SCALE ──────────────────────────────────────────────
+   * Each step = size · weight · line-height · tracking · family            */
+
+  /* Display · hero, big statements */
+  --text-display-size:     56px;
+  --text-display-weight:   var(--weight-bold);      /* 700 · not 800 (refined, matches prod) */
+  --text-display-leading:  1.05;
+  --text-display-tracking: -0.025em;
+  --text-display-family:   var(--font-display);
+
+  /* H1 · page / slide title */
+  --text-h1-size:     40px;
+  --text-h1-weight:   var(--weight-bold);
+  --text-h1-leading:  1.10;
+  --text-h1-tracking: -0.020em;
+  --text-h1-family:   var(--font-display);
+
+  /* H2 · section heading */
+  --text-h2-size:     28px;
+  --text-h2-weight:   var(--weight-bold);
+  --text-h2-leading:  1.20;
+  --text-h2-tracking: -0.015em;
+  --text-h2-family:   var(--font-display);
+
+  /* H3 · sub-section */
+  --text-h3-size:     20px;
+  --text-h3-weight:   var(--weight-semibold);
+  --text-h3-leading:  1.35;
+  --text-h3-tracking: -0.005em;
+  --text-h3-family:   var(--font-display);
+
+  /* Body · default reading text */
+  --text-body-size:     16px;
+  --text-body-weight:   var(--weight-regular);
+  --text-body-leading:  1.65;
+  --text-body-tracking: 0;
+  --text-body-family:   var(--font-body);
+
+  /* Body large · lead paragraphs */
+  --text-lead-size:     18px;
+  --text-lead-weight:   var(--weight-regular);
+  --text-lead-leading:  1.60;
+  --text-lead-family:   var(--font-body);
+
+  /* Small / caption */
+  --text-small-size:    13px;
+  --text-small-weight:  var(--weight-regular);
+  --text-small-leading: 1.45;
+  --text-small-family:  var(--font-body);
+
+  /* Label / eyebrow · UPPERCASE mono micro-labels (// Diagnostic, eyebrows) */
+  --text-label-size:     12px;
+  --text-label-weight:   var(--weight-medium);
+  --text-label-leading:  1.0;
+  --text-label-tracking: 0.14em;
+  --text-label-family:   var(--font-mono);
+
+  /* Numeral · giant watermark / metric numbers (01-04, 90+) */
+  --text-numeral-weight:   var(--weight-extrabold);  /* 800 lives HERE */
+  --text-numeral-tracking: -0.04em;
+  --text-numeral-family:   var(--font-display);
+
+  /* Code / data inline */
+  --text-code-size:    14px;
+  --text-code-weight:  var(--weight-regular);
+  --text-code-leading: 1.5;
+  --text-code-family:  var(--font-mono);
+
+  /* ── PRESENTATION SCALE · 1920×1080 deck ───────────────────────────────
+   * Slides are NOT web pages · they read from 3 metres away. Use these,
+   * never the web scale above, inside slides/. (Fixes "deck trop petit".) */
+  --deck-display:   104px;  /* cover title · weight 800 */
+  --deck-h1:        64px;   /* slide title · weight 700 */
+  --deck-h2:        40px;   /* block heading · weight 700 */
+  --deck-h3:        28px;   /* card title · weight 600 */
+  --deck-body:      22px;   /* body copy · weight 400, never below 20px */
+  --deck-metric:    26px;   /* mono metric / Impact final value · weight 600 */
+  --deck-label:     15px;   /* mono eyebrow / // label · tracking 0.14em */
+  --deck-watermark: 240px;  /* filigrane numeral · weight 800, low opacity */
+}

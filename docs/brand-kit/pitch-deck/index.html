@@ -1,0 +1,421 @@
+<!-- @dsCard group="Slides" viewport="1280x720" name="Pitch Deck" subtitle="Editorial premium pitch, dark/light rhythm, design-system toolkit" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucid-Lab · Pitch Deck</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  deck-stage:not(:defined) { visibility: hidden; }
+  *, *::before, *::after { box-sizing: border-box; }
+
+  .slide { width:100%; height:100%; position:relative; overflow:hidden; font-family:var(--font-body);
+    padding:88px 104px 80px; display:flex; flex-direction:column; }
+  .dark  { background:#0A0A0A; color:#fff; }
+  .light { background:#F7F5F1; color:#0A0A0A; }
+
+  /* chrome */
+  .top { display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .brand { display:flex; align-items:center; gap:13px; }
+  .brand img { width:26px; height:26px; }
+  .brand b { font-family:var(--font-wordmark); font-weight:700; letter-spacing:0.09em; font-size:18px; }
+  .dark .brand b { color:#fff; } .light .brand b { color:#0A0A0A; }
+  .meta { font-family:var(--font-mono); font-size:15px; letter-spacing:0.14em; }
+  .dark .meta { color:rgba(255,255,255,0.36); } .light .meta { color:var(--color-gray-500); }
+  .foot { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; }
+  .foot .l { font-family:var(--font-mono); font-size:14px; letter-spacing:0.03em; }
+  .dark .foot .l { color:rgba(255,255,255,0.36); } .light .foot .l { color:var(--color-gray-500); }
+  .foot .r { font-family:var(--font-mono); font-size:14px; color:var(--color-ember); }
+
+  /* type */
+  .eyebrow { font-family:var(--font-mono); font-size:16px; letter-spacing:0.2em; text-transform:uppercase; color:#E07B3A; margin:0; }
+  .light .eyebrow { color:var(--color-ember); }
+  .erule { width:60px; height:3px; background:var(--color-ember); border-radius:2px; }
+  .stitle { font-family:var(--font-display); font-weight:700; font-size:54px; line-height:1.05; letter-spacing:-0.025em; margin:16px 0 0; }
+  .dark .stitle { color:#fff; }
+  .big-state { font-family:var(--font-display); font-weight:700; font-size:62px; line-height:1.04; letter-spacing:-0.03em; margin:18px 0 0; }
+  .em { color:var(--color-ember); }
+  .head { flex-shrink:0; }
+  .body { flex:1; min-height:0; display:flex; flex-direction:column; }
+
+  /* ── Cover / CTA hero ── */
+  .hero-body { flex:1; display:flex; flex-direction:column; justify-content:flex-end; }
+  .hero-body.center { justify-content:center; }
+  .hero-body .eyebrow { margin-bottom:22px; } .hero-body .erule { margin-bottom:38px; }
+  .hero h1 { font-family:var(--font-display); font-weight:800; font-size:122px; line-height:0.96; letter-spacing:-0.04em; margin:0; }
+  .hero .lead { font-size:26px; line-height:1.5; color:rgba(255,255,255,0.6); margin:38px 0 0; max-width:50ch; }
+  .seq { font-family:var(--font-mono); font-size:15px; letter-spacing:0.14em; color:rgba(255,255,255,0.4); }
+
+  /* ── Problem (split) ── */
+  .split2 { flex:1; display:grid; grid-template-columns:0.85fr 1.15fr; gap:88px; align-items:center; }
+  .prob { padding:24px 0; border-top:1px solid rgba(255,255,255,0.14); }
+  .prob:last-child { border-bottom:1px solid rgba(255,255,255,0.14); }
+  .prob .n { font-family:var(--font-mono); font-size:15px; color:#E07B3A; letter-spacing:0.1em; }
+  .prob .t { font-family:var(--font-display); font-weight:700; font-size:28px; color:#fff; margin:10px 0 8px; letter-spacing:-0.015em; }
+  .prob .d { font-size:18px; line-height:1.5; color:rgba(255,255,255,0.55); margin:0; max-width:48ch; }
+
+  /* ── Bento (solution, 2x2) ── */
+  .bento-row { display:grid; grid-template-columns:1fr 1fr; gap:22px; }
+  .bento { position:relative; overflow:hidden; background:#0A0A0A; border-radius:18px; padding:38px 40px; display:flex; flex-direction:column; }
+  .bento__wm { position:absolute; top:-34px; right:14px; font-family:var(--font-display); font-weight:800; font-size:170px; line-height:1; letter-spacing:-0.04em; color:rgba(255,255,255,0.05); }
+  .bento__cat { position:relative; display:flex; align-items:center; gap:9px; font-family:var(--font-mono); font-size:14px; letter-spacing:0.12em; text-transform:uppercase; color:#E07B3A; }
+  .bento__cat svg { width:18px; height:18px; fill:none; stroke:currentColor; stroke-width:1.7; stroke-linecap:round; stroke-linejoin:round; }
+  .bento__t { position:relative; font-family:var(--font-display); font-weight:700; font-size:30px; color:#fff; margin:18px 0 12px; line-height:1.1; letter-spacing:-0.015em; }
+  .bento__d { position:relative; font-size:19px; line-height:1.5; color:rgba(255,255,255,0.6); margin:0 0 auto; max-width:42ch; }
+  .bento__im { position:relative; margin-top:22px; padding-top:18px; border-top:1px solid rgba(255,255,255,0.12); font-family:var(--font-mono); font-size:15px; color:#E07B3A; }
+
+  /* ── Timeline (méthode) ── line passes exactly through node centers ── */
+  .tl-wrap { margin-top:76px; }
+  .timeline { position:relative; display:flex; justify-content:space-between; padding:0 2%; }
+  .timeline::before { content:''; position:absolute; top:31px; left:9%; right:9%; height:2px;
+    background:linear-gradient(90deg, var(--color-ember) 0%, var(--color-ember) 12%, var(--border-strong) 88%); z-index:0; }
+  .tl { width:18%; text-align:center; position:relative; z-index:1; }
+  .tl__node { width:62px; height:62px; border-radius:50%; border:2px solid var(--color-ember); background:var(--color-paper);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 28px;
+    font-family:var(--font-mono); font-size:18px; color:var(--color-ember); }
+  .tl__n { font-family:var(--font-display); font-weight:700; font-size:27px; letter-spacing:-0.015em; }
+  .tl__d { font-size:17px; line-height:1.45; color:var(--text-secondary); margin:13px auto 0; max-width:20ch; }
+
+  /* ── Dashboard (dark) ── */
+  .block-l { font-family:var(--font-mono); font-size:15px; letter-spacing:0.12em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin:0 0 18px; }
+  .gantt__head { display:grid; grid-template-columns:300px 1fr; padding-bottom:12px; border-bottom:1px solid rgba(255,255,255,0.12); }
+  .gantt__ph { display:grid; grid-template-columns:repeat(5,1fr); }
+  .gantt__ph span { font-family:var(--font-mono); font-size:14px; letter-spacing:0.06em; text-transform:uppercase; color:rgba(255,255,255,0.5); text-align:center; }
+  .gantt__row { display:grid; grid-template-columns:300px 1fr; align-items:center; height:50px; }
+  .gantt__row:nth-child(even) { background:rgba(255,255,255,0.05); }
+  .gantt__lab { font-size:18px; color:rgba(255,255,255,0.92); padding-right:18px; }
+  .gantt__trk { position:relative; height:100%; display:grid; grid-template-columns:repeat(10,1fr); align-items:center; background-image:linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px); background-size:10% 100%; }
+  .bar { height:24px; border-radius:6px; display:flex; align-items:center; padding:0 14px; font-family:var(--font-mono); font-size:13px; white-space:nowrap; overflow:hidden; }
+  .bar.p { background:#C85E1A; color:#fff; }
+  .bar.a { background:rgba(255,255,255,0.22); color:rgba(255,255,255,0.82); border-left:2px solid #C85E1A; }
+  .gauge-row { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .gauge { text-align:center; }
+  .gauge svg { width:170px; height:98px; }
+  .gauge__c { font-family:var(--font-mono); font-size:14px; letter-spacing:0.06em; text-transform:uppercase; color:rgba(255,255,255,0.5); margin-top:6px; }
+  .gtrk { fill:none; stroke:rgba(255,255,255,0.14); stroke-width:11; stroke-linecap:round; }
+  .gval { fill:none; stroke:#C85E1A; stroke-width:11; stroke-linecap:round; }
+  .gnum { fill:#fff; font-family:var(--font-display); font-weight:800; font-size:30px; }
+  .ba__row { display:flex; align-items:baseline; justify-content:space-between; gap:20px; padding:18px 0; border-top:1px solid rgba(255,255,255,0.12); }
+  .ba__row:last-child { border-bottom:1px solid rgba(255,255,255,0.12); }
+  .ba__l { font-size:18px; color:rgba(255,255,255,0.6); }
+  .ba__v { display:flex; align-items:baseline; gap:18px; white-space:nowrap; }
+  .ba__f { font-size:19px; color:rgba(255,255,255,0.5); text-decoration:line-through; text-decoration-color:rgba(255,255,255,0.28); }
+  .ba__ar { color:#E07B3A; font-family:var(--font-mono); }
+  .ba__t { font-family:var(--font-display); font-weight:700; font-size:26px; color:#fff; }
+
+  /* ── Priorisation (ranked bars) ── */
+  .rank { display:flex; flex-direction:column; gap:22px; }
+  .rank__row { display:grid; grid-template-columns:300px 1fr 54px; align-items:center; gap:26px; }
+  .rank__name { font-size:20px; color:var(--text-secondary); }
+  .rank__track { height:16px; background:var(--color-gray-200); border-radius:8px; overflow:hidden; }
+  .rank__fill { height:100%; background:var(--border-strong); border-radius:8px; }
+  .rank__score { font-family:var(--font-mono); font-size:16px; text-align:right; color:var(--text-muted); }
+  .rank__row.top .rank__name { color:var(--text-primary); font-weight:600; }
+  .rank__row.top .rank__fill { background:var(--color-ember); }
+  .rank__row.top .rank__score { color:var(--color-ember); }
+  .rank__tag { display:inline-block; font-family:var(--font-mono); font-size:12px; letter-spacing:0.08em; text-transform:uppercase; color:#fff; background:var(--color-ember); border-radius:999px; padding:3px 10px; margin-left:10px; vertical-align:middle; }
+
+  /* ── Metrics (cas) ── */
+  .metrics { flex:1; display:grid; grid-template-columns:1fr 1fr 1fr; align-items:center; }
+  .metric { padding:0 60px; }
+  .metric:not(:first-child) { border-left:1px solid rgba(255,255,255,0.12); }
+  .metric:first-child { padding-left:0; } .metric:last-child { padding-right:0; }
+  .metric .mbig { font-family:var(--font-display); font-weight:800; font-size:104px; line-height:0.9; letter-spacing:-0.05em; color:var(--color-ember); }
+  .metric .mbig .s { font-size:46px; color:rgba(255,255,255,0.35); font-weight:700; }
+  .metric .u { font-family:var(--font-mono); font-size:15px; letter-spacing:0.08em; text-transform:uppercase; color:rgba(255,255,255,0.45); margin-top:22px; }
+  .metric .t { font-family:var(--font-display); font-weight:700; font-size:25px; color:#fff; margin:30px 0 12px; letter-spacing:-0.01em; }
+  .metric .d { font-size:18px; line-height:1.55; color:rgba(255,255,255,0.6); margin:0; }
+
+  /* ── Comparaison (positionnement) ── */
+  .compare { display:grid; grid-template-columns:1fr 1fr; gap:28px; }
+  .comp { border:1px solid var(--border-default); border-radius:20px; background:var(--color-white); padding:44px 46px; }
+  .comp.hl { border:1.5px solid var(--color-ember); }
+  .comp__h { font-family:var(--font-display); font-weight:700; font-size:27px; letter-spacing:-0.015em; margin:0 0 8px; }
+  .comp.muted .comp__h { color:var(--text-muted); }
+  .comp__s { font-family:var(--font-mono); font-size:14px; letter-spacing:0.1em; text-transform:uppercase; color:var(--text-muted); margin-bottom:22px; }
+  .comp.hl .comp__s { color:var(--color-ember); }
+  .comp__i { display:flex; align-items:flex-start; gap:14px; padding:16px 0; border-top:1px solid var(--border-subtle); font-size:20px; line-height:1.35; }
+  .comp__i .mk { flex-shrink:0; font-family:var(--font-mono); font-size:18px; line-height:1.25; }
+  .comp.muted .comp__i { color:var(--text-secondary); } .comp.muted .mk { color:var(--text-muted); }
+  .comp.hl .comp__i { color:var(--text-primary); } .comp.hl .mk { color:var(--color-ember); }
+
+  /* ── Équipe ── */
+  .team { display:grid; grid-template-columns:repeat(3,1fr); gap:44px; }
+  .member { text-align:center; }
+  .member .av { position:relative; overflow:hidden; width:124px; height:124px; border-radius:50%; background:#0A0A0A; color:#fff; display:flex; align-items:center; justify-content:center; font-family:var(--font-display); font-weight:700; font-size:42px; margin:0 auto 24px; letter-spacing:0.02em; }
+  .member .av img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
+  .member .av.hl { background:var(--color-ember); }
+  .member .nm { font-family:var(--font-display); font-weight:700; font-size:28px; letter-spacing:-0.015em; }
+  .member .role { font-family:var(--font-mono); font-size:15px; letter-spacing:0.12em; text-transform:uppercase; color:var(--color-ember); margin-top:7px; }
+  .member .fc { font-size:18px; line-height:1.5; color:var(--text-secondary); margin:18px auto 0; max-width:24ch; }
+  .credline { display:flex; gap:14px; flex-wrap:wrap; justify-content:center; margin-top:54px; }
+  .credline .c { font-family:var(--font-mono); font-size:15px; color:var(--text-secondary); }
+  .credline .sep { color:var(--border-strong); }
+
+  /* ── Parcours / tarifs ── */
+  .tiers { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  .tier { border:1px solid var(--border-default); border-radius:18px; background:var(--color-white); padding:40px 36px; display:flex; flex-direction:column; position:relative; }
+  .tier.hl { border-color:var(--color-ember); }
+  .tier .tn { display:flex; align-items:center; gap:12px; }
+  .tier .tbadge { width:40px; height:40px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-family:var(--font-mono); font-size:15px; }
+  .tier .tcat { font-family:var(--font-mono); font-size:14px; letter-spacing:0.12em; text-transform:uppercase; }
+  .tier .th { font-family:var(--font-display); font-weight:700; font-size:28px; margin:26px 0 10px; letter-spacing:-0.015em; }
+  .tier .td { font-size:18px; line-height:1.5; color:var(--text-secondary); margin:0 0 auto; }
+  .tier .price { font-family:var(--font-display); font-weight:800; font-size:40px; color:var(--color-ember); margin-top:30px; letter-spacing:-0.03em; }
+
+  /* CTA */
+  .cta-btn { display:inline-flex; align-items:center; gap:12px; height:68px; padding:0 38px; border-radius:12px; background:var(--color-ember); color:#fff; font-family:var(--font-body); font-weight:600; font-size:23px; text-decoration:none; }
+  .cta-facts { display:flex; gap:60px; }
+  .cta-facts .k { font-family:var(--font-mono); font-size:14px; letter-spacing:0.1em; text-transform:uppercase; color:rgba(255,255,255,0.38); margin-bottom:8px; }
+  .cta-facts .v { font-size:21px; color:rgba(255,255,255,0.72); }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-deck-active] .ar { animation: rise .5s cubic-bezier(0.16,1,0.3,1) both; }
+    [data-deck-active] .ar:nth-child(2){animation-delay:.05s} [data-deck-active] .ar:nth-child(3){animation-delay:.10s}
+  }
+  @keyframes rise { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Static print guarantee: Chrome headless --print-to-pdf does not reliably
+     apply the deck-stage JS-injected color-adjust rule, so dark slides export
+     white. Re-assert exact color + literal backgrounds here so the PDF keeps
+     the dark/light rhythm. */
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { background:#F7F5F1 !important; }
+    .slide.dark  { background:#0A0A0A !important; color:#fff !important; }
+    .slide.light { background:#F7F5F1 !important; color:#0A0A0A !important; }
+  }
+</style>
+</head>
+<body style="margin:0;background:#000">
+<deck-stage width="1920" height="1080">
+
+<!-- 01 · COVER -->
+<section data-label="Cover">
+<div class="slide dark hero">
+  <div class="top"><div class="brand"><img src="../assets/logo-white-on-black.png" alt=""><b>LUCID-LAB</b></div><span class="meta">PITCH · 2026</span></div>
+  <div class="hero-body">
+    <p class="eyebrow">Expertise IA de pointe · Excellence opérationnelle</p>
+    <div class="erule"></div>
+    <h1>Le bon système&nbsp;IA,<br><span class="em">livré.</span></h1>
+    <p class="lead">On audite, on priorise et on construit les agents et outils internes qui tournent en production. Propriété transférée à 100%.</p>
+  </div>
+  <div class="foot" style="margin-top:60px"><span class="seq">comprendre → prioriser → construire → transférer</span><span class="meta">01</span></div>
+</div>
+</section>
+
+<!-- 02 · LE CONSTAT -->
+<section data-label="Le constat">
+<div class="slide dark">
+  <div class="top"><div class="brand"><img src="../assets/logo-white-on-black.png" alt=""><b>LUCID-LAB</b></div><span class="meta">02</span></div>
+  <div class="split2">
+    <div>
+      <p class="eyebrow" style="margin-bottom:22px">Le constat</p>
+      <h2 class="big-state" style="margin:0">Le succès se joue <span class="em">avant</span> la première ligne de code.</h2>
+    </div>
+    <div>
+      <div class="prob ar"><div class="n">01</div><div class="t">Idées non priorisées</div><p class="d">Les métiers listent des cas d'usage, mais personne ne note valeur, faisabilité et risque.</p></div>
+      <div class="prob ar"><div class="n">02</div><div class="t">Données non prêtes</div><p class="d">Les sources existent, mais accès, formats, droits et conformité bloquent la mise en œuvre.</p></div>
+      <div class="prob ar"><div class="n">03</div><div class="t">Livré sans transfert</div><p class="d">Des systèmes livrés sans le code, sans la documentation, sans les accès.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span class="l">Lucid-Lab</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 03 · LA SOLUTION (4 portes, 2x2) -->
+<section data-label="Les 4 portes">
+<div class="slide light">
+  <div class="top"><div class="brand"><img src="../assets/logo.png" alt=""><b>LUCID-LAB</b></div><span class="meta">03</span></div>
+  <div class="body" style="justify-content:center">
+    <div class="head" style="margin-bottom:44px"><p class="eyebrow">Ce qu'on livre</p><h2 class="stitle">Quatre portes d'entrée, un système livré.</h2></div>
+    <div class="bento-row ar">
+      <div class="bento"><span class="bento__wm">01</span><div class="bento__cat"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m8 11 2 2 4-4"/><path d="m21 21-3.4-3.4"/></svg>Diagnostic</div><h3 class="bento__t">Diagnostic &amp; feuille de route</h3><p class="bento__d">Cartographie des processus, notation valeur / faisabilité / risque, plan de construction.</p><div class="bento__im">Un plan d'exécution exploitable</div></div>
+      <div class="bento"><span class="bento__wm">02</span><div class="bento__cat"><svg viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>Données &amp; SI</div><h3 class="bento__t">Données &amp; conformité</h3><p class="bento__d">Inventaire des sources, matrice des droits et accès, architecture cible en Europe.</p><div class="bento__im">Les blocages levés avant de construire</div></div>
+      <div class="bento"><span class="bento__wm">03</span><div class="bento__cat"><svg viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>Construction</div><h3 class="bento__t">IA &amp; outils internes</h3><p class="bento__d">Agents IA, tableaux de bord métier, connecteurs et interfaces internes.</p><div class="bento__im">Un système utilisé au quotidien</div></div>
+      <div class="bento"><span class="bento__wm">04</span><div class="bento__cat"><svg viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>Adoption</div><h3 class="bento__t">Adoption &amp; exploitation</h3><p class="bento__d">Suivi coût et qualité, formation, exploitation et transfert de propriété.</p><div class="bento__im">Le client garde le contrôle</div></div>
+    </div>
+  </div>
+  <div class="foot"><span class="l">comprendre → prioriser → construire → transférer</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 04 · LA MÉTHODE -->
+<section data-label="La méthode">
+<div class="slide light">
+  <div class="top"><div class="brand"><img src="../assets/logo.png" alt=""><b>LUCID-LAB</b></div><span class="meta">04</span></div>
+  <div class="body" style="justify-content:center">
+    <div class="head"><p class="eyebrow">La méthode</p><h2 class="stitle">Comprendre, prioriser,<br>construire, transférer.</h2></div>
+    <div class="tl-wrap ar">
+      <div class="timeline">
+        <div class="tl"><div class="tl__node">01</div><div class="tl__n">Audit</div><p class="tl__d">Cartographie des processus et des cas d'usage.</p></div>
+        <div class="tl"><div class="tl__node">02</div><div class="tl__n">Priorisation</div><p class="tl__d">Notation valeur / risque, sécurisation des données.</p></div>
+        <div class="tl"><div class="tl__node">03</div><div class="tl__n">Construction</div><p class="tl__d">Architecture, développement et intégration par cas.</p></div>
+        <div class="tl"><div class="tl__node">04</div><div class="tl__n">Déploiement</div><p class="tl__d">Mise en production, suivi et formation.</p></div>
+        <div class="tl"><div class="tl__node">05</div><div class="tl__n">Transfert</div><p class="tl__d">Documentation, gouvernance et propriété à 100%.</p></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span class="l">On ne s'arrête pas à la feuille de route : on opère et on transfère.</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 05 · DASHBOARD (dark) -->
+<section data-label="Feuille de route">
+<div class="slide dark">
+  <div class="top"><div class="brand"><img src="../assets/logo-white-on-black.png" alt=""><b>LUCID-LAB</b></div><span class="meta">05</span></div>
+  <div class="body" style="justify-content:flex-start">
+    <div class="head" style="margin:30px 0 22px"><p class="eyebrow">Feuille de route &amp; impact</p><h2 class="stitle">Du diagnostic à la production, par vagues.</h2></div>
+    <div class="gantt__head"><div></div><div class="gantt__ph"><span>S1-2</span><span>S3-4</span><span>M2</span><span>M3</span><span>M4 +</span></div></div>
+    <div>
+      <div class="gantt__row"><div class="gantt__lab">Audit &amp; cartographie</div><div class="gantt__trk"><div class="bar p" style="grid-column:1/3">2 sem</div></div></div>
+      <div class="gantt__row"><div class="gantt__lab">Sécurisation données &amp; accès</div><div class="gantt__trk"><div class="bar a" style="grid-column:2/5">3 sem</div></div></div>
+      <div class="gantt__row"><div class="gantt__lab">Construction · cas prioritaire</div><div class="gantt__trk"><div class="bar p" style="grid-column:3/7">cas #1</div></div></div>
+      <div class="gantt__row"><div class="gantt__lab">Construction · cas suivants</div><div class="gantt__trk"><div class="bar a" style="grid-column:5/9">cas #2-3</div></div></div>
+      <div class="gantt__row"><div class="gantt__lab">Exploitation &amp; formation</div><div class="gantt__trk"><div class="bar a" style="grid-column:7/11">continu</div></div></div>
+      <div class="gantt__row"><div class="gantt__lab">Documentation &amp; transfert</div><div class="gantt__trk"><div class="bar p" style="grid-column:9/11">transfert 100%</div></div></div>
+    </div>
+    <div style="display:grid;grid-template-columns:1.05fr 1fr;gap:72px;margin-top:42px">
+      <div><p class="block-l">Diagnostic de maturité</p><div class="gauge-row">
+        <div class="gauge"><svg viewBox="0 0 130 80"><path class="gtrk" d="M13 66 A 52 52 0 0 1 117 66"/><path class="gval" d="M13 66 A 52 52 0 0 1 117 66" stroke-dasharray="78 200"/><text class="gnum" x="65" y="60" text-anchor="middle">2,4</text></svg><div class="gauge__c">Maturité IA · /5</div></div>
+        <div class="gauge"><svg viewBox="0 0 130 80"><path class="gtrk" d="M13 66 A 52 52 0 0 1 117 66"/><path class="gval" d="M13 66 A 52 52 0 0 1 117 66" stroke-dasharray="131 200"/><text class="gnum" x="65" y="60" text-anchor="middle">80%</text></svg><div class="gauge__c">Données conformes</div></div>
+        <div class="gauge"><svg viewBox="0 0 130 80"><path class="gtrk" d="M13 66 A 52 52 0 0 1 117 66"/><path class="gval" d="M13 66 A 52 52 0 0 1 117 66" stroke-dasharray="150 200"/><text class="gnum" x="65" y="60" text-anchor="middle">90+</text></svg><div class="gauge__c">Cas qualifiés</div></div>
+      </div></div>
+      <div><p class="block-l">Avant → après</p>
+        <div class="ba__row"><span class="ba__l">Traitement d'un dossier</span><span class="ba__v"><span class="ba__f">45 min</span><span class="ba__ar">→</span><span class="ba__t">6 min</span></span></div>
+        <div class="ba__row"><span class="ba__l">Cas d'usage priorisés</span><span class="ba__v"><span class="ba__f">0</span><span class="ba__ar">→</span><span class="ba__t">90+</span></span></div>
+        <div class="ba__row"><span class="ba__l">Outils en place</span><span class="ba__v"><span class="ba__f">4 outils</span><span class="ba__ar">→</span><span class="ba__t">1 système</span></span></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span class="l">Valeurs illustratives, remplacées par votre diagnostic.</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 06 · PRIORISATION (ranked) -->
+<section data-label="Priorisation">
+<div class="slide light">
+  <div class="top"><div class="brand"><img src="../assets/logo.png" alt=""><b>LUCID-LAB</b></div><span class="meta">06</span></div>
+  <div class="body" style="justify-content:center">
+    <div class="head" style="margin-bottom:14px"><p class="eyebrow">Priorisation</p><h2 class="stitle">On démarre par le système le plus utile.</h2></div>
+    <div style="display:grid;grid-template-columns:1.5fr 1fr;gap:80px;align-items:center" class="ar">
+      <div class="rank">
+        <div class="rank__row top"><div class="rank__name">Automatisation du reporting<span class="rank__tag">Premier système</span></div><div class="rank__track"><div class="rank__fill" style="width:94%"></div></div><div class="rank__score">94</div></div>
+        <div class="rank__row"><div class="rank__name">Assistant documentaire interne</div><div class="rank__track"><div class="rank__fill" style="width:86%"></div></div><div class="rank__score">86</div></div>
+        <div class="rank__row"><div class="rank__name">Contrôle &amp; conformité</div><div class="rank__track"><div class="rank__fill" style="width:72%"></div></div><div class="rank__score">72</div></div>
+        <div class="rank__row"><div class="rank__name">Priorisation commerciale</div><div class="rank__track"><div class="rank__fill" style="width:61%"></div></div><div class="rank__score">61</div></div>
+        <div class="rank__row"><div class="rank__name">Prévision &amp; planning</div><div class="rank__track"><div class="rank__fill" style="width:48%"></div></div><div class="rank__score">48</div></div>
+      </div>
+      <div>
+        <h3 style="font-family:var(--font-display);font-weight:700;font-size:30px;line-height:1.2;letter-spacing:-0.015em;margin:0 0 18px">Chaque cas d'usage est noté sur la valeur, l'effort et le risque.</h3>
+        <p style="font-size:20px;line-height:1.55;color:var(--text-secondary);margin:0 0 30px">On lance celui qui crée de la valeur le plus vite, pas le plus impressionnant. Puis on étend.</p>
+        <div style="font-family:var(--font-mono);font-size:16px;color:var(--text-muted)">Impact</div>
+        <div style="font-family:var(--font-display);font-weight:700;font-size:30px;color:var(--color-ember);margin-top:6px;letter-spacing:-0.01em">90+ cas qualifiés et priorisés.</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span class="l">Notation illustrative, établie pendant l'audit.</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 07 · CAS CLIENTS (dark) -->
+<section data-label="Cas clients">
+<div class="slide dark">
+  <div class="top"><div class="brand"><img src="../assets/logo-white-on-black.png" alt=""><b>LUCID-LAB</b></div><span class="meta">07</span></div>
+  <div class="head" style="margin:60px 0 20px"><p class="eyebrow">Cas clients livrés</p><h2 class="stitle">Des systèmes livrés,<br>des résultats mesurés.</h2></div>
+  <div class="metrics">
+    <div class="metric"><div class="mbig">4j<span class="s"> → </span>2h</div><div class="u">Cycle de reporting</div><div class="t">Reporting financier automatisé</div><p class="d">Société de services, 200+ personnes. Génération depuis ERP et Excel, contrôles d'intégrité.</p></div>
+    <div class="metric"><div class="mbig">600<span class="s">+</span></div><div class="u">Requêtes / mois</div><div class="t">Assistant de connaissances</div><p class="d">Acteur de la mobilité. Base documentaire branchée à Slack, recherche manuelle supprimée.</p></div>
+    <div class="metric"><div class="mbig">90<span class="s">+</span></div><div class="u">Cas d'usage qualifiés</div><div class="t">Schéma directeur IA</div><p class="d">Grand compte financier. Audit complet, cas priorisés, architecture et feuille de route 18 mois.</p></div>
+  </div>
+  <div class="foot"><span class="l">Références détaillées disponibles sous NDA.</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 08 · POSITIONNEMENT (comparaison) -->
+<section data-label="Positionnement">
+<div class="slide light">
+  <div class="top"><div class="brand"><img src="../assets/logo.png" alt=""><b>LUCID-LAB</b></div><span class="meta">08</span></div>
+  <div class="body" style="justify-content:center">
+    <div class="head" style="margin-bottom:44px"><p class="eyebrow">Notre différence</p><h2 class="big-state" style="max-width:22ch">Pas un cabinet de conseil. Un <span class="em">système livré</span>.</h2></div>
+    <div class="compare ar">
+      <div class="comp muted">
+        <div class="comp__h">Le conseil classique</div>
+        <div class="comp__s">Ce qu'on évite</div>
+        <div class="comp__i"><span class="mk">✕</span>Des recommandations, pas des systèmes</div>
+        <div class="comp__i"><span class="mk">✕</span>Une dépendance durable au prestataire</div>
+        <div class="comp__i"><span class="mk">✕</span>Vous n'avez ni le code ni les accès</div>
+        <div class="comp__i"><span class="mk">✕</span>Une valeur difficile à mesurer</div>
+      </div>
+      <div class="comp hl">
+        <div class="comp__h">Lucid-Lab</div>
+        <div class="comp__s">Ce qu'on livre</div>
+        <div class="comp__i"><span class="mk">✓</span>Des systèmes en production, mesurables</div>
+        <div class="comp__i"><span class="mk">✓</span>Propriété transférée à 100%</div>
+        <div class="comp__i"><span class="mk">✓</span>Vous gardez le contrôle, sans dépendance</div>
+        <div class="comp__i"><span class="mk">✓</span>Conforme RGPD, hébergé en Europe</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span class="l">Standards industriels pour la production</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 09 · ÉQUIPE -->
+<section data-label="Équipe">
+<div class="slide light">
+  <div class="top"><div class="brand"><img src="../assets/logo.png" alt=""><b>LUCID-LAB</b></div><span class="meta">09</span></div>
+  <div class="body" style="justify-content:center">
+    <div class="head" style="text-align:center;margin-bottom:60px"><p class="eyebrow">L'équipe</p><h2 class="big-state" style="font-size:48px;margin:18px auto 0;max-width:26ch">Des ingénieurs qui <span class="em">livrent en production</span>.</h2></div>
+    <div class="team ar">
+      <div class="member"><div class="av">TB<img src="assets/team/theo.png" alt="Théo Benard"></div><div class="nm">Théo Benard</div><div class="role">CTO</div><p class="fc">Architecture, agents IA et mise en production.</p></div>
+      <div class="member"><div class="av hl">AP<img src="assets/team/anthony.png" alt="Anthony Poirier"></div><div class="nm">Anthony Poirier</div><div class="role">CEO</div><p class="fc">Stratégie et relation grands comptes.</p></div>
+      <div class="member"><div class="av">JG<img src="assets/team/jules.png" alt="Jules Gouron" onerror="this.remove()"></div><div class="nm">Jules Gouron</div><div class="role">COO</div><p class="fc">Cadrage métier, livraison et opérations.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span class="l">Lucid-Lab</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 10 · PARCOURS / TARIFS -->
+<section data-label="Le parcours">
+<div class="slide light">
+  <div class="top"><div class="brand"><img src="../assets/logo.png" alt=""><b>LUCID-LAB</b></div><span class="meta">10</span></div>
+  <div class="body" style="justify-content:center">
+    <div class="head" style="margin-bottom:48px"><p class="eyebrow">Le parcours</p><h2 class="stitle">Trois façons de démarrer.</h2></div>
+    <div class="tiers ar">
+      <div class="tier"><div class="tn"><span class="tbadge" style="border:2px solid var(--color-ember);color:var(--color-ember)">01</span><span class="tcat" style="color:var(--text-muted)">Cadrage</span></div><h3 class="th">Audit Flash</h3><p class="td">Diagnostic express, 30 min, sans engagement. On lit votre contexte et vos contraintes.</p><div class="price">Gratuit</div></div>
+      <div class="tier hl"><div class="tn"><span class="tbadge" style="background:var(--color-ember);color:#fff">02</span><span class="tcat" style="color:var(--color-ember)">Le plus demandé</span></div><h3 class="th">Schéma directeur IA</h3><p class="td">Cadrage, cas d'usage priorisés, architecture cible et feuille de route de déploiement.</p><div class="price">dès 8k€</div></div>
+      <div class="tier"><div class="tn"><span class="tbadge" style="border:2px solid var(--color-ember);color:var(--color-ember)">03</span><span class="tcat" style="color:var(--text-muted)">Construction</span></div><h3 class="th">Mise en production</h3><p class="td">Construction, intégration, formation, transfert et exploitation. Propriété 100% client.</p><div class="price">Sur devis</div></div>
+    </div>
+  </div>
+  <div class="foot"><span class="l">Audit avant devis. Toujours.</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 11 · CTA -->
+<section data-label="Closing">
+<div class="slide dark hero">
+  <div class="top"><div class="brand"><img src="../assets/logo-white-on-black.png" alt=""><b>LUCID-LAB</b></div><span class="meta">11</span></div>
+  <div class="hero-body center">
+    <p class="eyebrow">Prochaine étape</p>
+    <div class="erule"></div>
+    <h1 style="font-size:100px">Choisissez le premier<br><span class="em">système utile.</span></h1>
+    <p class="lead">En 30 minutes, on lit votre contexte, vos processus et vos contraintes. Vous savez si un audit IA mérite d'être lancé.</p>
+    <div class="ar" style="display:flex;align-items:center;gap:24px;margin-top:44px">
+      <a class="cta-btn" href="https://tidycal.com/lucid-lab">Réserver un audit IA<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M5 12h14M12 5l7 7-7 7"/></svg></a>
+      <span style="font-family:var(--font-mono);font-size:18px;color:rgba(255,255,255,0.4)">info@lucid-lab.fr</span>
+    </div>
+  </div>
+  <div class="foot" style="margin-top:56px">
+    <div class="cta-facts"><div><div class="k">Audit Flash</div><div class="v">30 min · gratuit</div></div><div><div class="k">Livraison</div><div class="v">2 à 4 semaines</div></div><div><div class="k">Propriété</div><div class="v">100% client</div></div></div>
+    <span class="meta">lucid-lab.fr</span>
+  </div>
+</div>
+</section>
+
+</deck-stage>
+<script src="../deck-stage.js"></script>
+</body>
+</html>

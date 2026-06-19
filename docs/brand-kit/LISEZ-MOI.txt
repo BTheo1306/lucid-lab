@@ -1,0 +1,52 @@
+LUCID-LAB · DOSSIER DOCS
+========================
+
+Tous les documents de la marque, centralisés au meme endroit.
+Chaque document existe en deux formats :
+  .pdf   = version prete a envoyer au client
+  .html  = version editable (ouvrir dans un navigateur, puis Imprimer > Enregistrer en PDF)
+
+
+templates/  (documents commerciaux et administratifs)
+---------------------------------------------------
+  document            Proposition commerciale (6 pages)
+  one-pager           Fiche de presentation (1 page)
+  devis               Devis
+  bon-de-commande     Bon de commande
+  bon-pour-accord     Bon pour accord
+  contrat             Contrat de prestation
+  guide-rustdesk      Guide d'installation RustDesk, client (FR + EN, 4 pages)
+
+pitch-deck/  (presentations)
+---------------------------
+  index.html          Le pitch deck (ouvrir dans un navigateur, 11 slides)
+  deck.pdf            Export PDF du pitch deck
+  timeline.html       Feuille de route client (4 slides : etapes du projet, a presenter avec le devis)
+  timeline.pdf        Export PDF de la feuille de route
+  export-pdf.sh       Regenere un PDF depuis un .html
+                        ./export-pdf.sh                          -> deck.pdf depuis index.html
+                        ./export-pdf.sh timeline.pdf timeline.html -> timeline.pdf
+  assets/team/        Photos de l'equipe (Theo, Anthony, Jules)
+
+
+A NE PAS SUPPRIMER (sert au rendu des .html)
+--------------------------------------------
+  styles.css, tokens/, assets/, deck-stage.js
+  Ce sont les polices, couleurs et le logo. Sans eux les .html s'affichent mal.
+
+
+Regenerer un PDF a partir d'un .html
+------------------------------------
+  Ouvrir le .html dans Chrome, puis Fichier > Imprimer > Destination
+  "Enregistrer au format PDF", marges "Aucune", cocher "Graphiques d'arriere-plan".
+  Pour le pitch deck, utiliser plutot pitch-deck/export-pdf.sh (rend les fonds sombres correctement).
+
+
+Ordre d'envoi des documents aux clients
+---------------------------------------
+  Voir ORDRE-DOCUMENTS.md : quel document envoyer, a quel moment du cycle
+  client (prospection, proposition, signature, demarrage).
+
+  contrat.html et bon-de-commande.html contiennent desormais le contenu
+  juridique complet de Lucid-Lab (parties, 14 articles, RIB, assurance),
+  mis en page dans le nouveau design. Les .pdf sont a jour.

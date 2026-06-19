@@ -1,0 +1,252 @@
+<!-- Lucid-Lab · Contrat de prestation · Shannon · CTR-2026-011 · engagement 6 mois -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Contrat de prestation · Shannon</title>
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../../templates/_doc-base.css">
+<style>
+  /* Continuous-flow legal document (même base que templates/contrat.html). */
+  .doc { width: 100%; border-collapse: collapse; }
+  .doc > thead td, .doc > tfoot td, .doc > tbody td { padding: 0; }
+
+  .run-head { display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 2px solid var(--color-ink); }
+  .run-head .brand { display: flex; align-items: center; gap: 10px; }
+  .run-head .brand img { width: 24px; height: 24px; display: block; }
+  .run-head .brand b { font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.08em; font-size: 15px; }
+  .run-head .brand small { display: block; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); letter-spacing: 0.04em; margin-top: 2px; }
+  .run-head .lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.04em; color: var(--text-secondary); text-align: right; }
+  .head-gap { height: 22px; }
+
+  .foot-gap { height: 20px; }
+  .run-foot { border-top: 1px solid var(--border-default); padding-top: 10px; font-family: var(--font-mono); font-size: 10px; line-height: 1.6; color: var(--text-muted); display: flex; justify-content: space-between; gap: 16px; }
+  .run-foot a { color: var(--text-accent); text-decoration: none; }
+
+  .doc-title { margin-bottom: 4px; }
+  .doc-title h1 { font-family: var(--font-display); font-weight: 700; font-size: 26px; letter-spacing: -0.01em; margin: 0; text-transform: uppercase; }
+  .doc-title .meta { font-family: var(--font-mono); font-size: 12px; color: var(--text-secondary); margin-top: 8px; }
+  .doc-title .meta b { color: var(--text-primary); font-weight: 500; }
+
+  .lead { font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); margin-top: 14px; }
+  .lead b { color: var(--text-primary); font-weight: 600; }
+  .article ul { margin: 8px 0 0 18px; padding: 0; font-size: 13.5px; line-height: 1.6; color: var(--text-secondary); }
+  .article li { margin-bottom: 3px; }
+  .article .fill { color: var(--text-accent); font-family: var(--font-mono); font-size: 12.5px; }
+  .paytable { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; break-inside: avoid; }
+  .paytable td { border: 1px solid var(--border-default); padding: 8px 12px; vertical-align: top; }
+  .paytable td:first-child { width: 46%; font-weight: 600; color: var(--text-primary); background: var(--color-white); }
+  .paytable td.amt { font-family: var(--font-mono); text-align: right; color: var(--text-accent); }
+
+  @media print {
+    @page { size: A4; margin: 14mm 16mm; }
+    body { background: #fff; padding: 0; }
+    .sheet { border: none; border-radius: 0; width: auto; min-height: 0; margin: 0; padding: 0; }
+    .article { margin-top: 13px; break-inside: auto; }
+    .article h3 { break-after: avoid; }
+    /* Ne jamais couper un paragraphe, une liste ou un bloc de texte entre deux pages */
+    .article p, .article ul, .lead, .notes, .parties, .signs, .paytable, .mention, .doc-title, .sec { break-inside: avoid; }
+    .sec { margin-top: 14px; }
+    .notes { margin-top: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<section class="sheet">
+  <table class="doc">
+
+    <thead>
+      <tr><td>
+        <div class="run-head">
+          <div class="brand">
+            <img src="../../assets/logo.png" alt="">
+            <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+          </div>
+          <div class="lbl">Contrat de prestation · Shannon<br>CTR-2026-011</div>
+        </div>
+        <div class="head-gap"></div>
+      </td></tr>
+    </thead>
+
+    <tfoot>
+      <tr><td>
+        <div class="foot-gap"></div>
+        <div class="run-foot">
+          <div>Lucid-Lab · SAS au capital de 999 € · 47 rue Vivienne, 75002 Paris · RCS Paris 104 672 050 · TVA FR 02 104 672 050</div>
+          <div><a href="https://lucid-lab.fr">lucid-lab.fr</a></div>
+        </div>
+      </td></tr>
+    </tfoot>
+
+    <tbody>
+      <tr><td>
+
+        <div class="doc-title">
+          <h1>Contrat de prestation</h1>
+          <div class="meta">N° <b>CTR-2026-011</b> &nbsp;·&nbsp; Bon de Commande : <b>PROP-2026-011</b> &nbsp;·&nbsp; Date : <b>18 juin 2026</b></div>
+        </div>
+
+        <div class="lead">Le présent contrat encadre les prestations confiées à Lucid-Lab et complète le Bon de Commande signé par le Client. Il ne prend effet qu'à la réception du premier paiement.</div>
+
+        <div class="parties">
+          <div class="party">
+            <div class="lbl">Le prestataire</div>
+            <div class="name">Lucid-Lab</div>
+            <div class="lines">SAS au capital de 999 €<br>47 rue Vivienne, 75002 Paris, France<br>RCS Paris 104 672 050 · TVA FR 02 104 672 050<br>Représentée par son Président, Periscope-X SARL, elle-même représentée par M. Anthony Poirier</div>
+          </div>
+          <div class="party">
+            <div class="lbl">Le client</div>
+            <div class="name">Shannon-Leatitia Van Berwaer</div>
+            <div class="lines">Personne physique agissant en son nom propre, dans le cadre de son activité e-commerce<br>Contact e-mail : svanberwaer@gmail.com</div>
+          </div>
+        </div>
+
+        <div class="notes" style="margin-top:14px">Ensemble dénommés les « Parties ». Il a été convenu ce qui suit.</div>
+
+        <div class="article">
+          <h3><span class="n">Préambule</span></h3>
+          <p>Lucid-Lab est une agence indépendante spécialisée dans la conception, le développement et l'intégration d'agents d'intelligence artificielle, d'automatisations métier, de sites web, de campagnes publicitaires en ligne et de contenus, au bénéfice de PME et ETI. Le Client opère trois boutiques e-commerce sous Shopify (perruques, accessoires pour animaux, produits pour personnes autistes ou TDAH) et souhaite confier à Lucid-Lab leur refonte ainsi que la mise en place et le pilotage de son acquisition. C'est dans ces conditions que les Parties se sont rapprochées et ont arrêté les présentes.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 1</span>Documents contractuels</h3>
+          <p>Le présent Contrat est constitué des présentes Conditions Particulières, du Bon de Commande référencé PROP-2026-011, des Conditions Générales de Vente de Lucid-Lab (Version 1.0 en vigueur au 15 mai 2026, jointes en Annexe 1), de la Proposition Commerciale PROP-2026-011 (Shannon, 11 juin 2026), et de l'Accord de sous-traitance des données personnelles (DPA), joint en Annexe 3 le cas échéant.</p>
+          <p>En cas de contradiction entre ces documents, l'ordre de prévalence est : (1) Bon de Commande, (2) Conditions Particulières, (3) Proposition Commerciale, (4) DPA, (5) CGV.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 2</span>Objet et périmètre de la prestation</h3>
+          <p><b style="color:var(--text-primary)">Intitulé de la mission :</b> Accompagnement e-commerce 6 mois : refonte des 3 boutiques Shopify, SEO et pilotage Meta Ads.</p>
+          <p><b style="color:var(--text-primary)">Périmètre des prestations :</b> refonte et optimisation des trois boutiques Shopify (audit, UX/UI, fiches produits, performance technique, tracking) ; accompagnement SEO (audit, optimisation on-page, suivi de positionnement) ; configuration et pilotage des campagnes Meta Ads (Business Manager, pixels, audiences, catalogues, lancement et optimisation des campagnes) ; production de contenu publicitaire à la demande, facturée à l'unité ; reporting mensuel de performance.</p>
+          <p><b style="color:var(--text-primary)">Hors périmètre :</b> toute prestation non explicitement listée dans la Proposition Commerciale, notamment le budget média Meta (dépenses publicitaires), les abonnements Shopify et applications tierces, la production de visuels ou vidéos nécessitant un prestataire externe (shooting, tournage), les crédits d'outils IA ou SEO tiers, les noms de domaine et l'hébergement hors Shopify.</p>
+          <p>Livrables attendus : tels que précisément définis dans la Proposition Commerciale et le Bon de Commande référencés ci-dessus.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 3</span>Calendrier et conditions de démarrage</h3>
+          <p>Conditions suspensives cumulatives au démarrage effectif des travaux :</p>
+          <ul>
+            <li>signature du présent Contrat et du Bon de Commande par les deux Parties ;</li>
+            <li>réception effective du premier paiement sur le compte bancaire de Lucid-Lab ;</li>
+            <li>transmission par le Client des accès, comptes et éléments nécessaires listés à l'Article 5 (back-office Shopify des 3 boutiques, comptes Meta Business / Ads, analytics).</li>
+          </ul>
+          <p>Durée : le Contrat est conclu pour une durée ferme et irrévocable de <b style="color:var(--text-primary)">six (6) mois</b> à compter du démarrage effectif, structuré en deux phases : Phase 1 (Mois 1 à 3, refonte et lancement) puis Phase 2 (Mois 4 à 6, run, optimisation continue et scaling).</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 4</span>Prix et modalités de paiement</h3>
+          <table class="paytable">
+            <tbody>
+              <tr><td>Prix total HT (engagement 6 mois)</td><td class="amt">2 700,00 €</td></tr>
+              <tr><td>TVA 20 %</td><td class="amt">540,00 €</td></tr>
+              <tr><td>Prix TTC</td><td class="amt">3 240,00 €</td></tr>
+              <tr><td>Phase 1 (Mois 1 à 3)</td><td class="amt">600,00 € HT / mois</td></tr>
+              <tr><td>Phase 2 (Mois 4 à 6)</td><td class="amt">300,00 € HT / mois</td></tr>
+              <tr><td>Création publicitaire (à la demande)</td><td class="amt">100,00 € HT / unité</td></tr>
+            </tbody>
+          </table>
+          <p>Modalité retenue : abonnement mensuel sur engagement de six (6) mois, facturé à l'avance. Phase 1 (Mois 1 à 3) : 600,00 € HT/mois (450 € refonte des 3 sites + 150 € Meta Ads). Phase 2 (Mois 4 à 6) : 300,00 € HT/mois, tout compris. Chaque création publicitaire commandée est facturée 100,00 € HT à l'unité, en sus. Total engagement fixe sur 6 mois : 2 700,00 € HT (3 240,00 € TTC), hors créations publicitaires et hors coûts variables à la charge du Client. Aucune Prestation n'est engagée ni livrée tant que la fraction de prix correspondante n'a pas été effectivement créditée sur le compte de Lucid-Lab.</p>
+          <p><b style="color:var(--text-primary)">Coordonnées bancaires.</b> Virement SEPA exclusivement. Titulaire : Lucid-Lab. IBAN : FR76 2823 3000 0119 9177 3651 869. BIC : REVOFRP2. Banque : Revolut Bank UAB. Référence à indiquer : PROP-2026-011 / Shannon.</p>
+          <p><b style="color:var(--text-primary)">Retard de paiement.</b> Application de plein droit des pénalités prévues à l'article 6 des CGV : intérêts moratoires au taux BCE majoré de 10 points, indemnité forfaitaire légale de 40 € et indemnité contractuelle de 250 € par facture en retard. Déchéance du terme après dix (10) jours de retard.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 5</span>Obligations du Client</h3>
+          <p>Pour permettre l'exécution des Prestations, le Client s'engage à fournir à Lucid-Lab, dans les délais convenus :</p>
+          <ul>
+            <li>les accès administrateurs au back-office Shopify des trois boutiques ;</li>
+            <li>les accès aux comptes Meta Business / Ads et aux outils analytics ;</li>
+            <li>les contenus, fichiers, images, textes et données nécessaires ;</li>
+            <li>les validations dans les délais raisonnables convenus ;</li>
+            <li>le budget média Meta pour les campagnes publicitaires, distinct du prix de la Prestation.</li>
+          </ul>
+          <p>Interlocuteur unique : Shannon-Leatitia Van Berwaer · svanberwaer@gmail.com. Tout retard imputable au Client suspend de plein droit les délais d'exécution sans engager la responsabilité de Lucid-Lab.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 6</span>Propriété intellectuelle</h3>
+          <p>Sous condition suspensive du paiement intégral du prix HT et conformément aux articles L. 131-3 et suivants du Code de la propriété intellectuelle, Lucid-Lab cède au Client, à titre exclusif et pour la durée légale de protection, les droits patrimoniaux suivants sur les Livrables spécifiques créés dans le cadre du présent Contrat : reproduction, représentation et mise à disposition au public, adaptation et modification, traduction, exploitation commerciale interne. La cession est consentie pour le monde entier.</p>
+          <p>La cession est strictement limitée à l'usage et à la destination définis dans le Bon de Commande. Tout usage hors de cette destination (notamment la revente, la sous-licence à un tiers, l'intégration dans un produit commercialisé par le Client à des tiers, ou l'exploitation au profit d'une activité concurrente) est expressément exclu et nécessite un avenant écrit signé par Lucid-Lab moyennant rémunération complémentaire.</p>
+          <p>Lucid-Lab conserve l'intégralité de ses droits sur ses outils, méthodes, scripts génériques, briques logicielles réutilisables, prompts système, configurations d'agents et savoir-faire préexistants ou indépendants. Les composants tiers (logiciels open source, bibliothèques, services SaaS, API) restent régis par leurs licences propres dont le Client est tenu de respecter les termes.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 7</span>Confidentialité</h3>
+          <p>Chacune des Parties s'engage à ne pas divulguer à des tiers les informations confidentielles communiquées par l'autre Partie. Cet engagement s'applique pendant toute la durée du Contrat et pendant une période de cinq (5) ans suivant sa cessation.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 8</span>Protection des données personnelles</h3>
+          <p>Pour les données personnelles dont le Client détermine les finalités et les moyens du traitement, le Client est responsable de traitement et Lucid-Lab agit en qualité de sous-traitant. L'accord de sous-traitance des données (DPA) annexé précise les engagements respectifs des Parties au titre du RGPD. Lucid-Lab notifie au Client toute violation de données dans les 72 heures suivant sa détection.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 9</span>Limitation de responsabilité et assurance</h3>
+          <p>La responsabilité de Lucid-Lab, toutes causes confondues, est expressément limitée au montant HT effectivement perçu au titre du présent Contrat au cours des douze (12) mois précédant le fait générateur du dommage. Conformément à la jurisprudence Chronopost et à l'article 1170 du Code civil, cette limite peut être écartée si elle privait de sa substance une obligation essentielle du Contrat ; dans cette hypothèse, la responsabilité totale de Lucid-Lab demeurera limitée au plafond effectif de la couverture d'assurance RC Pro souscrite, soit cent mille euros (100 000 €) par période d'assurance.</p>
+          <p>Sont exclus de toute indemnisation les pertes d'exploitation, le manque à gagner, l'atteinte à la réputation, la perte de clientèle, la perte de données et tout dommage indirect ou immatériel non consécutif. Lucid-Lab a souscrit auprès de Hiscox SA, via le courtier LegalPlace, un contrat de Responsabilité Civile Professionnelle n° RCPLP 3695175450, plafond 100 000 € par période d'assurance pour la RC Pro, 10 000 000 € par sinistre pour la RC Exploitation et Employeur, couverture monde entier hors USA/Canada.</p>
+          <p>Le Client reconnaît que les services d'IA générative et l'acquisition payante reposent sur des technologies et des plateformes tierces pouvant produire des résultats variables et imprévisibles. Lucid-Lab est tenue d'une obligation de moyens et ne garantit aucun résultat commercial chiffré (chiffre d'affaires, ROAS, positions SEO). Le Client demeure seul responsable des décisions et communications réalisées sur la base des Livrables et s'engage à mettre en place les contrôles humains appropriés avant toute publication en production. Les limitations du présent Article ne s'appliquent pas en cas de dol, de faute lourde caractérisée ou de dommages corporels imputables à Lucid-Lab.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 10</span>Résiliation et conséquences</h3>
+          <p>En cas de manquement grave non régularisé dans les quinze (15) jours suivant mise en demeure restée sans effet, chaque Partie peut résilier le Contrat de plein droit, sans indemnité au profit de l'autre. Résiliation anticipée par le Client : la totalité des mensualités restant dues jusqu'au terme des six (6) mois devient immédiatement exigible, à titre de clause pénale au sens de l'article 1231-5 du Code civil. À la cessation, Lucid-Lab remet les Livrables payés et conserve les codes d'accès non payés. Les obligations de confidentialité, de propriété intellectuelle et de RGPD survivent à la cessation.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 11</span>Force majeure</h3>
+          <p>Aucune des Parties n'est responsable d'un manquement résultant d'un cas de force majeure au sens de l'article 1218 du Code civil, incluant notamment l'indisponibilité prolongée d'un service tiers essentiel (Shopify, Meta). Si l'événement perdure plus de soixante (60) jours, chaque Partie pourra résilier le Contrat de plein droit, sans indemnité.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 12</span>Non-sollicitation</h3>
+          <p>Pendant la durée du Contrat et pendant les vingt-quatre (24) mois suivant son terme, chaque Partie s'interdit de débaucher tout collaborateur ou sous-traitant de l'autre Partie ayant participé activement à l'exécution du Contrat. La violation entraîne une indemnité forfaitaire égale à douze (12) mois de rémunération brute ou de facturation HT du collaborateur concerné.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 13</span>Droit applicable et juridiction compétente</h3>
+          <p>Le présent Contrat est régi par le droit français. À défaut de résolution amiable dans un délai de trente (30) jours, tout litige relèvera de la compétence exclusive du Tribunal des activités économiques de Paris. Tout élément qui ne trouverait pas de réponse dans ce contrat sera régi par les mentions légales et les Conditions Générales de Vente du site lucid-lab.fr.</p>
+        </div>
+
+        <div class="article">
+          <h3><span class="n">Art. 14</span>Stipulations diverses</h3>
+          <p>Le présent Contrat, ses annexes et le Bon de Commande constituent l'intégralité de l'accord entre les Parties. Toute modification fera l'objet d'un avenant écrit signé. La nullité éventuelle d'une stipulation n'affecte pas la validité des autres.</p>
+        </div>
+
+        <div class="sec" style="margin-top:22px">
+          <span class="lbl">Acceptation du contrat</span>
+          <div class="notes" style="margin-top:0">
+            <b>Bon pour accord sur le contrat de prestation.</b> En signant, le Client confirme avoir lu et accepté le présent Contrat, le Bon de Commande PROP-2026-011 et les annexes applicables, pour un engagement de six (6) mois d'un montant de 2 700,00 € HT (3 240,00 € TTC), hors créations publicitaires.
+          </div>
+        </div>
+
+        <div class="signs">
+          <div class="sign">
+            <div class="lbl">Pour le client</div>
+            <div class="who">Shannon-Leatitia Van Berwaer</div>
+            <div class="note">Date, lieu, nom et signature précédée de « Lu et approuvé, bon pour accord »</div>
+          </div>
+          <div class="sign">
+            <div class="lbl">Pour Lucid-Lab</div>
+            <div class="who">Lucid-Lab</div>
+            <div class="note">Fait à Paris, le 18 juin 2026. Signature précédée de « Lu et approuvé, bon pour accord »</div>
+          </div>
+        </div>
+
+        <div class="sec" style="margin-top:22px">
+          <span class="lbl">Annexes</span>
+          <div class="notes" style="margin-top:0">
+            <b>Annexe 1 :</b> Conditions Générales de Vente Lucid-Lab v1.0 (lucid-lab.fr/cgv).<br>
+            <b>Annexe 2 :</b> Proposition Commerciale valant Bon de Commande PROP-2026-011 (Shannon).<br>
+            <b>Annexe 3 :</b> Accord de sous-traitance des données personnelles (DPA), le cas échéant.
+          </div>
+        </div>
+
+      </td></tr>
+    </tbody>
+
+  </table>
+</section>
+</body>
+</html>

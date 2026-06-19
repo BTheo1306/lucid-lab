@@ -1,0 +1,8 @@
+/* ─── Lucid-Lab Design System · Global CSS Entry Point ───────────────────── */
+/* Import order: fonts → colors → typography → spacing                        */
+/* Consumers link only this file; everything below is shipped to them.         */
+
+@import "./tokens/fonts.css";
+@import "./tokens/colors.css";
+@import "./tokens/typography.css";
+@import "./tokens/spacing.css";

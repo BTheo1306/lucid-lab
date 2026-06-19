@@ -1,0 +1,56 @@
+/* ─── Lucid-Lab Spacing & Layout Tokens ──────────────────────────────────── */
+
+:root {
+  /* ── Base Grid (8px) ── */
+  --space-1:   4px;
+  --space-2:   8px;
+  --space-3:   12px;
+  --space-4:   16px;
+  --space-5:   20px;
+  --space-6:   24px;
+  --space-8:   32px;
+  --space-10:  40px;
+  --space-12:  48px;
+  --space-16:  64px;
+  --space-20:  80px;
+  --space-24:  96px;
+  --space-32:  128px;
+
+  /* ── Layout ── */
+  --layout-max-width:    1120px;
+  --layout-max-wide:     1264px;
+  --layout-gutter:       40px;
+  --layout-gutter-sm:    24px;
+
+  /* ── Section Spacing ── */
+  --section-padding-y:       96px;
+  --section-padding-y-sm:    64px;
+
+  /* ── Border Radius ── */
+  --radius-xs:    4px;
+  --radius-sm:    6px;    /* Buttons, badges */
+  --radius-md:    8px;    /* Small elements */
+  --radius-lg:    12px;   /* Cards */
+  --radius-xl:    16px;   /* Larger cards */
+  --radius-full:  9999px; /* Pills */
+
+  /* ── Borders ── */
+  --border-width:        1px;
+  --border-width-thick:  2px;
+
+  /* ── Transitions ── */
+  --duration-fast:    150ms;   /* @kind other */
+  --duration-normal:  200ms;   /* @kind other */
+  --duration-slow:    350ms;   /* @kind other */
+  --easing-default:   cubic-bezier(0.16, 1, 0.3, 1); /* @kind other */
+  --easing-out:       ease-out;    /* @kind other */
+  --easing-in-out:    ease-in-out; /* @kind other */
+
+  /* ── Z-index ── */
+  --z-base:      0;   /* @kind other */
+  --z-raised:    10;  /* @kind other */
+  --z-overlay:   20;  /* @kind other */
+  --z-sticky:    40;  /* @kind other */
+  --z-fixed:     50;  /* @kind other */
+  --z-modal:     100; /* @kind other */
+}

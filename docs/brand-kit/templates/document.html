@@ -1,0 +1,518 @@
+<!-- @dsCard group="Templates" viewport="900x1180" name="Document (proposal)" subtitle="Cover · constat + portes · method · dark dashboard · priorisation" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Document</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-gray-100); font-family: var(--font-body); color: var(--text-primary); -webkit-font-smoothing: antialiased; padding: 40px 20px; }
+
+  .page { position: relative; width: 820px; max-width: 100%; min-height: 1160px; margin: 0 auto 28px; background: var(--color-paper); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 52px 56px 64px; display: flex; flex-direction: column; overflow: hidden; }
+
+  /* Chrome */
+  .run { display: flex; align-items: center; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--border-default); }
+  .brand { display: flex; align-items: center; gap: 9px; }
+  .brand img { width: 20px; height: 20px; display: block; }
+  .wordmark { font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.08em; font-size: 14px; }
+  .run__meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .pagenum { position: absolute; bottom: 26px; right: 56px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); }
+  .foot-rule { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: center; }
+  .foot-rule .path { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
+  .foot-rule .contact { font-size: 12.5px; color: var(--text-secondary); }
+  .foot-rule .contact a { color: var(--text-accent); text-decoration: none; }
+
+  /* Section heads */
+  .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-accent); }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+  .sec-title { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 14px 0 0; }
+  .fig { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .ic { fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ════ P1 COVER ════ */
+  .cover-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; }
+  .cover-eyebrow { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 22px; }
+  .cover-ember-rule { height: 2px; width: 52px; background: var(--accent); border-radius: 2px; margin-bottom: 28px; }
+  h1.cover-title { font-family: var(--font-display); font-weight: 700; font-size: 60px; line-height: 1.02; letter-spacing: -0.03em; margin: 0 0 26px; }
+  .cover-lead { font-size: 18px; line-height: 1.6; color: var(--text-secondary); max-width: 56ch; margin: 0 0 44px; }
+  .quote { border-left: 2px solid var(--accent); padding: 4px 0 4px 22px; max-width: 60ch; }
+  .quote p { font-family: var(--font-display); font-weight: 600; font-size: 21px; line-height: 1.35; letter-spacing: -0.01em; margin: 0; }
+  .quote cite { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-style: normal; margin-top: 12px; }
+  .toc { margin-top: 48px; border-top: 1px solid var(--border-default); }
+  .toc__row { display: flex; align-items: baseline; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border-default); }
+  .toc__n { font-family: var(--font-mono); font-size: 12px; color: var(--text-accent); letter-spacing: 0.1em; }
+  .toc__t { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+  .toc__dots { flex: 1; border-bottom: 1px dotted var(--border-strong); transform: translateY(-3px); }
+  .toc__p { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+
+  /* ════ P2 CONSTAT + PORTES ════ */
+  .constat { position: relative; margin-top: 30px; }
+  .constat__wm { position: absolute; top: -30px; right: -4px; font-family: var(--font-display); font-weight: 800; font-size: 140px; line-height: 1; letter-spacing: -0.04em; color: var(--color-gray-100); z-index: 0; pointer-events: none; }
+  .constat__in { position: relative; z-index: 1; }
+  .monitor { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 18px 20px; margin-top: 14px; }
+  .monitor__label { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  .mrow { display: flex; align-items: center; gap: 11px; font-family: var(--font-mono); font-size: 13.5px; line-height: 2.15; color: var(--text-primary); }
+  .mrow.off { color: var(--text-muted); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--border-strong); }
+  .dot--on { background: var(--accent); }
+
+  .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+  .bento { position: relative; overflow: hidden; background: var(--color-anthracite); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius-lg); padding: 24px 24px 26px; }
+  .bento__wm { position: absolute; top: -22px; right: 8px; font-family: var(--font-display); font-weight: 800; font-size: 118px; line-height: 1; letter-spacing: -0.04em; color: rgba(255,255,255,0.04); z-index: 0; }
+  .bento__cat { position: relative; z-index: 1; display: flex; align-items: center; gap: 8px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent-on-dark); }
+  .bento__cat .ic { width: 15px; height: 15px; }
+  .bento__t { position: relative; z-index: 1; font-family: var(--font-display); font-weight: 700; font-size: 20px; letter-spacing: -0.015em; color: var(--text-on-dark); margin: 14px 0 8px; }
+  .bento__d { position: relative; z-index: 1; font-size: 13.5px; line-height: 1.55; color: var(--text-on-dark-muted); margin: 0; }
+
+  /* ════ P3 METHOD ════ */
+  .timeline { display: flex; justify-content: space-between; position: relative; margin: 34px 0 6px; padding: 0 1%; }
+  .timeline::before { content: ''; position: absolute; left: 10%; right: 10%; top: 25px; height: 2px; background: linear-gradient(90deg, var(--accent) 0%, var(--accent) 18%, var(--border-strong) 78%); }
+  .tl { position: relative; width: 18%; text-align: center; }
+  .tl__i { font-family: var(--font-mono); font-size: 11px; color: var(--text-accent); letter-spacing: 0.14em; line-height: 1; }
+  .tl__dot { width: 15px; height: 15px; border-radius: 50%; background: var(--color-paper); border: 2px solid var(--accent); margin: 8px auto 14px; box-shadow: 0 0 0 5px var(--color-paper); }
+  .tl__name { font-family: var(--font-display); font-weight: 700; font-size: 15px; letter-spacing: -0.01em; }
+  .tl__tag { font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); margin-top: 5px; letter-spacing: 0.08em; text-transform: uppercase; }
+  .steps { display: grid; grid-template-columns: 1fr 1fr; column-gap: 44px; margin-top: 14px; }
+  .step { display: flex; gap: 16px; padding: 17px 0; border-top: 1px solid var(--border-default); align-items: baseline; }
+  .step__n { font-family: var(--font-display); font-weight: 800; font-size: 26px; line-height: 1; letter-spacing: -0.03em; color: var(--accent); min-width: 36px; }
+  .step__t { font-size: 14px; line-height: 1.5; color: var(--text-primary); margin: 0; }
+  .formats { display: grid; grid-template-columns: repeat(3,1fr); gap: 1px; background: var(--border-default); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; margin-top: 14px; }
+  .fmt { background: var(--color-paper); padding: 15px 16px; min-height: 74px; }
+  .fmt__n { font-family: var(--font-mono); font-size: 11px; color: var(--text-accent); letter-spacing: 0.1em; }
+  .fmt__t { font-family: var(--font-display); font-weight: 600; font-size: 13.5px; line-height: 1.3; margin-top: 8px; }
+
+  /* ════ P4 DARK DASHBOARD ════ */
+  /* Dark page: background painted by a STATIC .darkwrap and LITERAL colors, because
+     Chrome's print path drops backgrounds on positioned elements and skips some var() colors. */
+  .page--dark { background: #0A0A0A; border-color: rgba(255,255,255,0.08); padding: 0; }
+  .darkwrap { flex: 1; display: flex; flex-direction: column; background-color: #0A0A0A; color: rgba(255,255,255,0.92); padding: 52px 56px 64px; }
+  .page--dark .run { border-bottom-color: rgba(255,255,255,0.12); }
+  .page--dark .wordmark { color: rgba(255,255,255,0.92); }
+  .page--dark .run__meta { color: rgba(255,255,255,0.6); }
+  .page--dark .pagenum { color: rgba(255,255,255,0.5); }
+  .page--dark .eyebrow { color: #E07B3A; }
+  .page--dark .sec-title { color: rgba(255,255,255,0.95); }
+  .page--dark .fig { color: rgba(255,255,255,0.55); }
+  .page--dark .foot-rule { border-top-color: rgba(255,255,255,0.12); }
+  .page--dark .foot-rule .path, .page--dark .foot-rule .contact, .page--dark .foot-rule .contact a { color: rgba(255,255,255,0.6); }
+  .block-label { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin: 32px 0 6px; display: block; }
+
+  .gantt__head { display: grid; grid-template-columns: 200px 1fr; margin-top: 16px; padding-bottom: 9px; border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .gantt__phases { display: grid; grid-template-columns: repeat(5,1fr); }
+  .gantt__phases span { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.06em; text-transform: uppercase; color: rgba(255,255,255,0.6); text-align: center; }
+  .gantt__row { display: grid; grid-template-columns: 200px 1fr; align-items: center; height: 46px; }
+  .gantt__row:nth-child(even) { background: rgba(255,255,255,0.025); }
+  .gantt__label { font-size: 12.5px; color: rgba(255,255,255,0.9); padding-right: 16px; }
+  .gantt__track { position: relative; height: 100%; display: grid; grid-template-columns: repeat(10,1fr); align-items: center; background-image: linear-gradient(90deg, rgba(255,255,255,0.05) 1px, transparent 1px); background-size: 10% 100%; }
+  .bar { height: 18px; border-radius: 5px; display: flex; align-items: center; padding: 0 10px; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.03em; white-space: nowrap; overflow: hidden; }
+  .bar--primary { background: #C85E1A; color: rgba(255,255,255,0.92); }
+  .bar--alt { background: rgba(255,255,255,0.12); color: rgba(255,255,255,0.62); border-left: 2px solid #C85E1A; }
+
+  .gauges { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-top: 10px; }
+  .gauge { border: 1px solid rgba(255,255,255,0.12); border-radius: var(--radius-md); background: rgba(255,255,255,0.05); padding: 16px 14px 14px; text-align: center; }
+  .gauge svg { width: 130px; height: 76px; }
+  .gauge__cap { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: rgba(255,255,255,0.6); margin-top: 6px; }
+  .g-track { fill: none; stroke: rgba(255,255,255,0.14); stroke-width: 9; stroke-linecap: round; }
+  .g-val { fill: none; stroke: #C85E1A; stroke-width: 9; stroke-linecap: round; }
+  .g-num { fill: #ffffff; font-family: var(--font-display); font-weight: 800; font-size: 22px; }
+
+  .ba { margin-top: 6px; }
+  .ba__row { display: flex; align-items: baseline; justify-content: space-between; gap: 18px; padding: 15px 0; border-top: 1px solid rgba(255,255,255,0.12); }
+  .ba__row:last-child { border-bottom: 1px solid rgba(255,255,255,0.12); }
+  .ba__label { font-size: 13px; color: rgba(255,255,255,0.6); }
+  .ba__vals { display: flex; align-items: baseline; gap: 14px; white-space: nowrap; }
+  .ba__from { font-size: 14px; color: rgba(255,255,255,0.55); text-decoration: line-through; text-decoration-color: rgba(255,255,255,0.28); }
+  .ba__arrow { color: #E07B3A; font-family: var(--font-mono); font-size: 13px; }
+  .ba__to { font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: -0.01em; color: rgba(255,255,255,0.95); }
+  .note-illus { font-family: var(--font-mono); font-size: 10.5px; color: rgba(255,255,255,0.55); margin-top: 14px; }
+
+  /* ════ P5 PRIORISATION + PROOF ════ */
+  .split { display: grid; grid-template-columns: 1.5fr 1fr; gap: 34px; margin-top: 24px; align-items: center; }
+  .chart-wrap { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 16px 16px 8px; }
+  .chart-wrap svg { display: block; width: 100%; height: auto; }
+  .qlabel { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; }
+  .axt { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; fill: var(--color-gray-500); }
+  .pri-text h3 { font-family: var(--font-display); font-weight: 700; font-size: 22px; line-height: 1.15; letter-spacing: -0.015em; margin: 0 0 12px; }
+  .pri-text p { font-size: 14px; line-height: 1.6; color: var(--text-secondary); margin: 0 0 18px; }
+  .impact-line { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+  .impact-val { font-family: var(--font-display); font-weight: 700; font-size: 19px; color: var(--text-accent); margin-top: 4px; letter-spacing: -0.01em; }
+
+  .cases { margin-top: 38px; }
+  .case { display: grid; grid-template-columns: 150px 1fr; gap: 24px; padding: 20px 0; border-top: 1px solid var(--border-default); }
+  .case:last-of-type { border-bottom: 1px solid var(--border-default); }
+  .case__tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .case__name { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-top: 6px; }
+  .case__desc { font-size: 13.5px; line-height: 1.55; color: var(--text-secondary); margin: 0 0 10px; }
+  .case__impact { font-family: var(--font-mono); font-size: 12.5px; color: var(--text-accent); }
+
+  .standards { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 16px; }
+  .chip { font-family: var(--font-mono); font-size: 11.5px; letter-spacing: 0.04em; color: var(--text-secondary); border: 1px solid var(--border-default); border-radius: var(--radius-full); padding: 7px 14px; background: var(--color-white); }
+  .cta { margin-top: 34px; background: var(--surface-dark); color: var(--text-on-dark); border-radius: var(--radius-lg); padding: 32px 34px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+  .cta__k { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-on-dark-muted); margin-bottom: 9px; }
+  .cta__h { font-family: var(--font-display); font-weight: 700; font-size: 25px; line-height: 1.1; letter-spacing: -0.02em; margin: 0; }
+  .cta__sub { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-on-dark-muted); margin-top: 10px; }
+  .cta__btn { flex-shrink: 0; background: var(--accent); color: var(--accent-on); font-family: var(--font-body); font-weight: 600; font-size: 14px; padding: 14px 22px; border-radius: var(--radius-sm); white-space: nowrap; text-decoration: none; }
+
+  @page { size: A4; margin: 0; }
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; padding: 0; }
+    .page { border: none; border-radius: 0; margin: 0; width: 210mm; min-height: 297mm; padding: 12mm 15mm; break-after: page; break-inside: avoid; }
+    .page:last-child { break-after: auto; }
+    /* compress vertical rhythm so each design page fits one A4 sheet */
+    .constat { margin-top: 20px; } .constat__wm { top: -24px; font-size: 120px; }
+    .timeline { margin: 24px 0 4px; }
+    .steps { margin-top: 16px; } .step { padding: 12px 0; }
+    .formats .fmt { min-height: 64px; padding: 12px 14px; }
+    .bento { padding: 18px 20px 20px; } .bento__wm { font-size: 100px; }
+    .split { margin-top: 12px; }
+    .cases { margin-top: 14px; } .case { padding: 10px 0; } .case__desc { margin: 0 0 5px; line-height: 1.45; }
+    .standards { margin-top: 12px; }
+    .cta { margin-top: 20px; padding: 24px 28px; }
+    .block-label { margin: 22px 0 5px; }
+    .gantt__row { height: 40px; } .gauge { padding: 12px 12px 10px; } .gauge svg { width: 116px; height: 68px; }
+    .ba__row { padding: 11px 0; }
+    section.page--dark { padding: 0; }
+    .darkwrap { padding: 13mm 15mm; }
+  }
+  @media (max-width: 680px) {
+    .page { padding: 32px 22px 54px; }
+    h1.cover-title { font-size: 38px; }
+    .steps, .split, .bento-grid, .formats { grid-template-columns: 1fr; }
+    .timeline { flex-wrap: wrap; gap: 18px; } .tl { width: 46%; }
+    .case { grid-template-columns: 1fr; gap: 8px; }
+    .cta { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ P1 · COVER ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Proposition · [Client] · 2026</span>
+  </div>
+  <div class="cover-body">
+    <div class="cover-eyebrow">Audit IA &amp; feuille de route</div>
+    <div class="cover-ember-rule"></div>
+    <h1 class="cover-title">Le bon<br>système IA,<br>livré.</h1>
+    <p class="cover-lead">Lucid-Lab audite vos workflows, vérifie vos données et priorise les cas d'usage, puis construit les agents, outils internes et intégrations qui tournent en production, et vous en transfère la propriété.</p>
+    <div class="quote">
+      <p>Le succès d'un projet de transformation se joue avant la première ligne de code.</p>
+      <cite>Lucid-Lab · Expertise IA de pointe. Excellence opérationnelle.</cite>
+    </div>
+    <div class="toc">
+      <div class="toc__row"><span class="toc__n">01</span><span class="toc__t">Le constat &amp; les portes d'entrée</span><span class="toc__dots"></span><span class="toc__p">p. 02</span></div>
+      <div class="toc__row"><span class="toc__n">02</span><span class="toc__t">La méthode</span><span class="toc__dots"></span><span class="toc__p">p. 03</span></div>
+      <div class="toc__row"><span class="toc__n">03</span><span class="toc__t">Feuille de route &amp; impact</span><span class="toc__dots"></span><span class="toc__p">p. 04</span></div>
+      <div class="toc__row"><span class="toc__n">04</span><span class="toc__t">Priorisation &amp; cas livrés</span><span class="toc__dots"></span><span class="toc__p">p. 05</span></div>
+      <div class="toc__row"><span class="toc__n">05</span><span class="toc__t">Standards &amp; engagement</span><span class="toc__dots"></span><span class="toc__p">p. 06</span></div>
+    </div>
+  </div>
+  <div class="foot-rule">
+    <span class="path">comprendre → prioriser → construire → transférer</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> · lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">01 / 06</span>
+</section>
+
+<!-- ══════════ P2 · CONSTAT + PORTES ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Le constat &amp; les portes</span>
+  </div>
+
+  <div class="constat">
+    <div class="constat__wm">01</div>
+    <div class="constat__in">
+      <span class="kicker">Le constat</span>
+      <h2 class="sec-title" style="font-size:30px">Là où le temps se perd aujourd'hui.</h2>
+      <div class="monitor">
+        <div class="monitor__label">Diagnostic en temps réel</div>
+        <div class="mrow"><span class="dot dot--on"></span>Idées IA dispersées, aucune priorisée</div>
+        <div class="mrow off"><span class="dot"></span>Workflows répétitifs, faits à la main</div>
+        <div class="mrow off"><span class="dot"></span>Outils non connectés entre eux</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="margin-top:42px">
+    <span class="kicker">Ce qu'on livre</span>
+    <h2 class="sec-title" style="font-size:30px">Quatre portes d'entrée, un système livré.</h2>
+    <div class="bento-grid">
+      <div class="bento">
+        <span class="bento__wm">01</span>
+        <div class="bento__cat"><svg class="ic" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m8 11 2 2 4-4"/><path d="m21 21-3.4-3.4"/></svg>Diagnostic</div>
+        <h3 class="bento__t">Diagnostic &amp; Roadmap</h3>
+        <p class="bento__d">Cartographie des workflows, scoring valeur / faisabilité / risque, roadmap de build.</p>
+      </div>
+      <div class="bento">
+        <span class="bento__wm">02</span>
+        <div class="bento__cat"><svg class="ic" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/><path d="m9 12 2 2 4-4"/></svg>Données &amp; SI</div>
+        <h3 class="bento__t">Data &amp; Conformité</h3>
+        <p class="bento__d">Inventaire des sources, matrice droits et accès, architecture cible EU.</p>
+      </div>
+      <div class="bento">
+        <span class="bento__wm">03</span>
+        <div class="bento__cat"><svg class="ic" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>Build</div>
+        <h3 class="bento__t">IA &amp; Outils internes</h3>
+        <p class="bento__d">Agents IA, dashboards métier, connecteurs et interfaces internes.</p>
+      </div>
+      <div class="bento">
+        <span class="bento__wm">04</span>
+        <div class="bento__cat"><svg class="ic" viewBox="0 0 24 24"><path d="m12 14 4-4"/><path d="M3.34 19a10 10 0 1 1 17.32 0"/></svg>Adoption</div>
+        <h3 class="bento__t">Adoption, Formation &amp; Run</h3>
+        <p class="bento__d">Monitoring coût et qualité, formation ciblée, exploitation.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Quatre portes d'entrée, un système livré.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">02 / 06</span>
+</section>
+
+<!-- ══════════ P3 · MÉTHODE ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">La méthode</span>
+  </div>
+  <div style="margin-top:30px">
+    <span class="eyebrow">La méthode Lucid-Lab</span>
+    <h2 class="sec-title" style="font-size:32px">Comprendre, prioriser,<br>construire, transférer.</h2>
+  </div>
+
+  <div class="timeline">
+    <div class="tl"><div class="tl__i">01</div><div class="tl__dot"></div><div class="tl__name">Audit</div><div class="tl__tag">Cartographie</div></div>
+    <div class="tl"><div class="tl__i">02</div><div class="tl__dot"></div><div class="tl__name">Roadmap</div><div class="tl__tag">Priorisation</div></div>
+    <div class="tl"><div class="tl__i">03</div><div class="tl__dot"></div><div class="tl__name">Build</div><div class="tl__tag">Intégration</div></div>
+    <div class="tl"><div class="tl__i">04</div><div class="tl__dot"></div><div class="tl__name">Run</div><div class="tl__tag">Formation</div></div>
+    <div class="tl"><div class="tl__i">05</div><div class="tl__dot"></div><div class="tl__name">Documentation</div><div class="tl__tag">Gouvernance</div></div>
+  </div>
+  <div class="fig" style="text-align:center;margin-top:6px">fig. 01 · séquence Audit. Roadmap. Build. Run. Documentation.</div>
+
+  <div class="steps" style="margin-top:28px">
+    <div class="step"><span class="step__n">01</span><p class="step__t">Audit et cartographie de vos processus réels.</p></div>
+    <div class="step"><span class="step__n">02</span><p class="step__t">Collecte, organisation et qualification des cas d'usage à fort impact.</p></div>
+    <div class="step"><span class="step__n">03</span><p class="step__t">Scoring des chantiers IA : l'équilibre parfait entre valeur et risque.</p></div>
+    <div class="step"><span class="step__n">04</span><p class="step__t">Sécurisation des accès, des données et de la conformité.</p></div>
+    <div class="step"><span class="step__n">05</span><p class="step__t">Support à la conception d'une architecture technique solide, monitorée et scalable.</p></div>
+    <div class="step"><span class="step__n">06</span><p class="step__t">Développement et intégration par cas d'usage.</p></div>
+    <div class="step"><span class="step__n">07</span><p class="step__t">Formation et transfert de connaissance.</p></div>
+    <div class="step"><span class="step__n">08</span><p class="step__t">Gouvernance et consultance IA.</p></div>
+  </div>
+
+  <span class="eyebrow" style="color:var(--text-muted);margin-top:38px;display:block">Nos formats d'intervention</span>
+  <div class="formats">
+    <div class="fmt"><div class="fmt__n">01</div><div class="fmt__t">Audit Flash</div></div>
+    <div class="fmt"><div class="fmt__n">02</div><div class="fmt__t">Validation d'architecture des données &amp; cas d'usage</div></div>
+    <div class="fmt"><div class="fmt__n">03</div><div class="fmt__t">Roadmap inclusion business &amp; premières automatisations</div></div>
+    <div class="fmt"><div class="fmt__n">04</div><div class="fmt__t">Agents IA &amp; outils sur-mesure</div></div>
+    <div class="fmt"><div class="fmt__n">05</div><div class="fmt__t">Mise en production &amp; exploitation</div></div>
+    <div class="fmt"><div class="fmt__n">06</div><div class="fmt__t">Gouvernance &amp; consultance IA</div></div>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">On ne s'arrête pas à la roadmap : on opère et on transfère.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">03 / 06</span>
+</section>
+
+<!-- ══════════ P4 · DASHBOARD (DARK) ══════════ -->
+<section class="page page--dark">
+  <div class="darkwrap">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo-white-on-black.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Feuille de route &amp; impact</span>
+  </div>
+  <div style="margin-top:30px">
+    <span class="eyebrow">Feuille de route</span>
+    <h2 class="sec-title" style="font-size:30px">Du diagnostic à la production,<br>par vagues.</h2>
+  </div>
+
+  <div class="gantt__head">
+    <div></div>
+    <div class="gantt__phases"><span>S1-2</span><span>S3-4</span><span>M2</span><span>M3</span><span>M4 +</span></div>
+  </div>
+  <div class="gantt">
+    <div class="gantt__row"><div class="gantt__label">Audit &amp; cartographie</div><div class="gantt__track"><div class="bar bar--primary" style="grid-column:1/3">2 sem</div></div></div>
+    <div class="gantt__row"><div class="gantt__label">Sécurisation data &amp; accès</div><div class="gantt__track"><div class="bar bar--alt" style="grid-column:2/5">3 sem</div></div></div>
+    <div class="gantt__row"><div class="gantt__label">Build · cas prioritaire</div><div class="gantt__track"><div class="bar bar--primary" style="grid-column:3/7">cas #1</div></div></div>
+    <div class="gantt__row"><div class="gantt__label">Build · cas suivants</div><div class="gantt__track"><div class="bar bar--alt" style="grid-column:5/9">cas #2-3</div></div></div>
+    <div class="gantt__row"><div class="gantt__label">Run, monitoring &amp; formation</div><div class="gantt__track"><div class="bar bar--alt" style="grid-column:7/11">continu</div></div></div>
+    <div class="gantt__row"><div class="gantt__label">Documentation &amp; transfert</div><div class="gantt__track"><div class="bar bar--primary" style="grid-column:9/11">transfert 100%</div></div></div>
+  </div>
+  <div class="fig" style="margin-top:10px">fig. 02 · feuille de route de déploiement, séquencée par vagues.</div>
+
+  <span class="block-label">Diagnostic de maturité</span>
+  <div class="gauges">
+    <div class="gauge">
+      <svg viewBox="0 0 130 80" role="img" aria-label="Maturité IA 2,4 sur 5"><path class="g-track" d="M13 66 A 52 52 0 0 1 117 66"/><path class="g-val" d="M13 66 A 52 52 0 0 1 117 66" stroke-dasharray="78 200"/><text class="g-num" x="65" y="60" text-anchor="middle">2,4</text></svg>
+      <div class="gauge__cap">Maturité IA · /5</div>
+    </div>
+    <div class="gauge">
+      <svg viewBox="0 0 130 80" role="img" aria-label="Données conformes 80 pour cent"><path class="g-track" d="M13 66 A 52 52 0 0 1 117 66"/><path class="g-val" d="M13 66 A 52 52 0 0 1 117 66" stroke-dasharray="131 200"/><text class="g-num" x="65" y="60" text-anchor="middle">80%</text></svg>
+      <div class="gauge__cap">Données conformes</div>
+    </div>
+    <div class="gauge">
+      <svg viewBox="0 0 130 80" role="img" aria-label="90 cas d'usage qualifiés"><path class="g-track" d="M13 66 A 52 52 0 0 1 117 66"/><path class="g-val" d="M13 66 A 52 52 0 0 1 117 66" stroke-dasharray="150 200"/><text class="g-num" x="65" y="60" text-anchor="middle">90+</text></svg>
+      <div class="gauge__cap">Cas d'usage qualifiés</div>
+    </div>
+  </div>
+
+  <span class="block-label">Avant → après</span>
+  <div class="ba">
+    <div class="ba__row"><span class="ba__label">Traitement d'un dossier</span><span class="ba__vals"><span class="ba__from">45 min</span><span class="ba__arrow">→</span><span class="ba__to">6 min</span></span></div>
+    <div class="ba__row"><span class="ba__label">Cas d'usage priorisés</span><span class="ba__vals"><span class="ba__from">0</span><span class="ba__arrow">→</span><span class="ba__to">90+</span></span></div>
+    <div class="ba__row"><span class="ba__label">Stack outillé</span><span class="ba__vals"><span class="ba__from">4 outils non connectés</span><span class="ba__arrow">→</span><span class="ba__to">1 système</span></span></div>
+  </div>
+  <div class="note-illus">Valeurs illustratives, remplacées par les chiffres de votre diagnostic.</div>
+
+  <div class="foot-rule">
+    <span class="path">Audit. Roadmap. Build. Run. Documentation.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">04 / 06</span>
+  </div>
+</section>
+
+<!-- ══════════ P5 · PRIORISATION + PREUVE ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Priorisation &amp; preuve</span>
+  </div>
+  <div style="margin-top:30px">
+    <span class="eyebrow">Priorisation</span>
+    <h2 class="sec-title" style="font-size:30px">Choisissez le premier système utile.</h2>
+  </div>
+
+  <div class="split">
+    <div class="chart-wrap">
+      <svg viewBox="0 0 720 430" role="img" aria-label="Matrice de priorisation valeur / effort">
+        <!-- quick-wins quadrant tint -->
+        <rect x="72" y="30" width="309" height="160" fill="var(--color-ember)" opacity="0.06"/>
+        <!-- grid -->
+        <line x1="72" y1="110" x2="690" y2="110" stroke="var(--color-gray-200)" stroke-width="1"/>
+        <line x1="72" y1="270" x2="690" y2="270" stroke="var(--color-gray-200)" stroke-width="1"/>
+        <!-- quadrant dividers -->
+        <line x1="381" y1="30" x2="381" y2="350" stroke="var(--color-gray-300)" stroke-width="1"/>
+        <line x1="72" y1="190" x2="690" y2="190" stroke="var(--color-gray-300)" stroke-width="1"/>
+        <!-- axes -->
+        <line x1="72" y1="30" x2="72" y2="350" stroke="var(--color-gray-400)" stroke-width="1.2"/>
+        <line x1="72" y1="350" x2="690" y2="350" stroke="var(--color-gray-400)" stroke-width="1.2"/>
+        <!-- quadrant labels -->
+        <text class="qlabel" x="86" y="50" fill="var(--color-ember-700)">Quick wins</text>
+        <text class="qlabel" x="396" y="50" fill="var(--color-gray-400)">Gros chantiers</text>
+        <text class="qlabel" x="86" y="338" fill="var(--color-gray-400)">Incrémental</text>
+        <text class="qlabel" x="396" y="338" fill="var(--color-gray-400)">Faible priorité</text>
+        <!-- grey use-cases -->
+        <circle cx="300" cy="120" r="11" fill="var(--color-gray-300)" opacity="0.6"/>
+        <circle cx="455" cy="92"  r="13" fill="var(--color-gray-300)" opacity="0.6"/>
+        <circle cx="545" cy="165" r="9"  fill="var(--color-gray-300)" opacity="0.6"/>
+        <circle cx="615" cy="135" r="8"  fill="var(--color-gray-300)" opacity="0.6"/>
+        <circle cx="330" cy="250" r="9"  fill="var(--color-gray-300)" opacity="0.6"/>
+        <circle cx="475" cy="285" r="12" fill="var(--color-gray-300)" opacity="0.6"/>
+        <circle cx="590" cy="245" r="8"  fill="var(--color-gray-300)" opacity="0.6"/>
+        <circle cx="250" cy="200" r="8"  fill="var(--color-gray-300)" opacity="0.6"/>
+        <circle cx="640" cy="305" r="7"  fill="var(--color-gray-300)" opacity="0.6"/>
+        <!-- priority pick -->
+        <circle cx="178" cy="98" r="26" fill="var(--color-ember)" opacity="0.14"/>
+        <circle cx="178" cy="98" r="14" fill="var(--color-ember)"/>
+        <line x1="200" y1="86" x2="250" y2="68" stroke="var(--color-ember)" stroke-width="1"/>
+        <text class="qlabel" x="256" y="64" fill="var(--color-ember-700)" style="letter-spacing:0.04em">Premier système</text>
+        <text class="qlabel" x="256" y="78" fill="var(--color-ember-700)" style="letter-spacing:0.04em">utile</text>
+        <!-- axis titles -->
+        <text class="axt" x="72" y="378">Effort →</text>
+        <text class="axt" x="60" y="40" transform="rotate(-90 60 40)" text-anchor="end">Valeur →</text>
+      </svg>
+    </div>
+    <div class="pri-text">
+      <h3>Scoring valeur / effort / risque sur chaque chantier IA.</h3>
+      <p>On qualifie tous les cas d'usage, on les positionne, et on démarre par celui qui crée de la valeur le plus vite, pas par le plus impressionnant.</p>
+      <div class="impact-line">Impact final :</div>
+      <div class="impact-val">90+ cas d'usage qualifiés et priorisés.</div>
+    </div>
+  </div>
+
+  <div class="cases">
+    <span class="eyebrow" style="color:var(--text-muted)">Cas clients livrés</span>
+    <div class="case" style="margin-top:14px">
+      <div><div class="case__tag">Back-office</div><div class="case__name">Petite structure</div></div>
+      <div>
+        <p class="case__desc">Récupération des données clients depuis email, Drive et formulaires, contrôle des pièces, relances automatiques et synchronisation dans un master Excel/Google Sheets exploitable par l'admin.</p>
+        <span class="case__impact">Impact final : administration centralisée dans une feuille maître.</span>
+      </div>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">CRM complet</div><div class="case__name">Mobilité premium</div></div>
+      <div>
+        <p class="case__desc">Structuration du CRM, automatisation des processus internes, chatbot commercial, support client et feuille de route IA pour faire évoluer les outils sur plusieurs années.</p>
+        <span class="case__impact">Impact final : vente, support et opérations dans le même système.</span>
+      </div>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Roadmap IA</div><div class="case__name">Grand compte financier</div></div>
+      <div>
+        <p class="case__desc">Cartographie Finance, Compliance, Crédit, Legal et Risk, scoring valeur/effort/risque, inventaire data, gouvernance IA, formation des ambassadeurs et déploiement par vagues.</p>
+        <span class="case__impact">Impact final : 90+ cas d'usage qualifiés et priorisés.</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">comprendre → prioriser → construire → transférer</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">05 / 06</span>
+</section>
+
+<!-- ══════════ P6 · STANDARDS + ENGAGEMENT ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Standards &amp; engagement</span>
+  </div>
+  <div style="margin-top:auto">
+    <span class="eyebrow">Standards industriels</span>
+    <h2 class="sec-title" style="font-size:30px">Construit pour la production,<br>livré pour durer.</h2>
+  </div>
+  <div class="standards" style="margin-top:26px">
+    <span class="chip">Conformité RGPD</span>
+    <span class="chip">Gestion des accès</span>
+    <span class="chip">Infrastructure européenne</span>
+    <span class="chip">Documentation &amp; runs</span>
+    <span class="chip">Suivi des coûts &amp; métriques</span>
+    <span class="chip">Propriété intellectuelle</span>
+    <span class="chip">Adoption et transfert</span>
+    <span class="chip">Sécurité de l'IA</span>
+  </div>
+
+  <div style="margin-top:42px;font-family:var(--font-mono);font-size:13px;letter-spacing:0.06em;color:var(--text-muted)">Audit. Roadmap. Build. Run. Documentation.</div>
+
+  <div class="cta" style="margin-top:22px">
+    <div>
+      <div class="cta__k">Prochaine étape</div>
+      <p class="cta__h">Réservez votre audit IA.</p>
+      <div class="cta__sub">Appel de découverte gratuit · Réponse et confirmation immédiate.</div>
+    </div>
+    <a class="cta__btn" href="https://tidycal.com/lucid-lab">Réserver un audit IA →</a>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Transfert de propriété à 100% · Hébergement EU · RBAC</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> · lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">06 / 06</span>
+</section>
+
+</body>
+</html>

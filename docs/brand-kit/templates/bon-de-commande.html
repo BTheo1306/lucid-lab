@@ -1,0 +1,192 @@
+<!-- @dsCard group="Templates" viewport="900x1180" name="Bon de commande" subtitle="Proposition valant bon de commande: items, total, terms, sign-off (3 pages)" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Proposition valant bon de commande</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="_doc-base.css">
+<style>
+  .lead { font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); margin-top: 16px; }
+  .lead b { color: var(--text-primary); font-weight: 600; }
+  .sec ul { margin: 8px 0 0 18px; padding: 0; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+  .sec li { margin-bottom: 4px; }
+  .paytable { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 13px; }
+  .paytable td { border: 1px solid var(--border-default); padding: 9px 12px; vertical-align: top; color: var(--text-secondary); }
+  .paytable td:first-child { width: 32%; font-weight: 600; color: var(--text-primary); background: var(--color-white); }
+  .mention { margin-top: 14px; border: 1px solid var(--color-ink); border-radius: var(--radius-md); padding: 14px 16px; font-size: 13px; line-height: 1.6; color: var(--text-primary); background: var(--color-white); }
+  .mention b { font-weight: 600; }
+  .mention .hand { font-family: var(--font-mono); color: var(--text-accent); }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 : En-tête, parties, prestations, total -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Bon de commande</h1>
+      <div class="meta">
+        N° <b>BC-2026-[NNN]</b><br>
+        Réf. devis : <b>DEV-2026-[NNN]</b><br>
+        Date : <b>[JJ/MM/2026]</b> · Valable 30 jours
+      </div>
+    </div>
+  </header>
+
+  <div class="lead">Proposition commerciale valant bon de commande. La signature de la présente proposition par le Client vaut acceptation pleine et entière de l'offre, formation du Contrat et engagement ferme de payer aux conditions ci-dessous.</div>
+
+  <div class="parties">
+    <div class="party">
+      <div class="lbl">Donneur d'ordre</div>
+      <div class="name">[Société]</div>
+      <div class="lines">[Contact], [Fonction]<br>[Adresse]<br>SIRET [SIRET]<br>[email]</div>
+    </div>
+    <div class="party">
+      <div class="lbl">Prestataire</div>
+      <div class="name">Lucid-Lab</div>
+      <div class="lines">SAS au capital de 999 €<br>47 rue Vivienne, 75002 Paris<br>RCS Paris 104 672 050 · TVA FR 02 104 672 050<br>info@lucid-lab.fr</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <span class="lbl">Prestations commandées</span>
+    <table class="items">
+      <thead>
+        <tr><th>Désignation</th><th class="num">Qté</th><th class="num">P.U. HT</th><th class="num">Total HT</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><div class="t">Audit Flash &amp; cartographie</div><div class="s">Flux de travail, ciblage des cas d'usage, maturité technique.</div></td><td class="num">1</td><td class="num">1 500,00</td><td class="num">1 500,00</td></tr>
+        <tr><td><div class="t">Roadmap &amp; priorisation</div><div class="s">Scoring valeur / effort / risque, architecture cible EU.</div></td><td class="num">1</td><td class="num">3 500,00</td><td class="num">3 500,00</td></tr>
+        <tr><td><div class="t">Agent IA &amp; outils sur-mesure</div><div class="s">Cas d'usage prioritaire, connecteurs, contrôles humains.</div></td><td class="num">1</td><td class="num">8 000,00</td><td class="num">8 000,00</td></tr>
+        <tr><td><div class="t">Mise en production &amp; monitoring</div><div class="s">Déploiement sécurisé, suivi coût/qualité, hébergement EU.</div></td><td class="num">1</td><td class="num">2 500,00</td><td class="num">2 500,00</td></tr>
+        <tr><td><div class="t">Formation &amp; transfert</div><div class="s">Documentation, runbooks, transfert de propriété à 100%.</div></td><td class="num">1</td><td class="num">1 500,00</td><td class="num">1 500,00</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="totals">
+    <div class="box">
+      <div class="row"><span>Total HT</span><span class="v">17 000,00 €</span></div>
+      <div class="row"><span>TVA 20%</span><span class="v">3 400,00 €</span></div>
+      <div class="row grand"><span>Total TTC</span><span class="v">20 400,00 €</span></div>
+    </div>
+  </div>
+
+  <div class="doc-foot">
+    <div>Lucid-Lab · Bon de commande BC-2026-[NNN] · [Société]</div>
+    <div class="right">Page 1 / 3</div>
+  </div>
+
+</section>
+
+<!-- PAGE 2 : Objet, modalités financières, banque, pénalités -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Bon de commande</h1>
+      <div class="meta">N° <b>BC-2026-[NNN]</b></div>
+    </div>
+  </header>
+
+  <div class="sec" style="margin-top:24px">
+    <span class="lbl">Objet et livrables</span>
+    <div class="lead" style="margin-top:0"><b>Intitulé :</b> [intitulé de la mission]. Mise en place d'un système IA métier : cadrage du besoin et des accès, conception et développement des systèmes convenus, tests, mise en production, documentation de passation et <span style="color:var(--text-accent)">transfert de propriété à 100%</span>. Calendrier : démarrage à compter de la signature du présent bon de commande et de la réception du premier paiement.</div>
+  </div>
+
+  <div class="sec">
+    <span class="lbl">Conditions financières</span>
+    <table class="paytable">
+      <tbody>
+        <tr><td>Prix HT total</td><td>17 000,00 €</td></tr>
+        <tr><td>TVA 20%</td><td>3 400,00 €</td></tr>
+        <tr><td>Prix TTC total</td><td>20 400,00 €</td></tr>
+        <tr><td>Modalité retenue</td><td>One-shot : paiement intégral avant démarrage, sauf accord écrit contraire.</td></tr>
+        <tr><td>Échéancier</td><td>Facture pro forma émise après signature, règlement par virement SEPA avant démarrage des prestations.</td></tr>
+      </tbody>
+    </table>
+    <div class="lead" style="margin-top:10px"><b>Coordonnées bancaires.</b> Virement SEPA exclusivement. Titulaire : Lucid-Lab · IBAN : FR76 1732 8844 0043 2662 8862 178 · BIC : SWNBFR22 · Banque : Swan. Référence à indiquer : BC-2026-[NNN] / [Société].</div>
+  </div>
+
+  <div class="sec">
+    <span class="lbl">Pénalités de retard et frais de recouvrement</span>
+    <div class="lead" style="margin-top:0">Conformément à l'article 6 des Conditions Générales de Vente, tout retard de paiement entraîne de plein droit, dès le jour suivant la date d'exigibilité :</div>
+    <ul>
+      <li>des intérêts moratoires au taux de la BCE majoré de 10 points (article L. 441-10 du Code de commerce) ;</li>
+      <li>une indemnité forfaitaire légale de quarante (40) euros pour frais de recouvrement (article D. 441-5 du Code de commerce) ;</li>
+      <li>une indemnité forfaitaire contractuelle de deux cent cinquante (250) euros par facture en retard, à titre de clause pénale.</li>
+    </ul>
+    <div class="lead" style="margin-top:8px">Ces trois pénalités sont cumulables. En cas de retard supérieur à dix (10) jours, Lucid-Lab pourra suspendre l'exécution des prestations et, pour la modalité mensuelle 12 mois, prononcer la déchéance du terme.</div>
+  </div>
+
+  <div class="doc-foot">
+    <div>Lucid-Lab · Bon de commande BC-2026-[NNN] · [Société]</div>
+    <div class="right">Page 2 / 3</div>
+  </div>
+
+</section>
+
+<!-- PAGE 3 : CGV, acceptation, mention manuscrite, signatures, annexes -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Bon de commande</h1>
+      <div class="meta">N° <b>BC-2026-[NNN]</b></div>
+    </div>
+  </header>
+
+  <div class="sec" style="margin-top:24px">
+    <span class="lbl">Conditions Générales de Vente</span>
+    <div class="lead" style="margin-top:0">Le présent bon de commande est régi par les Conditions Générales de Vente de Lucid-Lab (Version 1.0, en vigueur au 15 mai 2026), accessibles sur lucid-lab.fr/cgv et jointes en annexe. Le Client reconnaît en avoir pris connaissance et les accepter sans réserve avant la signature. Sauf accord écrit exprès, les présentes CGV prévalent sur tout document du Client.</div>
+  </div>
+
+  <div class="sec">
+    <span class="lbl">Acceptation valant commande ferme</span>
+    <div class="lead" style="margin-top:0">Le Client déclare accepter sans réserve le périmètre, les livrables et le calendrier, la modalité tarifaire et l'engagement de durée associé, les CGV Lucid-Lab v1.0, ainsi que l'obligation de paiement préalable au démarrage. La signature de la présente proposition vaut acceptation de l'offre, formation du Contrat et commande ferme, et déclenche l'émission d'une facture pro forma puis l'exécution des prestations à compter de la réception effective du premier paiement.</div>
+    <div class="mention">
+      <b>Mention manuscrite obligatoire du Client :</b> <span class="hand">« Lu et approuvé, bon pour accord et commande ferme, prix : [montant] € TTC, modalité : one-shot »</span>
+    </div>
+  </div>
+
+  <div class="signs">
+    <div class="sign">
+      <div class="lbl">Bon pour commande</div>
+      <div class="who">[Société]</div>
+      <div class="note">Date, lieu, nom, fonction et signature précédée de la mention manuscrite ci-dessus</div>
+    </div>
+    <div class="sign">
+      <div class="lbl">Pour Lucid-Lab</div>
+      <div class="who">Lucid-Lab</div>
+      <div class="note">Fait à Paris, le [JJ/MM/2026]. Date et signature</div>
+    </div>
+  </div>
+
+  <div class="sec" style="margin-top:22px">
+    <span class="lbl">Annexes</span>
+    <div class="lead" style="margin-top:0"><b>Annexe 1 :</b> Conditions Générales de Vente Lucid-Lab (lucid-lab.fr/cgv). <b>Annexe 2 :</b> RIB Lucid-Lab. <b>Annexe 3 :</b> Attestation RC Pro, sur demande.</div>
+  </div>
+
+  <div class="doc-foot">
+    <div>Lucid-Lab · SAS au capital de 999 € · 47 rue Vivienne, 75002 Paris · RCS Paris 104 672 050 · TVA FR 02 104 672 050</div>
+    <div class="right"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> · lucid-lab.fr</div>
+  </div>
+
+</section>
+</body>
+</html>

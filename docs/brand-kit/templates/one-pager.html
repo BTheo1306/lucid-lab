@@ -1,0 +1,99 @@
+<!-- @dsCard group="Templates" viewport="900x1180" name="One-pager" subtitle="Single-page company / offer summary (1 page)" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Fiche de présentation</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="_doc-base.css">
+<style>
+  .op-hero { margin-top: 30px; }
+  .op-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); }
+  .op-title { font-family: var(--font-display); font-weight: 700; font-size: 46px; letter-spacing: -0.025em; line-height: 1.04; margin: 16px 0 0; }
+  .op-title .em { color: var(--text-accent); }
+  .op-lead { font-size: 16px; line-height: 1.65; color: var(--text-secondary); max-width: 62ch; margin: 18px 0 0; }
+  .op-lead b { color: var(--text-primary); font-weight: 600; }
+
+  .sec-lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin: 34px 0 14px; display: block; }
+
+  .pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+  .pillar { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 16px 16px 18px; position: relative; overflow: hidden; }
+  .pillar .pn { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-accent); letter-spacing: 0.04em; }
+  .pillar h3 { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; letter-spacing: -0.01em; margin: 11px 0 6px; line-height: 1.2; }
+  .pillar p { font-size: 12px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+
+  .method { display: flex; align-items: center; gap: 14px; flex-wrap: wrap; }
+  .method .m { font-family: var(--font-mono); font-size: 14px; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-primary); font-weight: 500; }
+  .method .arr { color: var(--text-accent); font-size: 14px; }
+
+  .impact { margin-top: 30px; font-size: 18px; line-height: 1.5; color: var(--text-primary); padding-left: 16px; border-left: 3px solid var(--color-ember-700); }
+  .impact .k { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 7px; }
+  .impact b { font-weight: 600; }
+
+  .op-cta { margin-top: auto; background-color: #0A0A0A; border-radius: var(--radius-lg); padding: 24px 30px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+  .op-cta .big { font-family: var(--font-display); font-weight: 700; font-size: 23px; letter-spacing: -0.015em; color: #ffffff; }
+  .op-cta .big span { color: #E0894E; }
+  .op-cta .side { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.62); text-align: right; line-height: 1.8; }
+  .op-cta .side a { color: #E0894E; text-decoration: none; }
+
+  @media print {
+    .op-hero { margin-top: 22px; }
+    .sec-lbl { margin: 24px 0 11px; }
+    .impact { margin-top: 22px; }
+    .op-cta { padding: 20px 28px; }
+  }
+  @media (max-width: 680px) { .pillars { grid-template-columns: 1fr 1fr; } .op-cta { flex-direction: column; align-items: flex-start; } .op-cta .side { text-align: left; } }
+</style>
+</head>
+<body>
+
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Fiche de présentation</h1>
+      <div class="meta">lucid-lab.fr<br>contact@lucid-lab.fr</div>
+    </div>
+  </header>
+
+  <div class="op-hero">
+    <span class="op-eyebrow">Expertise IA de pointe · Excellence opérationnelle</span>
+    <h1 class="op-title">Le bon système IA,<br><span class="em">livré.</span></h1>
+    <p class="op-lead">On audite, on priorise et on construit les agents et outils internes qui tournent <b>en production</b>. Pas de prototype qui dort dans un coin : un système utile, adopté par vos équipes, dont la <b>propriété vous est transférée à 100%</b>.</p>
+  </div>
+
+  <span class="sec-lbl">Quatre portes d'entrée, un système livré</span>
+  <div class="pillars">
+    <div class="pillar"><div class="pn">01</div><h3>Diagnostic &amp; feuille de route</h3><p>Cartographie des processus, cas d'usage notés sur la valeur et l'effort, plan de construction.</p></div>
+    <div class="pillar"><div class="pn">02</div><h3>Données &amp; conformité</h3><p>Inventaire des sources, accès maîtrisés, architecture claire et conforme au RGPD.</p></div>
+    <div class="pillar"><div class="pn">03</div><h3>IA &amp; outils internes</h3><p>Agents et outils internes connectés à vos process, construits pour être utilisés au quotidien.</p></div>
+    <div class="pillar"><div class="pn">04</div><h3>Adoption &amp; exploitation</h3><p>Formation des équipes, suivi en production et transfert de propriété complet.</p></div>
+  </div>
+
+  <span class="sec-lbl">La méthode</span>
+  <div class="method">
+    <span class="m">Comprendre</span><span class="arr">&rarr;</span>
+    <span class="m">Prioriser</span><span class="arr">&rarr;</span>
+    <span class="m">Construire</span><span class="arr">&rarr;</span>
+    <span class="m">Transférer</span>
+  </div>
+
+  <div class="impact">
+    <span class="k">Impact final :</span>
+    un système IA <b>en production</b>, adopté par vos équipes et <b>100% à vous</b>.
+  </div>
+
+  <div class="op-cta">
+    <div class="big">Réserver un <span>audit IA</span></div>
+    <div class="side">lucid-lab.fr<br><a href="mailto:contact@lucid-lab.fr">contact@lucid-lab.fr</a></div>
+  </div>
+
+</section>
+
+</body>
+</html>

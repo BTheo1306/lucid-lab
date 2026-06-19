@@ -1,0 +1,208 @@
+<!-- @dsCard group="Slides" viewport="1280x720" name="Timeline client" subtitle="Feuille de route client : 4 slides, étapes rassurantes + détail technique" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lucid-Lab · Feuille de route client</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  deck-stage:not(:defined) { visibility: hidden; }
+  *, *::before, *::after { box-sizing: border-box; }
+
+  .slide { width:100%; height:100%; position:relative; overflow:hidden; font-family:var(--font-body);
+    padding:88px 104px 80px; display:flex; flex-direction:column; }
+  .dark  { background:#0A0A0A; color:#fff; }
+  .light { background:#F7F5F1; color:#0A0A0A; }
+
+  /* chrome */
+  .top { display:flex; align-items:center; justify-content:space-between; flex-shrink:0; }
+  .brand { display:flex; align-items:center; gap:13px; }
+  .brand img { width:26px; height:26px; }
+  .brand b { font-family:var(--font-wordmark); font-weight:700; letter-spacing:0.09em; font-size:18px; }
+  .dark .brand b { color:#fff; } .light .brand b { color:#0A0A0A; }
+  .meta { font-family:var(--font-mono); font-size:15px; letter-spacing:0.14em; }
+  .dark .meta { color:rgba(255,255,255,0.36); } .light .meta { color:var(--color-gray-500); }
+  .foot { flex-shrink:0; display:flex; align-items:center; justify-content:space-between; }
+  .foot .l { font-family:var(--font-mono); font-size:14px; letter-spacing:0.03em; }
+  .dark .foot .l { color:rgba(255,255,255,0.36); } .light .foot .l { color:var(--color-gray-500); }
+  .foot .r { font-family:var(--font-mono); font-size:14px; color:var(--color-ember); }
+
+  /* type */
+  .eyebrow { font-family:var(--font-mono); font-size:16px; letter-spacing:0.2em; text-transform:uppercase; color:#E07B3A; margin:0; }
+  .light .eyebrow { color:var(--color-ember); }
+  .erule { width:60px; height:3px; background:var(--color-ember); border-radius:2px; }
+  .stitle { font-family:var(--font-display); font-weight:700; font-size:54px; line-height:1.05; letter-spacing:-0.025em; margin:16px 0 0; }
+  .dark .stitle { color:#fff; }
+  .big-state { font-family:var(--font-display); font-weight:700; font-size:62px; line-height:1.04; letter-spacing:-0.03em; margin:18px 0 0; }
+  .em { color:var(--color-ember); }
+  .head { flex-shrink:0; }
+  .body { flex:1; min-height:0; display:flex; flex-direction:column; }
+
+  /* hero (cover / closing) */
+  .hero-body { flex:1; display:flex; flex-direction:column; justify-content:flex-end; }
+  .hero-body.center { justify-content:center; }
+  .hero-body .eyebrow { margin-bottom:22px; } .hero-body .erule { margin-bottom:38px; }
+  .hero h1 { font-family:var(--font-display); font-weight:800; font-size:108px; line-height:0.98; letter-spacing:-0.04em; margin:0; }
+  .hero .lead { font-size:25px; line-height:1.5; color:rgba(255,255,255,0.6); margin:38px 0 0; max-width:52ch; }
+  .seq { font-family:var(--font-mono); font-size:15px; letter-spacing:0.14em; color:rgba(255,255,255,0.4); }
+
+  /* ── Slide 2 · Vue d'ensemble (horizontal journey) ──
+     Geometry matches the proven deck timeline: node 68px → center 34px → line top:34px */
+  .journey { position:relative; display:flex; justify-content:space-between; padding:0 1%; margin-top:58px; }
+  .journey::before { content:''; position:absolute; top:34px; left:9%; right:9%; height:2px;
+    background:linear-gradient(90deg, var(--color-ember) 0%, var(--color-ember) 16%, var(--border-strong) 92%); z-index:0; }
+  .jstep { width:18%; text-align:center; position:relative; z-index:1; }
+  .jnode { width:68px; height:68px; border-radius:50%; border:2px solid var(--color-ember); background:var(--color-paper);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 24px;
+    font-family:var(--font-display); font-weight:700; font-size:25px; color:var(--color-ember); }
+  .jstep.now .jnode { background:var(--color-ember); color:#fff; }
+  .jtitle { font-family:var(--font-display); font-weight:700; font-size:25px; letter-spacing:-0.015em; line-height:1.12; }
+  .jchip { display:inline-block; font-family:var(--font-mono); font-size:13px; letter-spacing:0.03em; color:var(--color-ember);
+    background:rgba(200,94,26,0.10); border-radius:999px; padding:6px 13px; margin:15px 0 13px; }
+  .jdesc { font-size:16px; line-height:1.45; color:var(--text-secondary); margin:0 auto; max-width:19ch; }
+
+  /* ── Slide 3 · Le détail (two-level rows: plain on top, technical below) ── */
+  .steps { display:flex; flex-direction:column; margin-top:30px; }
+  .step { display:grid; grid-template-columns:62px 1fr 170px; gap:30px; align-items:start;
+    padding:21px 0; border-top:1px solid var(--border-subtle); }
+  .step:last-child { border-bottom:1px solid var(--border-subtle); }
+  .step__n { font-family:var(--font-display); font-weight:800; font-size:36px; line-height:1; letter-spacing:-0.03em; color:var(--color-ember); }
+  .step__t { font-family:var(--font-display); font-weight:700; font-size:25px; letter-spacing:-0.015em; margin:0 0 7px; line-height:1.1; }
+  .step__p { font-size:18px; line-height:1.4; color:var(--text-secondary); margin:0 0 11px; max-width:62ch; }
+  .step__tech { font-family:var(--font-mono); font-size:14px; letter-spacing:0.01em; color:var(--text-muted); }
+  .step__tech .d { color:var(--color-ember); margin:0 9px; }
+  .step__chip { justify-self:end; text-align:center; font-family:var(--font-mono); font-size:14px; color:var(--color-ember);
+    background:rgba(200,94,26,0.10); border-radius:999px; padding:8px 16px; white-space:nowrap; margin-top:3px; }
+
+  /* ── Slide 4 · À l'arrivée (reassurance cards) ── */
+  .assure { display:grid; grid-template-columns:repeat(3,1fr); gap:26px; margin-top:54px; }
+  .assure__c { border:1px solid rgba(255,255,255,0.14); border-radius:18px; padding:34px 32px; }
+  .assure__i { width:42px; height:42px; border-radius:11px; background:rgba(200,94,26,0.16);
+    display:flex; align-items:center; justify-content:center; }
+  .assure__i svg { width:22px; height:22px; fill:none; stroke:var(--color-ember); stroke-width:1.8; stroke-linecap:round; stroke-linejoin:round; }
+  .assure__t { font-family:var(--font-display); font-weight:700; font-size:25px; color:#fff; margin:20px 0 11px; letter-spacing:-0.015em; }
+  .assure__d { font-size:18px; line-height:1.5; color:rgba(255,255,255,0.62); margin:0; }
+
+  @media (prefers-reduced-motion: no-preference) {
+    [data-deck-active] .ar { animation: rise .5s cubic-bezier(0.16,1,0.3,1) both; }
+    [data-deck-active] .ar:nth-child(2){animation-delay:.05s} [data-deck-active] .ar:nth-child(3){animation-delay:.10s}
+  }
+  @keyframes rise { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+  /* Static print guarantee (see pitch deck export note) */
+  @media print {
+    * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { background:#F7F5F1 !important; }
+    .slide.dark  { background:#0A0A0A !important; color:#fff !important; }
+    .slide.light { background:#F7F5F1 !important; color:#0A0A0A !important; }
+  }
+</style>
+</head>
+<body style="margin:0;background:#000">
+<deck-stage width="1920" height="1080">
+
+<!-- 01 · COUVERTURE -->
+<section data-label="Couverture">
+<div class="slide dark hero">
+  <div class="top"><div class="brand"><img src="../assets/logo-white-on-black.png" alt=""><b>LUCID-LAB</b></div><span class="meta">FEUILLE DE ROUTE</span></div>
+  <div class="hero-body">
+    <p class="eyebrow">Votre feuille de route</p>
+    <div class="erule"></div>
+    <h1>Ce qui va se passer<br>dans les <span class="em">prochains jours</span>.</h1>
+    <p class="lead">De notre premier échange à un système qui tourne chez vous, en toute transparence. Voici le chemin, étape par étape.</p>
+  </div>
+  <div class="foot" style="margin-top:60px"><span class="seq">échange → analyse → proposition → construction → transfert</span><span class="meta">01</span></div>
+</div>
+</section>
+
+<!-- 02 · VUE D'ENSEMBLE -->
+<section data-label="Vue d'ensemble">
+<div class="slide light">
+  <div class="top"><div class="brand"><img src="../assets/logo.png" alt=""><b>LUCID-LAB</b></div><span class="meta">02</span></div>
+  <div class="body" style="justify-content:center">
+    <div class="head"><p class="eyebrow">Vue d'ensemble</p><h2 class="stitle">Le chemin, en cinq étapes.</h2></div>
+    <div class="journey ar">
+      <div class="jstep now"><div class="jnode">01</div><div class="jtitle">Audit Flash</div><div class="jchip">30 min · offert</div><p class="jdesc">On écoute vos irritants.</p></div>
+      <div class="jstep"><div class="jnode">02</div><div class="jtitle">Analyse</div><div class="jchip">2 à 3 jours</div><p class="jdesc">On conçoit la solution.</p></div>
+      <div class="jstep"><div class="jnode">03</div><div class="jtitle">Proposition</div><div class="jchip">1 rendez-vous</div><p class="jdesc">On présente le plan et le devis.</p></div>
+      <div class="jstep"><div class="jnode">04</div><div class="jtitle">Construction</div><div class="jchip">2 à 4 semaines</div><p class="jdesc">On construit, par étapes.</p></div>
+      <div class="jstep"><div class="jnode">05</div><div class="jtitle">Transfert</div><div class="jchip">en continu</div><p class="jdesc">Le système devient le vôtre.</p></div>
+    </div>
+  </div>
+  <div class="foot"><span class="l">Durées indicatives, ajustées à votre contexte.</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 03 · LE DÉTAIL -->
+<section data-label="Le détail">
+<div class="slide light">
+  <div class="top"><div class="brand"><img src="../assets/logo.png" alt=""><b>LUCID-LAB</b></div><span class="meta">03</span></div>
+  <div class="body" style="justify-content:center">
+    <div class="head"><p class="eyebrow">Le détail</p><h2 class="stitle">À chaque étape, concrètement.</h2></div>
+    <div class="steps ar">
+      <div class="step">
+        <div class="step__n">01</div>
+        <div><h3 class="step__t">On fait le point ensemble</h3><p class="step__p">On échange 30 minutes sur votre quotidien, vos blocages et vos objectifs.</p><div class="step__tech">Cartographie des processus<span class="d">·</span>pain points<span class="d">·</span>outils en place</div></div>
+        <div class="step__chip">30 min · offert</div>
+      </div>
+      <div class="step">
+        <div class="step__n">02</div>
+        <div><h3 class="step__t">On conçoit votre solution</h3><p class="step__p">L'équipe imagine les solutions possibles et les classe par utilité réelle.</p><div class="step__tech">Notation valeur / effort / risque<span class="d">·</span>choix des outils<span class="d">·</span>architecture cible</div></div>
+        <div class="step__chip">2 à 3 jours</div>
+      </div>
+      <div class="step">
+        <div class="step__n">03</div>
+        <div><h3 class="step__t">On vous présente le plan</h3><p class="step__p">Par quoi on commence, comment, avec quels outils et en combien de temps.</p><div class="step__tech">Périmètre<span class="d">·</span>feuille de route<span class="d">·</span>délais<span class="d">·</span>budget détaillé</div></div>
+        <div class="step__chip">1 rendez-vous</div>
+      </div>
+      <div class="step">
+        <div class="step__n">04</div>
+        <div><h3 class="step__t">On construit, par étapes</h3><p class="step__p">On démarre par le cas le plus utile, puis on étend, avec des points réguliers.</p><div class="step__tech">Développement par vagues<span class="d">·</span>intégration à vos outils<span class="d">·</span>démonstrations</div></div>
+        <div class="step__chip">2 à 4 semaines</div>
+      </div>
+      <div class="step">
+        <div class="step__n">05</div>
+        <div><h3 class="step__t">Vous prenez la main</h3><p class="step__p">Mise en production, formation de vos équipes, et le système devient 100% à vous.</p><div class="step__tech">Formation<span class="d">·</span>documentation<span class="d">·</span>transfert de propriété et des accès</div></div>
+        <div class="step__chip">en continu</div>
+      </div>
+    </div>
+  </div>
+  <div class="foot"><span class="l">Un système utile, adopté, et qui vous appartient.</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+<!-- 04 · À L'ARRIVÉE -->
+<section data-label="À l'arrivée">
+<div class="slide dark hero">
+  <div class="top"><div class="brand"><img src="../assets/logo-white-on-black.png" alt=""><b>LUCID-LAB</b></div><span class="meta">04</span></div>
+  <div class="hero-body center">
+    <p class="eyebrow">À l'arrivée</p>
+    <div class="erule"></div>
+    <h2 class="big-state" style="font-size:72px">Un système qui tourne,<br><span class="em">100% à vous.</span></h2>
+    <div class="assure ar">
+      <div class="assure__c">
+        <div class="assure__i"><svg viewBox="0 0 24 24"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <h3 class="assure__t">Vous voyez tout</h3>
+        <p class="assure__d">Des points réguliers et des démonstrations. Aucune boîte noire, à aucun moment.</p>
+      </div>
+      <div class="assure__c">
+        <div class="assure__i"><svg viewBox="0 0 24 24"><circle cx="8" cy="15" r="4"/><path d="m10.5 12.5 8-8"/><path d="m17 5 3 3"/><path d="m15 7 3 3"/></svg></div>
+        <h3 class="assure__t">Vous gardez la main</h3>
+        <p class="assure__d">Le code, la documentation et les accès vous sont transférés à 100%.</p>
+      </div>
+      <div class="assure__c">
+        <div class="assure__i"><svg viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>
+        <h3 class="assure__t">Vous n'êtes jamais seuls</h3>
+        <p class="assure__d">Formation de vos équipes et accompagnement à la prise en main.</p>
+      </div>
+    </div>
+  </div>
+  <div class="foot" style="margin-top:56px"><span class="l">Prochaine étape : on construit le premier système utile.</span><span class="r">lucid-lab.fr</span></div>
+</div>
+</section>
+
+</deck-stage>
+<script src="../deck-stage.js"></script>
+</body>
+</html>

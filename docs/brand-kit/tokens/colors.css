@@ -1,0 +1,72 @@
+/* ─── Lucid-Lab · Color Tokens ───────────────────────────────────────────────
+ * SINGLE SOURCE OF TRUTH for color. README, cards and components reference
+ * these · never hardcode a hex elsewhere.
+ *
+ * Two layers:
+ *   1. Primitives  (--color-*)   raw values, never used directly in components
+ *   2. Semantic    (--surface/text/border/accent-*)  roles components consume
+ * ────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── 1. PRIMITIVES ───────────────────────────────────────────────────── */
+
+  /* Neutrals · warm-tinted, single ramp */
+  --color-ink:        #0A0A0A;  /* Primary text · dark backgrounds */
+  --color-anthracite: #1C1C1C;  /* Dark cards · premium surfaces */
+  --color-gray-700:   #3D3D3D;  /* Muted text on light */
+  --color-gray-600:   #525252;  /* Secondary text · captions */
+  --color-gray-500:   #737373;  /* Tertiary text */
+  --color-gray-400:   #A3A3A3;  /* Disabled · hints */
+  --color-gray-300:   #D4D4D4;  /* Strong borders */
+  --color-gray-200:   #E5E5E5;  /* Default borders · separators */
+  --color-gray-100:   #F2F2EE;  /* Alt sections · code blocks */
+  --color-paper:      #F7F5F1;  /* MAIN background · warm off-white */
+  --color-white:      #FFFFFF;  /* Cards · exports */
+
+  /* Accent · the ONLY brand color. Nothing else is vivid. */
+  --color-ember:      #C85E1A;  /* CTAs · keywords · links · highlight (≤15% of surface) */
+  --color-ember-700:  #A84B12;  /* Pressed / text-on-paper ember (AA contrast) */
+  --color-ember-300:  #E07B3A;  /* Hover on ember fills */
+  --color-ember-tint: rgba(200, 94, 26, 0.10);  /* Faint ember wash (badges, active rows) */
+
+  /* Back-compat aliases (older files still reference these names) */
+  --color-black:       var(--color-ink);
+  --color-warm:        var(--color-paper);
+  --color-ember-light: var(--color-ember-300);
+  --color-ember-dim:   var(--color-ember-tint);
+
+  /* ── 2. SEMANTIC ROLES ───────────────────────────────────────────────── */
+
+  /* Surfaces */
+  --surface-bg:        var(--color-paper);        /* Page background (light) */
+  --surface-card:      var(--color-white);        /* Cards on light */
+  --surface-alt:       var(--color-gray-100);     /* Alternating / quiet sections */
+  --surface-dark:      var(--color-ink);          /* Dark sections / deck cover */
+  --surface-dark-card: rgba(255, 255, 255, 0.04); /* Cards on dark */
+
+  /* Text · light context */
+  --text-primary:      var(--color-ink);
+  --text-secondary:    var(--color-gray-600);
+  --text-muted:        var(--color-gray-400);
+  --text-disabled:     var(--color-gray-300);
+  --text-accent:       var(--color-ember-700);    /* Ember TEXT on paper · darker for legibility */
+
+  /* Text · dark context (deck cover, dark sections) */
+  --text-on-dark:        rgba(255, 255, 255, 0.92);
+  --text-on-dark-muted:  rgba(255, 255, 255, 0.58);
+  --text-accent-on-dark: var(--color-ember-300);  /* Ember TEXT on dark · lighter to glow */
+  --text-inverse:        var(--color-paper);       /* Text on solid dark fills */
+
+  /* Borders */
+  --border-subtle:   var(--color-gray-100);
+  --border-default:  var(--color-gray-200);
+  --border-strong:   var(--color-gray-300);
+  --border-dark:     rgba(255, 255, 255, 0.12);   /* Hairlines on dark surfaces */
+
+  /* Accent roles */
+  --accent:          var(--color-ember);          /* Fills, icons, the conversion CTA */
+  --accent-hover:    var(--color-ember-300);
+  --accent-pressed:  var(--color-ember-700);
+  --accent-wash:     var(--color-ember-tint);
+  --accent-on:       var(--color-white);          /* Text/icon sitting ON an ember fill */
+}
