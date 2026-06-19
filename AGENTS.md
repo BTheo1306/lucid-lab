@@ -117,7 +117,7 @@ Agents should communicate through shared state, events, artifacts, tasks, handof
 
 Every agent must update durable knowledge after significant work. Significant work includes architecture decisions, schema changes, new agents or workflows, client delivery patterns, provider/infrastructure changes, incidents and root-cause learnings, production runbooks, major business decisions, and changes to approval/security/audit behavior.
 
-When significant work changes human business knowledge, update Obsidian. Follow the vault rules exactly: read `~/Documents/Vault /Vault/index.md` first, read `~/Documents/Vault /Vault/CLAUDE.md` before writing, only touch `#business` and `#shared` pages unless explicitly asked otherwise, never modify `raw/`, cite source pages, update `index.md`, and append to `log.md` after every write.
+When significant work changes human business knowledge, update Obsidian following the vault rules in the global `~/.claude/CLAUDE.md` (location, folder structure, staged-write workflow, sourcing, and logging).
 
 When significant work changes agent-retrievable operational knowledge, update Supabase `knowledge_documents` and `knowledge_chunks` with organization/client/project scope, source links, freshness metadata, concise summaries, and retrieval-ready chunks. Do not store secrets or raw sensitive client data.
 
@@ -184,82 +184,7 @@ Prefer reusable templates, repeatable onboarding, and standard runbooks over bes
 <!-- END:lucid-lab-agency-ai-os-rules -->
 
 <!-- BEGIN:vault-rules -->
-# Obsidian Vault — Business Knowledge Base
+# Obsidian Vault
 
-## Location
-
-The vault lives at `~/Documents/Vault /Vault` (note the trailing space in the outer folder name).
-
-```
-~/Documents/Vault /Vault/
-├── CLAUDE.md        ← vault schema + all operational rules (READ THIS FIRST)
-├── index.md         ← content catalog, one line per wiki page
-├── log.md           ← append-only chronological operation log
-├── raw/             ← immutable source documents — READ ONLY, never modify
-└── wiki/            ← maintained wiki pages — you read and write here
-    ├── sources/
-    ├── entities/
-    ├── concepts/
-    ├── comparisons/
-    └── synthesis/
-```
-
-## Start here for Lucid-Lab context
-
-- `wiki/synthesis/lucid-lab-overview.md` — single hub for all Lucid-Lab knowledge (people, offering, clients, financials, open items).
-- `wiki/entities/lucid-lab.md` — company entity page.
-- `wiki/concepts/lucid-lab-offering.md`, `lucid-lab-methodology.md`, `lucid-lab-tech-stack.md`, `lucid-lab-icp.md` — core business concepts.
-- `wiki/synthesis/jules-personal-os.md` — Jules's personal OS (goals, finances, life context).
-
-All Lucid-Lab pages are tagged `#business`; Jules's profile is tagged `#shared`.
-
-## Reading the vault
-
-1. **Read `index.md` first.** It is your map. Find the relevant pages.
-2. Drill into the specific `wiki/` pages. Only fall through to `raw/` if you need primary evidence.
-3. Every claim in the wiki cites a `[[wiki/sources/<slug>]]` page. Follow those links if you need to verify.
-
-## Writing to the vault
-
-Follow the full workflow in `CLAUDE.md` — reading it before any write operation is mandatory. Key rules:
-
-- **Never modify `raw/`.** It is read-only source material.
-- **Discuss before writing.** Surface key takeaways first, get a steer, then write.
-- **One source can touch 10–15 wiki pages.** Do the full backlink and cross-reference pass.
-- **Cite everything.** Every non-trivial claim links back to a source page.
-- **After every write**, update `index.md` and append to `log.md`.
-  - Log format: `## [YYYY-MM-DD] <type> | <one-line title>` then `- pages:`, `- raw:`, `- notes:`.
-  - Log types: `ingest`, `query`, `lint`, `merge`, `split`, `rename`, `delete`, `synth`, `bootstrap`.
-- **Filenames** are kebab-case ASCII slugs. Title goes in YAML frontmatter.
-- **Tag every page**: `#business`, `#personal`, or `#shared`.
-- **Confirm before destructive ops** (rename, merge, delete).
-- **Suggest a git commit** after meaningful changes. Never push silently.
-
-## YAML frontmatter (minimum required)
-
-```yaml
----
-title: "<human title>"
-type: source|entity|concept|comparison|synthesis
-slug: <kebab-slug>
-created: YYYY-MM-DD
-updated: YYYY-MM-DD
-status: stub|draft|stable|needs-review
-tags: [business|personal|shared]
-sources: []
-related: []
-confidence: low|med|high
----
-```
-
-## Scope tags
-
-| Tag | Meaning |
-|---|---|
-| `#business` | Lucid-Lab business knowledge |
-| `#personal` | Jules's personal life, finances, relationships |
-| `#shared` | Cross-cutting (e.g., Jules's profile, methodology concepts) |
-
-When working on this codebase (lucid-lab), only read/write `#business` and `#shared` tagged pages unless explicitly asked to access personal content.
-
+The vault reference (location, folder structure, and read/write rules) is maintained in the global `~/.claude/CLAUDE.md` under "Obsidian Vault" as the single source of truth. Personal vault details are intentionally kept out of this committed repo.
 <!-- END:vault-rules -->
