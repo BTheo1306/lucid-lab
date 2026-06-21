@@ -1,6 +1,7 @@
 import type { Post } from "./types";
 import { postUrl } from "./metadata";
 import { CATEGORIES } from "./types";
+import { LINKEDIN_URL } from "../seo/schema";
 
 const SITE_URL = "https://lucid-lab.fr";
 const ORG_ID = `${SITE_URL}/#organization`;
@@ -22,7 +23,7 @@ export function articleSchema(post: Post) {
       name: "Anthony",
       jobTitle: "CEO, Lucid-Lab",
       url: SITE_URL,
-      sameAs: ["https://linkedin.com/company/lucid-lab"],
+      sameAs: [LINKEDIN_URL],
     },
     publisher: { "@id": ORG_ID },
     mainEntityOfPage: { "@type": "WebPage", "@id": postUrl(slug) },

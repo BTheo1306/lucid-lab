@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 
 import { ServicePage } from '@/components/marketing/ServicePage'
+import { pageAlternates } from '@/lib/seo/schema'
 
 export const metadata: Metadata = {
   title: 'Roadmap Automatisation | Lucid-Lab',
   description: 'Transformation des processus manuels en backlog d’automatisation priorisé, séquencé et relié aux gains métier.',
-  alternates: { canonical: 'https://lucid-lab.fr/roadmap-automatisation' },
+  alternates: pageAlternates('/roadmap-automatisation', '/en/roadmap-automatisation', 'fr'),
 }
 
 export default function Page() {

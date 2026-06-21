@@ -1,0 +1,38 @@
+# Lucid-Lab
+
+> Lucid-Lab is a French AI engineering studio based in Paris, France. It audits business workflows, prioritizes AI opportunities, then builds, deploys and operates production AI systems: agents, internal tools, automations, integrations, monitoring and documentation. Systems are built to run in production and stay owned by the client.
+
+Lucid-Lab works in French and English. Founded in 2024. Co-founders: Anthony Poirier (CEO), Théo Benard (CTO), Jules Gouron (COO). Contact: info@lucid-lab.fr
+
+## Services
+
+- [Audit Flash](https://lucid-lab.fr/audit-flash): free 30-minute call to qualify a need and identify the first useful system to build.
+- [AI Opportunity Audit](https://lucid-lab.fr/audit-ia): workflow mapping, use-case scoring (value, feasibility, risk) and a build roadmap.
+- [Data & SI readiness](https://lucid-lab.fr/readiness-data-si): sources, access, risks, EU hosting and target architecture before the build.
+- [Automation roadmap](https://lucid-lab.fr/roadmap-automatisation): sequencing the AI and automation build plan.
+- [AI agents and internal tools](https://lucid-lab.fr/agents-ia-outils-internes): production agents, dashboards, workflows, connectors and internal interfaces.
+- [Build and Run](https://lucid-lab.fr/build-run): deployment, monitoring, runbooks, documentation and long-term operation.
+- [Method](https://lucid-lab.fr/methode): how Lucid-Lab delivers, from workflow diagnosis to production and team handover.
+- [Client cases](https://lucid-lab.fr/cas-clients): selected delivered projects.
+
+## How Lucid-Lab works
+
+- Sovereignty and compliance: EU hosting, RGPD (GDPR) and EU AI Act governance, scoped permissions, logs and access rules.
+- Ownership: the client keeps the code, workflows, access, runbooks, user documentation and monitoring dashboards.
+- Stack: AI agents on OpenAI and Claude, Mistral and sovereign models, n8n workflows, CRM, ERP and data integrations.
+
+## English
+
+- [Home (English)](https://lucid-lab.fr/en)
+- [AI Opportunity Audit (English)](https://lucid-lab.fr/en/audit-ia)
+- [Method (English)](https://lucid-lab.fr/en/method)
+- [Client cases (English)](https://lucid-lab.fr/en/case-studies)
+
+## Content
+
+- [Blog](https://lucid-lab.fr/blog): guides on business process automation and AI for SMEs (French and English).
+
+## Contact
+
+- Email: info@lucid-lab.fr
+- LinkedIn: https://www.linkedin.com/company/lucid-lab-fr/

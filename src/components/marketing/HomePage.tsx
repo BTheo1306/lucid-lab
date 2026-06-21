@@ -33,6 +33,7 @@ const LinkedinIcon = ({ className }: { className?: string }) => (
 import { Header } from '@/components/ui/header'
 import { HeroSection, LogosSection } from '@/components/ui/hero-section'
 import type { Locale } from '@/lib/i18n/client'
+import { faqPageSchema, jsonLd } from '@/lib/seo/schema'
 import { AuditFlashBookingSection } from '@/components/marketing/AuditFlashBookingSection'
 
 const INK = '#0A0A0A'
@@ -1223,6 +1224,10 @@ function FAQ({ lang }: { lang: Locale }) {
 
   return (
     <Section id="faq">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(faqPageSchema(t.items, lang)) }}
+      />
       <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <div>
           <SectionTitle>{t.title}</SectionTitle>

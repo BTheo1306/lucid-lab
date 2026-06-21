@@ -1,11 +1,12 @@
 import type { Metadata } from 'next'
 
 import { ServicePage } from '@/components/marketing/ServicePage'
+import { pageAlternates } from '@/lib/seo/schema'
 
 export const metadata: Metadata = {
   title: 'Client Cases | Lucid-Lab',
   description: 'Anonymized client cases, treated workflows, delivered AI systems, business metrics and transferred deliverables.',
-  alternates: { canonical: 'https://lucid-lab.fr/en/case-studies' },
+  alternates: pageAlternates('/cas-clients', '/en/case-studies', 'en'),
 }
 
 export default function Page() {

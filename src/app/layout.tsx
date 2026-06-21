@@ -5,6 +5,7 @@ import { Figtree, Syne } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AdminAwareChatWidget } from "@/components/chat-widget/AdminAwareChatWidget";
+import { SAME_AS, founderNodes } from "@/lib/seo/schema";
 import "./globals.css";
 
 const fontSans = Figtree({
@@ -217,7 +218,8 @@ export default async function RootLayout({
                     contactType: "customer service",
                     availableLanguage: ["French", "English"],
                   },
-                  sameAs: ["https://linkedin.com/company/lucid-lab"],
+                  founder: founderNodes(),
+                  sameAs: SAME_AS,
                 },
                 {
                   "@type": "WebSite",

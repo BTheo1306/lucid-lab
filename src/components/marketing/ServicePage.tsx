@@ -8,6 +8,7 @@ import { ArrowRight, Bot, Database, FileText, MonitorCheck, SearchCheck, ShieldC
 import { Header } from '@/components/ui/header'
 import { MarketingFooter } from '@/components/marketing/HomePage'
 import type { Locale } from '@/lib/i18n/client'
+import { breadcrumbSchema, serviceSchema, jsonLd } from '@/lib/seo/schema'
 
 const INK = '#0A0A0A'
 const PAPER = '#FAFAF7'
@@ -58,6 +59,16 @@ const routes = {
     blog: '/en/blog',
   },
 } as const
+
+const servicePaths: Record<ServicePageKey, { fr: string; en: string }> = {
+  audit: { fr: '/audit-ia', en: '/en/audit-ia' },
+  data: { fr: '/readiness-data-si', en: '/en/readiness-data-si' },
+  roadmap: { fr: '/roadmap-automatisation', en: '/en/roadmap-automatisation' },
+  agents: { fr: '/agents-ia-outils-internes', en: '/en/agents-ia-outils-internes' },
+  buildRun: { fr: '/build-run', en: '/en/build-run' },
+  method: { fr: '/methode', en: '/en/method' },
+  cases: { fr: '/cas-clients', en: '/en/case-studies' },
+}
 
 const content: Record<Locale, Record<ServicePageKey, ServicePageContent>> = {
   fr: {
@@ -485,8 +496,25 @@ export function ServicePage({ lang, pageKey }: { lang: Locale; pageKey: ServiceP
   const route = routes[lang]
   const secondaryHref = pageKey === 'method' ? route.cases : pageKey === 'cases' ? route.blog : route.method
 
+  const pageUrl = `https://lucid-lab.fr${servicePaths[pageKey][lang]}`
+  const homeUrl = lang === 'en' ? 'https://lucid-lab.fr/en' : 'https://lucid-lab.fr'
+  const structuredData = [
+    breadcrumbSchema([
+      { name: lang === 'en' ? 'Home' : 'Accueil', item: homeUrl },
+      { name: page.eyebrow, item: pageUrl },
+    ]),
+    serviceSchema({ name: page.eyebrow, description: page.intro, url: pageUrl, lang }),
+  ]
+
   return (
     <div className="flex min-h-screen flex-col" style={{ background: PAPER }}>
+      {structuredData.map((schema, i) => (
+        <script
+          key={i}
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
+        />
+      ))}
       <Header />
       <main className="grow pt-[68px]">
         <section style={{ background: PAPER }}>
