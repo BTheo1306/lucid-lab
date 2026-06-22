@@ -11,7 +11,7 @@ Last updated: 2026-06-22.
 | On-page schema (FAQ / Breadcrumb / Service / Org + founders) | Built and verified locally, NOT live | commit 91f4389, SSR HTML confirmed |
 | sameAs fix + hreflang + llms.txt | Built and verified locally, NOT live | commit 91f4389 |
 | Founding year 2026 | Fixed | commit 08a9b23 |
-| Production deploy | PENDING (gate: your approval) | live site still serves old schema |
+| Production deploy | DONE, live and verified 2026-06-22 | main 307e6e4; FAQPage + foundingDate 2026 + lucid-lab-fr + llms.txt confirmed on production |
 | AI-visibility baseline | Started (Perplexity FR) | table below |
 | Off-site presence (directories, Wikidata, GBP, listicles) | PENDING (gate: your accounts + approval) | assets drafted below |
 
@@ -68,6 +68,14 @@ Caveat: Wikidata and Wikipedia expect notability (independent coverage). For a 2
 - Crunchbase: add company. GATE: account and publish.
 - Listicles (codeur.com, koino.fr, lespepitestech.com, digitallia.fr): send the outreach email above. GATE: your approval to send.
 - LinkedIn: optimize the company About and start a posting cadence. GATE: your approval to post.
+
+## Off-site progress
+
+### LinkedIn company page (admin access confirmed 2026-06-22)
+Page: linkedin.com/company/lucid-lab-fr (id 119184045). Status: dormant (no posts in 90 days), services not listed, low activity (4 search appearances, 2 page visitors). High-leverage, low-risk fixes (each needs your review before publishing):
+- Add the About description. Draft (FR): the company boilerplate above.
+- Add Services: Audit IA, Agents IA et outils internes, Automatisations métier, Deploiement n8n et APIs, Data & SI readiness, Build & Run, Monitoring IA, Gouvernance IA (RGPD / EU AI Act).
+- Start a posting cadence (2x/week target), each post subject to your approval.
 
 ## How to run this for clients (productized service)
 
