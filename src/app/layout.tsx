@@ -211,7 +211,7 @@ export default async function RootLayout({
                         "Mistral et modèles souverains",
                         "Gouvernance IA, RGPD et EU AI Act",
                       ],
-                  foundingDate: "2024",
+                  foundingDate: "2026",
                   contactPoint: {
                     "@type": "ContactPoint",
                     email: "info@lucid-lab.fr",

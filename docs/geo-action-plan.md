@@ -26,7 +26,7 @@ Your steps:
 
 ## Phase 1 — Entity and directories (weeks 1-4), high impact
 
-- [ ] Create a Wikidata entity for Lucid-Lab (company, founded 2024, Paris, founders, official site). Single biggest entity signal.
+- [ ] Create a Wikidata entity for Lucid-Lab (company, founded 2026, Paris, founders, official site). Single biggest entity signal.
 - [ ] Create or claim agency directory profiles (these are exactly the pages engines retrieve for "best agency" queries):
   - [ ] Sortlist (strong in France)
   - [ ] Clutch

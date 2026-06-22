@@ -2,7 +2,7 @@
 
 > Lucid-Lab is a French AI engineering studio based in Paris, France. It audits business workflows, prioritizes AI opportunities, then builds, deploys and operates production AI systems: agents, internal tools, automations, integrations, monitoring and documentation. Systems are built to run in production and stay owned by the client.
 
-Lucid-Lab works in French and English. Founded in 2024. Co-founders: Anthony Poirier (CEO), Théo Benard (CTO), Jules Gouron (COO). Contact: info@lucid-lab.fr
+Lucid-Lab works in French and English. Founded in 2026. Co-founders: Anthony Poirier (CEO), Théo Benard (CTO), Jules Gouron (COO). Contact: info@lucid-lab.fr
 
 ## Services
 
