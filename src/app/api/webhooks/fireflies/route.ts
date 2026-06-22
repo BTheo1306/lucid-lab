@@ -115,12 +115,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  // Fireflies envoie eventType 'Transcription completed' quand la note est prête.
-  if (payload.eventType && payload.eventType !== 'Transcription completed') {
-    return NextResponse.json({ ok: true, skipped: payload.eventType });
-  }
+  // On s'abonne à l'événement "Meeting Summarized" côté Fireflies : tout appel
+  // reçu ici concerne une réunion dont les notes sont prêtes, donc pas de filtre
+  // sur eventType. Un ping de test sans meetingId est simplement acquitté.
   const meetingId = payload.meetingId;
-  if (!meetingId) return NextResponse.json({ error: 'meetingId manquant' }, { status: 400 });
+  if (!meetingId) return NextResponse.json({ ok: true, note: 'no meetingId (test ping)' });
 
   try {
     const transcript = await fetchTranscript(meetingId);
@@ -146,7 +145,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     await sendDigest(transcript, synthesis);
     return NextResponse.json({ ok: true, meetingId });
   } catch (error) {
+    // On acquitte (200) pour ne pas faire échouer la livraison côté Fireflies ;
+    // l'erreur est tracée dans les logs et reste visible dans l'History Fireflies.
     const message = error instanceof Error ? error.message : 'Erreur webhook';
-    return NextResponse.json({ error: message }, { status: 500 });
+    console.error('[fireflies-webhook]', meetingId, message);
+    return NextResponse.json({ ok: false, meetingId, error: message });
   }
 }
