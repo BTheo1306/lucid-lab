@@ -1,0 +1,79 @@
+# GEO/AEO implementation runbook — Lucid-Lab
+
+Living log of the GEO/AEO implementation: what is done, what is verified, and ready-to-use assets for each off-site channel. Built so it can be re-run for clients as a productized "AI visibility" service. Companion to `docs/geo-action-plan.md` (the checklist) and the strategy in the Obsidian vault (`_staging/offre-geo-aeo.md`).
+
+Last updated: 2026-06-22.
+
+## Status dashboard
+
+| Workstream | State | Evidence |
+|---|---|---|
+| On-page schema (FAQ / Breadcrumb / Service / Org + founders) | Built and verified locally, NOT live | commit 91f4389, SSR HTML confirmed |
+| sameAs fix + hreflang + llms.txt | Built and verified locally, NOT live | commit 91f4389 |
+| Founding year 2026 | Fixed | commit 08a9b23 |
+| Production deploy | PENDING (gate: your approval) | live site still serves old schema |
+| AI-visibility baseline | Started (Perplexity FR) | table below |
+| Off-site presence (directories, Wikidata, GBP, listicles) | PENDING (gate: your accounts + approval) | assets drafted below |
+
+## Verification (2026-06-22)
+
+On-page work checked in a local production build and confirmed present in server-rendered HTML: FAQPage with 6 Q&A, BreadcrumbList + Service on service pages, Organization with 3 founders, corrected sameAs (`lucid-lab-fr`), reciprocal FR/EN hreflang, and `/llms.txt` (HTTP 200).
+
+Important: production `lucid-lab.fr` still serves the OLD schema (`foundingDate 2024`, no FAQPage, old sameAs). The work takes effect for crawlers and AI engines only after the branch is deployed.
+
+## Baseline measurement (the "before")
+
+Protocol: run a fixed panel of buyer prompts on ChatGPT, Perplexity, Gemini, Google AI Mode and Copilot monthly; record whether Lucid-Lab is named and where.
+
+| Date | Engine | Query | Lucid-Lab named? | Notes |
+|---|---|---|---|---|
+| 2026-06-22 | Perplexity (FR) | "Quelle est la meilleure agence IA en France pour automatiser les process d'une PME ?" | No | Named no specific agency; described categories only; cited 10 sources |
+
+To extend: same query on ChatGPT, Gemini and Google AI Overview, plus the EN query "best AI automation agency in France for SMEs". Optional trackers once a baseline exists: Profound, Peec AI, Otterly, Semrush AI Visibility, Ahrefs Brand Radar.
+
+Interpretation: Lucid-Lab is currently invisible for the core category query, as expected. Perplexity's own selection criteria (bilingual FR/EN, free 60-90 min audit, métier approach, EU hosting and RGPD) match Lucid-Lab's positioning almost exactly, so the upside from becoming visible is large.
+
+## Ready-to-use assets
+
+### Company boilerplate
+- FR: Lucid-Lab est un studio d'ingénierie IA basé à Paris. Nous auditons les workflows, priorisons les opportunités IA, puis construisons, déployons et opérons des systèmes IA en production : agents, outils internes, automatisations, intégrations, monitoring et documentation. Hébergement EU, conformité RGPD et EU AI Act. Le client garde le code et les accès. Fondée en 2026. Bilingue FR/EN.
+- EN: Lucid-Lab is a Paris-based AI engineering studio. We audit workflows, prioritize AI opportunities, then build, deploy and operate production AI systems: agents, internal tools, automations, integrations, monitoring and documentation. EU hosting, GDPR and EU AI Act compliance. The client keeps the code and access. Founded 2026. Bilingual FR/EN.
+
+### Directory short description (~160 chars)
+Studio d'ingénierie IA à Paris. Agents, automatisations et outils internes en production, avec monitoring et conformité RGPD / EU AI Act. FR/EN.
+
+### Founders
+Anthony Poirier (CEO), Théo Benard (CTO), Jules Gouron (COO).
+
+### sameAs URLs to maintain (in `src/lib/seo/schema.ts`)
+Currently: `https://www.linkedin.com/company/lucid-lab-fr/`. Add each new profile URL as it goes live (Sortlist, Clutch, Crunchbase, YouTube, etc.), then redeploy.
+
+### Listicle outreach email (FR draft, for your approval before sending)
+> Objet : Lucid-Lab pour votre classement des agences IA en France
+>
+> Bonjour [Nom],
+> Je suis Jules Gouron, COO de Lucid-Lab, un studio d'ingénierie IA basé à Paris (agents, automatisations et outils internes en production pour PME et ETI). J'ai lu votre article "[titre]" et je pense que Lucid-Lab y aurait sa place : nous livrons des systèmes en production, le client garde le code, et tout est cadré conformité EU.
+> Seriez-vous ouvert à nous ajouter au classement ? Je peux fournir logo, description, références et cas clients anonymisés.
+> Merci pour votre temps, Jules
+
+### Wikidata (draft, with caveat)
+Caveat: Wikidata and Wikipedia expect notability (independent coverage). For a 2026 company with little press yet, an item may be challenged or deleted, and creating non-notable items reads as spam. Recommendation: do this AFTER securing 2 to 3 independent media mentions. Draft statements: instance of (P31) = enterprise; inception (P571) = 2026; headquarters (P159) = Paris; country (P17) = France; official website (P856) = https://lucid-lab.fr; industry (P452) = artificial intelligence.
+
+## Execution checklist (each ends at a gate where I stop for approval)
+
+- Deploy: merge `feature/geo-onpage-phase1` to `main` (Vercel auto-deploys). GATE: your go-ahead.
+- Google Business Profile: business.google.com, create, fill (name, category, Paris, hours, description). GATE: verification and publish.
+- Sortlist: sortlist.com, join as agency, fill profile. GATE: account creation and publish.
+- Clutch: clutch.co, get listed, fill. GATE: account and publish.
+- Crunchbase: add company. GATE: account and publish.
+- Listicles (codeur.com, koino.fr, lespepitestech.com, digitallia.fr): send the outreach email above. GATE: your approval to send.
+- LinkedIn: optimize the company About and start a posting cadence. GATE: your approval to post.
+
+## How to run this for clients (productized service)
+
+1. GEO Audit: crawl access, SSR check, schema audit, sameAs/entity check, off-site footprint search, baseline prompt panel.
+2. On-page sprint: Organization + founders, FAQPage, BreadcrumbList, Service, llms.txt, hreflang.
+3. Off-site sprint: directories, entity (Wikidata once notable), listicles, content with statistics and sources, community presence.
+4. Measure monthly: AI share of voice across engines, reported to the client.
+
+Client deliverable: this runbook filled in for their brand, plus a monthly AI-visibility report.
