@@ -64,22 +64,34 @@ export default async function BlogIndex() {
           {featured && (
             <Link
               href={`/blog/${featured.slug}`}
-              className="group mb-12 block rounded-[18px] border border-zinc-200 bg-white p-6 transition-colors hover:border-zinc-400 sm:p-10"
+              className="group mb-12 block overflow-hidden rounded-[18px] border border-zinc-200 bg-white transition-colors hover:border-zinc-400"
             >
-              <p className="mb-3 text-[11px] uppercase tracking-wider text-zinc-500">
-                {CATEGORIES[featured.frontmatter.category as PostCategory].title}
-                {featured.frontmatter.isPillar ? " · Guide pillar" : ""}
-              </p>
-              <h2 className="mb-3 text-[28px] font-bold leading-[1.1] tracking-[-0.03em] text-zinc-900 sm:text-[36px]">
-                {featured.frontmatter.title}
-              </h2>
-              <p className="mb-4 text-[15px] leading-[1.6] text-zinc-600 sm:text-[16px]">
-                {featured.frontmatter.description}
-              </p>
-              <p className="text-[13px] text-zinc-500">
-                {FORMATTER.format(new Date(featured.frontmatter.publishedAt))} ·{" "}
-                {featured.readingTimeMinutes} min de lecture
-              </p>
+              {featured.frontmatter.heroImage ? (
+                <div className="overflow-hidden">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={featured.frontmatter.heroImage}
+                    alt={featured.frontmatter.heroImageAlt ?? featured.frontmatter.title}
+                    className="w-full aspect-[21/9] object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                  />
+                </div>
+              ) : null}
+              <div className="p-6 sm:p-10">
+                <p className="mb-3 text-[11px] uppercase tracking-wider text-zinc-500">
+                  {CATEGORIES[featured.frontmatter.category as PostCategory].title}
+                  {featured.frontmatter.isPillar ? " · Guide pillar" : ""}
+                </p>
+                <h2 className="mb-3 text-[28px] font-bold leading-[1.1] tracking-[-0.03em] text-zinc-900 sm:text-[36px]">
+                  {featured.frontmatter.title}
+                </h2>
+                <p className="mb-4 text-[15px] leading-[1.6] text-zinc-600 sm:text-[16px]">
+                  {featured.frontmatter.description}
+                </p>
+                <p className="text-[13px] text-zinc-500">
+                  {FORMATTER.format(new Date(featured.frontmatter.publishedAt))} ·{" "}
+                  {featured.readingTimeMinutes} min de lecture
+                </p>
+              </div>
             </Link>
           )}
 
@@ -87,22 +99,34 @@ export default async function BlogIndex() {
             {rest.map((p) => (
               <li
                 key={p.slug}
-                className="group rounded-[14px] border border-zinc-200 bg-white p-6 transition-colors hover:border-zinc-400"
+                className="group overflow-hidden rounded-[14px] border border-zinc-200 bg-white transition-colors hover:border-zinc-400"
               >
                 <Link href={`/blog/${p.slug}`} className="block">
-                  <p className="mb-2 text-[11px] uppercase tracking-wider text-zinc-500">
-                    {CATEGORIES[p.frontmatter.category as PostCategory].title}
-                  </p>
-                  <h3 className="mb-2 text-[20px] font-bold leading-snug tracking-[-0.02em] text-zinc-900 group-hover:text-black">
-                    {p.frontmatter.title}
-                  </h3>
-                  <p className="mb-3 line-clamp-2 text-[14px] leading-[1.55] text-zinc-600">
-                    {p.frontmatter.description}
-                  </p>
-                  <p className="text-[12px] text-zinc-500">
-                    {FORMATTER.format(new Date(p.frontmatter.publishedAt))} ·{" "}
-                    {p.readingTimeMinutes} min
-                  </p>
+                  {p.frontmatter.heroImage ? (
+                    <div className="overflow-hidden">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={p.frontmatter.heroImage}
+                        alt={p.frontmatter.heroImageAlt ?? p.frontmatter.title}
+                        className="w-full aspect-[16/9] object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                      />
+                    </div>
+                  ) : null}
+                  <div className="p-6">
+                    <p className="mb-2 text-[11px] uppercase tracking-wider text-zinc-500">
+                      {CATEGORIES[p.frontmatter.category as PostCategory].title}
+                    </p>
+                    <h3 className="mb-2 text-[20px] font-bold leading-snug tracking-[-0.02em] text-zinc-900 group-hover:text-black">
+                      {p.frontmatter.title}
+                    </h3>
+                    <p className="mb-3 line-clamp-2 text-[14px] leading-[1.55] text-zinc-600">
+                      {p.frontmatter.description}
+                    </p>
+                    <p className="text-[12px] text-zinc-500">
+                      {FORMATTER.format(new Date(p.frontmatter.publishedAt))} ·{" "}
+                      {p.readingTimeMinutes} min
+                    </p>
+                  </div>
                 </Link>
               </li>
             ))}
