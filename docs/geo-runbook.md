@@ -84,7 +84,12 @@ Caveat: Wikidata and Wikipedia expect notability (independent coverage). For a 2
 ## Off-site progress
 
 ### Sortlist (sortlist.fr/claim/agency) — 2026-06-22
-Company name "Lucid-Lab" entered; reached the "Créer le profil" confirmation. Blocked there by a Cloudflare CAPTCHA plus an authority-attestation checkbox, both of which require Jules (Claude cannot solve CAPTCHAs or attest authority). Next: Jules clears that gate, then Claude fills step 2 (company info) from the data sheet and stops before step 3 (manager account creation, which needs a password).
+Profile created (Jules cleared the CAPTCHA + authority checkbox). Step 2 filled: name Lucid-Lab, language FR, team size 3, address + phone (Jules), website, email, and 2 services (Intelligence Artificielle; Développement de Logiciel) each with a description and a 3000 EUR starting-price floor for lead-matching (adjust to preference). Remaining: Jules completes step 3 (manager account / password) and reviews before publish.
+
+### Clutch (vendor.clutch.co onboarding) — 2026-06-22
+Jules signed in. Step 1 goal: generate leads. Step 2 company info filled and saved: name, website, sales email, scheduling link (Audit Flash), founding year 2026, team 2-9, tagline "Systèmes IA métier en production", English description. Now parked at step 3 (Project Size & Rate = pricing) for Jules. Remaining: pricing (step 3), location (step 4), then publish.
+
+### Crunchbase — dropped 2026-06-22 (adding a company requires a paid plan; not pursuing for now).
 
 ### LinkedIn company page (admin access confirmed 2026-06-22)
 Page: linkedin.com/company/lucid-lab-fr (id 119184045). Status: dormant (no posts in 90 days), services not listed, low activity (4 search appearances, 2 page visitors). High-leverage, low-risk fixes (each needs your review before publishing):
