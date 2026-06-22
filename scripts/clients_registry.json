@@ -1,0 +1,86 @@
+{
+  "_meta": {
+    "purpose": "Source de vérité unique : pour chaque client, son dossier Google Drive et les indices de rapprochement (matching) depuis une réunion Fireflies. Utilisé par le skill /fireflies-sync ET par le pipeline de génération de documents (generate_client_docs.py).",
+    "parent_clients_folder_id": "1p2x6B303jaiF23Y26eMdcZZGojP-ZJMg",
+    "parent_clients_folder_name": "Clients",
+    "drive_owner": "theo.benard13@gmail.com",
+    "supabase_project_id": "qkctlntxhfxlidodxewh",
+    "organization_id": "2ee10622-ce92-454a-af4e-693b2007b42c",
+    "rule": "Pour un nouveau client sans dossier, créer un sous-dossier sous parent_clients_folder_id, puis ajouter son entrée ici.",
+    "updated": "2026-06-21"
+  },
+  "clients": [
+    {
+      "slug": "sinibaldi-architecte",
+      "name": "Clément Sinibaldi",
+      "drive_folder_id": "1jbK-wQ8WbgOlBxbl9hbvHJGTBsunQQb0",
+      "drive_folder_name": "Clement",
+      "obsidian": "clients/clement-sinibaldi-permis.md",
+      "match": { "name_hints": ["sinibaldi", "clement", "clément"], "emails": [], "domains": [] }
+    },
+    {
+      "slug": "shannon-ecommerce",
+      "name": "Shannon",
+      "drive_folder_id": "1d5upDUWJoJrUxR7NnwfZ32m8vjyBVRvE",
+      "drive_folder_name": "Shannon",
+      "obsidian": null,
+      "match": { "name_hints": ["shannon"], "emails": [], "domains": [] }
+    },
+    {
+      "slug": "raak-design",
+      "name": "RAAK",
+      "drive_folder_id": "1bBAsdIPz5PwH6uKsx18A-bwymBd9UFGo",
+      "drive_folder_name": "RAAK",
+      "obsidian": null,
+      "match": { "name_hints": ["raak"], "emails": [], "domains": [] }
+    },
+    {
+      "slug": "le-jardin-d-eden",
+      "name": "Le Jardin d'Eden",
+      "drive_folder_id": "1tjPUuIYwHaZBLT4fYN731bPx-ZXrrTuI",
+      "drive_folder_name": "Eden (Jardin d'eden)",
+      "obsidian": null,
+      "match": { "name_hints": ["eden", "jardin d'eden", "creche", "crèche"], "emails": [], "domains": [] }
+    },
+    {
+      "slug": "artincell",
+      "name": "Artincell (David Guzman)",
+      "drive_folder_id": "1l0aCgmwPc0eil2C7FucPo2hCKyoN2mfC",
+      "drive_folder_name": "David Guzman for Artincell",
+      "obsidian": null,
+      "match": { "name_hints": ["artincell", "guzman", "david guzman"], "emails": [], "domains": [] }
+    },
+    {
+      "slug": "turismo",
+      "name": "Turismo",
+      "drive_folder_id": "1TC6dOGhu1i_dqaI1c4phPVhpi1gpXtSv",
+      "drive_folder_name": "Turismo",
+      "obsidian": null,
+      "match": { "name_hints": ["turismo"], "emails": [], "domains": [] }
+    },
+    {
+      "slug": "fany-rother-kinesiologie-coaching-bien-etre",
+      "name": "Fany Rother",
+      "drive_folder_id": "10u_V-yjwuyMOsle-61F4hCiUV2lYp_7A",
+      "drive_folder_name": "Fanny Rother",
+      "obsidian": null,
+      "match": { "name_hints": ["fany", "fanny", "rother"], "emails": [], "domains": [] }
+    },
+    {
+      "slug": "bsp37",
+      "name": "BSP37",
+      "drive_folder_id": null,
+      "drive_folder_name": null,
+      "obsidian": null,
+      "match": { "name_hints": ["bsp37", "bsp 37"], "emails": [], "domains": [] }
+    }
+  ],
+  "_unmapped_drive_folders": [
+    { "name": "Sophia Kanouni", "drive_folder_id": "13vwoO7NpK2gK9LnO7ZPQ0rICCJi02UfQ", "note": "slug CRM à confirmer" },
+    { "name": "Consulteis", "drive_folder_id": "1y_-26iU-C__fLMFwgxZC1YsnAAUSUbKS", "note": "slug CRM à confirmer" }
+  ],
+  "_excluded_from_pipeline": [
+    { "name": "Nextra Partners", "reason": "engagement d'Anthony facturé via Lucid-Lab, suivi en compta Dougs uniquement, pas dans le pipeline clients" },
+    { "name": "Wilco", "reason": "accélérateur / partenaire potentiel, pas un client : ne pas créer de fiche CRM sans validation de Jules" }
+  ]
+}

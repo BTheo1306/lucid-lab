@@ -20,6 +20,14 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  // Séquence de relance mise en pause le 2026-06-22 à la demande de Jules : copie
+  // jugée trop insistante et claim non vérifiable. À retravailler avec du vrai trafic.
+  // Le cron a aussi été retiré de vercel.json. Repasser à false pour réactiver.
+  const LEAD_FOLLOWUP_DISABLED: boolean = true;
+  if (LEAD_FOLLOWUP_DISABLED) {
+    return NextResponse.json({ ok: true, disabled: true, reason: 'sequence paused 2026-06-22' });
+  }
+
   const leads = await findLeadsDueForFollowUp();
   let sent = 0;
   let skipped = 0;
