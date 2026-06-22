@@ -142,7 +142,11 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       },
     });
 
-    await sendDigest(transcript, synthesis);
+    // Email du webhook coupé le 2026-06-22 pour éviter le doublon avec l'AI Skill
+    // Fireflies, qui envoie déjà le résumé par réunion. Le webhook reste la capture
+    // CRM silencieuse. Repasser WEBHOOK_EMAIL_ENABLED à true pour réactiver le digest.
+    const WEBHOOK_EMAIL_ENABLED: boolean = false;
+    if (WEBHOOK_EMAIL_ENABLED) await sendDigest(transcript, synthesis);
     return NextResponse.json({ ok: true, meetingId });
   } catch (error) {
     // On acquitte (200) pour ne pas faire échouer la livraison côté Fireflies ;
