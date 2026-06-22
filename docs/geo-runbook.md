@@ -36,14 +36,26 @@ Interpretation: Lucid-Lab is currently invisible for the core category query, as
 ## Ready-to-use assets
 
 ### Company boilerplate
-- FR: Lucid-Lab est un studio d'ingénierie IA basé à Paris. Nous auditons les workflows, priorisons les opportunités IA, puis construisons, déployons et opérons des systèmes IA en production : agents, outils internes, automatisations, intégrations, monitoring et documentation. Hébergement EU, conformité RGPD et EU AI Act. Le client garde le code et les accès. Fondée en 2026. Bilingue FR/EN.
-- EN: Lucid-Lab is a Paris-based AI engineering studio. We audit workflows, prioritize AI opportunities, then build, deploy and operate production AI systems: agents, internal tools, automations, integrations, monitoring and documentation. EU hosting, GDPR and EU AI Act compliance. The client keeps the code and access. Founded 2026. Bilingual FR/EN.
+- FR (wording aligned with lucid-lab.fr): Lucid-Lab construit, déploie et opère des systèmes IA métier en production : agents, outils internes, automatisations, intégrations, monitoring et documentation. Nous auditons vos workflows, vérifions vos données et priorisons les cas d'usage IA, puis construisons les systèmes qui tournent en production. Audit, Roadmap, Build, Run, Documentation. Le client garde le code et les accès. Hébergement EU, conformité RGPD et EU AI Act. Paris, France. Fondée en 2026. Bilingue FR/EN.
+- EN: Lucid-Lab builds, deploys and operates business AI systems in production: agents, internal tools, automations, integrations, monitoring and documentation. We audit workflows, check data and prioritize AI use cases, then build the systems that run in production. Audit, Roadmap, Build, Run, Documentation. The client keeps the code and access. EU hosting, GDPR and EU AI Act compliance. Paris, France. Founded 2026. Bilingual FR/EN.
 
 ### Directory short description (~160 chars)
-Studio d'ingénierie IA à Paris. Agents, automatisations et outils internes en production, avec monitoring et conformité RGPD / EU AI Act. FR/EN.
+Systèmes IA métier en production : agents, automatisations et outils internes, avec monitoring et conformité RGPD / EU AI Act. Paris, FR/EN.
 
 ### Founders
 Anthony Poirier (CEO), Théo Benard (CTO), Jules Gouron (COO).
+
+### Directory profile data sheet (reusable: Sortlist, Clutch, Crunchbase, DesignRush, etc.)
+- Company name: Lucid-Lab
+- Website: https://lucid-lab.fr
+- HQ: Paris, France
+- Founded: 2026
+- Team size: 2-10
+- Email: info@lucid-lab.fr
+- LinkedIn: https://www.linkedin.com/company/lucid-lab-fr/
+- Languages: French, English
+- Category / expertises: Intelligence artificielle, Automatisation des processus, Agents IA, Outils internes, Integrations (CRM / ERP / data), Conseil IA, Data engineering
+- Short and long descriptions: see boilerplate above (wording aligned with lucid-lab.fr, no "studio")
 
 ### sameAs URLs to maintain (in `src/lib/seo/schema.ts`)
 Currently: `https://www.linkedin.com/company/lucid-lab-fr/`. Add each new profile URL as it goes live (Sortlist, Clutch, Crunchbase, YouTube, etc.), then redeploy.
@@ -70,6 +82,9 @@ Caveat: Wikidata and Wikipedia expect notability (independent coverage). For a 2
 - LinkedIn: optimize the company About and start a posting cadence. GATE: your approval to post.
 
 ## Off-site progress
+
+### Sortlist (sortlist.fr/claim/agency) — 2026-06-22
+Company name "Lucid-Lab" entered; reached the "Créer le profil" confirmation. Blocked there by a Cloudflare CAPTCHA plus an authority-attestation checkbox, both of which require Jules (Claude cannot solve CAPTCHAs or attest authority). Next: Jules clears that gate, then Claude fills step 2 (company info) from the data sheet and stops before step 3 (manager account creation, which needs a password).
 
 ### LinkedIn company page (admin access confirmed 2026-06-22)
 Page: linkedin.com/company/lucid-lab-fr (id 119184045). Status: dormant (no posts in 90 days), services not listed, low activity (4 search appearances, 2 page visitors). High-leverage, low-risk fixes (each needs your review before publishing):
