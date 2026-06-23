@@ -19,6 +19,7 @@ import {
   Globe2,
   History,
   Inbox,
+  Megaphone,
   MessageSquare,
   MonitorCheck,
   Palette,
@@ -115,6 +116,7 @@ const navSections: NavSection[] = [
     icon: FileText,
     items: [
       { href: '/admin/blog', label: 'Blog', icon: FileText },
+      { href: '/admin/lucid-os/social', label: 'LinkedIn', icon: Megaphone },
       { href: '/admin/brand', label: 'Charte graphique', icon: Palette },
     ],
   },
