@@ -1,12 +1,12 @@
 # LinkedIn automation: build spec
 
-Status: BUILT (2026-06-23). The full pipeline ships in the codebase. What remains is operational: set the env vars and have Anthony authorize once (see "Go-live checklist" at the bottom).
+Status: LIVE (2026-06-23). Deployed (commit 2971f56) and connected on Anthony's personal profile. Env vars set, OAuth authorized, banner green. Crons run once per day (forced by the Vercel Hobby limit, see "Hobby cron constraint" below).
 
 ## What shipped
 - **Validate in the CRM** (`/admin/lucid-os/social`): approve / reject / re-queue / edit, plus "Nouveau post". Server actions in `src/app/admin/(dashboard)/lucid-os/social/actions.ts`.
 - **OAuth connect** at `/admin/integrations/linkedin/connect` (+ `/callback`). Lives under `/admin` so the admin session cookie reaches it; CSRF-protected with a `state` cookie. Tokens stored in `integration_accounts.metadata` (service-role only), parent `integrations` row created lazily.
-- **Posting cron** `/api/cron/linkedin-post` (every 30 min): publishes `approved` + due posts on Anthony's feed, then posts the `link_in_comment` URL as the first comment. Failures are captured in `social_posts.metadata.last_error` with an attempt counter (capped at 5).
-- **Auto-approve cron** `/api/cron/linkedin-autoapprove` (every 6h): flips `queued` posts within 24h of their slot to `approved` (silence = approval).
+- **Posting cron** `/api/cron/linkedin-post` (daily 08:00 UTC, ~10h Paris): publishes `approved` + due posts on Anthony's feed, then posts the `link_in_comment` URL as the first comment. Failures are captured in `social_posts.metadata.last_error` with an attempt counter (capped at 5).
+- **Auto-approve cron** `/api/cron/linkedin-autoapprove` (daily 07:00 UTC): flips `queued` posts within 24h of their slot to `approved` (silence = approval).
 - **Weekly email cron** `/api/cron/linkedin-weekly` (Mondays): refreshes engagement on last week's posts, emails `info@lucid-lab.fr` with this week's queue + last week's reactions/comments.
 - LinkedIn client: `src/lib/admin/linkedin/client.ts` (API calls) + `account.ts` (token storage + refresh).
 
@@ -16,6 +16,9 @@ We post via `/v2/ugcPosts` with a plain-text `shareCommentary`, NOT `/rest/posts
 ### Known follow-ups
 - No `audit_events` row is written per publication yet (no other side-effect flow in this repo writes them either). The `social_posts` row (status / posted_at / post_url / metadata.post_urn) is the per-post trail for now.
 - Impressions stay null (LinkedIn does not expose them for personal posts via API); reactions + comments are pulled.
+
+### Hobby cron constraint (important)
+Vercel **Hobby caps cron jobs at once per day**: any sub-daily schedule makes Vercel **reject the whole deployment** at deploy time (error links to `cron-jobs/usage-and-pricing`). The original build (`df166ac`) shipped `linkedin-post` every 30 min and `linkedin-autoapprove` every 6h, so it **silently failed to deploy**: production stayed on the prior commit (`bf501c1`, which has no connect UI), which for a while looked like an env-var / missing-button bug. Fixed in `2971f56` by making both schedules daily (`linkedin-post` 08:00 UTC, `linkedin-autoapprove` 07:00 UTC; `linkedin-weekly` was already weekly). Consequence: a post publishes at the daily 08:00 UTC run that follows its `scheduled_for`, not the exact minute. To restore 30-min granularity, upgrade Vercel to Pro and revert the two schedules.
 
 ---
 
