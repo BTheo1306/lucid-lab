@@ -1,7 +1,16 @@
 import Link from 'next/link';
+import { config } from '@/lib/bot/config';
 import { listSocialPosts, type SocialPost, type SocialPostStatus } from '@/lib/admin/social';
+import { getLinkedInAccount, type LinkedInAccountSummary } from '@/lib/admin/linkedin/account';
 import { cn } from '@/lib/utils';
 import { EmptyState, LucidOsHeader, StatusBadge, formatAdminDate } from '../components';
+import {
+  approveSocialPostAction,
+  createSocialPostAction,
+  editSocialPostAction,
+  queueSocialPostAction,
+  rejectSocialPostAction,
+} from './actions';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,6 +30,13 @@ const VIEWS: { key: ViewKey; label: string; statuses: SocialPostStatus[]; empty:
   { key: 'postes', label: 'Postés', statuses: ['posted'], empty: 'Aucun post publié pour l’instant.' },
   { key: 'brouillons', label: 'Brouillons', statuses: ['draft', 'rejected', 'skipped'], empty: 'Aucun brouillon.' },
 ];
+
+const BTN_BASE = 'inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors disabled:opacity-50';
+const BTN_PRIMARY = cn(BTN_BASE, 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/20 hover:bg-emerald-500/25');
+const BTN_NEUTRAL = cn(BTN_BASE, 'bg-white/[0.04] text-zinc-300 ring-1 ring-white/10 hover:bg-white/[0.08]');
+const BTN_DANGER = cn(BTN_BASE, 'bg-red-500/10 text-red-300 ring-1 ring-red-400/20 hover:bg-red-500/20');
+const FIELD = 'w-full rounded-md border border-white/10 bg-[#0d0d10] px-3 py-2 text-[13px] text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-white/25';
+const LABEL = 'mb-1 block text-[11px] font-medium uppercase tracking-[0.1em] text-zinc-500';
 
 function statusTone(status: SocialPostStatus): 'neutral' | 'good' | 'warning' | 'danger' {
   switch (status) {
@@ -50,6 +66,11 @@ function bodyWithoutHook(post: SocialPost): string {
   return post.body;
 }
 
+/** ISO -> value accepted by <input type="datetime-local"> (YYYY-MM-DDTHH:mm). */
+function toDateTimeLocal(iso: string | null): string {
+  return iso ? iso.slice(0, 16) : '';
+}
+
 function Metric({ label, value }: { label: string; value: number | null }) {
   return (
     <span className="tabular-nums">
@@ -58,7 +79,89 @@ function Metric({ label, value }: { label: string; value: number | null }) {
   );
 }
 
-function PostCard({ post }: { post: SocialPost }) {
+function HiddenContext({ activeView, postId }: { activeView: ViewKey; postId?: string }) {
+  return (
+    <>
+      <input type="hidden" name="vue" value={activeView} />
+      {postId ? <input type="hidden" name="post_id" value={postId} /> : null}
+    </>
+  );
+}
+
+function PostActions({ post, activeView }: { post: SocialPost; activeView: ViewKey }) {
+  if (post.status === 'posted') {
+    return post.postUrl ? (
+      <a href={post.postUrl} target="_blank" rel="noreferrer" className={BTN_NEUTRAL}>
+        Voir le post ↗
+      </a>
+    ) : null;
+  }
+
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      {post.status === 'queued' ? (
+        <>
+          <form action={approveSocialPostAction}>
+            <HiddenContext activeView={activeView} postId={post.id} />
+            <button type="submit" className={BTN_PRIMARY}>Approuver</button>
+          </form>
+          <form action={rejectSocialPostAction}>
+            <HiddenContext activeView={activeView} postId={post.id} />
+            <button type="submit" className={BTN_DANGER}>Rejeter</button>
+          </form>
+        </>
+      ) : null}
+
+      {post.status === 'approved' ? (
+        <form action={queueSocialPostAction}>
+          <HiddenContext activeView={activeView} postId={post.id} />
+          <button type="submit" className={BTN_NEUTRAL}>Repasser en revue</button>
+        </form>
+      ) : null}
+
+      {post.status === 'draft' || post.status === 'rejected' || post.status === 'skipped' ? (
+        <form action={queueSocialPostAction}>
+          <HiddenContext activeView={activeView} postId={post.id} />
+          <button type="submit" className={BTN_PRIMARY}>Mettre en file</button>
+        </form>
+      ) : null}
+
+      <details className="group">
+        <summary className={cn(BTN_NEUTRAL, 'cursor-pointer list-none')}>Éditer</summary>
+        <form action={editSocialPostAction} className="mt-3 grid gap-3 rounded-lg border border-white/[0.08] bg-[#0b0b0e] p-4">
+          <HiddenContext activeView={activeView} postId={post.id} />
+          <div className="grid gap-3 sm:grid-cols-2">
+            <div>
+              <label className={LABEL}>Pilier</label>
+              <input name="pillar" defaultValue={post.pillar ?? ''} className={FIELD} />
+            </div>
+            <div>
+              <label className={LABEL}>Programmé le</label>
+              <input type="datetime-local" name="scheduled_for" defaultValue={toDateTimeLocal(post.scheduledFor)} className={FIELD} />
+            </div>
+          </div>
+          <div>
+            <label className={LABEL}>Accroche</label>
+            <input name="hook" defaultValue={post.hook ?? ''} className={FIELD} />
+          </div>
+          <div>
+            <label className={LABEL}>Texte du post</label>
+            <textarea name="body" defaultValue={post.body} rows={10} className={cn(FIELD, 'resize-y leading-6')} />
+          </div>
+          <div>
+            <label className={LABEL}>Lien (1er commentaire)</label>
+            <input name="link_in_comment" defaultValue={post.linkInComment ?? ''} className={FIELD} />
+          </div>
+          <div>
+            <button type="submit" className={BTN_PRIMARY}>Enregistrer</button>
+          </div>
+        </form>
+      </details>
+    </div>
+  );
+}
+
+function PostCard({ post, activeView }: { post: SocialPost; activeView: ViewKey }) {
   const dateLabel = post.status === 'posted'
     ? post.postedAt ? `publié le ${formatAdminDate(post.postedAt)}` : 'publié'
     : post.scheduledFor ? `prévu le ${formatAdminDate(post.scheduledFor)}` : 'non planifié';
@@ -89,6 +192,10 @@ function PostCard({ post }: { post: SocialPost }) {
         </p>
       ) : null}
 
+      {post.status === 'rejected' && post.reviewNote ? (
+        <p className="mt-3 text-xs text-red-300/80">Note : {post.reviewNote}</p>
+      ) : null}
+
       {post.status === 'posted' ? (
         <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 border-t border-white/[0.06] pt-3 text-xs">
           <Metric label="impressions" value={post.impressions} />
@@ -98,16 +205,113 @@ function PostCard({ post }: { post: SocialPost }) {
           <Metric label="clics" value={post.clicks} />
         </div>
       ) : null}
+
+      <div className="mt-4 border-t border-white/[0.06] pt-3">
+        <PostActions post={post} activeView={activeView} />
+      </div>
     </article>
   );
 }
 
-export default async function LucidOsSocialPage({ searchParams }: { searchParams?: Promise<{ vue?: string | string[] }> }) {
+function ConnectionBanner({ account }: { account: LinkedInAccountSummary | null }) {
+  const configured = config.linkedinClientId.length > 0;
+
+  if (!configured) {
+    return (
+      <div className="rounded-lg border border-amber-400/20 bg-amber-500/[0.06] p-4 text-[13px] leading-6 text-amber-200/90">
+        <strong className="font-semibold text-amber-100">App LinkedIn non configurée.</strong> Ajoutez les variables
+        d’environnement <code className="rounded bg-black/30 px-1">LINKEDIN_CLIENT_ID</code> et{' '}
+        <code className="rounded bg-black/30 px-1">LINKEDIN_CLIENT_SECRET</code> (Vercel), puis connectez le compte
+        d’Anthony pour activer la publication automatique.
+      </div>
+    );
+  }
+
+  const connected = account && account.status === 'active';
+  const needsReauth = account && account.status === 'needs_reauth';
+
+  return (
+    <div className={cn(
+      'flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-[13px]',
+      connected ? 'border-emerald-400/20 bg-emerald-500/[0.05]' : 'border-white/[0.08] bg-white/[0.02]',
+    )}>
+      <div className="min-w-0 leading-6">
+        {connected ? (
+          <span className="text-emerald-200/90">
+            <strong className="font-semibold text-emerald-100">LinkedIn connecté</strong>
+            {account?.memberName ? ` · ${account.memberName}` : ''}. Les posts approuvés se publient automatiquement à l’heure prévue.
+          </span>
+        ) : needsReauth ? (
+          <span className="text-amber-200/90">
+            <strong className="font-semibold text-amber-100">Reconnexion LinkedIn requise.</strong>{' '}
+            {account?.lastError ?? 'Le jeton a expiré.'}
+          </span>
+        ) : (
+          <span className="text-zinc-300">
+            <strong className="font-semibold text-zinc-100">LinkedIn non connecté.</strong> Connectez le profil d’Anthony
+            pour publier automatiquement après validation.
+          </span>
+        )}
+      </div>
+      <a href="/admin/integrations/linkedin/connect" className={connected ? BTN_NEUTRAL : BTN_PRIMARY}>
+        {connected ? 'Reconnecter' : 'Connecter LinkedIn'}
+      </a>
+    </div>
+  );
+}
+
+function NewPostForm({ activeView }: { activeView: ViewKey }) {
+  return (
+    <details className="rounded-lg border border-white/[0.08] bg-white/[0.02]">
+      <summary className="cursor-pointer list-none px-4 py-3 text-[13px] font-medium text-zinc-200 hover:text-white">
+        + Nouveau post
+      </summary>
+      <form action={createSocialPostAction} className="grid gap-3 border-t border-white/[0.06] p-4">
+        <HiddenContext activeView={activeView} />
+        <div className="grid gap-3 sm:grid-cols-3">
+          <div>
+            <label className={LABEL}>Auteur</label>
+            <input name="author_label" defaultValue="Anthony Poirier" className={FIELD} />
+          </div>
+          <div>
+            <label className={LABEL}>Pilier</label>
+            <input name="pillar" placeholder="ai-readiness" className={FIELD} />
+          </div>
+          <div>
+            <label className={LABEL}>Programmé le</label>
+            <input type="datetime-local" name="scheduled_for" className={FIELD} />
+          </div>
+        </div>
+        <div>
+          <label className={LABEL}>Accroche</label>
+          <input name="hook" placeholder="La phrase d’ouverture qui arrête le scroll" className={FIELD} />
+        </div>
+        <div>
+          <label className={LABEL}>Texte du post</label>
+          <textarea name="body" rows={8} placeholder="Le contenu complet du post LinkedIn…" className={cn(FIELD, 'resize-y leading-6')} />
+        </div>
+        <div>
+          <label className={LABEL}>Lien (1er commentaire)</label>
+          <input name="link_in_comment" placeholder="https://lucid-lab.fr/audit-flash" className={FIELD} />
+        </div>
+        <div>
+          <button type="submit" className={BTN_PRIMARY}>Créer le brouillon</button>
+        </div>
+      </form>
+    </details>
+  );
+}
+
+export default async function LucidOsSocialPage({
+  searchParams,
+}: {
+  searchParams?: Promise<{ vue?: string | string[]; linkedin_connected?: string; linkedin_error?: string }>;
+}) {
   const resolved = searchParams ? await searchParams : {};
   const rawView = Array.isArray(resolved.vue) ? resolved.vue[0] : resolved.vue;
   const activeView: ViewKey = VIEWS.some((v) => v.key === rawView) ? (rawView as ViewKey) : 'a-valider';
 
-  const posts = await listSocialPosts(200);
+  const [posts, account] = await Promise.all([listSocialPosts(200), getLinkedInAccount()]);
   const countFor = (view: (typeof VIEWS)[number]) => posts.filter((p) => view.statuses.includes(p.status)).length;
 
   const active = VIEWS.find((v) => v.key === activeView)!;
@@ -119,9 +323,24 @@ export default async function LucidOsSocialPage({ searchParams }: { searchParams
     <div className="grid gap-6">
       <LucidOsHeader title="LinkedIn" />
 
-      <p className="-mt-2 max-w-2xl text-sm leading-6 text-zinc-500">
-        « À valider » est la file de la semaine. Modifiez ou rejetez ce qui doit l’être ; sans retour de votre part, les posts sont publiés (le silence vaut accord). Les posts publiés affichent leurs métriques.
+      {resolved.linkedin_connected ? (
+        <div className="rounded-lg border border-emerald-400/20 bg-emerald-500/[0.06] p-3 text-[13px] text-emerald-200/90">
+          Compte LinkedIn connecté.
+        </div>
+      ) : null}
+      {resolved.linkedin_error ? (
+        <div className="rounded-lg border border-red-400/20 bg-red-500/[0.06] p-3 text-[13px] text-red-200/90">
+          Connexion LinkedIn échouée : {resolved.linkedin_error}
+        </div>
+      ) : null}
+
+      <ConnectionBanner account={account} />
+
+      <p className="-mt-1 max-w-2xl text-sm leading-6 text-zinc-500">
+        « À valider » est la file de la semaine. Modifiez ou rejetez ce qui doit l’être ; sans retour de votre part, les posts sont approuvés puis publiés à l’heure prévue (le silence vaut accord). Les posts publiés affichent leurs métriques.
       </p>
+
+      <NewPostForm activeView={activeView} />
 
       <div className="flex flex-wrap gap-2">
         {VIEWS.map((view) => {
@@ -148,7 +367,7 @@ export default async function LucidOsSocialPage({ searchParams }: { searchParams
         <EmptyState>{active.empty}</EmptyState>
       ) : (
         <div className="grid gap-3">
-          {visiblePosts.map((post) => <PostCard key={post.id} post={post} />)}
+          {visiblePosts.map((post) => <PostCard key={post.id} post={post} activeView={activeView} />)}
         </div>
       )}
     </div>

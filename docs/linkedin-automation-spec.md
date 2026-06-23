@@ -1,5 +1,26 @@
 # LinkedIn automation: build spec
 
+Status: BUILT (2026-06-23). The full pipeline ships in the codebase. What remains is operational: set the env vars and have Anthony authorize once (see "Go-live checklist" at the bottom).
+
+## What shipped
+- **Validate in the CRM** (`/admin/lucid-os/social`): approve / reject / re-queue / edit, plus "Nouveau post". Server actions in `src/app/admin/(dashboard)/lucid-os/social/actions.ts`.
+- **OAuth connect** at `/admin/integrations/linkedin/connect` (+ `/callback`). Lives under `/admin` so the admin session cookie reaches it; CSRF-protected with a `state` cookie. Tokens stored in `integration_accounts.metadata` (service-role only), parent `integrations` row created lazily.
+- **Posting cron** `/api/cron/linkedin-post` (every 30 min): publishes `approved` + due posts on Anthony's feed, then posts the `link_in_comment` URL as the first comment. Failures are captured in `social_posts.metadata.last_error` with an attempt counter (capped at 5).
+- **Auto-approve cron** `/api/cron/linkedin-autoapprove` (every 6h): flips `queued` posts within 24h of their slot to `approved` (silence = approval).
+- **Weekly email cron** `/api/cron/linkedin-weekly` (Mondays): refreshes engagement on last week's posts, emails `info@lucid-lab.fr` with this week's queue + last week's reactions/comments.
+- LinkedIn client: `src/lib/admin/linkedin/client.ts` (API calls) + `account.ts` (token storage + refresh).
+
+### Posting endpoint decision
+We post via `/v2/ugcPosts` with a plain-text `shareCommentary`, NOT `/rest/posts`. The newer `commentary` field requires backslash-escaping reserved characters `( ) [ ] { } < > # * _ ~ | @`, and our French copy is full of parentheses and punctuation. ugcPosts takes raw UTF-8. If LinkedIn ever rejects ugcPosts for this app, the fallback is `/rest/posts` plus a commentary escaper; the first real post will surface this (the error lands in the post's `metadata.last_error`, visible in the CRM).
+
+### Known follow-ups
+- No `audit_events` row is written per publication yet (no other side-effect flow in this repo writes them either). The `social_posts` row (status / posted_at / post_url / metadata.post_urn) is the per-post trail for now.
+- Impressions stay null (LinkedIn does not expose them for personal posts via API); reactions + comments are pulled.
+
+---
+
+(Original spec below, kept for reference.)
+
 Status: decided, not yet built. Next phase after the `social_posts` content page (live at `/admin/lucid-os/social`).
 
 ## Decisions (Jules, 2026-06-23)
@@ -40,3 +61,27 @@ Uses the existing `social_posts` table (migration `20260622150000`). Status flow
 3. Posting cron + first comment.
 4. Metrics fetch + weekly email.
 5. Auto-approve (silence = approval) cron.
+
+---
+
+## Go-live checklist (operational)
+
+1. **In Anthony's LinkedIn Developer app** (developer.linkedin.com):
+   - Products enabled: "Share on LinkedIn" (grants `w_member_social`) and "Sign In with LinkedIn using OpenID Connect" (grants `openid profile email`).
+   - Authorized redirect URL (exact match): `https://lucid-lab.fr/admin/integrations/linkedin/callback`
+     - If the admin runs on another domain, set `LINKEDIN_REDIRECT_URI` to match and register that value instead.
+
+2. **Env vars** (Vercel project, production; mirror locally for testing):
+   - `LINKEDIN_CLIENT_ID`
+   - `LINKEDIN_CLIENT_SECRET`
+   - `LINKEDIN_REDIRECT_URI` (optional; defaults to the URL above)
+   - `CRON_SECRET` (already used by the existing crons; confirm it is set)
+   - SMTP vars + `TEAM_NOTIFICATION_EMAIL` already default to `info@lucid-lab.fr`.
+
+3. **Connect once**: from `/admin/lucid-os/social`, while logged into the admin AND into LinkedIn as Anthony, click "Connecter LinkedIn" and authorize. The banner turns green.
+
+4. **Verify**: the seeded posts are `queued` and scheduled 3 to 12 days out, so nothing publishes immediately. To smoke-test, create a draft, set its time a few minutes out, approve it, and wait for the posting cron (or hit the cron endpoint with the `CRON_SECRET` bearer).
+
+Notes:
+- LinkedIn member access tokens last about 60 days. If no refresh token is issued for the app, the banner will show "Reconnexion requise" when the token lapses and Anthony just clicks "Reconnecter".
+- Tokens are stored in `integration_accounts.metadata` (service-role only). For stricter hygiene later, move them to Infisical/Doppler and keep only a `secret_ref`.

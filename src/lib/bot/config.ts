@@ -111,6 +111,11 @@ export const config = {
   googleDriveImpersonatedUser: process.env['GOOGLE_DRIVE_IMPERSONATED_USER'] ?? '',
   googleDriveRootFolderId: process.env['GOOGLE_DRIVE_ROOT_FOLDER_ID'] ?? '',
 
+  // LinkedIn (member posting via "Share on LinkedIn" w_member_social + OpenID Connect)
+  linkedinClientId: process.env['LINKEDIN_CLIENT_ID'] ?? '',
+  linkedinClientSecret: process.env['LINKEDIN_CLIENT_SECRET'] ?? '',
+  linkedinRedirectUri: optionalEnv('LINKEDIN_REDIRECT_URI', 'https://lucid-lab.fr/admin/integrations/linkedin/callback'),
+
   // Billing
   billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '0.20')),
 } // No 'as const' — incompatible with getter properties above

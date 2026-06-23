@@ -201,6 +201,51 @@ export async function sendMorningDigest(input: {
   });
 }
 
+/** Weekly LinkedIn digest: this week's queue + last week's performance. */
+export async function sendLinkedInWeeklyDigest(input: {
+  adminUrl: string;
+  upcoming: { dateLabel: string; pillar: string | null; title: string; statusLabel: string }[];
+  recent: { title: string; postUrl: string | null; reactions: number | null; comments: number | null }[];
+}): Promise<void> {
+  const upcomingHtml = input.upcoming.length
+    ? `<ul>${input.upcoming
+        .map(
+          (p) =>
+            `<li><strong>${escapeHtml(p.dateLabel)}</strong>${
+              p.pillar ? ` (${escapeHtml(p.pillar)})` : ''
+            } : ${escapeHtml(p.title)} <em style="color:#888;">[${escapeHtml(p.statusLabel)}]</em></li>`,
+        )
+        .join('')}</ul>`
+    : '<p>Aucun post programmé cette semaine.</p>';
+
+  const recentHtml = input.recent.length
+    ? `<ul>${input.recent
+        .map((p) => {
+          const stats = `${p.reactions ?? 0} réactions, ${p.comments ?? 0} commentaires`;
+          const link = p.postUrl ? ` (<a href="${escapeHtml(p.postUrl)}">voir</a>)` : '';
+          return `<li>${escapeHtml(p.title)} : ${stats}${link}</li>`;
+        })
+        .join('')}</ul>`
+    : '<p>Aucun post publié la semaine dernière.</p>';
+
+  const html = `
+    <h2>LinkedIn : la semaine</h2>
+    <p>Voici les posts prévus cette semaine et la performance des posts publiés la semaine dernière. Sans action de votre part, les posts en file sont approuvés puis publiés à l'heure prévue (le silence vaut accord).</p>
+    <p><a href="${escapeHtml(input.adminUrl)}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:6px;">Gérer les posts dans Lucid OS</a></p>
+    <h3>À venir cette semaine (${input.upcoming.length})</h3>
+    ${upcomingHtml}
+    <h3>Publiés la semaine dernière (${input.recent.length})</h3>
+    ${recentHtml}
+    <p style="color:#666;font-size:12px;">Les impressions ne sont pas exposées par l'API LinkedIn pour les posts personnels. Réactions et commentaires, eux, sont fiables.</p>
+  `;
+
+  await sendEmail({
+    to: config.teamNotificationEmail,
+    subject: '[Lucid-Lab] LinkedIn : posts de la semaine',
+    html,
+  });
+}
+
 export async function sendDocumentSignatureRequest(input: {
   to: string;
   signerName?: string | null;
