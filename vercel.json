@@ -14,11 +14,11 @@
     },
     {
       "path": "/api/cron/linkedin-autoapprove",
-      "schedule": "0 */6 * * *"
+      "schedule": "0 7 * * *"
     },
     {
       "path": "/api/cron/linkedin-post",
-      "schedule": "*/30 * * * *"
+      "schedule": "0 8 * * *"
     },
     {
       "path": "/api/cron/linkedin-weekly",
