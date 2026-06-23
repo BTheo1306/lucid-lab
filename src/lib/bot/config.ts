@@ -118,6 +118,10 @@ export const config = {
 
   // Billing
   billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '0.20')),
+
+  // Dougs (accounting sync)
+  dougsSessionCookie: process.env['DOUGS_SESSION_COOKIE'] ?? '',
+  dougsCompanyId: optionalEnv('DOUGS_COMPANY_ID', '246248'),
 } // No 'as const' — incompatible with getter properties above
 
 export type Config = typeof config;
