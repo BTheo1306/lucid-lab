@@ -24,14 +24,16 @@ export function StatCard({
   value,
   hint,
   icon: Icon,
+  href,
 }: {
   label: string;
   value: string | number;
   hint: string;
   icon: ComponentType<{ className?: string }>;
+  href?: string;
 }) {
-  return (
-    <div className="border-t border-white/10 py-4">
+  const inner = (
+    <>
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">{label}</p>
@@ -40,8 +42,21 @@ export function StatCard({
         <Icon className="mt-1 size-4 shrink-0 text-zinc-600" />
       </div>
       <p className="mt-3 text-sm text-zinc-500">{hint}</p>
-    </div>
+    </>
   );
+
+  if (href) {
+    return (
+      <a
+        href={href}
+        className="block border-t border-white/10 py-4 transition-colors hover:border-white/20 hover:bg-white/[0.02] rounded-sm -mx-2 px-2"
+      >
+        {inner}
+      </a>
+    );
+  }
+
+  return <div className="border-t border-white/10 py-4">{inner}</div>;
 }
 
 export function Section({
