@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { config } from '@/lib/bot/config';
 import { listSocialPosts, type SocialPost, type SocialPostStatus } from '@/lib/admin/social';
 import { getLinkedInAccount, type LinkedInAccountSummary } from '@/lib/admin/linkedin/account';
+import { blogPublicUrl, getBlogVersionsBySocialPostIds, type BlogStatus, type BlogVersionRef } from '@/lib/admin/blog';
 import { cn } from '@/lib/utils';
 import { EmptyState, LucidOsHeader, StatusBadge, formatAdminDate } from '../components';
 import {
@@ -21,6 +22,17 @@ const STATUS_LABELS: Record<SocialPostStatus, string> = {
   posted: 'publié',
   rejected: 'rejeté',
   skipped: 'passé',
+};
+
+const BLOG_STATUS_LABELS: Record<BlogStatus, string> = {
+  idea: 'idée',
+  draft: 'brouillon',
+  queued: 'à valider',
+  approved: 'approuvé',
+  scheduled: 'programmé',
+  published: 'publié',
+  archived: 'archivé',
+  rejected: 'rejeté',
 };
 
 type ViewKey = 'a-valider' | 'postes' | 'brouillons';
@@ -161,7 +173,7 @@ function PostActions({ post, activeView }: { post: SocialPost; activeView: ViewK
   );
 }
 
-function PostCard({ post, activeView }: { post: SocialPost; activeView: ViewKey }) {
+function PostCard({ post, activeView, blogVersion }: { post: SocialPost; activeView: ViewKey; blogVersion?: BlogVersionRef }) {
   const dateLabel = post.status === 'posted'
     ? post.postedAt ? `publié le ${formatAdminDate(post.postedAt)}` : 'publié'
     : post.scheduledFor ? `prévu le ${formatAdminDate(post.scheduledFor)}` : 'non planifié';
@@ -189,6 +201,23 @@ function PostCard({ post, activeView }: { post: SocialPost; activeView: ViewKey 
       {post.linkInComment ? (
         <p className="mt-3 text-xs text-zinc-500">
           Lien (1er commentaire) : <span className="text-zinc-300">{post.linkInComment}</span>
+        </p>
+      ) : null}
+
+      {blogVersion ? (
+        <p className="mt-2 text-xs text-zinc-500">
+          Version blog :{' '}
+          <Link href={`/admin/blog/${blogVersion.id}/edit`} className="text-zinc-300 underline-offset-2 hover:underline">
+            {BLOG_STATUS_LABELS[blogVersion.status]}
+          </Link>
+          {blogVersion.status === 'published' && blogVersion.slug ? (
+            <>
+              {' · '}
+              <a href={blogPublicUrl(blogVersion.locale, blogVersion.slug)} target="_blank" rel="noreferrer" className="text-zinc-300 underline-offset-2 hover:underline">
+                voir ↗
+              </a>
+            </>
+          ) : null}
         </p>
       ) : null}
 
@@ -312,6 +341,7 @@ export default async function LucidOsSocialPage({
   const activeView: ViewKey = VIEWS.some((v) => v.key === rawView) ? (rawView as ViewKey) : 'a-valider';
 
   const [posts, account] = await Promise.all([listSocialPosts(200), getLinkedInAccount()]);
+  const blogVersions = await getBlogVersionsBySocialPostIds(posts.map((p) => p.id));
   const countFor = (view: (typeof VIEWS)[number]) => posts.filter((p) => view.statuses.includes(p.status)).length;
 
   const active = VIEWS.find((v) => v.key === activeView)!;
@@ -367,7 +397,7 @@ export default async function LucidOsSocialPage({
         <EmptyState>{active.empty}</EmptyState>
       ) : (
         <div className="grid gap-3">
-          {visiblePosts.map((post) => <PostCard key={post.id} post={post} activeView={activeView} />)}
+          {visiblePosts.map((post) => <PostCard key={post.id} post={post} activeView={activeView} blogVersion={blogVersions[post.id]} />)}
         </div>
       )}
     </div>

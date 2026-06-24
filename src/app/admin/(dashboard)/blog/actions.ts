@@ -6,9 +6,33 @@ import { redirect } from 'next/navigation';
 import { isAdminAuthenticated } from '@/lib/admin/auth';
 import { supabase } from '@/lib/bot/db/supabase';
 import type { BlogLocale, BlogStatus } from '@/lib/admin/blog';
+import { blogPublicUrl, setBlogPostStatus } from '@/lib/admin/blog';
+import { setLinkInComment } from '@/lib/admin/social';
 import { generateBlogContent, slugify } from '@/lib/admin/blog-content-generator';
 
-const STATUSES: readonly BlogStatus[] = ['idea', 'draft', 'scheduled', 'published', 'archived'];
+const STATUSES: readonly BlogStatus[] = [
+  'idea',
+  'draft',
+  'queued',
+  'approved',
+  'scheduled',
+  'published',
+  'archived',
+  'rejected',
+];
+const BLOG_PATH = '/admin/blog';
+const BLOG_VIEWS = new Set(['a-valider', 'publies', 'brouillons']);
+
+function blogReturnTo(fd: FormData): string {
+  const vue = str(fd, 'vue');
+  return BLOG_VIEWS.has(vue) ? `${BLOG_PATH}?vue=${vue}` : BLOG_PATH;
+}
+
+function requireId(fd: FormData): string {
+  const id = str(fd, 'id');
+  if (!id) throw new Error('Missing id');
+  return id;
+}
 const LOCALES: readonly BlogLocale[] = ['fr', 'en'];
 const CATEGORIES = ['automatisation', 'ia-pme', 'outils-internes', 'methode'];
 const FUNNEL = ['TOFU', 'MOFU', 'BOFU'];
@@ -220,7 +244,7 @@ export async function publishNowAction(formData: FormData): Promise<void> {
 
   const { data: existing, error: readErr } = await supabase
     .from('blog_posts')
-    .select('locale,slug,published_at')
+    .select('locale,slug,published_at,social_post_id')
     .eq('id', id)
     .maybeSingle();
   if (readErr) throw new Error(`publishNow: ${readErr.message}`);
@@ -234,6 +258,17 @@ export async function publishNowAction(formData: FormData): Promise<void> {
     })
     .eq('id', id);
   if (error) throw new Error(`publishNow: ${error.message}`);
+
+  // Point the linked LinkedIn post at the article (the "raccord"), best effort.
+  const socialPostId = (existing as { social_post_id?: string | null } | null)?.social_post_id ?? null;
+  const slug = existing?.slug as string | null;
+  if (socialPostId && slug) {
+    try {
+      await setLinkInComment(socialPostId, blogPublicUrl((existing?.locale as BlogLocale) ?? 'fr', slug));
+    } catch (err) {
+      console.error('[publishNow] setLinkInComment failed:', (err as Error).message);
+    }
+  }
 
   revalidatePath('/admin/blog');
   if (existing) revalidatePublicBlog(existing.locale as BlogLocale, existing.slug as string | null);
@@ -258,4 +293,45 @@ export async function archivePostAction(formData: FormData): Promise<void> {
 
   revalidatePath('/admin/blog');
   if (existing) revalidatePublicBlog(existing.locale as BlogLocale, existing.slug as string | null);
+}
+
+// =============================================================================
+// LinkedIn-style validation actions (cockpit) — mirror lucid-os/social/actions
+// =============================================================================
+
+export async function approveBlogPostAction(formData: FormData): Promise<void> {
+  await requireAdminAction();
+  await setBlogPostStatus(requireId(formData), 'approved', null);
+  revalidatePath(BLOG_PATH);
+  redirect(blogReturnTo(formData));
+}
+
+export async function rejectBlogPostAction(formData: FormData): Promise<void> {
+  await requireAdminAction();
+  await setBlogPostStatus(requireId(formData), 'rejected', strOrNull(formData, 'review_note'));
+  revalidatePath(BLOG_PATH);
+  redirect(blogReturnTo(formData));
+}
+
+export async function queueBlogPostAction(formData: FormData): Promise<void> {
+  await requireAdminAction();
+  const id = requireId(formData);
+
+  // A queued post must carry a scheduled_for (schedule constraint). Default a
+  // few days out when missing so "silence = approval" has a review window.
+  const { data } = await supabase
+    .from('blog_posts')
+    .select('scheduled_for')
+    .eq('id', id)
+    .maybeSingle();
+  const existing = (data as { scheduled_for: string | null } | null)?.scheduled_for ?? null;
+
+  const update: Record<string, unknown> = { status: 'queued', review_note: null };
+  if (!existing) update.scheduled_for = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000).toISOString();
+
+  const { error } = await supabase.from('blog_posts').update(update).eq('id', id);
+  if (error) throw new Error(`queueBlogPost: ${error.message}`);
+
+  revalidatePath(BLOG_PATH);
+  redirect(blogReturnTo(formData));
 }

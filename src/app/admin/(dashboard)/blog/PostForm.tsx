@@ -32,9 +32,11 @@ function toDateInputValue(iso: string | null): string {
 const STATUS_OPTIONS = [
   { value: 'idea', label: 'Idée' },
   { value: 'draft', label: 'Brouillon' },
-  { value: 'scheduled', label: 'Programmé' },
+  { value: 'queued', label: 'À valider' },
+  { value: 'approved', label: 'Approuvé' },
   { value: 'published', label: 'Publié' },
   { value: 'archived', label: 'Archivé' },
+  { value: 'rejected', label: 'Rejeté' },
 ];
 
 const FUNNEL_OPTIONS = [
@@ -56,6 +58,22 @@ export function PostForm({ post }: PostFormProps) {
     <div className="grid gap-6">
       <form id="blog-post-form" action={action} className="grid gap-6">
         {isEdit ? <input type="hidden" name="id" value={post.id} /> : null}
+
+      {post?.social_post_id ? (
+        <p className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm text-sky-800">
+          Version longue d’un{' '}
+          <Link href="/admin/lucid-os/social" className="font-medium underline underline-offset-2">
+            post LinkedIn
+          </Link>
+          . À la publication, le post LinkedIn pointera automatiquement vers cet article.
+        </p>
+      ) : null}
+
+      {post?.status === 'rejected' && post?.review_note ? (
+        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+          Rejeté : {post.review_note}
+        </p>
+      ) : null}
 
       <div className="grid gap-4 rounded-xl border border-zinc-200 bg-white p-5 shadow-sm md:grid-cols-2">
         <label className="md:col-span-2">

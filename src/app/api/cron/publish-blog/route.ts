@@ -1,8 +1,15 @@
 import { NextResponse } from 'next/server';
+import { revalidatePath } from 'next/cache';
 
 import { config } from '@/lib/bot/config';
-import { supabase } from '@/lib/bot/db/supabase';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
+import {
+  autoApproveDueBlogPosts,
+  blogPublicUrl,
+  listPublishableBlogPosts,
+  markBlogPostPublished,
+} from '@/lib/admin/blog';
+import { setLinkInComment } from '@/lib/admin/social';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -14,47 +21,57 @@ function isAuthorized(req: Request): boolean {
 
 /**
  * GET /api/cron/publish-blog
- * Flips `scheduled` posts whose `scheduled_for <= now()` to `published`.
+ * Mirrors the LinkedIn flow for the blog:
+ *   1. "Silence = approval": flip `queued` posts within 24h of their slot to `approved`.
+ *   2. Publish `approved` posts whose `scheduled_for <= now()`.
+ *   3. For each published article linked to a LinkedIn post, point that post's
+ *      first-comment link at the freshly published article URL (the "raccord").
  */
 export async function GET(req: Request) {
   if (!isAuthorized(req)) {
-    await logSecurityEvent({
-      event_type: 'cron_unauthorized',
-      details: { route: 'publish-blog' },
-    });
+    await logSecurityEvent({ event_type: 'cron_unauthorized', details: { route: 'publish-blog' } });
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
-  const nowIso = new Date().toISOString();
+  // 1. Silence = approval.
+  const autoApproved = await autoApproveDueBlogPosts(24);
 
-  const { data: due, error: readErr } = await supabase
-    .from('blog_posts')
-    .select('id,slug,locale,scheduled_for')
-    .eq('status', 'scheduled')
-    .lte('scheduled_for', nowIso);
-
-  if (readErr) {
-    return NextResponse.json({ error: readErr.message }, { status: 500 });
+  // 2. Publish what is due.
+  const due = await listPublishableBlogPosts();
+  if (due.length === 0) {
+    return NextResponse.json({ ok: true, autoApproved, published: 0 });
   }
 
-  const toPublish = due ?? [];
-  if (toPublish.length === 0) {
-    return NextResponse.json({ ok: true, published: 0 });
+  const published: { id: string; slug: string | null; locale: string; linkedSocialPostId: string | null }[] = [];
+
+  for (const post of due) {
+    await markBlogPostPublished(post.id);
+
+    // 3. Point the linked LinkedIn post at the article (best effort, non-fatal).
+    if (post.social_post_id && post.slug) {
+      try {
+        await setLinkInComment(post.social_post_id, blogPublicUrl(post.locale, post.slug));
+      } catch (err) {
+        console.error('[publish-blog] setLinkInComment failed:', (err as Error).message);
+      }
+    }
+
+    // Refresh the public pages so the article shows immediately.
+    if (post.locale === 'en') {
+      revalidatePath('/en/blog');
+      if (post.slug) revalidatePath(`/en/blog/${post.slug}`);
+    } else {
+      revalidatePath('/blog');
+      if (post.slug) revalidatePath(`/blog/${post.slug}`);
+    }
+
+    published.push({
+      id: post.id,
+      slug: post.slug,
+      locale: post.locale,
+      linkedSocialPostId: post.social_post_id,
+    });
   }
 
-  const ids = toPublish.map((p) => p.id);
-  const { error: updErr } = await supabase
-    .from('blog_posts')
-    .update({ status: 'published', published_at: nowIso })
-    .in('id', ids);
-
-  if (updErr) {
-    return NextResponse.json({ error: updErr.message }, { status: 500 });
-  }
-
-  return NextResponse.json({
-    ok: true,
-    published: toPublish.length,
-    posts: toPublish.map((p) => ({ id: p.id, slug: p.slug, locale: p.locale })),
-  });
+  return NextResponse.json({ ok: true, autoApproved, published: published.length, posts: published });
 }

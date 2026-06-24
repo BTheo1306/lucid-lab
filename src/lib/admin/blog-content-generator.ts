@@ -13,6 +13,8 @@ export interface BlogGenerationInput {
   locale: 'fr' | 'en';
   notes: string | null;
   isPillar: boolean;
+  /** When set, the article is the long-form expansion of this LinkedIn post. */
+  sourceText?: string | null;
 }
 
 export interface BlogGenerationOutput {
@@ -125,6 +127,17 @@ function buildUserPrompt(input: BlogGenerationInput, existingPosts: ExistingPost
   if (input.isPillar) lines.push('Type : article PILIER (plus exhaustif, ~1800 mots, vise à devenir une référence sur le sujet)');
   if (input.notes) lines.push('', `Notes éditoriales : ${input.notes}`);
 
+  if (input.sourceText && input.sourceText.trim()) {
+    lines.push('');
+    lines.push(
+      'Cet article est la version longue du post LinkedIn ci-dessous. Garde son angle, sa thèse et ses exemples, mais approfondis vraiment : pose le contexte, développe chaque point, ajoute des exemples chiffrés, des nuances et une structure complète. Ne te contente pas de paraphraser le post.',
+    );
+    lines.push('');
+    lines.push('--- Post LinkedIn source ---');
+    lines.push(input.sourceText.trim());
+    lines.push('--- Fin du post source ---');
+  }
+
   if (existingPosts.length > 0) {
     const blogBase = input.locale === 'fr' ? '/blog' : '/en/blog';
     lines.push('');
@@ -203,4 +216,49 @@ export async function generateBlogContent(input: BlogGenerationInput): Promise<B
   const description = input.description ?? cleaned.split('\n').find((l) => l.trim())?.slice(0, 180).trim() ?? input.title;
 
   return { content: cleaned, description };
+}
+
+// =============================================================================
+// LinkedIn post -> blog generation input
+// =============================================================================
+
+/** Map a LinkedIn content pillar onto a blog category (best effort, defaults to methode). */
+function categoryFromPillar(pillar: string | null): string {
+  const p = (pillar ?? '').toLowerCase();
+  if (p.includes('automat')) return 'automatisation';
+  if (p.includes('outil') || p.includes('tool') || p.includes('interne')) return 'outils-internes';
+  if (p.includes('pme') || p.includes('sme')) return 'ia-pme';
+  // ai-readiness, gouvernance, opinion, poc-graveyard, ... -> methodology bucket
+  return 'methode';
+}
+
+/** Derive a blog-worthy title from a LinkedIn hook (or the first line of the body). */
+function deriveTitle(hook: string | null, body: string): string {
+  const raw = (hook && hook.trim()) || body.split('\n').map((l) => l.trim()).find(Boolean) || 'Article';
+  // Keep the first sentence, drop trailing punctuation/ellipsis.
+  const firstSentence = raw.split(/(?<=[.!?])\s/)[0].trim();
+  const base = firstSentence.replace(/[.!?…:]+$/u, '').trim();
+  if (base.length <= 70) return base;
+  const cut = base.slice(0, 70);
+  const lastSpace = cut.lastIndexOf(' ');
+  return (lastSpace > 30 ? cut.slice(0, lastSpace) : cut).trim();
+}
+
+/** Build a generation input that expands a LinkedIn post into a long-form article. */
+export function blogInputFromSocialPost(post: {
+  hook: string | null;
+  body: string;
+  pillar: string | null;
+}): BlogGenerationInput {
+  return {
+    title: deriveTitle(post.hook, post.body),
+    description: null,
+    category: categoryFromPillar(post.pillar),
+    tags: post.pillar ? [post.pillar] : [],
+    funnelStage: null,
+    locale: 'fr',
+    notes: null,
+    isPillar: false,
+    sourceText: post.body,
+  };
 }

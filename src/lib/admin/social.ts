@@ -163,6 +163,12 @@ export async function setSocialPostStatus(
   if (error) throw new Error(error.message);
 }
 
+/** Set the URL posted as the first comment (used to point a post at its blog article). */
+export async function setLinkInComment(id: string, url: string): Promise<void> {
+  const { error } = await supabase.from('social_posts').update({ link_in_comment: url }).eq('id', id);
+  if (error) throw new Error(error.message);
+}
+
 /** Posts the cron should publish: approved, due, LinkedIn, under the retry cap. */
 export async function listPostablePosts(
   maxAttempts = 5,
