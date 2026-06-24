@@ -83,37 +83,35 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
   if (!organizationId) return empty;
 
   const [clientsRes, oppsRes, billingRes] = await Promise.all([
-    supabase.from('clients').select('status').eq('organization_id', organizationId),
+    supabase.from('clients').select('id,name,status').eq('organization_id', organizationId),
     supabase
       .from('client_opportunities')
-      .select('stage,status,monthly_value_eur,value_estimate_eur,closed_at,clients(name)')
+      .select('stage,status,monthly_value_eur,value_estimate_eur,closed_at,client_id')
       .eq('organization_id', organizationId),
     supabase
       .from('client_billing_events')
-      .select('billing_status,amount_ttc_eur,occurred_at,metadata,clients(name)')
+      .select('billing_status,amount_ttc_eur,occurred_at,metadata,client_id')
       .eq('organization_id', organizationId),
   ]);
 
-  const clients = (clientsRes.data ?? []) as Array<{ status: string | null }>;
-  const opps = (oppsRes.data ?? []) as unknown as Array<{
+  const clients = (clientsRes.data ?? []) as Array<{ id: string; name: string; status: string | null }>;
+  const opps = (oppsRes.data ?? []) as Array<{
     stage: string | null;
     status: string | null;
     monthly_value_eur: number | string | null;
     value_estimate_eur: number | string | null;
     closed_at: string | null;
-    clients: { name: string }[] | null;
+    client_id: string | null;
   }>;
-  const billing = (billingRes.data ?? []) as unknown as Array<{
+  const billing = (billingRes.data ?? []) as Array<{
     billing_status: string | null;
     amount_ttc_eur: number | string | null;
     occurred_at: string | null;
     metadata: Record<string, unknown> | null;
-    clients: { name: string }[] | null;
+    client_id: string | null;
   }>;
 
-  function clientName(c: { name: string }[] | null): string {
-    return c?.[0]?.name ?? 'Client inconnu';
-  }
+  const clientById = new Map(clients.map((c) => [c.id, c.name]));
 
   const wonOpps = opps.filter((o) => o.status === 'won');
   const paidBilling = billing.filter((b) => b.billing_status === 'paid');
@@ -174,7 +172,7 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
 
   const mrrDetail: MrrRow[] = wonOpps
     .map((o) => ({
-      clientName: clientName(o.clients),
+      clientName: clientById.get(o.client_id ?? '') ?? 'Client inconnu',
       monthlyValueEur: toNumber(o.monthly_value_eur),
       closedAt: o.closed_at,
     }))
@@ -182,7 +180,7 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
 
   const collectedDetail: CollectedRow[] = paidBilling
     .map((b) => ({
-      clientName: clientName(b.clients),
+      clientName: clientById.get(b.client_id ?? '') ?? 'Client inconnu',
       amountTtcEur: toNumber(b.amount_ttc_eur),
       occurredAt: b.occurred_at,
       dougsRef: (b.metadata?.dougs_reference as string | null) ?? null,
@@ -192,7 +190,7 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
   const pipelineDetail: PipelineRow[] = opps
     .filter((o) => o.status === 'open')
     .map((o) => ({
-      clientName: clientName(o.clients),
+      clientName: clientById.get(o.client_id ?? '') ?? 'Client inconnu',
       stage: o.stage ?? 'new',
       stageLabel: STAGE_LABELS[o.stage ?? 'new'] ?? (o.stage ?? 'new'),
       valueEstimateEur: toNumber(o.value_estimate_eur),
