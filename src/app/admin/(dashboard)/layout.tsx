@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { Bot, LogOut, ShieldCheck } from 'lucide-react';
+import Image from 'next/image';
+import { Bot, LogOut } from 'lucide-react';
 import { requireAdmin } from '@/lib/admin/auth';
 import { logoutAdmin } from '../actions';
 import { AdminNav } from './AdminNav';
@@ -22,9 +23,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
       <div className="grid min-h-[100dvh] lg:grid-cols-[252px_1fr]">
         <aside className="border-b border-zinc-200 bg-white/90 px-5 py-5 lg:border-b-0 lg:border-r">
           <div className="flex items-center gap-2.5">
-            <div className="flex size-8 items-center justify-center rounded-md bg-zinc-950 text-white">
-              <ShieldCheck className="size-3.5" />
-            </div>
+            <Image src="/logos/avatar-dark.png" alt="Lucid-Lab" width={32} height={32} className="rounded-md" />
             <span className="text-sm font-semibold text-zinc-900">Lucid-Lab</span>
           </div>
 
