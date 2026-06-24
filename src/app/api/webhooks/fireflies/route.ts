@@ -4,20 +4,6 @@ import nodemailer from 'nodemailer';
 import { supabase } from '@/lib/bot/db/supabase';
 import { createHmac, timingSafeEqual } from 'crypto';
 
-/**
- * Fireflies webhook : déclenché quand une transcription est prête.
- *
- * SCAFFOLD (à relire avant mise en production). Il faut, avant d'activer :
- *   - ajouter les secrets FIREFLIES_API_KEY et FIREFLIES_WEBHOOK_SECRET (cf. docs/fireflies-webhook-setup.md)
- *   - déployer puis enregistrer l'URL dans Fireflies (Settings > Developer > Webhooks)
- *
- * Gouvernance Lucid-Lab : « l'IA propose, l'humain valide, le système exécute ».
- * Ce endpoint CAPTURE la réunion (audit + digest email) mais n'écrit PAS
- * automatiquement de clients/opportunités. La réconciliation CRM reste pilotée
- * par le skill /fireflies-sync (humain dans la boucle). Voir le skill pour la
- * logique A/B/D/F complète.
- */
-
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 export const maxDuration = 120;
@@ -25,10 +11,6 @@ export const maxDuration = 120;
 const ORG_ID = '2ee10622-ce92-454a-af4e-693b2007b42c';
 const FIREFLIES_GRAPHQL = 'https://api.fireflies.ai/graphql';
 
-/**
- * Vérifie la signature Fireflies : en-tête `x-hub-signature` = HMAC-SHA256 du
- * corps brut, clé = FIREFLIES_WEBHOOK_SECRET (Signing Secret, app.fireflies.ai/settings).
- */
 function verifySignature(rawBody: string, signature: string | null): boolean {
   const secret = process.env.FIREFLIES_WEBHOOK_SECRET;
   if (!secret || !signature) return false;
@@ -59,26 +41,29 @@ async function fetchTranscript(meetingId: string) {
     body: JSON.stringify({ query, variables: { id: meetingId } }),
   });
   if (!res.ok) throw new Error(`Fireflies API ${res.status}`);
-  const json = (await res.json()) as { data?: { transcript?: any }; errors?: unknown };
-  if (!json.data?.transcript) throw new Error('Transcript introuvable');
-  return json.data.transcript;
+  const json = (await res.json()) as { data?: { transcript?: unknown }; errors?: unknown };
+  if (!(json.data as { transcript?: unknown })?.transcript) throw new Error('Transcript introuvable');
+  return (json.data as { transcript: unknown }).transcript;
 }
 
-const EXTRACT_PROMPT = `Analyse la réunion et produis une synthèse orientée CRM pour l'agence Lucid-Lab, en français, concise et factuelle. Structure : 1) Client ou prospect concerné ; 2) Type de réunion (vente/découverte, suivi client, interne, partenaire) ; 3) Décisions prises ; 4) Périmètre et livrables évoqués ; 5) Budget ou prix mentionnés ; 6) Objections, risques ou blocages ; 7) Prochaine étape avec échéance et responsable ; 8) Action items (qui / quoi / quand). N'invente rien : si une information est absente, écris 'non précisé'. N'utilise jamais de tirets longs.`;
+// ─── Synthesis (human-readable digest) ───────────────────────────────────────
 
-async function extractSynthesis(transcript: any): Promise<string> {
+const SYNTHESIS_PROMPT = `Analyse la réunion et produis une synthèse orientée CRM pour l'agence Lucid-Lab, en français, concise et factuelle. Structure : 1) Client ou prospect concerné ; 2) Type de réunion (vente/découverte, suivi client, interne, partenaire) ; 3) Décisions prises ; 4) Périmètre et livrables évoqués ; 5) Budget ou prix mentionnés ; 6) Objections, risques ou blocages ; 7) Prochaine étape avec échéance et responsable ; 8) Action items (qui / quoi / quand). N'invente rien : si une information est absente, écris 'non précisé'. N'utilise jamais de tirets longs.`;
+
+async function extractSynthesis(transcript: unknown): Promise<string> {
+  const t = transcript as { title?: string; dateString?: string; participants?: string[]; summary?: { overview?: string; short_summary?: string; action_items?: string } };
   const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
   const context = [
-    `Titre : ${transcript.title}`,
-    `Date : ${transcript.dateString}`,
-    `Participants : ${(transcript.participants ?? []).join(', ')}`,
-    `Résumé : ${transcript.summary?.overview ?? transcript.summary?.short_summary ?? ''}`,
-    `Action items : ${transcript.summary?.action_items ?? ''}`,
+    `Titre : ${t.title}`,
+    `Date : ${t.dateString}`,
+    `Participants : ${(t.participants ?? []).join(', ')}`,
+    `Résumé : ${t.summary?.overview ?? t.summary?.short_summary ?? ''}`,
+    `Action items : ${t.summary?.action_items ?? ''}`,
   ].join('\n');
   const msg = await anthropic.messages.create({
     model: process.env.AI_MODEL || 'claude-sonnet-4-6',
     max_tokens: 1200,
-    messages: [{ role: 'user', content: `${EXTRACT_PROMPT}\n\n---\n${context}` }],
+    messages: [{ role: 'user', content: `${SYNTHESIS_PROMPT}\n\n---\n${context}` }],
   });
   return msg.content
     .filter((b): b is Anthropic.TextBlock => b.type === 'text')
@@ -87,7 +72,98 @@ async function extractSynthesis(transcript: any): Promise<string> {
     .trim();
 }
 
-async function sendDigest(transcript: any, synthesis: string): Promise<void> {
+// ─── Structured action items extraction ──────────────────────────────────────
+
+interface ActionItem {
+  title: string;
+  owner: string | null;
+  dueDate: string | null;
+  priority: 'low' | 'normal' | 'high' | 'urgent';
+}
+
+const ACTION_ITEMS_PROMPT = `Tu es un assistant CRM de Lucid-Lab, une agence IA française.
+Analyse cette réunion et extrais UNIQUEMENT les action items sous forme de JSON strict.
+Ne retourne RIEN d'autre que le tableau JSON (pas de markdown, pas d'explication).
+
+Format attendu :
+[{"title":"tâche concise à l'infinitif","owner":"prénom du responsable ou null","dueDate":"YYYY-MM-DD ou null","priority":"low|normal|high|urgent"}]
+
+Règles :
+- "owner" = la personne QUI DOIT faire la tâche (Jules, Anthony, ou le prénom du client)
+- "priority" : urgent si délai < 48h ou mot-clé urgent/asap, high si délai < 1 semaine ou tâche importante, low si aucun délai, normal sinon
+- Si aucun action item clair, retourne []
+- N'invente rien, reste factuel`;
+
+async function extractActionItems(transcript: unknown): Promise<ActionItem[]> {
+  const t = transcript as { title?: string; dateString?: string; participants?: string[]; summary?: { overview?: string; action_items?: string } };
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const context = [
+    `Titre : ${t.title}`,
+    `Date : ${t.dateString}`,
+    `Participants : ${(t.participants ?? []).join(', ')}`,
+    `Résumé Fireflies : ${t.summary?.overview ?? ''}`,
+    `Action items Fireflies : ${t.summary?.action_items ?? ''}`,
+  ].join('\n');
+  const msg = await anthropic.messages.create({
+    model: process.env.AI_MODEL || 'claude-sonnet-4-6',
+    max_tokens: 800,
+    messages: [{ role: 'user', content: `${ACTION_ITEMS_PROMPT}\n\n---\n${context}` }],
+  });
+  const text = msg.content
+    .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+    .map((b) => b.text)
+    .join('');
+  try {
+    const parsed = JSON.parse(text.trim()) as unknown;
+    return Array.isArray(parsed) ? (parsed as ActionItem[]) : [];
+  } catch {
+    const match = text.match(/\[[\s\S]*?\]/);
+    if (match) {
+      try { return JSON.parse(match[0]) as ActionItem[]; } catch {}
+    }
+    return [];
+  }
+}
+
+// ─── Client matching ──────────────────────────────────────────────────────────
+
+function normalize(s: string): string {
+  return s
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[̀-ͯ]/g, '')
+    .replace(/[^a-z0-9\s]/g, ' ')
+    .trim();
+}
+
+function findMatchingClientId(
+  meetingTitle: string,
+  participants: string[],
+  clients: Array<{ id: string; name: string }>,
+): string | null {
+  const haystack = normalize(`${meetingTitle} ${participants.join(' ')}`);
+  let bestScore = 0;
+  let bestId: string | null = null;
+
+  for (const client of clients) {
+    // Split client name into meaningful words (> 2 chars), check how many appear in the meeting context
+    const words = normalize(client.name).split(/\s+/).filter((w) => w.length > 2);
+    if (words.length === 0) continue;
+    const hits = words.filter((w) => haystack.includes(w));
+    const score = hits.length / words.length;
+    if (score > bestScore && score >= 0.4) {
+      bestScore = score;
+      bestId = client.id;
+    }
+  }
+
+  return bestId;
+}
+
+// ─── Email digest ─────────────────────────────────────────────────────────────
+
+async function sendDigest(transcript: unknown, synthesis: string): Promise<void> {
+  const t = transcript as { title?: string; transcript_url?: string };
   const to = process.env.TEAM_NOTIFICATION_EMAIL || 'info@lucid-lab.fr';
   const transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
@@ -98,59 +174,87 @@ async function sendDigest(transcript: any, synthesis: string): Promise<void> {
   await transporter.sendMail({
     from: process.env.EMAIL_FROM,
     to,
-    subject: `[Lucid OS] Synthèse réunion : ${transcript.title}`,
-    text: `${synthesis}\n\nTranscript : ${transcript.transcript_url}`,
+    subject: `[Lucid OS] Synthèse réunion : ${t.title}`,
+    text: `${synthesis}\n\nTranscript : ${t.transcript_url}`,
   });
 }
+
+// ─── Webhook handler ──────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const rawBody = await request.text();
   if (!verifySignature(rawBody, request.headers.get('x-hub-signature'))) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
-  let payload: { meetingId?: string; eventType?: string; clientReferenceId?: string };
+  let payload: { meetingId?: string; eventType?: string };
   try {
     payload = JSON.parse(rawBody);
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  // On s'abonne à l'événement "Meeting Summarized" côté Fireflies : tout appel
-  // reçu ici concerne une réunion dont les notes sont prêtes, donc pas de filtre
-  // sur eventType. Un ping de test sans meetingId est simplement acquitté.
   const meetingId = payload.meetingId;
   if (!meetingId) return NextResponse.json({ ok: true, note: 'no meetingId (test ping)' });
 
   try {
-    const transcript = await fetchTranscript(meetingId);
-    const synthesis = await extractSynthesis(transcript);
+    const t = await fetchTranscript(meetingId);
+    const transcript = t as { title?: string; dateString?: string; participants?: string[]; transcript_url?: string; summary?: unknown };
 
-    // Capture factuelle (low-risk) : audit + digest. Pas d'upsert clients/opportunités
-    // automatique : /fireflies-sync reste la voie validée par un humain.
+    // Run synthesis + action item extraction + clients fetch in parallel
+    const [synthesis, actionItems, clientsRes] = await Promise.all([
+      extractSynthesis(transcript),
+      extractActionItems(transcript),
+      supabase.from('clients').select('id,name').eq('organization_id', ORG_ID),
+    ]);
+
+    const clients = (clientsRes.data ?? []) as Array<{ id: string; name: string }>;
+    const clientId = findMatchingClientId(
+      transcript.title ?? '',
+      transcript.participants ?? [],
+      clients,
+    );
+
+    // Create tasks for each action item
+    let tasksCreated = 0;
+    if (actionItems.length > 0) {
+      const { error: insertError } = await supabase.from('client_tasks').insert(
+        actionItems.map((item) => ({
+          organization_id: ORG_ID,
+          client_id: clientId,
+          title: item.title,
+          description: `Action item extrait de la réunion "${transcript.title}" (${transcript.dateString ?? ''})`,
+          owner_label: item.owner,
+          priority: item.priority,
+          due_at: item.dueDate,
+          status: 'todo',
+        })),
+      );
+      if (!insertError) tasksCreated = actionItems.length;
+      else console.error('[fireflies-webhook] task insert error:', insertError.message);
+    }
+
     await supabase.from('audit_events').insert({
       organization_id: ORG_ID,
       actor_type: 'agent',
       event_type: 'fireflies_webhook',
-      target_table: 'client_interactions',
+      target_table: 'client_tasks',
       risk_level: 'low',
-      summary: `Réunion Fireflies capturée : ${transcript.title}`,
+      summary: `Réunion Fireflies : ${transcript.title} — ${tasksCreated} tâche(s) créée(s)`,
       details: {
         source: 'fireflies_webhook',
         fireflies_id: meetingId,
         transcript_url: transcript.transcript_url,
+        matched_client_id: clientId,
+        action_items: actionItems,
         synthesis,
       },
     });
 
-    // Email du webhook coupé le 2026-06-22 pour éviter le doublon avec l'AI Skill
-    // Fireflies, qui envoie déjà le résumé par réunion. Le webhook reste la capture
-    // CRM silencieuse. Repasser WEBHOOK_EMAIL_ENABLED à true pour réactiver le digest.
     const WEBHOOK_EMAIL_ENABLED: boolean = false;
     if (WEBHOOK_EMAIL_ENABLED) await sendDigest(transcript, synthesis);
-    return NextResponse.json({ ok: true, meetingId });
+
+    return NextResponse.json({ ok: true, meetingId, tasksCreated, clientId });
   } catch (error) {
-    // On acquitte (200) pour ne pas faire échouer la livraison côté Fireflies ;
-    // l'erreur est tracée dans les logs et reste visible dans l'History Fireflies.
     const message = error instanceof Error ? error.message : 'Erreur webhook';
     console.error('[fireflies-webhook]', meetingId, message);
     return NextResponse.json({ ok: false, meetingId, error: message });
