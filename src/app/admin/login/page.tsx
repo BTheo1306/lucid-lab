@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
+import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import { LockKeyhole, ShieldCheck } from 'lucide-react';
+import { LockKeyhole } from 'lucide-react';
 import { isAdminApiKeyConfigured, isAdminAuthenticated } from '@/lib/admin/auth';
 import { loginAdmin } from '../actions';
 
@@ -31,15 +32,11 @@ export default async function AdminLoginPage({
     <main className="relative z-10 grid min-h-[100dvh] place-items-center bg-[#f5f6f2] px-4 py-10 text-zinc-950">
       <style>{`.ll-chat-toggle,.ll-chat-panel,.ll-chat-teaser{display:none!important}`}</style>
       <div className="w-full max-w-md rounded-xl border border-zinc-200 bg-white p-6 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="flex size-10 items-center justify-center rounded-lg bg-zinc-950 text-white">
-            <ShieldCheck className="size-5" />
-          </div>
-          <div>
-            <h1 className="text-lg font-semibold tracking-[-0.01em]">Admin access</h1>
-            <p className="text-sm text-zinc-500">Lucid-Lab bot operations</p>
-          </div>
+        <div className="flex items-center gap-2.5">
+          <Image src="/logo.png" alt="Lucid-Lab" width={28} height={28} />
+          <span className="text-[18px] font-bold tracking-tight text-zinc-950" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Lucid-Lab</span>
         </div>
+        <h1 className="mt-5 text-base font-semibold text-zinc-900">Accès admin</h1>
 
         <form action={loginAdmin} className="mt-6 grid gap-4">
           <label className="grid gap-2 text-sm font-medium text-zinc-700" htmlFor="admin_key">

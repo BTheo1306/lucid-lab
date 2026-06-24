@@ -148,16 +148,6 @@ export function AllClientsTaskBoard({ initialTasks }: { initialTasks: DashboardT
                         );
                       })}
                     </div>
-                    <select
-                      value={toCol(task.status)}
-                      onChange={(e) => moveTask(task.id, e.target.value as ColStatus)}
-                      disabled={isPending}
-                      className="mt-3 h-8 w-full border border-white/10 bg-[#050506] px-2 text-xs text-zinc-300 outline-none focus:border-[#60a5fa]/60"
-                    >
-                      {COLUMNS.map((option) => (
-                        <option key={option.status} value={option.status}>{option.label}</option>
-                      ))}
-                    </select>
                   </article>
                 ))
               )}

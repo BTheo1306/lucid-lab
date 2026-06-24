@@ -22,9 +22,9 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
       <style>{`.ll-chat-toggle,.ll-chat-panel,.ll-chat-teaser{display:none!important}`}</style>
       <div className="grid min-h-[100dvh] lg:grid-cols-[252px_1fr]">
         <aside className="border-b border-zinc-200 bg-white/90 px-5 py-5 lg:border-b-0 lg:border-r">
-          <div className="flex items-center gap-2.5">
-            <Image src="/logos/avatar-dark.png" alt="Lucid-Lab" width={32} height={32} className="rounded-md" />
-            <span className="text-sm font-semibold text-zinc-900">Lucid-Lab</span>
+          <div className="flex items-center gap-2">
+            <Image src="/logo.png" alt="Lucid-Lab" width={24} height={24} />
+            <span className="text-[16px] font-bold tracking-tight text-zinc-950" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Lucid-Lab</span>
           </div>
 
           <AdminNav />
