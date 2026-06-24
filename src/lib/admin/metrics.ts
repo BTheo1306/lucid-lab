@@ -15,11 +15,18 @@ export type RevenuePoint = { month: string; label: string; mrr: number; collecte
 export type PipelinePoint = { stage: string; label: string; valueEur: number; count: number };
 export type StatusPoint = { status: string; label: string; count: number };
 
+export type MrrRow = { clientName: string; monthlyValueEur: number; closedAt: string | null };
+export type CollectedRow = { clientName: string; amountTtcEur: number; occurredAt: string | null; dougsRef: string | null };
+export type PipelineRow = { clientName: string; stage: string; stageLabel: string; valueEstimateEur: number };
+
 export type AgencyMetrics = {
   kpis: MetricsKpis;
   revenueByMonth: RevenuePoint[];
   pipelineByStage: PipelinePoint[];
   clientsByStatus: StatusPoint[];
+  mrrDetail: MrrRow[];
+  collectedDetail: CollectedRow[];
+  pipelineDetail: PipelineRow[];
 };
 
 const STAGE_LABELS: Record<string, string> = {
@@ -67,6 +74,9 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
     revenueByMonth: [],
     pipelineByStage: [],
     clientsByStatus: [],
+    mrrDetail: [],
+    collectedDetail: [],
+    pipelineDetail: [],
   };
 
   const organizationId = await getOrganizationId();
@@ -76,27 +86,34 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
     supabase.from('clients').select('status').eq('organization_id', organizationId),
     supabase
       .from('client_opportunities')
-      .select('stage,status,monthly_value_eur,value_estimate_eur,closed_at')
+      .select('stage,status,monthly_value_eur,value_estimate_eur,closed_at,clients(name)')
       .eq('organization_id', organizationId),
     supabase
       .from('client_billing_events')
-      .select('billing_status,amount_ttc_eur,occurred_at')
+      .select('billing_status,amount_ttc_eur,occurred_at,metadata,clients(name)')
       .eq('organization_id', organizationId),
   ]);
 
   const clients = (clientsRes.data ?? []) as Array<{ status: string | null }>;
-  const opps = (oppsRes.data ?? []) as Array<{
+  const opps = (oppsRes.data ?? []) as unknown as Array<{
     stage: string | null;
     status: string | null;
     monthly_value_eur: number | string | null;
     value_estimate_eur: number | string | null;
     closed_at: string | null;
+    clients: { name: string }[] | null;
   }>;
-  const billing = (billingRes.data ?? []) as Array<{
+  const billing = (billingRes.data ?? []) as unknown as Array<{
     billing_status: string | null;
     amount_ttc_eur: number | string | null;
     occurred_at: string | null;
+    metadata: Record<string, unknown> | null;
+    clients: { name: string }[] | null;
   }>;
+
+  function clientName(c: { name: string }[] | null): string {
+    return c?.[0]?.name ?? 'Client inconnu';
+  }
 
   const wonOpps = opps.filter((o) => o.status === 'won');
   const paidBilling = billing.filter((b) => b.billing_status === 'paid');
@@ -155,5 +172,32 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
     .map(([status, count]) => ({ status, label: STATUS_LABELS[status] ?? status, count }))
     .sort((a, b) => b.count - a.count);
 
-  return { kpis, revenueByMonth, pipelineByStage, clientsByStatus };
+  const mrrDetail: MrrRow[] = wonOpps
+    .map((o) => ({
+      clientName: clientName(o.clients),
+      monthlyValueEur: toNumber(o.monthly_value_eur),
+      closedAt: o.closed_at,
+    }))
+    .sort((a, b) => b.monthlyValueEur - a.monthlyValueEur);
+
+  const collectedDetail: CollectedRow[] = paidBilling
+    .map((b) => ({
+      clientName: clientName(b.clients),
+      amountTtcEur: toNumber(b.amount_ttc_eur),
+      occurredAt: b.occurred_at,
+      dougsRef: (b.metadata?.dougs_reference as string | null) ?? null,
+    }))
+    .sort((a, b) => new Date(b.occurredAt ?? 0).getTime() - new Date(a.occurredAt ?? 0).getTime());
+
+  const pipelineDetail: PipelineRow[] = opps
+    .filter((o) => o.status === 'open')
+    .map((o) => ({
+      clientName: clientName(o.clients),
+      stage: o.stage ?? 'new',
+      stageLabel: STAGE_LABELS[o.stage ?? 'new'] ?? (o.stage ?? 'new'),
+      valueEstimateEur: toNumber(o.value_estimate_eur),
+    }))
+    .sort((a, b) => b.valueEstimateEur - a.valueEstimateEur);
+
+  return { kpis, revenueByMonth, pipelineByStage, clientsByStatus, mrrDetail, collectedDetail, pipelineDetail };
 }
