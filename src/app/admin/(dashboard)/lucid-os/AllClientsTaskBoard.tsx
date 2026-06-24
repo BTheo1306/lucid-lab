@@ -110,13 +110,17 @@ export function AllClientsTaskBoard({ initialTasks }: { initialTasks: DashboardT
                     onDragEnd={() => setDraggedTaskId(null)}
                     className="cursor-grab border border-white/[0.08] bg-[#09090b] p-3 active:cursor-grabbing"
                   >
-                    <Link
-                      href={`/admin/lucid-os/clients/${task.clientSlug}`}
-                      className="text-[10px] font-semibold uppercase tracking-[0.1em] text-blue-400/80 transition-colors hover:text-blue-300"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      {task.clientName}
-                    </Link>
+                    {task.clientSlug ? (
+                      <Link
+                        href={`/admin/lucid-os/clients/${task.clientSlug}`}
+                        className="text-[10px] font-semibold uppercase tracking-[0.1em] text-blue-400/80 transition-colors hover:text-blue-300"
+                        onClick={(e) => e.stopPropagation()}
+                      >
+                        {task.clientName}
+                      </Link>
+                    ) : (
+                      <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600">Interne</span>
+                    )}
                     <p className="mt-1 text-sm font-semibold leading-5 text-zinc-50">{task.title}</p>
                     {task.description ? (
                       <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">{task.description}</p>

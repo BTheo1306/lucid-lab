@@ -23,7 +23,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
       <div className="grid min-h-[100dvh] lg:grid-cols-[252px_1fr]">
         <aside className="border-b border-zinc-200 bg-white/90 px-5 py-5 lg:border-b-0 lg:border-r">
           <div className="flex items-center gap-2">
-            <Image src="/logo.png" alt="Lucid-Lab" width={24} height={24} />
+            <Image src="/logo.png" alt="Lucid-Lab" width={24} height={24} className="admin-logo" />
             <span className="text-[16px] font-bold tracking-tight text-zinc-950" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Lucid-Lab</span>
           </div>
 

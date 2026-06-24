@@ -70,6 +70,9 @@
 .admin-dark input::placeholder,
 .admin-dark textarea::placeholder { color: #71717a !important; }
 
+/* Logo invert in dark mode */
+.admin-dark .admin-logo { filter: invert(1); }
+
 /* Toggle button itself adapts in dark */
 .admin-dark .admin-theme-toggle {
   background-color: #27272a !important;
