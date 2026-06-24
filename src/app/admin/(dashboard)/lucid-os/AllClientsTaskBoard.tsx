@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState, useTransition } from 'react';
+import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import type { DashboardTask } from '@/lib/admin/client-tasks';
@@ -36,6 +36,10 @@ export function AllClientsTaskBoard({ initialTasks }: { initialTasks: DashboardT
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
   const [tasks, setTasks] = useState(initialTasks);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    setTasks(initialTasks);
+  }, [initialTasks]);
 
   const grouped = useMemo(
     () =>

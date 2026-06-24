@@ -1,11 +1,13 @@
 'use client';
 
 import { useRef, useState, useTransition } from 'react';
+import { useRouter } from 'next/navigation';
 import { Plus, X } from 'lucide-react';
 import type { ClientOption } from '@/lib/admin/client-tasks';
 import { createClientTaskAction } from './task-actions';
 
 export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
+  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [isPending, startTransition] = useTransition();
   const [error, setError] = useState<string | null>(null);
@@ -20,6 +22,7 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
         await createClientTaskAction(formData);
         formRef.current?.reset();
         setOpen(false);
+        router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : String(err));
       }
