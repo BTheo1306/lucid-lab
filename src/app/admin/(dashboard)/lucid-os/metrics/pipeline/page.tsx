@@ -1,4 +1,5 @@
-import { FolderKanban } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowLeft, FolderKanban } from 'lucide-react';
 import { getAgencyMetrics } from '@/lib/admin/metrics';
 import { EmptyState, LucidOsHeader } from '../../components';
 
@@ -13,6 +14,10 @@ export default async function PipelineDetailPage() {
 
   return (
     <div className="grid gap-6">
+      <Link href="/admin/lucid-os/metrics" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-200">
+        <ArrowLeft className="size-3.5" />
+        Métriques
+      </Link>
       <LucidOsHeader
         eyebrow="Métriques"
         title={`Pipeline ouvert — ${eur(kpis.openPipelineEur)}`}

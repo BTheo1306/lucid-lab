@@ -1,4 +1,5 @@
-import { BarChart3 } from 'lucide-react';
+import Link from 'next/link';
+import { ArrowLeft, BarChart3 } from 'lucide-react';
 import { getAgencyMetrics } from '@/lib/admin/metrics';
 import { EmptyState, LucidOsHeader, formatAdminDate } from '../../components';
 
@@ -13,6 +14,10 @@ export default async function MrrDetailPage() {
 
   return (
     <div className="grid gap-6">
+      <Link href="/admin/lucid-os/metrics" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-200">
+        <ArrowLeft className="size-3.5" />
+        Métriques
+      </Link>
       <LucidOsHeader
         eyebrow="Métriques"
         title={`MRR — ${eur(kpis.mrrEurHt)} / mois HT`}

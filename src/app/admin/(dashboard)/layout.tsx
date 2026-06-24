@@ -21,14 +21,11 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
       <style>{`.ll-chat-toggle,.ll-chat-panel,.ll-chat-teaser{display:none!important}`}</style>
       <div className="grid min-h-[100dvh] lg:grid-cols-[252px_1fr]">
         <aside className="border-b border-zinc-200 bg-white/90 px-5 py-5 lg:border-b-0 lg:border-r">
-          <div className="flex items-center gap-3">
-            <div className="flex size-9 items-center justify-center rounded-lg bg-zinc-950 text-white">
-              <ShieldCheck className="size-4" />
+          <div className="flex items-center gap-2.5">
+            <div className="flex size-8 items-center justify-center rounded-md bg-zinc-950 text-white">
+              <ShieldCheck className="size-3.5" />
             </div>
-            <div>
-              <p className="text-sm font-semibold leading-none">Lucid-Lab</p>
-              <p className="mt-1 text-xs text-zinc-500">Bot operations</p>
-            </div>
+            <span className="text-sm font-semibold text-zinc-900">Lucid-Lab</span>
           </div>
 
           <AdminNav />
