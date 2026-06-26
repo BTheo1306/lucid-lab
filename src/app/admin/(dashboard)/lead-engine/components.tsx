@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import type { ComponentType, ReactNode } from 'react';
-import { BarChart3, FileText, MessageSquare, PlayCircle, Search } from 'lucide-react';
+import { BarChart3, FileText, MessageSquare, PlayCircle, Power, Search } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-export type LeadEngineTabId = 'overview' | 'prospects' | 'campaigns' | 'runs' | 'outreach';
+export type LeadEngineTabId = 'overview' | 'prospects' | 'campaigns' | 'runs' | 'outreach' | 'engine';
 
 const leadEngineTabs: Array<{ id: LeadEngineTabId; href: string; label: string; icon: ComponentType<{ className?: string }> }> = [
   { id: 'overview', href: '/admin/lead-engine', label: 'Overview', icon: BarChart3 },
@@ -11,6 +11,7 @@ const leadEngineTabs: Array<{ id: LeadEngineTabId; href: string; label: string; 
   { id: 'campaigns', href: '/admin/lead-engine/campaigns', label: 'Campaigns', icon: FileText },
   { id: 'runs', href: '/admin/lead-engine/runs', label: 'Runs', icon: PlayCircle },
   { id: 'outreach', href: '/admin/lead-engine/outreach', label: 'Outreach', icon: MessageSquare },
+  { id: 'engine', href: '/admin/lead-engine/engine', label: 'Engine', icon: Power },
 ];
 
 export function LeadEngineHeader({
