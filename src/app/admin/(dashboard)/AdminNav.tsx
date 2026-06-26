@@ -12,7 +12,6 @@ import {
   Building2,
   CalendarClock,
   ChevronDown,
-  ClipboardList,
   Compass,
   FileText,
   FolderKanban,
@@ -67,11 +66,7 @@ const navSections: NavSection[] = [
     icon: Search,
     items: [
       { href: '/admin/lead-engine', label: 'Moteur de leads', icon: Search, exact: true },
-      { href: '/admin/lead-engine/prospects', label: 'Prospects', icon: Users },
-      { href: '/admin/lead-engine/campaigns', label: 'Campagnes', icon: ClipboardList },
-      { href: '/admin/lead-engine/outreach', label: 'Prospection', icon: MessageSquare },
       { href: '/admin/leads', label: 'Anciens leads', icon: Users },
-      { href: '/admin/lead-engine/runs', label: 'Exécutions', icon: Activity },
     ],
   },
   {
