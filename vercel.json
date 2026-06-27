@@ -31,6 +31,14 @@
     {
       "path": "/api/cron/dougs-sync",
       "schedule": "0 9 */3 * *"
+    },
+    {
+      "path": "/api/cron/lead-pipeline",
+      "schedule": "0 6 * * 1-5"
+    },
+    {
+      "path": "/api/cron/lead-reply-sync",
+      "schedule": "0 12 * * *"
     }
   ]
 }

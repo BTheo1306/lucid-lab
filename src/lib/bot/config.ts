@@ -48,6 +48,13 @@ export const config = {
   // Apollo.io (lead data enrichment)
   apolloApiKey: process.env['APOLLO_API_KEY'] ?? '',
 
+  // Lead Engine v2: France signal sourcing
+  theirstackApiKey: process.env['THEIRSTACK_API_KEY'] ?? '',
+  /** Self-generated bearer the local Chrome runner uses to authenticate to Lucid OS. */
+  leadRunnerToken: process.env['LEAD_RUNNER_TOKEN'] ?? '',
+  /** Gate the legacy disk-based lead-engine sandbox off in production. */
+  leadEngineSandboxEnabled: optionalEnv('LEAD_ENGINE_SANDBOX_ENABLED', 'false').toLowerCase() === 'true',
+
   // TidyCal
   tidycalApiKey: process.env['TIDYCAL_API_KEY'] ?? '',
   tidycalBookingTypeId: process.env['TIDYCAL_BOOKING_TYPE_ID'] ?? '',

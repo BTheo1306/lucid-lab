@@ -295,6 +295,8 @@ async function writeSandboxState(state: SandboxState): Promise<void> {
 }
 
 export async function getLeadEngineSandboxState(): Promise<SandboxState> {
+  // Gated off in production: the v2 engine reads only real Supabase data.
+  if (process.env['LEAD_ENGINE_SANDBOX_ENABLED']?.toLowerCase() !== 'true') return emptyState;
   return readSandboxState();
 }
 

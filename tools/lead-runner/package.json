@@ -1,0 +1,17 @@
+{
+  "name": "lucid-lead-runner",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local Chrome runner for the Lucid OS lead engine. Drives Anthony's real logged-in LinkedIn session to send connection invites and follow-ups pulled from Lucid OS, with human pacing and server-enforced daily caps.",
+  "scripts": {
+    "login": "node runner.mjs --login",
+    "once": "node runner.mjs --once",
+    "start": "node runner.mjs",
+    "install-browser": "playwright install chromium"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "playwright": "^1.55.0"
+  }
+}
