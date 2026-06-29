@@ -24,6 +24,9 @@ export interface ControlMessage {
   company: string | null;
   /** Campaign motion: 'founder_smb' (Claude + Obsidian) | 'enterprise' (grand groupe). */
   motion: string | null;
+  /** Prospect score (0-20) and priority, surfaced so the cockpit can rank leads. */
+  score: number | null;
+  priority: string | null;
 }
 
 export interface LeadRunSummary {
@@ -82,7 +85,7 @@ async function countMessages(workspaceId: string, status: string): Promise<numbe
 async function listMessages(workspaceId: string, status: string, limit: number): Promise<ControlMessage[]> {
   const { data } = await supabase
     .from('outreach_messages')
-    .select('id,step_kind,body_text,person_id,company_id,campaign_id,created_at')
+    .select('id,step_kind,body_text,person_id,company_id,campaign_id,personalization,created_at')
     .eq('workspace_id', workspaceId)
     .eq('status', status)
     .order('created_at', { ascending: false })
@@ -108,9 +111,10 @@ async function listMessages(workspaceId: string, status: string, limit: number):
     campaigns.map((c) => [String(c.id), String((c.icp_config as Record<string, unknown> | null)?.['motion'] ?? '') || null]),
   );
 
-  return rows.map((r) => {
+  const mapped = rows.map((r) => {
     const person = r.person_id ? pMap.get(String(r.person_id)) : undefined;
     const company = r.company_id ? cMap.get(String(r.company_id)) : undefined;
+    const personalization = (r.personalization ?? {}) as Record<string, unknown>;
     return {
       id: String(r.id),
       stepKind: r.step_kind ? String(r.step_kind) : null,
@@ -120,8 +124,13 @@ async function listMessages(workspaceId: string, status: string, limit: number):
       linkedinUrl: person?.linkedin_url ? String(person.linkedin_url) : null,
       company: company?.name ? String(company.name) : null,
       motion: r.campaign_id ? motionMap.get(String(r.campaign_id)) ?? null : null,
+      score: typeof personalization['score'] === 'number' ? (personalization['score'] as number) : null,
+      priority: typeof personalization['priority'] === 'string' ? (personalization['priority'] as string) : null,
     };
   });
+  // Re-rank: best leads first (the owner chose keep-and-rank over a hard gate).
+  mapped.sort((a, b) => (b.score ?? -1) - (a.score ?? -1));
+  return mapped;
 }
 
 export async function getControlPanelData(): Promise<ControlPanelData> {
@@ -156,8 +165,8 @@ export async function getControlPanelData(): Promise<ControlPanelData> {
   ]);
 
   const [humanTouch, queueList] = await Promise.all([
-    listMessages(workspaceId, 'handed_to_human', 10),
-    listMessages(workspaceId, 'queued', 10),
+    listMessages(workspaceId, 'handed_to_human', 30),
+    listMessages(workspaceId, 'queued', 30),
   ]);
 
   const { data: lastRunRow } = await supabase

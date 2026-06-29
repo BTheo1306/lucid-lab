@@ -45,9 +45,6 @@ const COUNTRY_CODES: Record<string, string> = {
   luxembourg: 'LU', monaco: 'MC',
 };
 
-// Default NAF codes for Motion 1 founder/SMB sourcing when none are configured.
-const MOTION1_DEFAULT_NAF = ['62.01Z', '62.02A', '70.22Z', '73.11Z', '74.10Z', '63.11Z'];
-
 function locationCodes(locations: string[]): string[] {
   const codes = new Set<string>();
   for (const l of locations) {
@@ -162,42 +159,58 @@ async function sourceMotion2(campaign: LeadEngineCampaign, limit: number): Promi
   return candidates;
 }
 
-// Motion 1: French SMBs by activity (gov API), targeting the founder/dirigeant.
+// Motion 1: small companies actively hiring an ops/admin/coordination role (a
+// real buying trigger), targeting the founder/dirigeant as the buyer. Reuses the
+// hiring-signal source (TheirStack) and resolves the founder via the free gov API.
 async function sourceMotion1(campaign: LeadEngineCampaign, limit: number): Promise<Candidate[]> {
-  const naf = asStringArray(campaign.icpConfig.naf_codes);
-  const departments = asStringArray(campaign.icpConfig.departments);
-  const companies = await searchFrenchCompanies({
-    nafCodes: naf.length ? naf : MOTION1_DEFAULT_NAF,
-    departments: departments.length ? departments : undefined,
+  const codes = locationCodes(campaign.targetLocations);
+  const roles = asStringArray(campaign.icpConfig.hiring_roles);
+  if (roles.length === 0) return [];
+
+  const jobs = await searchTheirStackJobs({
+    jobTitles: roles,
+    countryCodes: codes,
     minEmployees: campaign.idealEmployeeMin,
     maxEmployees: campaign.idealEmployeeMax,
-    perPage: Math.min(25, limit * 2),
+    postedWithinDays: 30,
+    limit: limit * 2,
   });
 
   const candidates: Candidate[] = [];
-  for (const company of companies) {
-    const dir = company.dirigeants.find((d) => !d.isCompany);
-    if (!dir) continue;
+  for (const job of jobs) {
+    // For an SMB the buyer is the founder/dirigeant: resolve via the gov API first.
+    let person: Candidate['person'] | null = null;
+    if (job.company.country?.toLowerCase().includes('france') || codes.includes('FR')) {
+      const matches = await searchFrenchCompanies({ query: job.company.name, perPage: 1 }).catch(() => []);
+      const dir = matches[0]?.dirigeants.find((d) => !d.isCompany);
+      if (dir) person = { fullName: dir.fullName, firstName: dir.firstName, lastName: dir.lastName, title: dir.role, linkedinUrl: null };
+    }
+    // Fall back to the inline hiring contact if no dirigeant was resolved.
+    if (!person?.fullName && job.hiringContact) {
+      person = { fullName: job.hiringContact.fullName, firstName: null, lastName: null, title: job.hiringContact.role, linkedinUrl: job.hiringContact.linkedinUrl };
+    }
+    if (!person?.fullName) continue;
+
     candidates.push({
       company: {
-        name: company.name,
-        domain: null,
-        linkedinUrl: null,
-        country: 'France',
-        city: company.city,
-        industry: company.naf,
-        employeeCount: company.employeeMin,
-        sourceUrl: null,
+        name: job.company.name,
+        domain: job.company.domain,
+        linkedinUrl: job.company.linkedinUrl,
+        country: job.company.country,
+        city: job.company.city,
+        industry: job.company.industry,
+        employeeCount: job.company.employeeCount,
+        sourceUrl: job.job.url,
       },
-      person: { fullName: dir.fullName, firstName: dir.firstName, lastName: dir.lastName, title: dir.role, linkedinUrl: null },
-      hiringRoleTitle: null,
+      person,
+      hiringRoleTitle: job.job.title,
       signal: {
-        type: 'founder_led',
-        label: `Dirigeant: ${dir.role ?? 'fondateur'}`,
-        value: { naf: company.naf, siren: company.siren, source: 'gouv' },
-        scoreDelta: 4,
-        source: 'gouv',
-        sourceUrl: null,
+        type: 'hiring_role',
+        label: `Recrute: ${job.job.title}`,
+        value: { job_title: job.job.title, job_url: job.job.url, location: job.job.location, source: 'theirstack' },
+        scoreDelta: 5,
+        source: 'theirstack',
+        sourceUrl: job.job.url,
       },
     });
     if (candidates.length >= limit) break;
@@ -380,7 +393,7 @@ export async function runLeadPipeline(opts: { campaignId?: string; limitPerCampa
     const runId = await createRun({
       workspaceId,
       campaignId: campaign.id,
-      runType: motion === 'enterprise' ? 'theirstack_source' : 'gouv_enrich',
+      runType: 'theirstack_source',
       config: { limit, dryRun },
     });
 

@@ -65,6 +65,14 @@ function motionBadge(motion: string | null): { label: string; tone: 'good' | 'wa
   return null;
 }
 
+/** Priority drives the card's left accent + a small label so quality is scannable. */
+function priorityMeta(priority: string | null): { label: string; border: string } {
+  if (priority === 'high') return { label: 'Priorité élevée', border: 'border-l-emerald-500' };
+  if (priority === 'medium') return { label: 'Priorité moyenne', border: 'border-l-amber-400' };
+  if (priority === 'low') return { label: 'Priorité faible', border: 'border-l-zinc-300' };
+  return { label: '', border: 'border-l-zinc-200' };
+}
+
 function lastRunLine(run: LeadRunSummary): string {
   const when = formatAdminDateTime(run.finishedAt ?? run.startedAt);
   if (run.status === 'running') {
@@ -79,8 +87,9 @@ function MessageList({ items }: { items: ControlMessage[] }) {
     <div className="grid gap-3">
       {items.map((m) => {
         const badge = motionBadge(m.motion);
+        const prio = priorityMeta(m.priority);
         return (
-          <article key={m.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+          <article key={m.id} className={`rounded-xl border border-zinc-200 border-l-4 ${prio.border} bg-white p-4 shadow-sm`}>
             <div className="flex items-center justify-between gap-3">
               <p className="min-w-0 truncate text-sm font-semibold text-zinc-950">
                 {m.personName ?? 'Contact inconnu'}
@@ -91,6 +100,11 @@ function MessageList({ items }: { items: ControlMessage[] }) {
             {m.personTitle ? <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">{cleanTitle(m.personTitle)}</p> : null}
             {m.body ? <p className="mt-2 whitespace-pre-line text-sm leading-6 text-zinc-700">{m.body}</p> : null}
             <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-zinc-100 pt-3">
+              {m.priority ? (
+                <span className="text-xs text-zinc-400">
+                  {prio.label}{m.score != null ? ` · ${m.score}/20` : ''}
+                </span>
+              ) : null}
               <a
                 href={linkedinContactUrl(m)}
                 target="_blank"

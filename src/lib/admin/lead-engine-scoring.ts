@@ -16,6 +16,7 @@ import type { BuyerRole } from './lead-engine-store';
 export interface ScoreWeights {
   hiringRoleExec: number;
   hiringRolePm: number;
+  hiringRoleOther: number;
   founderOrCSuite: number;
   employeeBandFit: number;
   aiInterest: number;
@@ -26,6 +27,7 @@ export interface ScoreWeights {
 const DEFAULT_WEIGHTS: ScoreWeights = {
   hiringRoleExec: 8,
   hiringRolePm: 5,
+  hiringRoleOther: 4,
   founderOrCSuite: 4,
   employeeBandFit: 3,
   aiInterest: 2,
@@ -146,6 +148,7 @@ export function scoreProspect(input: ScoreProspectInput): ScoreResult {
   const tier = hiringRoleTier(input.hiringRoleTitle);
   if (tier === 'exec') add(`Recrute un poste de direction: ${input.hiringRoleTitle}`, weights.hiringRoleExec);
   else if (tier === 'pm') add(`Recrute un poste IA/IT: ${input.hiringRoleTitle}`, weights.hiringRolePm);
+  else if (input.hiringRoleTitle) add(`Recrute activement: ${input.hiringRoleTitle}`, weights.hiringRoleOther);
 
   if (isFounderOrCSuite(input.person.title)) add('Contact fondateur / C-suite', weights.founderOrCSuite);
 
