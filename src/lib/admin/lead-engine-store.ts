@@ -432,6 +432,26 @@ export async function upsertProspectPerson(input: UpsertPersonInput): Promise<Up
   return { id: String(data.id), alreadyContacted: false };
 }
 
+/**
+ * True if this person already has a primary outreach message (invite or
+ * human_touch). Makes the pipeline idempotent: a person already in the
+ * pipeline is never re-queued or re-drafted on a later run.
+ */
+export async function hasActiveOutreach(personId: string): Promise<boolean> {
+  const { data, error } = await supabase
+    .from('outreach_messages')
+    .select('id')
+    .eq('person_id', personId)
+    .in('step_kind', ['invite', 'human_touch'])
+    .limit(1)
+    .maybeSingle();
+  if (error) {
+    if (missingLeadEngineRelation(error)) return false;
+    throw error;
+  }
+  return Boolean(data?.id);
+}
+
 // ─── Signals + scores ─────────────────────────────────────────────────────────
 
 export interface SignalInput {

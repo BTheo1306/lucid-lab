@@ -97,6 +97,21 @@ function clampNote(note: string, max = INVITE_NOTE_MAX): string {
   return (lastSpace > max * 0.6 ? slice.slice(0, lastSpace) : slice).trim();
 }
 
+/**
+ * House rule: long dashes (— –) are banned in every text we produce, and they
+ * are the #1 "AI / bad-translation" tell in French copy. Replace them with
+ * native punctuation as a guaranteed safety net, even when the model slips.
+ */
+function stripLongDashes(text: string): string {
+  return text
+    .replace(/(\d)\s*[—–]\s*(\d)/g, '$1 à $2') // numeric range: 2—5 -> 2 à 5
+    .replace(/\s*[—–]\s*/g, ', ') // any other long dash -> comma
+    .replace(/\s+([,.;:!?])/g, '$1') // tidy stray space before punctuation
+    .replace(/,\s*,/g, ',')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
 function textFrom(response: Anthropic.Message): string {
   const block = response.content.find((b) => b.type === 'text');
   if (!block || block.type !== 'text') throw new Error('AI returned no text block.');
@@ -112,21 +127,22 @@ function anthropic(): Anthropic {
 
 // ─── Research ─────────────────────────────────────────────────────────────────
 
-const RESEARCH_SYSTEM_PROMPT = `You are a B2B sales researcher for Lucid-Lab, an AI agency. You use the gap selling methodology.
+const RESEARCH_SYSTEM_PROMPT = `Tu es chercheur commercial B2B pour Lucid-Lab, une agence IA. Tu appliques la méthode du gap selling.
 
-Given a company (name, industry, size, location), the role it is currently hiring for, and the buyer persona, infer:
-- the operational PROBLEM that this hiring signal and this industry/size imply,
-- the business IMPACT of that problem (a realistic, defensible cost framed in time or money),
-- the PERSONA who feels the pain,
-- the ANGLE for an AI agency (Claude + Obsidian setup, automations, AI roadmap) to help.
+À partir d'une entreprise (nom, secteur, taille, localisation), du poste qu'elle recrute en ce moment, et du profil d'acheteur visé, déduis :
+- le PROBLÈME opérationnel que ce signal de recrutement et ce secteur/taille laissent supposer,
+- l'IMPACT de ce problème (un coût réaliste et défendable, exprimé en temps ou en argent),
+- la PERSONA qui subit cette douleur,
+- l'ANGLE par lequel une agence IA (mise en place Claude + Obsidian, automatisations, plan d'action IA) peut aider.
 
-Hard rules:
-- Reason ONLY from general, publicly defensible knowledge about that industry and role. NEVER claim to have visited their website, LinkedIn, or any private source. NEVER invent specific private facts (named clients, exact revenue).
-- Impact must be a plausible industry generality ("typiquement", "souvent"), not a fabricated precise figure about THIS company.
-- Keep each field to one or two sentences.
-- Write the fields in the requested output language.
+Règles strictes :
+- Raisonne UNIQUEMENT à partir de connaissances générales et défendables sur ce secteur et ce poste. N'affirme JAMAIS avoir visité leur site, leur LinkedIn ou une source privée. N'invente AUCUN fait privé précis (clients nommés, chiffre d'affaires exact).
+- L'impact doit rester une généralité sectorielle plausible ("souvent", "typiquement"), pas un chiffre précis inventé sur CETTE entreprise.
+- Chaque champ : une à deux phrases.
+- N'utilise jamais de tiret long (les caractères — et –). Utilise une virgule, un deux-points ou une parenthèse.
+- Écris les champs dans la langue demandée.
 
-Return ONLY a JSON object (no prose, no markdown fences):
+Réponds UNIQUEMENT avec un objet JSON (aucun texte, aucune balise) :
 { "problem": string, "impact": string, "persona": string, "angle": string }`;
 
 export async function researchProspectPain(input: GapResearchInput): Promise<GapResearch> {
@@ -158,30 +174,32 @@ export async function researchProspectPain(input: GapResearchInput): Promise<Gap
   }
 
   return {
-    problem: asString(raw.problem),
-    impact: asString(raw.impact),
-    persona: asString(raw.persona),
-    angle: asString(raw.angle),
+    problem: stripLongDashes(asString(raw.problem)),
+    impact: stripLongDashes(asString(raw.impact)),
+    persona: stripLongDashes(asString(raw.persona)),
+    angle: stripLongDashes(asString(raw.angle)),
   };
 }
 
 // ─── Drafting (gap selling) ───────────────────────────────────────────────────
 
-const DRAFT_SYSTEM_PROMPT = `You write outbound LinkedIn outreach for Lucid-Lab, an AI agency in Paris that turns companies AI-native (Claude + Obsidian setups, automations, AI audits and roadmaps, AI training).
+const DRAFT_SYSTEM_PROMPT = `Tu écris des messages d'approche LinkedIn pour Lucid-Lab, une agence IA basée à Paris (mises en place Claude + Obsidian, automatisations, audits et plans d'action IA, formation des équipes).
 
-The message is sent FROM the sender's own LinkedIn account, so write in the sender's voice and sign with the sender's first name.
+Le message part du compte LinkedIn de l'émetteur : écris à la première personne, dans sa voix, et signe le follow-up avec son prénom. Vise un français parlé, sobre et direct, comme un fondateur qui écrit lui-même à un pair. Aucun ton commercial, aucun superlatif.
 
-You produce TWO things:
-1. "inviteNote": a LinkedIn CONNECTION note. HARD limit 280 characters. Short, human, anchored on a verifiable signal (e.g. "j'ai vu que vous recrutez un Head of AI"). NO pitch, NO link, NO "I can fix your problem". One warm line + a light reason to connect.
-2. "followup": the message sent AFTER they accept. Max 110 words. Use the gap selling structure: name the PROBLEM (from the research), state the IMPACT, weave ONE proof point (the provided case study) if relevant, then OFFER the CTA and ASK for it. Conversational, specific, no corporate jargon (no "synergy", "leverage", "scale", "leak"). One clear ask.
+Tu produis DEUX éléments :
+1. "inviteNote" : la note jointe à la demande de connexion. Limite stricte 280 caractères, vise 160 à 220. Une seule accroche, humaine, ancrée sur le signal concret et vérifiable (par exemple "j'ai vu que vous recrutez un Head of AI"). Aucune offre, aucun lien, aucune promesse de résoudre un problème. Varie les ouvertures, n'enchaîne pas toujours "je travaille avec...".
+2. "followup" : le message envoyé APRÈS l'acceptation. 70 à 95 mots maximum. Structure gap selling, légère et concrète : nomme le PROBLÈME précis (à partir de la recherche), chiffre l'IMPACT en temps ou en argent avec prudence ("souvent", "typiquement"), glisse UNE preuve (l'étude de cas fournie) seulement si elle colle vraiment au secteur, puis termine par UNE seule demande précise. La demande doit être concrète et facile à accepter : soit un créneau court et daté (par exemple "20 minutes mardi ou jeudi prochain ?"), soit une prochaine étape tangible (par exemple proposer de résumer en trois lignes comment une entreprise comparable a récupéré quelques heures par semaine). Une seule question, à la fin.
 
-Hard rules:
-- Output language matches the requested language.
-- NEVER claim to have visited their website or socials. Only reference the given signal and general industry reasoning.
-- Do not be pushy. The follow-up asks for the CTA once, softly.
-- Sign the follow-up with the sender's first name.
+Règles absolues :
+- Écris dans la langue demandée (français par défaut).
+- N'utilise JAMAIS de tiret long (les caractères — et –). Remplace par une virgule, un deux-points, une parenthèse, ou reformule.
+- Français natif, zéro calque de l'anglais. Bannis notamment : "ça fait sens", "résonner avec", "j'espère que ce message vous trouve bien", "scaler", "passer à l'échelle", "leviers", "synergies", "disruptif", et tout emoji.
+- Ne mentionne AUCUN prix ni fourchette tarifaire dans ce premier message.
+- Ne prétends jamais avoir vu leur site ou leurs réseaux. Appuie-toi uniquement sur le signal donné et un raisonnement sectoriel général.
+- Phrases courtes. Pas de jargon corporate. Une seule demande.
 
-Return ONLY a JSON object (no prose, no markdown fences):
+Réponds UNIQUEMENT avec un objet JSON (aucun texte autour, aucune balise markdown) :
 { "whyFit": string[], "inviteNote": string, "followup": string }`;
 
 export async function draftGapSellingOutreach(input: GapDraftInput): Promise<GapDraft> {
@@ -221,10 +239,10 @@ export async function draftGapSellingOutreach(input: GapDraftInput): Promise<Gap
     throw new Error('AI returned malformed draft JSON.');
   }
 
-  const inviteNote = clampNote(asString(raw.inviteNote));
-  const followup = asString(raw.followup);
+  const inviteNote = clampNote(stripLongDashes(asString(raw.inviteNote)));
+  const followup = stripLongDashes(asString(raw.followup));
   if (!inviteNote) throw new Error('AI returned an empty invite note.');
   if (!followup) throw new Error('AI returned an empty follow-up.');
 
-  return { whyFit: asStringArray(raw.whyFit, 4), inviteNote, followup };
+  return { whyFit: asStringArray(raw.whyFit, 4).map(stripLongDashes), inviteNote, followup };
 }

@@ -24,6 +24,16 @@ export interface ControlMessage {
   company: string | null;
 }
 
+export interface LeadRunSummary {
+  runType: string;
+  status: string;
+  startedAt: string | null;
+  finishedAt: string | null;
+  queued: number;
+  humanTouch: number;
+  skipped: number;
+}
+
 export interface ControlPanelData {
   outreachEnabled: boolean;
   sender: {
@@ -46,6 +56,7 @@ export interface ControlPanelData {
   };
   humanTouch: ControlMessage[];
   queue: ControlMessage[];
+  lastRun: LeadRunSummary | null;
 }
 
 async function countPeople(workspaceId: string, status: string): Promise<number> {
@@ -139,6 +150,26 @@ export async function getControlPanelData(): Promise<ControlPanelData> {
     listMessages(workspaceId, 'queued', 10),
   ]);
 
+  const { data: lastRunRow } = await supabase
+    .from('lead_engine_runs')
+    .select('run_type,status,started_at,finished_at,summary')
+    .eq('workspace_id', workspaceId)
+    .order('started_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+  const runSummary = (lastRunRow?.summary ?? {}) as Record<string, unknown>;
+  const lastRun: LeadRunSummary | null = lastRunRow
+    ? {
+        runType: String(lastRunRow.run_type),
+        status: String(lastRunRow.status),
+        startedAt: lastRunRow.started_at ? String(lastRunRow.started_at) : null,
+        finishedAt: lastRunRow.finished_at ? String(lastRunRow.finished_at) : null,
+        queued: Number(runSummary['queued'] ?? 0),
+        humanTouch: Number(runSummary['humanTouch'] ?? 0),
+        skipped: Number(runSummary['skipped'] ?? 0),
+      }
+    : null;
+
   return {
     outreachEnabled,
     sender: sender
@@ -156,6 +187,7 @@ export async function getControlPanelData(): Promise<ControlPanelData> {
     funnel: { discovered: discovered + enriched, queued: queued + dispatched, handedToHuman, contacted, replied, converted },
     humanTouch,
     queue: queueList,
+    lastRun,
   };
 }
 

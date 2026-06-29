@@ -1,45 +1,91 @@
 import { Users, Send, Inbox, MessageSquare, CheckCircle2, AlertTriangle, Activity } from 'lucide-react';
-import { getControlPanelData, type ControlMessage } from '@/lib/admin/lead-engine-control';
+import type { ComponentType } from 'react';
+import { cn } from '@/lib/utils';
+import { getControlPanelData, type ControlMessage, type LeadRunSummary } from '@/lib/admin/lead-engine-control';
 import { toggleOutreachAction, runPipelineAction } from './actions';
-import { EmptyState, LucidOsHeader, Section, StatCard, StatusBadge, formatAdminDateTime } from '../lucid-os/components';
+import { EmptyState, LucidOsHeader, Section, StatusBadge, formatAdminDateTime } from '../lucid-os/components';
 
 export const dynamic = 'force-dynamic';
 
 function buttonClass(tone: 'primary' | 'good' | 'danger' | 'ghost'): string {
-  const base = 'inline-flex h-9 items-center rounded px-3 text-sm font-semibold transition';
-  if (tone === 'primary') return `${base} bg-[#3b82f6] text-white hover:bg-[#60a5fa]`;
-  if (tone === 'good') return `${base} bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/20 hover:bg-emerald-500/25`;
-  if (tone === 'danger') return `${base} bg-rose-500/15 text-rose-300 ring-1 ring-rose-400/20 hover:bg-rose-500/25`;
-  return `${base} border border-white/10 text-zinc-300 hover:bg-white/[0.04]`;
+  const base = 'inline-flex h-9 items-center rounded-lg px-3 text-sm font-semibold transition-colors';
+  if (tone === 'primary') return `${base} bg-zinc-950 text-white hover:bg-zinc-800`;
+  if (tone === 'good') return `${base} bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-100`;
+  if (tone === 'danger') return `${base} bg-rose-50 text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100`;
+  return `${base} border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50`;
+}
+
+function StatTile({
+  label,
+  value,
+  hint,
+  icon: Icon,
+  accent,
+}: {
+  label: string;
+  value: string | number;
+  hint: string;
+  icon: ComponentType<{ className?: string }>;
+  accent?: string;
+}) {
+  return (
+    <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+      <div className="flex items-start justify-between gap-3">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">{label}</p>
+        <Icon className={cn('size-4 shrink-0', accent ?? 'text-zinc-400')} />
+      </div>
+      <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-zinc-950">{value}</p>
+      <p className="mt-1 text-xs text-zinc-500">{hint}</p>
+    </div>
+  );
+}
+
+/** LinkedIn headlines often carry emojis and stray replacement chars; tidy for display. */
+function cleanTitle(title: string): string {
+  return title.replace(/�/g, '').replace(/\s{2,}/g, ' ').trim();
+}
+
+function lastRunLine(run: LeadRunSummary): string {
+  const when = formatAdminDateTime(run.finishedAt ?? run.startedAt);
+  if (run.status === 'running') {
+    return `Dernier lancement : en cours depuis ${when}. Le pipeline prend 1 à 2 minutes, la page se mettra à jour ensuite.`;
+  }
+  if (run.status === 'failed') return `Dernier lancement : échec (${when}). Réessaie ou préviens-moi.`;
+  return `Dernier lancement : ${when} · ${run.queued} en file, ${run.humanTouch} à la main, ${run.skipped} écartés.`;
 }
 
 function MessageList({ items }: { items: ControlMessage[] }) {
   return (
-    <div>
+    <div className="grid gap-3">
       {items.map((m) => (
-        <div key={m.id} className="border-t border-white/[0.08] py-4 first:border-t-0">
+        <article key={m.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
           <div className="flex items-center justify-between gap-3">
-            <p className="min-w-0 truncate text-sm font-semibold text-zinc-50">
+            <p className="min-w-0 truncate text-sm font-semibold text-zinc-950">
               {m.personName ?? 'Contact inconnu'}
               {m.company ? <span className="font-normal text-zinc-500"> · {m.company}</span> : null}
             </p>
             <StatusBadge tone="neutral">{m.stepKind ?? 'message'}</StatusBadge>
           </div>
-          {m.personTitle ? <p className="mt-0.5 text-xs text-zinc-500">{m.personTitle}</p> : null}
-          {m.body ? <p className="mt-2 whitespace-pre-line text-sm leading-6 text-zinc-400">{m.body}</p> : null}
+          {m.personTitle ? <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">{cleanTitle(m.personTitle)}</p> : null}
+          {m.body ? <p className="mt-2 whitespace-pre-line text-sm leading-6 text-zinc-700">{m.body}</p> : null}
           {m.linkedinUrl ? (
-            <a href={m.linkedinUrl} target="_blank" rel="noreferrer" className="mt-1 inline-block text-xs text-blue-300 hover:text-blue-200">
+            <a
+              href={m.linkedinUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="mt-2 inline-block text-xs font-medium text-sky-700 hover:text-sky-800"
+            >
               Profil LinkedIn
             </a>
           ) : null}
-        </div>
+        </article>
       ))}
     </div>
   );
 }
 
 export default async function LeadEnginePage() {
-  const { outreachEnabled, sender, funnel, humanTouch, queue } = await getControlPanelData();
+  const { outreachEnabled, sender, funnel, humanTouch, queue, lastRun } = await getControlPanelData();
 
   return (
     <div className="space-y-8">
@@ -66,27 +112,30 @@ export default async function LeadEnginePage() {
         }
       />
 
+      {lastRun ? <p className="-mt-4 text-xs text-zinc-500">{lastRunLine(lastRun)}</p> : null}
+
       <Section title="Entonnoir">
-        <div className="grid gap-x-6 sm:grid-cols-3 lg:grid-cols-6">
-          <StatCard label="Sourcés" value={funnel.discovered} hint="Prospects trouvés" icon={Users} />
-          <StatCard label="En file" value={funnel.queued} hint="Invitations à envoyer" icon={Send} />
-          <StatCard label="À la main" value={funnel.handedToHuman} hint="Top leads (humain)" icon={Inbox} />
-          <StatCard label="Contactés" value={funnel.contacted} hint="Invitations envoyées" icon={MessageSquare} />
-          <StatCard label="Réponses" value={funnel.replied} hint="Ont répondu" icon={Activity} />
-          <StatCard label="Convertis" value={funnel.converted} hint="Devenus clients" icon={CheckCircle2} />
+        <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
+          <StatTile label="Sourcés" value={funnel.discovered} hint="Prospects trouvés" icon={Users} />
+          <StatTile label="En file" value={funnel.queued} hint="Invitations à envoyer" icon={Send} />
+          <StatTile label="À la main" value={funnel.handedToHuman} hint="Top leads (humain)" icon={Inbox} />
+          <StatTile label="Contactés" value={funnel.contacted} hint="Invitations envoyées" icon={MessageSquare} />
+          <StatTile label="Réponses" value={funnel.replied} hint="Ont répondu" icon={Activity} />
+          <StatTile label="Convertis" value={funnel.converted} hint="Devenus clients" icon={CheckCircle2} />
         </div>
       </Section>
 
       <Section title="Compte émetteur">
         {sender ? (
-          <div className="grid gap-x-6 sm:grid-cols-3">
-            <StatCard label="Invitations / jour" value={`${sender.invitesSentToday} / ${sender.dailyInviteCap}`} hint={`${sender.label}, plafond quotidien`} icon={Send} />
-            <StatCard label="Messages / jour" value={`${sender.messagesSentToday} / ${sender.dailyMessageCap}`} hint="Suivis envoyés" icon={MessageSquare} />
-            <StatCard
+          <div className="grid gap-3 sm:grid-cols-3">
+            <StatTile label="Invitations / jour" value={`${sender.invitesSentToday} / ${sender.dailyInviteCap}`} hint={`${sender.label}, plafond quotidien`} icon={Send} />
+            <StatTile label="Messages / jour" value={`${sender.messagesSentToday} / ${sender.dailyMessageCap}`} hint="Suivis envoyés" icon={MessageSquare} />
+            <StatTile
               label="Runner"
               value={sender.sessionExpired ? 'Session expirée' : sender.lastSeenAt ? 'Actif' : 'Inactif'}
               hint={sender.lastSeenAt ? formatAdminDateTime(sender.lastSeenAt) : 'Démarrer le runner local'}
               icon={sender.sessionExpired ? AlertTriangle : CheckCircle2}
+              accent={sender.sessionExpired ? 'text-rose-500' : sender.lastSeenAt ? 'text-emerald-500' : 'text-zinc-400'}
             />
           </div>
         ) : (
@@ -94,7 +143,7 @@ export default async function LeadEnginePage() {
         )}
       </Section>
 
-      <Section title="À contacter à la main" action={<span className="text-xs text-zinc-600">{humanTouch.length}</span>}>
+      <Section title="À contacter à la main" action={<StatusBadge tone="neutral">{humanTouch.length}</StatusBadge>}>
         {humanTouch.length > 0 ? (
           <MessageList items={humanTouch} />
         ) : (
@@ -102,7 +151,7 @@ export default async function LeadEnginePage() {
         )}
       </Section>
 
-      <Section title="File d'envoi LinkedIn" action={<span className="text-xs text-zinc-600">{queue.length}</span>}>
+      <Section title="File d'envoi LinkedIn" action={<StatusBadge tone="neutral">{queue.length}</StatusBadge>}>
         {queue.length > 0 ? (
           <MessageList items={queue} />
         ) : (
@@ -110,8 +159,8 @@ export default async function LeadEnginePage() {
         )}
       </Section>
 
-      <p className="text-xs leading-6 text-zinc-600">
-        Le dry-run source et score sans appeler l&apos;IA ni rien écrire. Le lancement réel rédige les messages et remplit la file (petit lot). L&apos;envoi part du runner local sur la session d&apos;Anthony, avec des plafonds quotidiens.
+      <p className="text-xs leading-6 text-zinc-500">
+        Le dry-run source et score sans appeler l&apos;IA ni rien écrire. Le lancement réel rédige les messages et remplit la file (petit lot) : il prend 1 à 2 minutes, patiente jusqu&apos;au rafraîchissement de la page. L&apos;envoi part du runner local sur la session d&apos;Anthony, avec des plafonds quotidiens.
       </p>
     </div>
   );

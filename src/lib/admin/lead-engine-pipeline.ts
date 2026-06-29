@@ -9,6 +9,7 @@ import {
   isSuppressed,
   upsertProspectCompany,
   upsertProspectPerson,
+  hasActiveOutreach,
   insertSignals,
   upsertProspectScore,
   insertOutreachMessage,
@@ -264,6 +265,7 @@ async function processCandidate(
     status: 'enriched',
   });
   if (alreadyContacted) return 'skipped_contacted';
+  if (await hasActiveOutreach(personId)) return 'skipped_contacted';
 
   await insertSignals([{
     workspaceId,

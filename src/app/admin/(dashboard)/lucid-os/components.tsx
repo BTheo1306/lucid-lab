@@ -1,6 +1,17 @@
 import type { ComponentType, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 
+/**
+ * Shared Lucid OS admin building blocks.
+ *
+ * Written with the admin's LIGHT base classes (bg-white, border-zinc-200,
+ * text-zinc-950, ...). The admin theme toggle (admin-dark.css) remaps these to
+ * dark values when `.admin-dark` is present, so every page built from these
+ * components works in BOTH light and dark. Never use dark-native classes here
+ * (text-zinc-50, border-white/..., bg-white/...): the toggle can't flip them,
+ * so they break light mode.
+ */
+
 export function LucidOsHeader({
   title,
   action,
@@ -12,8 +23,8 @@ export function LucidOsHeader({
   action?: ReactNode;
 }) {
   return (
-    <header className="flex flex-col gap-4 border-b border-white/[0.08] pb-4 sm:flex-row sm:items-center sm:justify-between">
-      <h1 className="text-2xl font-semibold tracking-[-0.03em] text-zinc-50 md:text-3xl">{title}</h1>
+    <header className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+      <h1 className="text-2xl font-semibold tracking-[-0.03em] text-zinc-950 md:text-3xl">{title}</h1>
       {action ? <div className="shrink-0">{action}</div> : null}
     </header>
   );
@@ -35,13 +46,11 @@ export function StatCard({
   const inner = (
     <>
       <div className="flex items-start justify-between gap-3">
-        <div>
-          <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">{label}</p>
-          <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-zinc-50">{value}</p>
-        </div>
-        <Icon className="mt-1 size-4 shrink-0 text-zinc-600" />
+        <p className="text-[11px] font-semibold uppercase tracking-[0.12em] text-zinc-500">{label}</p>
+        <Icon className="size-4 shrink-0 text-zinc-400" />
       </div>
-      <p className="mt-3 text-sm text-zinc-500">{hint}</p>
+      <p className="mt-2 text-3xl font-semibold tracking-[-0.03em] text-zinc-950">{value}</p>
+      <p className="mt-1 text-sm text-zinc-500">{hint}</p>
     </>
   );
 
@@ -49,14 +58,14 @@ export function StatCard({
     return (
       <a
         href={href}
-        className="block border-t border-white/10 py-4 transition-colors hover:border-white/20 hover:bg-white/[0.02] rounded-sm -mx-2 px-2"
+        className="block rounded-xl border border-zinc-200 bg-white p-4 shadow-sm transition-colors hover:border-zinc-300 hover:bg-zinc-50"
       >
         {inner}
       </a>
     );
   }
 
-  return <div className="border-t border-white/10 py-4">{inner}</div>;
+  return <div className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">{inner}</div>;
 }
 
 export function Section({
@@ -72,17 +81,17 @@ export function Section({
   return (
     <section className="grid gap-3">
       <div className="flex items-center justify-between gap-3">
-        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">{title}</h2>
+        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-900">{title}</h2>
         {action ? <div className="shrink-0">{action}</div> : null}
       </div>
-      <div className="border-t border-white/[0.08] pt-3">{children}</div>
+      {children}
     </section>
   );
 }
 
 export function EmptyState({ children }: { children: ReactNode }) {
   return (
-    <div className="rounded-md border border-dashed border-white/10 bg-white/[0.02] px-4 py-10 text-center text-sm leading-6 text-zinc-500">
+    <div className="rounded-xl border border-dashed border-zinc-200 bg-zinc-50 px-4 py-10 text-center text-sm leading-6 text-zinc-500">
       {children}
     </div>
   );
@@ -93,10 +102,10 @@ export function StatusBadge({ children, tone = 'neutral' }: { children: ReactNod
     <span
       className={cn(
         'inline-flex rounded px-1.5 py-0.5 text-[11px] font-semibold uppercase tracking-[0.08em] ring-1',
-        tone === 'good' && 'bg-emerald-500/10 text-emerald-300 ring-emerald-400/20',
-        tone === 'warning' && 'bg-blue-500/10 text-blue-300 ring-blue-400/20',
-        tone === 'danger' && 'bg-rose-500/10 text-rose-300 ring-rose-400/20',
-        tone === 'neutral' && 'bg-white/[0.04] text-zinc-400 ring-white/10',
+        tone === 'good' && 'bg-emerald-50 text-emerald-700 ring-emerald-200',
+        tone === 'warning' && 'bg-amber-50 text-amber-700 ring-amber-200',
+        tone === 'danger' && 'bg-rose-50 text-rose-700 ring-rose-200',
+        tone === 'neutral' && 'bg-zinc-100 text-zinc-600 ring-zinc-200',
       )}
     >
       {children}
