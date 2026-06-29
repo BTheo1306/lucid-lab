@@ -1,8 +1,9 @@
-import { Users, Send, Inbox, MessageSquare, CheckCircle2, AlertTriangle, Activity } from 'lucide-react';
+import { Users, Send, Inbox, MessageSquare, CheckCircle2, AlertTriangle, Activity, Search, ExternalLink } from 'lucide-react';
 import type { ComponentType } from 'react';
 import { cn } from '@/lib/utils';
 import { getControlPanelData, type ControlMessage, type LeadRunSummary } from '@/lib/admin/lead-engine-control';
 import { toggleOutreachAction, runPipelineAction } from './actions';
+import { CopyButton } from './CopyButton';
 import { EmptyState, LucidOsHeader, Section, StatusBadge, formatAdminDateTime } from '../lucid-os/components';
 
 export const dynamic = 'force-dynamic';
@@ -45,6 +46,18 @@ function cleanTitle(title: string): string {
   return title.replace(/�/g, '').replace(/\s{2,}/g, ' ').trim();
 }
 
+/**
+ * A direct way to reach the person. Use the resolved LinkedIn profile when we
+ * have it; otherwise fall back to a LinkedIn people-search prefilled with their
+ * name + company so a one click lands on their profile (gov-sourced founders
+ * carry no profile URL).
+ */
+function linkedinContactUrl(m: ControlMessage): string {
+  if (m.linkedinUrl) return m.linkedinUrl;
+  const query = [m.personName, m.company].filter(Boolean).join(' ');
+  return `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(query)}`;
+}
+
 function lastRunLine(run: LeadRunSummary): string {
   const when = formatAdminDateTime(run.finishedAt ?? run.startedAt);
   if (run.status === 'running') {
@@ -68,16 +81,18 @@ function MessageList({ items }: { items: ControlMessage[] }) {
           </div>
           {m.personTitle ? <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">{cleanTitle(m.personTitle)}</p> : null}
           {m.body ? <p className="mt-2 whitespace-pre-line text-sm leading-6 text-zinc-700">{m.body}</p> : null}
-          {m.linkedinUrl ? (
+          <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-zinc-100 pt-3">
             <a
-              href={m.linkedinUrl}
+              href={linkedinContactUrl(m)}
               target="_blank"
               rel="noreferrer"
-              className="mt-2 inline-block text-xs font-medium text-sky-700 hover:text-sky-800"
+              className="inline-flex items-center gap-1 text-xs font-medium text-sky-700 hover:text-sky-800"
             >
-              Profil LinkedIn
+              {m.linkedinUrl ? <ExternalLink className="size-3.5" /> : <Search className="size-3.5" />}
+              {m.linkedinUrl ? 'Ouvrir le profil LinkedIn' : 'Trouver sur LinkedIn'}
             </a>
-          ) : null}
+            {m.body ? <CopyButton text={m.body} /> : null}
+          </div>
         </article>
       ))}
     </div>
