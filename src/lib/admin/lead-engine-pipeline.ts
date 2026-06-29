@@ -323,7 +323,11 @@ async function processCandidate(
     buyerRole,
   };
 
-  if (score.tier === 'human_touch') {
+  // The runner can only auto-send when we have a LinkedIn profile URL to open,
+  // so route every URL-less prospect to the human-touch lane instead of the queue.
+  const tier = candidate.person.linkedinUrl ? score.tier : 'human_touch';
+
+  if (tier === 'human_touch') {
     await insertOutreachMessage({
       workspaceId, campaignId: campaign.id, companyId, personId,
       senderAccountId: sender?.id ?? null,
