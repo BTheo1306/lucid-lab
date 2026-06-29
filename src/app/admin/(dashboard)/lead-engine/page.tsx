@@ -58,6 +58,13 @@ function linkedinContactUrl(m: ControlMessage): string {
   return `https://www.linkedin.com/search/results/people/?keywords=${encodeURIComponent(query)}`;
 }
 
+/** At-a-glance tag for which offer/profile a lead belongs to. */
+function motionBadge(motion: string | null): { label: string; tone: 'good' | 'warning' } | null {
+  if (motion === 'founder_smb') return { label: 'Claude + Obsidian', tone: 'good' };
+  if (motion === 'enterprise') return { label: 'Grand groupe', tone: 'warning' };
+  return null;
+}
+
 function lastRunLine(run: LeadRunSummary): string {
   const when = formatAdminDateTime(run.finishedAt ?? run.startedAt);
   if (run.status === 'running') {
@@ -70,31 +77,34 @@ function lastRunLine(run: LeadRunSummary): string {
 function MessageList({ items }: { items: ControlMessage[] }) {
   return (
     <div className="grid gap-3">
-      {items.map((m) => (
-        <article key={m.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
-          <div className="flex items-center justify-between gap-3">
-            <p className="min-w-0 truncate text-sm font-semibold text-zinc-950">
-              {m.personName ?? 'Contact inconnu'}
-              {m.company ? <span className="font-normal text-zinc-500"> · {m.company}</span> : null}
-            </p>
-            <StatusBadge tone="neutral">{m.stepKind ?? 'message'}</StatusBadge>
-          </div>
-          {m.personTitle ? <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">{cleanTitle(m.personTitle)}</p> : null}
-          {m.body ? <p className="mt-2 whitespace-pre-line text-sm leading-6 text-zinc-700">{m.body}</p> : null}
-          <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-zinc-100 pt-3">
-            <a
-              href={linkedinContactUrl(m)}
-              target="_blank"
-              rel="noreferrer"
-              className="inline-flex items-center gap-1 text-xs font-medium text-sky-700 hover:text-sky-800"
-            >
-              {m.linkedinUrl ? <ExternalLink className="size-3.5" /> : <Search className="size-3.5" />}
-              {m.linkedinUrl ? 'Ouvrir le profil LinkedIn' : 'Trouver sur LinkedIn'}
-            </a>
-            {m.body ? <CopyButton text={m.body} /> : null}
-          </div>
-        </article>
-      ))}
+      {items.map((m) => {
+        const badge = motionBadge(m.motion);
+        return (
+          <article key={m.id} className="rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <p className="min-w-0 truncate text-sm font-semibold text-zinc-950">
+                {m.personName ?? 'Contact inconnu'}
+                {m.company ? <span className="font-normal text-zinc-500"> · {m.company}</span> : null}
+              </p>
+              {badge ? <StatusBadge tone={badge.tone}>{badge.label}</StatusBadge> : null}
+            </div>
+            {m.personTitle ? <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">{cleanTitle(m.personTitle)}</p> : null}
+            {m.body ? <p className="mt-2 whitespace-pre-line text-sm leading-6 text-zinc-700">{m.body}</p> : null}
+            <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-zinc-100 pt-3">
+              <a
+                href={linkedinContactUrl(m)}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 text-xs font-medium text-sky-700 hover:text-sky-800"
+              >
+                {m.linkedinUrl ? <ExternalLink className="size-3.5" /> : <Search className="size-3.5" />}
+                {m.linkedinUrl ? 'Ouvrir le profil LinkedIn' : 'Trouver sur LinkedIn'}
+              </a>
+              {m.body ? <CopyButton text={m.body} /> : null}
+            </div>
+          </article>
+        );
+      })}
     </div>
   );
 }

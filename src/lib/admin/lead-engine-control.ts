@@ -22,6 +22,8 @@ export interface ControlMessage {
   personTitle: string | null;
   linkedinUrl: string | null;
   company: string | null;
+  /** Campaign motion: 'founder_smb' (Claude + Obsidian) | 'enterprise' (grand groupe). */
+  motion: string | null;
 }
 
 export interface LeadRunSummary {
@@ -80,7 +82,7 @@ async function countMessages(workspaceId: string, status: string): Promise<numbe
 async function listMessages(workspaceId: string, status: string, limit: number): Promise<ControlMessage[]> {
   const { data } = await supabase
     .from('outreach_messages')
-    .select('id,step_kind,body_text,person_id,company_id,created_at')
+    .select('id,step_kind,body_text,person_id,company_id,campaign_id,created_at')
     .eq('workspace_id', workspaceId)
     .eq('status', status)
     .order('created_at', { ascending: false })
@@ -96,8 +98,15 @@ async function listMessages(workspaceId: string, status: string, limit: number):
   const companies = companyIds.length
     ? (await supabase.from('prospect_companies').select('id,name').in('id', companyIds)).data ?? []
     : [];
+  const campaignIds = [...new Set(rows.map((r) => r.campaign_id).filter(Boolean))] as string[];
+  const campaigns = campaignIds.length
+    ? (await supabase.from('lead_engine_campaigns').select('id,icp_config').in('id', campaignIds)).data ?? []
+    : [];
   const pMap = new Map(people.map((p) => [String(p.id), p]));
   const cMap = new Map(companies.map((c) => [String(c.id), c]));
+  const motionMap = new Map(
+    campaigns.map((c) => [String(c.id), String((c.icp_config as Record<string, unknown> | null)?.['motion'] ?? '') || null]),
+  );
 
   return rows.map((r) => {
     const person = r.person_id ? pMap.get(String(r.person_id)) : undefined;
@@ -110,6 +119,7 @@ async function listMessages(workspaceId: string, status: string, limit: number):
       personTitle: person?.title ? String(person.title) : null,
       linkedinUrl: person?.linkedin_url ? String(person.linkedin_url) : null,
       company: company?.name ? String(company.name) : null,
+      motion: r.campaign_id ? motionMap.get(String(r.campaign_id)) ?? null : null,
     };
   });
 }
