@@ -179,6 +179,30 @@ async function sendDigest(transcript: unknown, synthesis: string): Promise<void>
   });
 }
 
+// ─── Meeting id extraction ────────────────────────────────────────────────────
+// The legacy Fireflies webhook (Developer Settings) sent a flat { meetingId }.
+// The new Integrations webhook ("Meeting Summarized" event) delivers a different
+// shape, so probe every known/likely location instead of a single flat field.
+
+function asRecord(v: unknown): Record<string, unknown> | undefined {
+  return v && typeof v === 'object' ? (v as Record<string, unknown>) : undefined;
+}
+
+function extractMeetingId(payload: Record<string, unknown>): string | null {
+  const data = asRecord(payload.data);
+  const meeting = asRecord(payload.meeting) ?? asRecord(data?.meeting);
+  const transcript = asRecord(payload.transcript) ?? asRecord(data?.transcript);
+  const candidates: unknown[] = [
+    payload.meetingId, payload.transcriptId, payload.transcript_id, payload.meeting_id, payload.id,
+    data?.meetingId, data?.transcriptId, data?.transcript_id, data?.meeting_id, data?.id,
+    meeting?.id, meeting?.meetingId, transcript?.id, transcript?.transcriptId,
+  ];
+  for (const c of candidates) {
+    if (typeof c === 'string' && c.trim()) return c.trim();
+  }
+  return null;
+}
+
 // ─── Webhook handler ──────────────────────────────────────────────────────────
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
@@ -186,15 +210,25 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   if (!verifySignature(rawBody, request.headers.get('x-hub-signature'))) {
     return NextResponse.json({ error: 'Invalid signature' }, { status: 401 });
   }
-  let payload: { meetingId?: string; eventType?: string };
+  let payload: Record<string, unknown>;
   try {
-    payload = JSON.parse(rawBody);
+    payload = JSON.parse(rawBody) as Record<string, unknown>;
   } catch {
     return NextResponse.json({ error: 'Invalid JSON' }, { status: 400 });
   }
 
-  const meetingId = payload.meetingId;
-  if (!meetingId) return NextResponse.json({ ok: true, note: 'no meetingId (test ping)' });
+  const meetingId = extractMeetingId(payload);
+  if (!meetingId) {
+    // Diagnostic: surface the real payload shape so we can confirm the field path.
+    console.warn(
+      '[fireflies-webhook] no meetingId found. event:', payload.eventType,
+      'top-level keys:', JSON.stringify(Object.keys(payload)),
+      'data keys:', payload.data && typeof payload.data === 'object'
+        ? JSON.stringify(Object.keys(payload.data as object)) : null,
+    );
+    return NextResponse.json({ ok: true, note: 'no meetingId (test ping)' });
+  }
+  console.log('[fireflies-webhook] processing meetingId:', meetingId, 'event:', payload.eventType);
 
   try {
     const t = await fetchTranscript(meetingId);
