@@ -127,9 +127,9 @@ function RecordRow({ record, acquired }: { record: ClientRecordListItem; acquire
   return (
     <Link
       href={href}
-      className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-white/[0.08] px-1 py-4 transition-colors first:border-t-0 hover:bg-white/[0.03] sm:px-3"
+      className="group grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4 border-t border-zinc-200 px-1 py-4 transition-colors first:border-t-0 hover:bg-zinc-50 sm:px-3"
     >
-      <span className="truncate text-base font-semibold tracking-[-0.01em] text-zinc-50 group-hover:text-white">
+      <span className="truncate text-base font-semibold tracking-[-0.01em] text-zinc-950 group-hover:text-zinc-900">
         {recordName(record)}
       </span>
       <StatusBadge tone={tone}>{label}</StatusBadge>
@@ -153,10 +153,10 @@ function RecordListSection({
   return (
     <section id={id} className="grid gap-3">
       <div className="flex items-baseline justify-between gap-4">
-        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">{title}</h2>
+        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-900">{title}</h2>
         <span className="text-xs text-zinc-600">{records.length}</span>
       </div>
-      <div className="border-t border-white/[0.08] pt-1">
+      <div className="border-t border-zinc-200 pt-1">
         {records.length === 0 ? (
           <EmptyState>{emptyLabel}</EmptyState>
         ) : (
@@ -190,7 +190,7 @@ export default async function LucidOsClientsPage({ searchParams }: { searchParam
       <LucidOsHeader
         title="Fiches clients"
         action={(
-          <Link href="/admin/lucid-os/clients/new" className="inline-flex h-9 items-center justify-center gap-2 rounded bg-[#3b82f6] px-3 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
+          <Link href="/admin/lucid-os/clients/new" className="inline-flex h-9 items-center justify-center gap-2 rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition hover:bg-zinc-800">
             <Plus className="size-4" />
             Ajouter un client
           </Link>

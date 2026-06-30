@@ -73,7 +73,7 @@ export function ClientTaskBoard({ clientId, clientSlug, tasks }: { clientId: str
 
   return (
     <div className="grid gap-3">
-      {error ? <div className="border border-rose-400/25 bg-rose-500/10 px-3 py-2 text-sm text-rose-100">{error}</div> : null}
+      {error ? <div className="border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</div> : null}
       <div className="grid gap-3 lg:grid-cols-3">
         {columns.map((column) => (
         <section
@@ -86,18 +86,18 @@ export function ClientTaskBoard({ clientId, clientSlug, tasks }: { clientId: str
             setDraggedTaskId(null);
           }}
           className={cn(
-            'min-h-48 border border-white/[0.08] bg-white/[0.02] p-3 transition-colors',
-            draggedTaskId && 'bg-white/[0.04]',
+            'min-h-48 border border-zinc-200 bg-zinc-50 p-3 transition-colors',
+            draggedTaskId && 'bg-zinc-100',
           )}
         >
           <div className="mb-3 flex items-center justify-between gap-3">
-            <h3 className="text-sm font-semibold text-zinc-100">{column.label}</h3>
+            <h3 className="text-sm font-semibold text-zinc-900">{column.label}</h3>
             <span className="text-xs text-zinc-600">{groupedTasks[column.status].length}</span>
           </div>
 
           <div className="grid gap-2">
             {groupedTasks[column.status].length === 0 ? (
-              <div className="border border-dashed border-white/[0.08] px-3 py-8 text-center text-sm text-zinc-600">Vide</div>
+              <div className="border border-dashed border-zinc-200 px-3 py-8 text-center text-sm text-zinc-600">Vide</div>
             ) : groupedTasks[column.status].map((task) => (
               <article
                 key={task.id}
@@ -108,9 +108,9 @@ export function ClientTaskBoard({ clientId, clientSlug, tasks }: { clientId: str
                   event.dataTransfer.setData('text/plain', task.id);
                 }}
                 onDragEnd={() => setDraggedTaskId(null)}
-                className="cursor-grab border border-white/[0.08] bg-[#09090b] p-3 active:cursor-grabbing"
+                className="cursor-grab border border-zinc-200 bg-white p-3 active:cursor-grabbing"
               >
-                <p className="text-sm font-semibold leading-5 text-zinc-50">{task.title}</p>
+                <p className="text-sm font-semibold leading-5 text-zinc-950">{task.title}</p>
                 {task.description ? <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">{task.description}</p> : null}
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-zinc-600">
                   <span>{priorityLabel(task.priority)}</span>
@@ -129,7 +129,7 @@ export function ClientTaskBoard({ clientId, clientSlug, tasks }: { clientId: str
                         onClick={() => moveTask(task.id, option.status)}
                         className={cn(
                           'h-8 rounded border px-2 text-[11px] font-semibold transition',
-                          active ? 'border-blue-400/30 bg-blue-500/10 text-blue-200' : 'border-white/10 bg-white/[0.03] text-zinc-400 hover:bg-white/[0.07] hover:text-zinc-100',
+                          active ? 'border-emerald-200 bg-emerald-50 text-emerald-700' : 'border-zinc-200 bg-zinc-50 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900',
                           (isPending || active) && 'cursor-default opacity-70',
                         )}
                       >
