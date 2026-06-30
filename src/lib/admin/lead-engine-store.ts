@@ -667,8 +667,13 @@ export async function getDailyCounter(senderAccountId: string): Promise<{ invite
 
 type CounterField = 'invites_sent' | 'messages_sent' | 'invites_accepted' | 'replies' | 'errors';
 
-export async function incrementDailyCounter(senderAccountId: string, field: CounterField, by = 1): Promise<void> {
-  const date = counterDate();
+/**
+ * `date` defaults to today but undo paths pass the day the original send actually
+ * happened on, so reverting an older send doesn't dent today's count. All counter
+ * columns have a `>= 0` CHECK constraint, so negative deltas are clamped at 0
+ * instead of being allowed to fail the write.
+ */
+export async function incrementDailyCounter(senderAccountId: string, field: CounterField, by = 1, date = counterDate()): Promise<void> {
   const { data } = await supabase
     .from('outreach_sender_daily_counters')
     .select(`id,${field}`)
@@ -677,9 +682,9 @@ export async function incrementDailyCounter(senderAccountId: string, field: Coun
     .maybeSingle();
   if (data?.id) {
     const current = Number((data as Record<string, unknown>)[field] ?? 0);
-    await supabase.from('outreach_sender_daily_counters').update({ [field]: current + by }).eq('id', data.id);
+    await supabase.from('outreach_sender_daily_counters').update({ [field]: Math.max(0, current + by) }).eq('id', data.id);
   } else {
-    await supabase.from('outreach_sender_daily_counters').insert({ sender_account_id: senderAccountId, counter_date: date, [field]: by });
+    await supabase.from('outreach_sender_daily_counters').insert({ sender_account_id: senderAccountId, counter_date: date, [field]: Math.max(0, by) });
   }
 }
 
@@ -778,6 +783,90 @@ export async function recordSendResult(input: {
     await supabase.from('outreach_messages').update({ status: 'skipped' }).eq('id', input.messageId);
     await insertOutreachEvent({ workspaceId, messageId: input.messageId, personId, companyId, eventType: 'linkedin_send_skipped' });
   }
+}
+
+/**
+ * Anthony confirming (or skipping) a human-touch lead from the cockpit. Same
+ * effect as recordSendResult, but first snapshots the prospect's pre-send
+ * status/last_contacted_at into personalization so a misclick can be undone
+ * with revertHumanTouchSend (we don't know the "right" prior status to guess
+ * an inverse, since prospect_people.status only ever moves forward).
+ */
+export async function markHumanTouchSent(input: {
+  messageId: string;
+  senderAccountId: string;
+  outcome: 'sent' | 'skipped';
+}): Promise<void> {
+  if (input.outcome === 'sent') {
+    const { data: msg } = await supabase
+      .from('outreach_messages')
+      .select('person_id,personalization')
+      .eq('id', input.messageId)
+      .maybeSingle();
+    if (msg?.person_id) {
+      const { data: person } = await supabase
+        .from('prospect_people')
+        .select('status,last_contacted_at')
+        .eq('id', msg.person_id)
+        .maybeSingle();
+      const personalization = {
+        ...((msg.personalization as Record<string, unknown> | null) ?? {}),
+        preSendPersonStatus: person?.status ?? null,
+        preSendLastContactedAt: person?.last_contacted_at ?? null,
+      };
+      await supabase.from('outreach_messages').update({ personalization }).eq('id', input.messageId);
+    }
+  }
+  await recordSendResult(input);
+}
+
+/**
+ * Undo a mistaken "Marquer comme envoyé" click. Only valid for human_touch
+ * messages (Anthony's own manual confirmation) — never for invite/followup
+ * messages the runner actually dispatched on LinkedIn, since the database
+ * can be reverted but the real send can't be.
+ */
+export async function revertHumanTouchSend(messageId: string): Promise<void> {
+  const { data: msg, error } = await supabase
+    .from('outreach_messages')
+    .select('step_kind,status,person_id,sender_account_id,personalization,sent_at')
+    .eq('id', messageId)
+    .maybeSingle();
+  if (error) {
+    if (missingLeadEngineRelation(error)) return;
+    throw error;
+  }
+  if (!msg) throw new Error('Message introuvable.');
+  if (String(msg.step_kind) !== 'human_touch') throw new Error('Seul un envoi à la main peut être annulé.');
+  if (msg.status !== 'sent') return; // already reverted (or never sent) — no-op so a double-click stays harmless
+
+  const personId = msg.person_id ? String(msg.person_id) : null;
+  const personalization = (msg.personalization as Record<string, unknown> | null) ?? {};
+
+  await supabase.from('outreach_messages').update({ status: 'handed_to_human', sent_at: null }).eq('id', messageId);
+
+  if (personId && typeof personalization['preSendPersonStatus'] === 'string') {
+    await supabase.from('prospect_people')
+      .update({
+        status: personalization['preSendPersonStatus'],
+        last_contacted_at: (personalization['preSendLastContactedAt'] as string | null) ?? null,
+      })
+      .eq('id', personId);
+  }
+  // prospect_companies.status is deliberately left as 'contacted': a company can have
+  // several contacts, so we can't tell whether another message already earned that status.
+
+  // Human-touch is never a followup, so the original send always bumped invites_sent.
+  // Decrement the day it was actually sent on (not "today"), so undoing an older
+  // send doesn't dent today's count; incrementDailyCounter clamps at 0 either way.
+  if (msg.sender_account_id) {
+    const sentDate = msg.sent_at ? String(msg.sent_at).slice(0, 10) : undefined;
+    await incrementDailyCounter(String(msg.sender_account_id), 'invites_sent', -1, sentDate);
+  }
+
+  // No outreach_events row here: event_type is a closed CHECK enum with no "undone"
+  // value, and extending it needs a migration. The status flip above is the source
+  // of truth; the original 'handed_to_human' event from the pipeline still stands.
 }
 
 export async function updateSenderHeartbeat(senderAccountId: string, sessionExpired = false): Promise<void> {

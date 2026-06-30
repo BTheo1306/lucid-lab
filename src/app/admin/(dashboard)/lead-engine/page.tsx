@@ -1,8 +1,8 @@
-import { Users, Send, Inbox, MessageSquare, CheckCircle2, AlertTriangle, Activity, Search, ExternalLink } from 'lucide-react';
-import type { ComponentType } from 'react';
+import { Users, Send, Inbox, MessageSquare, CheckCircle2, AlertTriangle, Activity, Search, ExternalLink, RotateCcw } from 'lucide-react';
+import type { ComponentType, ReactNode } from 'react';
 import { cn } from '@/lib/utils';
 import { getControlPanelData, type ControlMessage, type LeadRunSummary } from '@/lib/admin/lead-engine-control';
-import { toggleOutreachAction, runPipelineAction } from './actions';
+import { toggleOutreachAction, runPipelineAction, markHumanTouchOutcomeAction, undoHumanTouchOutcomeAction } from './actions';
 import { CopyButton } from './CopyButton';
 import { EmptyState, LucidOsHeader, Section, StatusBadge, formatAdminDateTime } from '../lucid-os/components';
 
@@ -14,6 +14,13 @@ function buttonClass(tone: 'primary' | 'good' | 'danger' | 'ghost'): string {
   if (tone === 'good') return `${base} bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-100`;
   if (tone === 'danger') return `${base} bg-rose-50 text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100`;
   return `${base} border border-zinc-200 bg-white text-zinc-700 hover:bg-zinc-50`;
+}
+
+/** Same tones as buttonClass, sized to sit inline inside a lead card instead of the page header. */
+function cardButtonClass(tone: 'good' | 'ghost'): string {
+  const base = 'inline-flex h-8 items-center gap-1.5 rounded-lg px-2.5 text-xs font-semibold transition-colors';
+  if (tone === 'good') return `${base} bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 hover:bg-emerald-100`;
+  return `${base} border border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50`;
 }
 
 function StatTile({
@@ -82,12 +89,59 @@ function lastRunLine(run: LeadRunSummary): string {
   return `Dernier lancement : ${when} · ${run.queued} en file, ${run.humanTouch} à la main, ${run.skipped} écartés.`;
 }
 
-function MessageList({ items }: { items: ControlMessage[] }) {
+/** Anthony's two outcomes once he's actually sent (or decided to skip) a hand-touch lead from LinkedIn. */
+function MarkSentActions({ messageId }: { messageId: string }) {
+  return (
+    <div className="flex flex-wrap items-center gap-2">
+      <form action={markHumanTouchOutcomeAction}>
+        <input type="hidden" name="messageId" value={messageId} />
+        <input type="hidden" name="outcome" value="sent" />
+        <button type="submit" className={cardButtonClass('good')}>
+          <CheckCircle2 className="size-3.5" />
+          Marquer comme envoyé
+        </button>
+      </form>
+      <form action={markHumanTouchOutcomeAction}>
+        <input type="hidden" name="messageId" value={messageId} />
+        <input type="hidden" name="outcome" value="skipped" />
+        <button type="submit" className={cardButtonClass('ghost')}>Ignorer</button>
+      </form>
+    </div>
+  );
+}
+
+/** Lets Anthony walk back a misclick on "Marquer comme envoyé" (human-touch sends only, see revertHumanTouchSend). */
+function UndoSentAction({ messageId }: { messageId: string }) {
+  return (
+    <form action={undoHumanTouchOutcomeAction}>
+      <input type="hidden" name="messageId" value={messageId} />
+      <button type="submit" className={cardButtonClass('ghost')}>
+        <RotateCcw className="size-3.5" />
+        Annuler (erreur de clic)
+      </button>
+    </form>
+  );
+}
+
+function MessageList({
+  items,
+  compact = false,
+  showSentBadge = false,
+  renderActions,
+}: {
+  items: ControlMessage[];
+  /** Clamps the message body and drops it to a glance card, for lists Anthony doesn't act on. */
+  compact?: boolean;
+  /** Shows when the message actually went out, for the "done" list. */
+  showSentBadge?: boolean;
+  renderActions?: (message: ControlMessage) => ReactNode;
+}) {
   return (
     <div className="grid gap-3">
       {items.map((m) => {
         const badge = motionBadge(m.motion);
         const prio = priorityMeta(m.priority);
+        const actions = renderActions ? renderActions(m) : null;
         return (
           <article key={m.id} className={`rounded-xl border border-zinc-200 border-l-4 ${prio.border} bg-white p-4 shadow-sm`}>
             <div className="flex items-center justify-between gap-3">
@@ -95,10 +149,15 @@ function MessageList({ items }: { items: ControlMessage[] }) {
                 {m.personName ?? 'Contact inconnu'}
                 {m.company ? <span className="font-normal text-zinc-500"> · {m.company}</span> : null}
               </p>
-              {badge ? <StatusBadge tone={badge.tone}>{badge.label}</StatusBadge> : null}
+              <div className="flex shrink-0 items-center gap-1.5">
+                {showSentBadge ? <StatusBadge tone="good">Envoyé · {formatAdminDateTime(m.sentAt)}</StatusBadge> : null}
+                {badge ? <StatusBadge tone={badge.tone}>{badge.label}</StatusBadge> : null}
+              </div>
             </div>
             {m.personTitle ? <p className="mt-0.5 line-clamp-1 text-xs text-zinc-500">{cleanTitle(m.personTitle)}</p> : null}
-            {m.body ? <p className="mt-2 whitespace-pre-line text-sm leading-6 text-zinc-700">{m.body}</p> : null}
+            {m.body ? (
+              <p className={cn('mt-2 whitespace-pre-line text-sm leading-6 text-zinc-700', compact && 'line-clamp-2')}>{m.body}</p>
+            ) : null}
             <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-zinc-100 pt-3">
               {m.priority ? (
                 <span className="text-xs text-zinc-400">
@@ -116,6 +175,9 @@ function MessageList({ items }: { items: ControlMessage[] }) {
               </a>
               {m.body ? <CopyButton text={m.body} /> : null}
             </div>
+            {actions ? (
+              <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-zinc-100 pt-3">{actions}</div>
+            ) : null}
           </article>
         );
       })}
@@ -124,7 +186,7 @@ function MessageList({ items }: { items: ControlMessage[] }) {
 }
 
 export default async function LeadEnginePage() {
-  const { outreachEnabled, sender, funnel, humanTouch, queue, lastRun } = await getControlPanelData();
+  const { outreachEnabled, sender, funnel, humanTouch, queue, sent, lastRun } = await getControlPanelData();
 
   return (
     <div className="space-y-8">
@@ -182,21 +244,39 @@ export default async function LeadEnginePage() {
         )}
       </Section>
 
-      <Section title="À contacter à la main" action={<StatusBadge tone="neutral">{humanTouch.length}</StatusBadge>}>
+      <Section
+        title="À envoyer à la main"
+        action={<StatusBadge tone={humanTouch.length > 0 ? 'warning' : 'neutral'}>{humanTouch.length}</StatusBadge>}
+      >
         {humanTouch.length > 0 ? (
-          <MessageList items={humanTouch} />
+          <MessageList items={humanTouch} renderActions={(m) => <MarkSentActions messageId={m.id} />} />
         ) : (
-          <EmptyState>Aucun top lead en attente. Les fondateurs et décideurs à fort potentiel apparaîtront ici.</EmptyState>
+          <EmptyState>Rien à envoyer à la main pour l&apos;instant. Les fondateurs et décideurs à fort potentiel apparaîtront ici.</EmptyState>
         )}
       </Section>
 
-      <Section title="File d'envoi LinkedIn" action={<StatusBadge tone="neutral">{queue.length}</StatusBadge>}>
-        {queue.length > 0 ? (
-          <MessageList items={queue} />
-        ) : (
-          <EmptyState>File vide. Lance le pipeline pour générer des invitations.</EmptyState>
-        )}
-      </Section>
+      <div className="grid gap-6 lg:grid-cols-2">
+        <Section title="En file (auto)" action={<StatusBadge tone="neutral">{queue.length}</StatusBadge>}>
+          {queue.length > 0 ? (
+            <MessageList items={queue} compact />
+          ) : (
+            <EmptyState>File vide. Lance le pipeline pour générer des invitations.</EmptyState>
+          )}
+        </Section>
+
+        <Section title="Envoyé récemment" action={<StatusBadge tone="good">{sent.length}</StatusBadge>}>
+          {sent.length > 0 ? (
+            <MessageList
+              items={sent}
+              compact
+              showSentBadge
+              renderActions={(m) => (m.stepKind === 'human_touch' ? <UndoSentAction messageId={m.id} /> : null)}
+            />
+          ) : (
+            <EmptyState>Rien d&apos;envoyé pour l&apos;instant.</EmptyState>
+          )}
+        </Section>
+      </div>
 
       <p className="text-xs leading-6 text-zinc-500">
         Le dry-run source et score sans appeler l&apos;IA ni rien écrire. Le lancement réel rédige les messages et remplit la file (petit lot) : il prend 1 à 2 minutes, patiente jusqu&apos;au rafraîchissement de la page. L&apos;envoi part du runner local sur la session d&apos;Anthony, avec des plafonds quotidiens.

@@ -27,6 +27,8 @@ export interface ControlMessage {
   /** Prospect score (0-20) and priority, surfaced so the cockpit can rank leads. */
   score: number | null;
   priority: string | null;
+  /** Set only for sent messages, so the "done" list can show when it went out. */
+  sentAt: string | null;
 }
 
 export interface LeadRunSummary {
@@ -61,6 +63,8 @@ export interface ControlPanelData {
   };
   humanTouch: ControlMessage[];
   queue: ControlMessage[];
+  /** Most recently sent messages (human-touch or auto), so the cockpit can show what's actually done. */
+  sent: ControlMessage[];
   lastRun: LeadRunSummary | null;
 }
 
@@ -82,13 +86,18 @@ async function countMessages(workspaceId: string, status: string): Promise<numbe
   return count ?? 0;
 }
 
-async function listMessages(workspaceId: string, status: string, limit: number): Promise<ControlMessage[]> {
+async function listMessages(
+  workspaceId: string,
+  status: string,
+  limit: number,
+  orderBy: 'created_at' | 'sent_at' = 'created_at',
+): Promise<ControlMessage[]> {
   const { data } = await supabase
     .from('outreach_messages')
-    .select('id,step_kind,body_text,person_id,company_id,campaign_id,personalization,created_at')
+    .select('id,step_kind,body_text,person_id,company_id,campaign_id,personalization,created_at,sent_at')
     .eq('workspace_id', workspaceId)
     .eq('status', status)
-    .order('created_at', { ascending: false })
+    .order(orderBy, { ascending: false })
     .limit(limit);
   const rows = data ?? [];
   if (rows.length === 0) return [];
@@ -126,6 +135,7 @@ async function listMessages(workspaceId: string, status: string, limit: number):
       motion: r.campaign_id ? motionMap.get(String(r.campaign_id)) ?? null : null,
       score: typeof personalization['score'] === 'number' ? (personalization['score'] as number) : null,
       priority: typeof personalization['priority'] === 'string' ? (personalization['priority'] as string) : null,
+      sentAt: r.sent_at ? String(r.sent_at) : null,
     };
   });
   // Re-rank: best leads first (the owner chose keep-and-rank over a hard gate).
@@ -164,9 +174,10 @@ export async function getControlPanelData(): Promise<ControlPanelData> {
     countPeople(workspaceId, 'converted'),
   ]);
 
-  const [humanTouch, queueList] = await Promise.all([
+  const [humanTouch, queueList, sentList] = await Promise.all([
     listMessages(workspaceId, 'handed_to_human', 30),
     listMessages(workspaceId, 'queued', 30),
+    listMessages(workspaceId, 'sent', 15, 'sent_at'),
   ]);
 
   const { data: lastRunRow } = await supabase
@@ -206,6 +217,7 @@ export async function getControlPanelData(): Promise<ControlPanelData> {
     funnel: { discovered: discovered + enriched, queued: queued + dispatched, handedToHuman, contacted, replied, converted },
     humanTouch,
     queue: queueList,
+    sent: sentList,
     lastRun,
   };
 }
