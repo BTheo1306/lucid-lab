@@ -3,6 +3,7 @@ import { checkOrigin, corsHeaders } from '@/lib/bot/middleware/origin-check';
 import { checkRateLimit } from '@/lib/bot/middleware/rate-limiter';
 import { findContactBySessionId, updateContact } from '@/lib/bot/db/queries/contacts';
 import { syncAuditFlashProspect } from '@/lib/bot/db/queries/lead-engine-prospects';
+import { upsertCrmProspectFromBooking } from '@/lib/bot/db/queries/crm-prospect';
 import { findLeadByContactId } from '@/lib/bot/db/queries/leads';
 import { config } from '@/lib/bot/config';
 import { createBooking } from '@/lib/bot/integrations/tidycal-client';
@@ -99,8 +100,9 @@ export async function POST(req: Request) {
     await updateContact(contact.id, { email: body.email.toLowerCase() });
   }
 
+  const lead = await findLeadByContactId(contact.id).catch(() => null);
+
   try {
-    const lead = await findLeadByContactId(contact.id);
     await syncAuditFlashProspect({
       contact,
       lead,
@@ -113,6 +115,21 @@ export async function POST(req: Request) {
     });
   } catch (err) {
     console.error('[booking] lead engine prospect sync failed:', err);
+  }
+
+  // Bridge the booked call into the CRM clients board (Prospects section).
+  try {
+    await upsertCrmProspectFromBooking({
+      name: body.name,
+      email: body.email,
+      company: contact.company,
+      projectBrief: lead?.project_brief ?? null,
+      bookingStartsAt: booking.starts_at,
+      slugSeed: contact.id,
+      bookingSource: 'website_widget',
+    });
+  } catch (err) {
+    console.error('[booking] CRM prospect sync failed:', err);
   }
 
   return NextResponse.json(
