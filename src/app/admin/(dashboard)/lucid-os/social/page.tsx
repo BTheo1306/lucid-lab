@@ -44,7 +44,7 @@ const VIEWS: { key: ViewKey; label: string; statuses: SocialPostStatus[]; empty:
 ];
 
 const BTN_BASE = 'inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors disabled:opacity-50';
-const BTN_PRIMARY = cn(BTN_BASE, 'bg-emerald-500/15 text-emerald-300 ring-1 ring-emerald-400/20 hover:bg-emerald-500/25');
+const BTN_PRIMARY = cn(BTN_BASE, 'bg-blue-500/15 text-blue-300 ring-1 ring-blue-400/20 hover:bg-blue-500/25');
 const BTN_NEUTRAL = cn(BTN_BASE, 'bg-white/[0.04] text-zinc-300 ring-1 ring-white/10 hover:bg-white/[0.08]');
 const BTN_DANGER = cn(BTN_BASE, 'bg-red-500/10 text-red-300 ring-1 ring-red-400/20 hover:bg-red-500/20');
 const FIELD = 'w-full rounded-md border border-white/10 bg-[#0d0d10] px-3 py-2 text-[13px] text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-white/25';
