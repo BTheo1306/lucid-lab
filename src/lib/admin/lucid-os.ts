@@ -67,6 +67,7 @@ export interface LucidClientSummary {
   nextAction: string | null;
   nextActionDueAt: string | null;
   lastContactedAt: string | null;
+  openedAt: string | null;
   industry: string | null;
   websiteUrl: string | null;
   legalName: string | null;
@@ -792,6 +793,7 @@ function normalizeClient(value: unknown): LucidClientSummary {
     primaryContactEmail: asString(record.primary_contact_email),
     primaryContactPhone: asString(record.primary_contact_phone),
     notes: asString(record.notes),
+    openedAt: asString(record.opened_at),
     tools: asStringArray(metadata.tools),
     billingPlanName: asString(billingPlan?.name),
     billingPlanTier: asString(billingPlan?.tier),
@@ -1281,13 +1283,23 @@ export async function listLucidClients(limit = 50): Promise<LucidClientSummary[]
   const rows = await selectRows<unknown>(
     supabase
       .from('clients')
-      .select('id,name,slug,status,lifecycle_stage,owner_label,health_status,health_score,health_summary,next_action,next_action_due_at,last_contacted_at,industry,website_url,primary_contact_name,primary_contact_email,primary_contact_phone,notes,metadata,created_at,updated_at,billing_plan:billing_plans(name,tier)')
+      .select('id,name,slug,status,lifecycle_stage,owner_label,health_status,health_score,health_summary,next_action,next_action_due_at,last_contacted_at,opened_at,industry,website_url,primary_contact_name,primary_contact_email,primary_contact_phone,notes,metadata,created_at,updated_at,billing_plan:billing_plans(name,tier)')
       .eq('organization_id', organizationId)
       .order('updated_at', { ascending: false })
       .limit(limit),
   );
 
   return rows.map(normalizeClient);
+}
+
+export async function markLucidClientOpened(clientId: string): Promise<void> {
+  const organizationId = await ensureLucidOrganizationId();
+  await supabase
+    .from('clients')
+    .update({ opened_at: new Date().toISOString() })
+    .eq('organization_id', organizationId)
+    .eq('id', clientId)
+    .is('opened_at', null);
 }
 
 export async function getLucidClientBySlug(slug: string): Promise<LucidClientSummary | null> {
@@ -1297,7 +1309,7 @@ export async function getLucidClientBySlug(slug: string): Promise<LucidClientSum
   const row = await selectMaybe<unknown>(
     supabase
       .from('clients')
-      .select('id,name,slug,status,lifecycle_stage,owner_label,health_status,health_score,health_summary,next_action,next_action_due_at,last_contacted_at,industry,website_url,primary_contact_name,primary_contact_email,primary_contact_phone,notes,metadata,created_at,updated_at,billing_plan:billing_plans(name,tier)')
+      .select('id,name,slug,status,lifecycle_stage,owner_label,health_status,health_score,health_summary,next_action,next_action_due_at,last_contacted_at,opened_at,industry,website_url,primary_contact_name,primary_contact_email,primary_contact_phone,notes,metadata,created_at,updated_at,billing_plan:billing_plans(name,tier)')
       .eq('organization_id', organizationId)
       .eq('slug', slug)
       .maybeSingle(),

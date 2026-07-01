@@ -442,16 +442,6 @@ export async function getAdminContactDetail(contactId: string): Promise<AdminCon
   };
 }
 
-export async function getAdminLeadsPageData(): Promise<AdminLeadsPageData> {
-  const rows = await selectRows<unknown>(supabase
-    .from('leads')
-    .select('id, contact_id, status, project_brief, interest, notes, follow_up_at, followup_step, marketing_consent, created_at, updated_at, contact:contacts(id, email, first_name, last_name, company, source, language, marketing_consent, created_at)')
-    .order('created_at', { ascending: false })
-    .limit(100));
-
-  return { leads: rows.map(normalizeLead) };
-}
-
 export async function getAdminConversationsPageData(): Promise<AdminConversationsPageData> {
   const rows = await selectRows<unknown>(supabase
     .from('conversations')
