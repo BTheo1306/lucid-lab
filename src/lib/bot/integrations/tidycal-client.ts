@@ -111,13 +111,18 @@ export async function createBooking(
     timezone?: string;
   },
 ): Promise<TidyCalBooking> {
-  return tidycalFetch<TidyCalBooking>(`/booking-types/${bookingTypeId}/bookings`, {
-    method: 'POST',
-    body: JSON.stringify({
-      name: input.name,
-      email: input.email,
-      starts_at: toTidyCalTimestamp(input.starts_at),
-      timezone: input.timezone ?? 'Europe/Paris',
-    }),
-  });
+  const res = await tidycalFetch<{ data?: TidyCalBooking } & Partial<TidyCalBooking>>(
+    `/booking-types/${bookingTypeId}/bookings`,
+    {
+      method: 'POST',
+      body: JSON.stringify({
+        name: input.name,
+        email: input.email,
+        starts_at: toTidyCalTimestamp(input.starts_at),
+        timezone: input.timezone ?? 'Europe/Paris',
+      }),
+    },
+  );
+  // TidyCal wraps some responses in { data }, others return the object flat.
+  return res.data ?? (res as TidyCalBooking);
 }

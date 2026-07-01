@@ -59,6 +59,14 @@
 .admin-dark .text-emerald-700 { color: #6ee7b7 !important; }
 .admin-dark .ring-emerald-200 { --tw-ring-color: rgba(16, 185, 129, 0.45) !important; }
 
+/* Blue = interactive accent (selection states, links). Distinct from emerald, which is semantic "good". */
+.admin-dark .bg-blue-50 { background-color: rgba(30, 58, 138, 0.3) !important; }
+.admin-dark .text-blue-600,
+.admin-dark .text-blue-700 { color: #93c5fd !important; }
+.admin-dark .hover\:text-blue-800:hover { color: #bfdbfe !important; }
+.admin-dark .border-blue-200 { border-color: rgba(37, 99, 235, 0.45) !important; }
+.admin-dark .ring-blue-200 { --tw-ring-color: rgba(37, 99, 235, 0.45) !important; }
+
 /* Inputs */
 .admin-dark input,
 .admin-dark textarea,

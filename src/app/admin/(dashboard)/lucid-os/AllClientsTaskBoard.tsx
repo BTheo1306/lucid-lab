@@ -117,7 +117,7 @@ export function AllClientsTaskBoard({ initialTasks }: { initialTasks: DashboardT
                     {task.clientSlug ? (
                       <Link
                         href={`/admin/lucid-os/clients/${task.clientSlug}`}
-                        className="text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500 transition-colors hover:text-zinc-900"
+                        className="text-[11px] font-semibold uppercase tracking-[0.1em] text-blue-600 transition-colors hover:text-blue-800"
                         onClick={(e) => e.stopPropagation()}
                       >
                         {task.clientName}
@@ -146,7 +146,7 @@ export function AllClientsTaskBoard({ initialTasks }: { initialTasks: DashboardT
                             className={cn(
                               'h-8 rounded border px-2 text-[11px] font-semibold transition',
                               active
-                                ? 'border-emerald-200 bg-emerald-50 text-emerald-700'
+                                ? 'border-blue-200 bg-blue-50 text-blue-700'
                                 : 'border-zinc-200 bg-zinc-50 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900',
                               (isPending || active) && 'cursor-default opacity-70',
                             )}
