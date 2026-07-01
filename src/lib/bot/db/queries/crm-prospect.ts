@@ -129,7 +129,19 @@ export async function upsertCrmProspectFromBooking(
         next_action_due_at: startsAt,
         last_contacted_at: now,
         notes: clean(input.projectBrief),
-        metadata: { source: 'booking', booking_source: input.bookingSource },
+        metadata: {
+          source: 'booking',
+          booking_source: input.bookingSource,
+          // Mirror the shape the CRM clients UI reads (metadata.intake) so a booked
+          // lead shows "meeting booked", not the default "not booked".
+          intake: {
+            meeting_status: 'booked',
+            meeting_booked_at: startsAt,
+            source: input.bookingSource === 'website_widget' ? 'inbound_booking_website' : 'inbound_booking_tidycal',
+            captured_by: 'booking_bridge',
+            captured_at: now,
+          },
+        },
       })
       .select('id')
       .single();

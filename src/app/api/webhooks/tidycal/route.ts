@@ -14,12 +14,13 @@ const ORG_ID = '2ee10622-ce92-454a-af4e-693b2007b42c';
 /**
  * Inbound webhook for TidyCal bookings.
  *
- * TidyCal has no native webhooks, so this endpoint is fed by a relay (Zapier /
- * Make / Pabbly) configured with a "New booking" trigger. It captures the call
- * into `tidycal_bookings`, the Lead Engine prospect tables, and the CRM clients
- * board (Prospects section) so direct-link bookings are no longer lost. Auth is a
- * shared secret (TIDYCAL_WEBHOOK_SECRET) passed as `x-webhook-secret` header or
- * `?secret=` query param.
+ * TidyCal has no native webhooks, so this endpoint is fed by a small Google Apps
+ * Script that watches the info@ inbox for TidyCal booking emails (see
+ * docs/tidycal-booking-apps-script.md). Any relay that POSTs the same JSON works
+ * too. It captures the call into `tidycal_bookings`, the Lead Engine prospect
+ * tables, and the CRM clients board (Prospects section) so direct-link bookings
+ * are no longer lost. Auth is a shared secret (TIDYCAL_WEBHOOK_SECRET) passed as
+ * an `x-webhook-secret` header or `?secret=` query param.
  */
 
 function secretOk(req: NextRequest): boolean {
@@ -116,10 +117,13 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     return NextResponse.json({ ok: true, cancelled: true, bookingId: b.bookingId });
   }
 
-  // Surface a visible failure (not a silent 200) if the relay mapping is wrong.
-  if (!b.email || !b.startsAt) {
+  // Email is the minimum to sync a prospect. starts_at may be absent (e.g. a
+  // parse miss upstream); the CRM bridge handles that with a "time to confirm"
+  // task rather than dropping the lead. Surface a visible failure only when the
+  // email itself is missing, so a broken mapping is not a silent 200.
+  if (!b.email) {
     return NextResponse.json(
-      { error: 'email and starts_at required', receivedKeys: Object.keys(payload) },
+      { error: 'email required', receivedKeys: Object.keys(payload) },
       { status: 400 },
     );
   }
@@ -141,20 +145,23 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       });
     }
 
+    // Record the raw booking only when we have its time (starts_at is NOT NULL).
     // Idempotent by tidycal_booking_id when present.
-    if (b.bookingId) {
-      await supabase.from('tidycal_bookings').delete().eq('tidycal_booking_id', b.bookingId);
+    if (b.startsAt) {
+      if (b.bookingId) {
+        await supabase.from('tidycal_bookings').delete().eq('tidycal_booking_id', b.bookingId);
+      }
+      await supabase.from('tidycal_bookings').insert({
+        contact_id: contact.id,
+        tidycal_booking_id: b.bookingId,
+        booking_type_id: b.bookingTypeId,
+        starts_at: b.startsAt,
+        name: b.name ?? email,
+        email,
+        timezone: b.timezone ?? 'Europe/Paris',
+        status: 'confirmed',
+      });
     }
-    await supabase.from('tidycal_bookings').insert({
-      contact_id: contact.id,
-      tidycal_booking_id: b.bookingId,
-      booking_type_id: b.bookingTypeId,
-      starts_at: b.startsAt,
-      name: b.name ?? email,
-      email,
-      timezone: b.timezone ?? 'Europe/Paris',
-      status: 'confirmed',
-    });
 
     try {
       await syncAuditFlashProspect({
