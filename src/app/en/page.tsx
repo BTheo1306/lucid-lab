@@ -1,5 +1,6 @@
 import type { Metadata } from 'next'
 import HomePage from '@/components/marketing/HomePage'
+import { getAllPosts } from '@/lib/blog/posts'
 
 export const metadata: Metadata = {
   title: 'Lucid-Lab: business AI systems in production',
@@ -27,6 +28,8 @@ export const metadata: Metadata = {
   },
 }
 
-export default function Page() {
-  return <HomePage lang="en" />
+export default async function Page() {
+  const posts = await getAllPosts('en')
+  const latestPosts = posts.filter((p) => !p.frontmatter.draft).slice(0, 3)
+  return <HomePage lang="en" latestPosts={latestPosts} />
 }

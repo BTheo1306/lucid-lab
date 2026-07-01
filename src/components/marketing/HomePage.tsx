@@ -35,6 +35,9 @@ import { HeroSection, LogosSection } from '@/components/ui/hero-section'
 import type { Locale } from '@/lib/i18n/client'
 import { faqPageSchema, jsonLd } from '@/lib/seo/schema'
 import { AuditFlashBookingSection } from '@/components/marketing/AuditFlashBookingSection'
+import { TeamSection } from '@/components/marketing/TeamSection'
+import type { Post } from '@/lib/blog/types'
+import { CATEGORIES } from '@/lib/blog/types'
 
 const INK = '#0A0A0A'
 const PAPER = '#FAFAF7'
@@ -1085,7 +1088,7 @@ function Cases({ lang }: { lang: Locale }) {
   const t = content[lang].cases
 
   return (
-    <Section id="acquis-livres" tone="paper">
+    <Section id="acquis-livres" tone="gray">
       <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>
@@ -1168,14 +1171,16 @@ function Enterprise({ lang }: { lang: Locale }) {
   )
 }
 
-function Resources({ lang }: { lang: Locale }) {
+function Resources({ lang, posts }: { lang: Locale; posts?: Post[] }) {
   const t = content[lang].resources
-  const resourceLinks = lang === 'en'
+  const hasPosts = posts && posts.length > 0
+
+  const staticLinks = lang === 'en'
     ? ['AI audit: deliverables and scoring', 'AI, GDPR and internal data', 'Business automation ROI']
     : ['Audit IA : livrables et scoring', 'IA, RGPD et données internes', 'ROI des automatisations métier']
 
   return (
-    <Section id="blog" tone="gray">
+    <Section id="blog">
       <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
         <div className="max-w-2xl">
           <SectionTitle>{t.title}</SectionTitle>
@@ -1185,33 +1190,73 @@ function Resources({ lang }: { lang: Locale }) {
           <TextLink href={routeMap[lang].blog}>{t.cta}</TextLink>
         </div>
       </div>
-      
+
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {resourceLinks.map((title) => (
-          <Link 
-            key={title} 
-            href={routeMap[lang].blog} 
-            className="group flex flex-col justify-between rounded-[12px] bg-white p-6 border border-zinc-200/80 transition-all hover:-translate-y-1 hover:border-zinc-300 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.05)] shadow-sm"
-          >
-            <div className="mb-12">
-              <span className="mb-4 inline-flex px-2 py-0.5 rounded-sm bg-zinc-100/80 text-[10.5px] font-bold uppercase tracking-widest text-zinc-500">
-                {lang === 'en' ? 'Article' : 'Article'}
-              </span>
-              <h3 className="text-[17px] font-bold leading-[1.3] tracking-tight transition-colors group-hover:text-[#EC5A1D]" style={{ color: INK }}>
-                {title}
-              </h3>
-            </div>
-            
-            <div className="flex items-center justify-between border-t border-zinc-100 pt-4">
-              <span className="text-[13px] font-medium" style={{ color: EMBER }}>
-                {lang === 'en' ? 'Read' : 'Lire'}
-              </span>
-              <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" style={{ color: EMBER }} aria-hidden />
-            </div>
-          </Link>
-        ))}
+        {hasPosts
+          ? posts!.map((post) => {
+              const cat = CATEGORIES[post.frontmatter.category]
+              const catTitle = lang === 'en' ? (cat.titleEn ?? cat.title) : cat.title
+              const href = lang === 'en' ? `/en/blog/${post.slug}` : `/blog/${post.slug}`
+              return (
+                <Link
+                  key={post.slug}
+                  href={href}
+                  className="group flex flex-col overflow-hidden rounded-[12px] bg-white border border-zinc-200/80 transition-all hover:-translate-y-1 hover:border-zinc-300 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.05)] shadow-sm"
+                >
+                  {post.frontmatter.heroImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img
+                      src={post.frontmatter.heroImage}
+                      alt={post.frontmatter.heroImageAlt ?? post.frontmatter.title}
+                      className="w-full aspect-[16/9] object-cover transition-transform duration-500 group-hover:scale-[1.02]"
+                    />
+                  ) : (
+                    <div className="aspect-[16/9] bg-zinc-100" />
+                  )}
+                  <div className="flex flex-1 flex-col justify-between p-6">
+                    <div>
+                      <span className="mb-3 inline-flex px-2 py-0.5 rounded-sm bg-zinc-100/80 text-[10.5px] font-bold uppercase tracking-widest text-zinc-500">
+                        {catTitle}
+                      </span>
+                      <h3 className="mt-2 text-[17px] font-bold leading-[1.3] tracking-tight transition-colors group-hover:text-[#EC5A1D]" style={{ color: INK }}>
+                        {post.frontmatter.title}
+                      </h3>
+                    </div>
+                    <div className="mt-4 flex items-center justify-between border-t border-zinc-100 pt-4">
+                      <span className="text-[13px] font-medium" style={{ color: EMBER }}>
+                        {lang === 'en' ? 'Read' : 'Lire'}
+                      </span>
+                      <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" style={{ color: EMBER }} aria-hidden />
+                    </div>
+                  </div>
+                </Link>
+              )
+            })
+          : staticLinks.map((title) => (
+              <Link
+                key={title}
+                href={routeMap[lang].blog}
+                className="group flex flex-col justify-between rounded-[12px] bg-white p-6 border border-zinc-200/80 transition-all hover:-translate-y-1 hover:border-zinc-300 hover:shadow-[0_8px_24px_-8px_rgba(0,0,0,0.05)] shadow-sm"
+              >
+                <div className="mb-12">
+                  <span className="mb-4 inline-flex px-2 py-0.5 rounded-sm bg-zinc-100/80 text-[10.5px] font-bold uppercase tracking-widest text-zinc-500">
+                    Article
+                  </span>
+                  <h3 className="text-[17px] font-bold leading-[1.3] tracking-tight transition-colors group-hover:text-[#EC5A1D]" style={{ color: INK }}>
+                    {title}
+                  </h3>
+                </div>
+                <div className="flex items-center justify-between border-t border-zinc-100 pt-4">
+                  <span className="text-[13px] font-medium" style={{ color: EMBER }}>
+                    {lang === 'en' ? 'Read' : 'Lire'}
+                  </span>
+                  <ArrowRight className="size-4 transition-transform group-hover:translate-x-1" style={{ color: EMBER }} aria-hidden />
+                </div>
+              </Link>
+            ))
+        }
       </div>
-      
+
       <div className="mt-8 md:hidden">
         <TextLink href={routeMap[lang].blog}>{t.cta}</TextLink>
       </div>
@@ -1223,7 +1268,7 @@ function FAQ({ lang }: { lang: Locale }) {
   const t = content[lang].faq
 
   return (
-    <Section id="faq">
+    <Section id="faq" tone="gray">
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: jsonLd(faqPageSchema(t.items, lang)) }}
@@ -1312,7 +1357,7 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
   )
 }
 
-export default function HomePage({ lang }: { lang: Locale }) {
+export default function HomePage({ lang, latestPosts }: { lang: Locale; latestPosts?: Post[] }) {
   return (
     <div className="flex w-full flex-col" style={{ background: PAPER }}>
       <Header />
@@ -1324,8 +1369,9 @@ export default function HomePage({ lang }: { lang: Locale }) {
         <Offers lang={lang} />
         <Delivery lang={lang} />
         <Cases lang={lang} />
+        <TeamSection lang={lang} />
         <Enterprise lang={lang} />
-        <Resources lang={lang} />
+        <Resources lang={lang} posts={latestPosts} />
         <FAQ lang={lang} />
         <AuditFlashBookingSection lang={lang} />
       </main>
