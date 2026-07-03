@@ -5,7 +5,7 @@ import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
 import { listPostablePosts, recordPostFailure, recordPosted } from '@/lib/admin/social';
 import { socialPostsBlockedByUnpublishedBlog } from '@/lib/admin/blog';
 import { getPostingCredentials } from '@/lib/admin/linkedin/account';
-import { addComment, createMemberPost, postUrlFromUrn } from '@/lib/admin/linkedin/client';
+import { addComment, appendOrganizationMention, createMemberPost, postUrlFromUrn } from '@/lib/admin/linkedin/client';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -46,15 +46,38 @@ export async function GET(req: Request) {
   }
 
   let posted = 0;
+  let mentioned = 0;
   const failures: { id: string; error: string }[] = [];
 
   for (const post of ready) {
     try {
-      const { postUrn } = await createMemberPost({
-        accessToken: credentials.accessToken,
-        authorSub: credentials.memberSub,
-        text: post.body,
-      });
+      let postUrn: string;
+      if (config.linkedinOrganizationId) {
+        const mention = appendOrganizationMention(post.body, { organizationId: config.linkedinOrganizationId });
+        try {
+          ({ postUrn } = await createMemberPost({
+            accessToken: credentials.accessToken,
+            authorSub: credentials.memberSub,
+            text: mention.text,
+            commentaryAttributes: mention.attributes,
+          }));
+          mentioned += 1;
+        } catch (mentionError) {
+          // The tag must never block publishing: retry once with the plain body.
+          console.error('[linkedin-post] mention attempt failed, retrying without tag:', mentionError);
+          ({ postUrn } = await createMemberPost({
+            accessToken: credentials.accessToken,
+            authorSub: credentials.memberSub,
+            text: post.body,
+          }));
+        }
+      } else {
+        ({ postUrn } = await createMemberPost({
+          accessToken: credentials.accessToken,
+          authorSub: credentials.memberSub,
+          text: post.body,
+        }));
+      }
 
       let firstCommentPosted = false;
       if (post.linkInComment) {
@@ -80,5 +103,5 @@ export async function GET(req: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, posted, waitingForBlog: blocked.size, failures });
+  return NextResponse.json({ ok: true, posted, mentioned, waitingForBlog: blocked.size, failures });
 }

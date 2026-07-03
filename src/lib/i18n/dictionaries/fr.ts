@@ -338,7 +338,6 @@ export const fr = {
       tagline: 'Théo, CTO · France & Belgique',
     },
     readingMeta: 'Mis à jour le',
-    byline: 'Anthony · CEO Lucid-Lab',
     dismissCta: "Fermer l'invite",
   },
   categories: {

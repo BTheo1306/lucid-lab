@@ -3,6 +3,8 @@ import 'server-only';
 import Anthropic from '@anthropic-ai/sdk';
 import { config } from '@/lib/bot/config';
 import { getAllPosts } from '@/lib/blog/posts';
+import type { BlogAuthorSlug } from '@/lib/blog/authors';
+import { pickAuthor } from '@/lib/blog/authors';
 
 export interface BlogGenerationInput {
   title: string;
@@ -15,6 +17,8 @@ export interface BlogGenerationInput {
   isPillar: boolean;
   /** When set, the article is the long-form expansion of this LinkedIn post. */
   sourceText?: string | null;
+  /** Author for the generated article, picked by expertise from the pillar/category. */
+  author: BlogAuthorSlug;
 }
 
 export interface BlogGenerationOutput {
@@ -250,15 +254,19 @@ export function blogInputFromSocialPost(post: {
   body: string;
   pillar: string | null;
 }): BlogGenerationInput {
+  const title = deriveTitle(post.hook, post.body);
+  const category = categoryFromPillar(post.pillar);
+  const tags = post.pillar ? [post.pillar] : [];
   return {
-    title: deriveTitle(post.hook, post.body),
+    title,
     description: null,
-    category: categoryFromPillar(post.pillar),
-    tags: post.pillar ? [post.pillar] : [],
+    category,
+    tags,
     funnelStage: null,
     locale: 'fr',
     notes: null,
     isPillar: false,
     sourceText: post.body,
+    author: pickAuthor({ category, tags, title }),
   };
 }

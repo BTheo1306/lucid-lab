@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 
+import { BLOG_AUTHORS } from "./authors";
 import type { Post } from "./types";
 
 const SITE_URL = "https://lucid-lab.fr";
@@ -18,6 +19,7 @@ export function generatePostMetadata(post: Post): Metadata {
   const url = `${urlBase}/${slug}`;
   const ogImage = frontmatter.ogImage ?? `${url}/opengraph-image`;
   const ogLocale = isEn ? "en_US" : "fr_FR";
+  const author = BLOG_AUTHORS[frontmatter.author];
 
   // Hreflang alternates — only when a translation is declared
   const alternates: Metadata["alternates"] = { canonical: url };
@@ -51,7 +53,7 @@ export function generatePostMetadata(post: Post): Metadata {
       locale: ogLocale,
       publishedTime: frontmatter.publishedAt,
       modifiedTime: frontmatter.updatedAt ?? frontmatter.publishedAt,
-      authors: ["Théo — Lucid-Lab"],
+      authors: [`${author.fullName} · Lucid-Lab`],
       tags: frontmatter.tags,
       images: [
         {

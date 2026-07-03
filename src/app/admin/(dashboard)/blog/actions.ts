@@ -9,6 +9,8 @@ import type { BlogLocale, BlogStatus } from '@/lib/admin/blog';
 import { blogPublicUrl, setBlogPostStatus } from '@/lib/admin/blog';
 import { setLinkInComment } from '@/lib/admin/social';
 import { generateBlogContent, slugify } from '@/lib/admin/blog-content-generator';
+import type { BlogAuthorSlug } from '@/lib/blog/authors';
+import { pickAuthor } from '@/lib/blog/authors';
 
 const STATUSES: readonly BlogStatus[] = [
   'idea',
@@ -36,6 +38,7 @@ function requireId(fd: FormData): string {
 const LOCALES: readonly BlogLocale[] = ['fr', 'en'];
 const CATEGORIES = ['automatisation', 'ia-pme', 'outils-internes', 'methode'];
 const FUNNEL = ['TOFU', 'MOFU', 'BOFU'];
+const AUTHORS: readonly BlogAuthorSlug[] = ['theo', 'anthony', 'jules'];
 
 async function requireAdminAction(): Promise<void> {
   if (!(await isAdminAuthenticated())) redirect('/admin/login');
@@ -88,6 +91,7 @@ interface PostInput {
   scheduled_for: string | null;
   published_at: string | null;
   content_updated_at: string | null;
+  author: BlogAuthorSlug | null;
 }
 
 function readPostInput(fd: FormData): PostInput {
@@ -105,6 +109,9 @@ function readPostInput(fd: FormData): PostInput {
 
   const funnel = strOrNull(fd, 'funnel_stage');
   if (funnel && !FUNNEL.includes(funnel)) throw new Error('Invalid funnel stage');
+
+  const author = strOrNull(fd, 'author');
+  if (author && !AUTHORS.includes(author as BlogAuthorSlug)) throw new Error('Invalid author');
 
   return {
     status,
@@ -125,6 +132,7 @@ function readPostInput(fd: FormData): PostInput {
     scheduled_for: isoOrNull(str(fd, 'scheduled_for')),
     published_at: isoOrNull(str(fd, 'published_at')),
     content_updated_at: isoOrNull(str(fd, 'content_updated_at')),
+    author: author as BlogAuthorSlug | null,
   };
 }
 
@@ -188,6 +196,7 @@ export async function updatePostAction(formData: FormData): Promise<void> {
         locale: input.locale,
         notes: input.notes,
         isPillar: input.is_pillar,
+        author: input.author ?? pickAuthor({ category: input.category, tags: input.tags, title: input.title }),
       });
       input.content = generated.content;
       if (!input.description) input.description = generated.description;

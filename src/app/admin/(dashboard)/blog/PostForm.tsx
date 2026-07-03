@@ -46,6 +46,13 @@ const FUNNEL_OPTIONS = [
   { value: 'BOFU', label: 'BOFU' },
 ];
 
+const AUTHOR_OPTIONS = [
+  { value: '', label: 'Auto (par expertise)' },
+  { value: 'theo', label: 'Théo' },
+  { value: 'anthony', label: 'Anthony' },
+  { value: 'jules', label: 'Jules' },
+];
+
 export function PostForm({ post }: PostFormProps) {
   const isEdit = post !== null;
   const action = isEdit ? updatePostAction : createPostAction;
@@ -156,6 +163,19 @@ export function PostForm({ post }: PostFormProps) {
           >
             {FUNNEL_OPTIONS.map((f) => (
               <option key={f.value} value={f.value}>{f.label}</option>
+            ))}
+          </select>
+        </label>
+
+        <label>
+          <span className={labelCls}>Auteur</span>
+          <select
+            name="author"
+            defaultValue={post?.author ?? ''}
+            className={inputCls}
+          >
+            {AUTHOR_OPTIONS.map((a) => (
+              <option key={a.value} value={a.value}>{a.label}</option>
             ))}
           </select>
         </label>

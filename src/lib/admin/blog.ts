@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { supabase } from '@/lib/bot/db/supabase';
+import type { BlogAuthorSlug } from '@/lib/blog/authors';
 
 export type BlogStatus =
   | 'idea'
@@ -42,12 +43,13 @@ export interface BlogPostRow {
   content_updated_at: string | null;
   social_post_id: string | null;
   review_note: string | null;
+  author: BlogAuthorSlug | null;
   created_at: string;
   updated_at: string;
 }
 
 export const ADMIN_FIELDS =
-  'id,status,slug,locale,title,description,content,category,tags,funnel_stage,is_pillar,is_cornerstone,hero_image,hero_image_alt,og_image,notes,scheduled_for,published_at,content_updated_at,social_post_id,review_note,created_at,updated_at';
+  'id,status,slug,locale,title,description,content,category,tags,funnel_stage,is_pillar,is_cornerstone,hero_image,hero_image_alt,og_image,notes,scheduled_for,published_at,content_updated_at,social_post_id,review_note,author,created_at,updated_at';
 
 export async function listAllAdminPosts(): Promise<BlogPostRow[]> {
   const { data, error } = await supabase
@@ -177,6 +179,7 @@ export interface CreateBlogVersionInput {
   locale: BlogLocale;
   status: BlogStatus;
   scheduledFor: string | null;
+  author: BlogAuthorSlug;
 }
 
 /** Insert a blog article generated from a LinkedIn post. Retries once with a
@@ -193,6 +196,7 @@ export async function createBlogVersion(input: CreateBlogVersionInput): Promise<
     social_post_id: input.socialPostId,
     scheduled_for: input.scheduledFor,
     content_updated_at: input.content ? new Date().toISOString() : null,
+    author: input.author,
   };
 
   let res = await supabase.from('blog_posts').insert(row).select('id').single();

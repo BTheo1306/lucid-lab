@@ -205,7 +205,7 @@ const content = {
     cases: {
       title: 'Cas clients livrés.',
       subtitle:
-        'Trois formats de systèmes déjà cadrés ou livrés : back-office simple, CRM automatisé, feuille de route IA grand compte.',
+        'Trois formats de systèmes déjà cadrés ou livrés : back-office simple, CRM automatisé, roadmap IA grand compte.',
       items: [
         {
           title: 'Back-office automatisé pour une petite structure',
@@ -215,10 +215,10 @@ const content = {
         {
           title: 'CRM complet pour un opérateur de mobilité premium',
           metric: 'Vente, support et opérations dans le même système',
-          body: 'Structuration du CRM, automatisation des processus internes, chatbot commercial, support client et feuille de route IA pour faire évoluer les outils sur plusieurs années.',
+          body: 'Structuration du CRM, automatisation des processus internes, chatbot commercial, support client et roadmap IA pour faire évoluer les outils sur plusieurs années.',
         },
         {
-          title: 'Feuille de route IA pour un grand compte financier',
+          title: 'Roadmap IA pour un groupe assurantiel et financier belge',
           metric: '90+ cas d\'usage qualifiés et priorisés',
           body: 'Cartographie Finance, Compliance, Crédit, Legal et Risk, scoring valeur/effort/risque, inventaire data, gouvernance IA, formation des ambassadeurs et déploiement par vagues.',
         },
@@ -465,7 +465,7 @@ const content = {
           body: 'CRM structuring, internal process automation, commercial chatbot, customer support and a multi-year AI roadmap to evolve the operating stack.',
         },
         {
-          title: 'AI roadmap for a large financial account',
+          title: 'AI roadmap for a Belgian insurance and financial group',
           metric: '90+ use cases qualified and prioritized',
           body: 'Mapping Finance, Compliance, Credit, Legal and Risk, scoring value/effort/risk, inventorying data, framing AI governance, training ambassadors and sequencing deployment waves.',
         },
