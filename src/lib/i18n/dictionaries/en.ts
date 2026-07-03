@@ -343,7 +343,6 @@ export const en: typeof fr = {
       tagline: 'Théo, CTO · France & Belgium',
     },
     readingMeta: 'Updated on',
-    byline: 'Anthony · CEO Lucid-Lab',
     dismissCta: 'Close prompt',
   },
   categories: {

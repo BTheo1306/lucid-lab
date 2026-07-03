@@ -4,6 +4,7 @@ import { cache } from "react";
 import readingTime from "reading-time";
 
 import { supabase } from "@/lib/bot/db/supabase";
+import { resolveAuthor } from "./authors";
 import type { FunnelStage, Post, PostCategory, PostFrontmatter, PostLocale } from "./types";
 
 interface BlogPostRow {
@@ -24,6 +25,7 @@ interface BlogPostRow {
   og_image: string | null;
   published_at: string | null;
   content_updated_at: string | null;
+  author: string | null;
 }
 
 function rowToPost(row: BlogPostRow): Post | null {
@@ -44,6 +46,12 @@ function rowToPost(row: BlogPostRow): Post | null {
     heroImageAlt: row.hero_image_alt ?? undefined,
     ogImage: row.og_image ?? undefined,
     locale: row.locale as PostLocale,
+    author: resolveAuthor(row.author, {
+      category: row.category,
+      tags: row.tags,
+      slug: row.slug,
+      title: row.title,
+    }).slug,
   };
   return {
     slug: row.slug,
@@ -54,7 +62,7 @@ function rowToPost(row: BlogPostRow): Post | null {
 }
 
 const PUBLIC_FIELDS =
-  "id,slug,locale,status,title,description,content,category,tags,funnel_stage,is_pillar,is_cornerstone,hero_image,hero_image_alt,og_image,published_at,content_updated_at";
+  "id,slug,locale,status,title,description,content,category,tags,funnel_stage,is_pillar,is_cornerstone,hero_image,hero_image_alt,og_image,published_at,content_updated_at,author";
 
 /**
  * Returns every published post sorted newest → oldest.

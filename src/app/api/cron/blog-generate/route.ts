@@ -68,6 +68,7 @@ export async function GET(req: Request) {
         // slot we cannot queue (schedule constraint), so it lands as a draft.
         status: scheduledFor ? 'queued' : 'draft',
         scheduledFor,
+        author: input.author,
       });
 
       if (blogId) created.push({ socialPostId: sp.id, blogId });

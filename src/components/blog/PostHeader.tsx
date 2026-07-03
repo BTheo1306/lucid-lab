@@ -1,5 +1,6 @@
 import Link from "next/link";
 
+import { BLOG_AUTHORS } from "@/lib/blog/authors";
 import type { Post } from "@/lib/blog/types";
 import { CATEGORIES } from "@/lib/blog/types";
 
@@ -21,7 +22,8 @@ export function PostHeader({ post }: { post: Post }) {
     : null;
   const updatedLabel = locale === "en" ? `Updated ${updated}` : `Mis à jour le ${updated}`;
   const readingLabel = locale === "en" ? `${readingTimeMinutes} min read` : `${readingTimeMinutes} min de lecture`;
-  const ceoLabel = locale === "en" ? "Théo · CTO Lucid-Lab" : "Théo · CTO Lucid-Lab";
+  const author = BLOG_AUTHORS[frontmatter.author];
+  const authorLabel = `${author.firstName} · ${author.jobTitle} Lucid-Lab`;
 
   return (
     <>
@@ -42,11 +44,11 @@ export function PostHeader({ post }: { post: Post }) {
           <div className="flex items-center gap-2">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
-              src="/team/theo.png"
-              alt="Théo"
+              src={author.photo}
+              alt={author.firstName}
               className="size-7 rounded-full object-cover"
             />
-            <span className="text-zinc-700">{ceoLabel}</span>
+            <span className="text-zinc-700">{authorLabel}</span>
           </div>
           <span aria-hidden>•</span>
           <time dateTime={frontmatter.publishedAt}>{published}</time>

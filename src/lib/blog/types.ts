@@ -5,6 +5,8 @@
  * See `content/posts/_template.mdx` for the canonical shape.
  */
 
+import type { BlogAuthorSlug } from "./authors";
+
 export type PostCategory =
   | "automatisation"
   | "ia-pme"
@@ -46,6 +48,8 @@ export interface PostFrontmatter {
   locale?: PostLocale;
   /** Slug of the translated version of the post. */
   translationSlug?: string;
+  /** Author, resolved from the DB `author` column or expertise-based fallback. */
+  author: BlogAuthorSlug;
 }
 
 export interface Post {

@@ -1,13 +1,14 @@
 import type { Post } from "./types";
 import { postUrl } from "./metadata";
 import { CATEGORIES } from "./types";
-import { LINKEDIN_URL } from "../seo/schema";
+import { BLOG_AUTHORS } from "./authors";
 
 const SITE_URL = "https://lucid-lab.fr";
 const ORG_ID = `${SITE_URL}/#organization`;
 
 export function articleSchema(post: Post) {
   const { frontmatter, slug } = post;
+  const author = BLOG_AUTHORS[frontmatter.author];
   return {
     "@context": "https://schema.org",
     "@type": "Article",
@@ -20,10 +21,10 @@ export function articleSchema(post: Post) {
     dateModified: frontmatter.updatedAt ?? frontmatter.publishedAt,
     author: {
       "@type": "Person",
-      name: "Anthony",
-      jobTitle: "CEO, Lucid-Lab",
+      name: author.fullName,
+      jobTitle: `${author.jobTitle}, Lucid-Lab`,
       url: SITE_URL,
-      sameAs: [LINKEDIN_URL],
+      sameAs: [author.linkedin],
     },
     publisher: { "@id": ORG_ID },
     mainEntityOfPage: { "@type": "WebPage", "@id": postUrl(slug) },

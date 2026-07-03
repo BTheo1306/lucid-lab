@@ -2,6 +2,7 @@ import { ImageResponse } from "next/og";
 import { readFileSync } from "fs";
 import { join } from "path";
 
+import { BLOG_AUTHORS } from "@/lib/blog/authors";
 import { getPostBySlug } from "@/lib/blog/posts";
 import { CATEGORIES } from "@/lib/blog/types";
 
@@ -32,6 +33,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const logoSrc = `data:image/png;base64,${logoBuffer.toString("base64")}`;
   const robotSrc = `data:image/png;base64,${robotBuffer.toString("base64")}`;
   const category = CATEGORIES[post.frontmatter.category];
+  const author = BLOG_AUTHORS[post.frontmatter.author];
 
   // Truncate long titles so the OG card stays readable
   const title = post.frontmatter.title.length > 95
@@ -153,7 +155,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
                 fontWeight: 500,
               }}
             >
-              <span>Théo · CTO Lucid-Lab</span>
+              <span>{author.firstName} · {author.jobTitle} Lucid-Lab</span>
               <span style={{ color: "#999" }}>·</span>
               <span>{post.readingTimeMinutes} min de lecture</span>
             </div>
