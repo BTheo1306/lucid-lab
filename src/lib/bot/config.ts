@@ -122,6 +122,8 @@ export const config = {
   linkedinClientId: process.env['LINKEDIN_CLIENT_ID'] ?? '',
   linkedinClientSecret: process.env['LINKEDIN_CLIENT_SECRET'] ?? '',
   linkedinRedirectUri: optionalEnv('LINKEDIN_REDIRECT_URI', 'https://lucid-lab.fr/admin/integrations/linkedin/callback'),
+  /** Numeric Lucid-Lab company page id, set to tag the page in auto-published posts. */
+  linkedinOrganizationId: process.env['LINKEDIN_ORGANIZATION_ID'] ?? '',
 
   // Billing
   billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '0.20')),

@@ -120,7 +120,14 @@ export async function createMemberPost(input: {
   accessToken: string;
   authorSub: string;
   text: string;
+  /** Optional ugcPosts commentary annotations (e.g. an organization mention). */
+  commentaryAttributes?: unknown[];
 }): Promise<{ postUrn: string }> {
+  const shareCommentary =
+    input.commentaryAttributes && input.commentaryAttributes.length > 0
+      ? { text: input.text, attributes: input.commentaryAttributes }
+      : { text: input.text };
+
   const res = await fetch(`${API_BASE}/v2/ugcPosts`, {
     method: 'POST',
     headers: {
@@ -134,7 +141,7 @@ export async function createMemberPost(input: {
       lifecycleState: 'PUBLISHED',
       specificContent: {
         'com.linkedin.ugc.ShareContent': {
-          shareCommentary: { text: input.text },
+          shareCommentary,
           shareMediaCategory: 'NONE',
         },
       },
@@ -148,6 +155,37 @@ export async function createMemberPost(input: {
     throw new Error(`LinkedIn ugcPosts error ${res.status}: ${detail || 'missing post URN header'}`);
   }
   return { postUrn };
+}
+
+/**
+ * Append a clickable mention of a LinkedIn organization to a post's text and
+ * build the matching ugcPosts commentary annotation.
+ *
+ * Offsets follow JS UTF-16 code-unit counting (`string.length`), which matches
+ * LinkedIn's annotation offsets for ugcPosts. The mention renders as a
+ * clickable bold link to the company page.
+ */
+export function appendOrganizationMention(
+  text: string,
+  input: { organizationId: string; label?: string },
+): { text: string; attributes: unknown[] } {
+  const label = input.label ?? 'Lucid-Lab';
+  const finalText = `${text}\n\n${label}`;
+  const start = finalText.length - label.length;
+  return {
+    text: finalText,
+    attributes: [
+      {
+        start,
+        length: label.length,
+        value: {
+          'com.linkedin.common.CompanyAttributedEntity': {
+            company: `urn:li:organization:${input.organizationId}`,
+          },
+        },
+      },
+    ],
+  };
 }
 
 /** Add the first comment (used to carry the link out of the post body). */

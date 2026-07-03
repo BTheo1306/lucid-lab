@@ -13,6 +13,17 @@ Status: LIVE (2026-06-23). Deployed (commit 2971f56) and connected on Anthony's 
 ### Posting endpoint decision
 We post via `/v2/ugcPosts` with a plain-text `shareCommentary`, NOT `/rest/posts`. The newer `commentary` field requires backslash-escaping reserved characters `( ) [ ] { } < > # * _ ~ | @`, and our French copy is full of parentheses and punctuation. ugcPosts takes raw UTF-8. If LinkedIn ever rejects ugcPosts for this app, the fallback is `/rest/posts` plus a commentary escaper; the first real post will surface this (the error lands in the post's `metadata.last_error`, visible in the CRM).
 
+### Tag de la page Lucid-Lab
+Chaque post auto-publié peut mentionner la page entreprise Lucid-Lab pour lui donner un peu d'activité (aujourd'hui les posts ne citent que le profil personnel d'Anthony, la page reste muette).
+
+**Ce que ça fait** : une mention cliquable "Lucid-Lab" est ajoutée en fin de post (`\n\n` puis le nom). La mention pointe vers la page entreprise et notifie les admins de la page qu'ils ont été cités.
+
+**Activation** : définir la variable d'environnement `LINKEDIN_ORGANIZATION_ID` sur Vercel avec l'ID numérique de la page. Pour le trouver : se connecter en tant qu'admin de la page, aller sur `linkedin.com/company/lucid-lab-fr/admin/`, l'ID numérique apparaît dans l'URL une fois la page chargée (ou dans les paramètres de la page). Tant que la variable n'est pas définie, le comportement est identique à aujourd'hui (aucune mention).
+
+**Fallback** : si LinkedIn refuse l'annotation (payload rejeté, page mal configurée, etc.), le cron republie automatiquement le même post sans le tag, pour que la mention ne bloque jamais une publication. La tentative avec tag échouée est loguée en `console.error`.
+
+**Limites et pour aller plus loin** : la mention ne fait PAS apparaître le post dans le feed de la page Lucid-Lab, c'est une simple citation dans un post personnel. Pour publier directement au nom de la page (et donc peupler son feed), il faut le produit LinkedIn "Community Management API" : candidature depuis l'app développeur LinkedIn, scope `w_organization_social`, et Anthony doit être admin de la page. C'est un processus d'approbation LinkedIn, pas juste un flag à activer. Plus simple en attendant : un admin de la page reposte le post en un clic depuis la page Lucid-Lab (bouton "Reposter"), la notification de mention rend ce repost facile à repérer chaque jour.
+
 ### Known follow-ups
 - No `audit_events` row is written per publication yet (no other side-effect flow in this repo writes them either). The `social_posts` row (status / posted_at / post_url / metadata.post_urn) is the per-post trail for now.
 - Impressions stay null (LinkedIn does not expose them for personal posts via API); reactions + comments are pulled.
