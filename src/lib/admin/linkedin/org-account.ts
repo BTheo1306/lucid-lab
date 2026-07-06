@@ -1,33 +1,24 @@
 import 'server-only';
 
 import { supabase } from '@/lib/bot/db/supabase';
+import { config } from '@/lib/bot/config';
 import { getLucidOrganizationId } from '@/lib/admin/social';
-import {
-  refreshAccessToken,
-  type LinkedInMember,
-  type LinkedInToken,
-} from './client';
-
-/** Member scopes granted when LinkedIn doesn't echo `scope` back on the token response. */
-const DEFAULT_MEMBER_SCOPES = ['openid', 'profile', 'email', 'w_member_social'];
+import { refreshOrgAccessToken, type LinkedInToken } from './client';
 
 /**
- * Persistence for the connected LinkedIn member account.
- *
- * The OAuth tokens live in `integration_accounts.metadata` (service-role only,
- * RLS on, never exposed to the browser). The parent `integrations` row is
- * created lazily on first connect so the data model stays explicit.
+ * Persistence for the LinkedIn Community Management API connection: the
+ * Lucid-Lab page's own OAuth account, kept separate from the member account
+ * in `account.ts` because LinkedIn requires that product to live on its own
+ * developer app (see the comment in `client.ts`). No member identity is
+ * stored here, only a page-scoped token.
  */
 
-const PROVIDER = 'linkedin';
+const PROVIDER = 'linkedin_org';
 const TOKEN_EXPIRY_SKEW_MS = 5 * 60 * 1000;
 
-export type LinkedInAccountSummary = {
+export type LinkedInOrgAccountSummary = {
   id: string;
   status: string;
-  memberName: string | null;
-  memberSub: string | null;
-  scopes: string[];
   connectedAt: string | null;
   accessTokenExpiresAt: string | null;
   hasRefreshToken: boolean;
@@ -37,8 +28,6 @@ export type LinkedInAccountSummary = {
 type AccountRow = {
   id: string;
   status: string;
-  account_identifier: string | null;
-  scopes: string[] | null;
   metadata: Record<string, unknown> | null;
 };
 
@@ -69,15 +58,15 @@ async function ensureIntegrationId(organizationId: string): Promise<string> {
     .from('integrations')
     .insert({
       organization_id: organizationId,
-      name: 'LinkedIn',
+      name: 'LinkedIn (page Lucid-Lab)',
       provider: PROVIDER,
       category: 'other',
       status: 'active',
-      docs_url: 'https://learn.microsoft.com/linkedin/marketing/',
+      docs_url: 'https://learn.microsoft.com/linkedin/marketing/community-management-api/',
     })
     .select('id')
     .single();
-  if (error || !data) throw new Error(`Could not create LinkedIn integration: ${error?.message ?? 'unknown'}`);
+  if (error || !data) throw new Error(`Could not create LinkedIn org integration: ${error?.message ?? 'unknown'}`);
   return (data as { id: string }).id;
 }
 
@@ -89,7 +78,7 @@ async function loadAccountRow(): Promise<{ organizationId: string; row: AccountR
 
   const { data } = await supabase
     .from('integration_accounts')
-    .select('id,status,account_identifier,scopes,metadata')
+    .select('id,status,metadata')
     .eq('organization_id', organizationId)
     .eq('integration_id', integrationId)
     .limit(1)
@@ -99,7 +88,7 @@ async function loadAccountRow(): Promise<{ organizationId: string; row: AccountR
 }
 
 /** Connection summary for the admin UI. Never returns the raw tokens. */
-export async function getLinkedInAccount(): Promise<LinkedInAccountSummary | null> {
+export async function getLinkedInOrgAccount(): Promise<LinkedInOrgAccountSummary | null> {
   const loaded = await loadAccountRow();
   if (!loaded) return null;
   const { row } = loaded;
@@ -107,9 +96,6 @@ export async function getLinkedInAccount(): Promise<LinkedInAccountSummary | nul
   return {
     id: row.id,
     status: row.status,
-    memberName: asString(meta.member_name),
-    memberSub: row.account_identifier ?? asString(meta.member_sub),
-    scopes: Array.isArray(row.scopes) ? row.scopes : [],
     connectedAt: asString(meta.connected_at),
     accessTokenExpiresAt: asString(meta.access_token_expires_at),
     hasRefreshToken: Boolean(asString(meta.refresh_token)),
@@ -117,31 +103,25 @@ export async function getLinkedInAccount(): Promise<LinkedInAccountSummary | nul
   };
 }
 
-/** Upsert the connected account after a successful OAuth exchange. */
-export async function saveLinkedInAccount(input: {
-  token: LinkedInToken;
-  member: LinkedInMember;
-}): Promise<void> {
+/** Upsert the connected page account after a successful OAuth exchange. */
+export async function saveLinkedInOrgAccount(token: LinkedInToken): Promise<void> {
   const organizationId = await getLucidOrganizationId();
   if (!organizationId) throw new Error('No organization configured.');
   const integrationId = await ensureIntegrationId(organizationId);
 
   const nowIso = new Date().toISOString();
   const metadata: Record<string, unknown> = {
-    member_sub: input.member.sub,
-    member_name: input.member.name,
-    member_email: input.member.email,
-    access_token: input.token.accessToken,
-    access_token_expires_at: isoFromNow(input.token.expiresInSeconds),
-    refresh_token: input.token.refreshToken,
-    refresh_token_expires_at: input.token.refreshTokenExpiresInSeconds
-      ? isoFromNow(input.token.refreshTokenExpiresInSeconds)
+    access_token: token.accessToken,
+    access_token_expires_at: isoFromNow(token.expiresInSeconds),
+    refresh_token: token.refreshToken,
+    refresh_token_expires_at: token.refreshTokenExpiresInSeconds
+      ? isoFromNow(token.refreshTokenExpiresInSeconds)
       : null,
     connected_at: nowIso,
     connected_by: 'admin',
     last_error: null,
   };
-  const scopes = input.token.scope ? input.token.scope.split(/[\s,]+/).filter(Boolean) : DEFAULT_MEMBER_SCOPES;
+  const scopes = token.scope ? token.scope.split(/[\s,]+/).filter(Boolean) : ['w_organization_social'];
 
   const existing = await supabase
     .from('integration_accounts')
@@ -154,8 +134,8 @@ export async function saveLinkedInAccount(input: {
   const payload = {
     organization_id: organizationId,
     integration_id: integrationId,
-    label: input.member.name ? `LinkedIn (${input.member.name})` : 'LinkedIn',
-    account_identifier: input.member.sub,
+    label: 'Page Lucid-Lab',
+    account_identifier: config.linkedinOrganizationId || null,
     status: 'active',
     scopes,
     metadata,
@@ -165,7 +145,7 @@ export async function saveLinkedInAccount(input: {
   const result = existing.data
     ? await supabase.from('integration_accounts').update(payload).eq('id', (existing.data as { id: string }).id)
     : await supabase.from('integration_accounts').insert(payload);
-  if (result.error) throw new Error(`Could not save LinkedIn account: ${result.error.message}`);
+  if (result.error) throw new Error(`Could not save LinkedIn org account: ${result.error.message}`);
 }
 
 async function patchMetadata(id: string, patch: Record<string, unknown>, status?: string): Promise<void> {
@@ -184,20 +164,20 @@ async function markNeedsReauth(id: string, reason: string): Promise<void> {
 }
 
 /**
- * Returns a usable access token + member URN for posting, refreshing the token
- * when it is close to expiry. Returns null (and flags the account for reauth)
- * when no valid credentials can be obtained.
+ * Returns a usable access token for the Lucid-Lab page, refreshing it when
+ * close to expiry. Returns null (and flags the account for reauth) when no
+ * valid credentials can be obtained. Callers must treat this as best-effort:
+ * a missing page token should never block the member post.
  */
-export async function getPostingCredentials(): Promise<{ accessToken: string; memberSub: string } | null> {
+export async function getOrgPostingCredentials(): Promise<{ accessToken: string } | null> {
   const loaded = await loadAccountRow();
   if (!loaded) return null;
   const { row } = loaded;
   const meta = row.metadata ?? {};
 
-  const memberSub = row.account_identifier ?? asString(meta.member_sub);
   const accessToken = asString(meta.access_token);
-  if (!memberSub || !accessToken) {
-    await markNeedsReauth(row.id, 'Connexion LinkedIn incomplète, reconnectez le compte.');
+  if (!accessToken) {
+    await markNeedsReauth(row.id, 'Connexion de la page LinkedIn incomplète, reconnectez-la.');
     return null;
   }
 
@@ -205,17 +185,17 @@ export async function getPostingCredentials(): Promise<{ accessToken: string; me
     ? Date.parse(meta.access_token_expires_at as string)
     : 0;
   if (Number.isFinite(expiresAtMs) && Date.now() < expiresAtMs - TOKEN_EXPIRY_SKEW_MS) {
-    return { accessToken, memberSub };
+    return { accessToken };
   }
 
   const refreshToken = asString(meta.refresh_token);
   if (!refreshToken) {
-    await markNeedsReauth(row.id, 'Token LinkedIn expiré et aucun refresh token disponible. Reconnectez le compte.');
+    await markNeedsReauth(row.id, 'Token de la page LinkedIn expiré et aucun refresh token disponible. Reconnectez.');
     return null;
   }
 
   try {
-    const refreshed = await refreshAccessToken(refreshToken);
+    const refreshed = await refreshOrgAccessToken(refreshToken);
     await patchMetadata(
       row.id,
       {
@@ -230,9 +210,9 @@ export async function getPostingCredentials(): Promise<{ accessToken: string; me
       },
       'active',
     );
-    return { accessToken: refreshed.accessToken, memberSub };
+    return { accessToken: refreshed.accessToken };
   } catch (error) {
-    await markNeedsReauth(row.id, error instanceof Error ? error.message : 'Refresh LinkedIn échoué.');
+    await markNeedsReauth(row.id, error instanceof Error ? error.message : 'Refresh de la page LinkedIn échoué.');
     return null;
   }
 }

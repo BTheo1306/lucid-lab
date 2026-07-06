@@ -21,18 +21,16 @@ const RESTLI_HEADER = { 'X-Restli-Protocol-Version': '2.0.0' } as const;
 
 /** State cookie used to protect the OAuth round-trip against CSRF. */
 export const LINKEDIN_OAUTH_STATE_COOKIE = 'll_linkedin_oauth_state';
+/** Separate state cookie for the org (Community Management API) OAuth flow. */
+export const LINKEDIN_ORG_OAUTH_STATE_COOKIE = 'll_linkedin_org_oauth_state';
 
 /**
- * Scopes requested at authorize time. `w_organization_social` (posting on the
- * company page) is only requested once LinkedIn has approved the Community
- * Management API product, otherwise the authorize call fails with
- * `unauthorized_scope_error`.
+ * Scopes requested at authorize time for the member-posting app. Fixed: the
+ * Community Management API scope (`w_organization_social`, page reshares) is
+ * requested through a separate app below, because LinkedIn requires that
+ * product to be the only one on its developer app.
  */
-export function linkedInScopes(): string[] {
-  const scopes = ['openid', 'profile', 'email', 'w_member_social'];
-  if (config.linkedinCommunityManagement) scopes.push('w_organization_social');
-  return scopes;
-}
+const LINKEDIN_MEMBER_SCOPES = ['openid', 'profile', 'email', 'w_member_social'];
 
 export type LinkedInToken = {
   accessToken: string;
@@ -59,7 +57,7 @@ export function buildAuthorizeUrl(state: string): string {
     client_id: config.linkedinClientId,
     redirect_uri: config.linkedinRedirectUri,
     state,
-    scope: linkedInScopes().join(' '),
+    scope: LINKEDIN_MEMBER_SCOPES.join(' '),
   });
   return `${OAUTH_BASE}/authorization?${params.toString()}`;
 }
@@ -104,6 +102,50 @@ export function refreshAccessToken(refreshToken: string): Promise<LinkedInToken>
       refresh_token: refreshToken,
       client_id: config.linkedinClientId,
       client_secret: config.linkedinClientSecret,
+    }),
+  );
+}
+
+// =============================================================================
+// Company page (Community Management API) — separate LinkedIn developer app
+// =============================================================================
+// LinkedIn requires the Community Management API to be the only product on a
+// developer app, so it cannot share credentials with the member-posting app
+// above. This is a second OAuth client, authorized once by an admin of the
+// Lucid-Lab page, scoped to just `w_organization_social` (page reshares).
+
+const LINKEDIN_ORG_SCOPES = ['w_organization_social'];
+
+export function buildOrgAuthorizeUrl(state: string): string {
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: config.linkedinOrgClientId,
+    redirect_uri: config.linkedinOrgRedirectUri,
+    state,
+    scope: LINKEDIN_ORG_SCOPES.join(' '),
+  });
+  return `${OAUTH_BASE}/authorization?${params.toString()}`;
+}
+
+export function exchangeOrgCodeForToken(code: string): Promise<LinkedInToken> {
+  return requestToken(
+    new URLSearchParams({
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: config.linkedinOrgRedirectUri,
+      client_id: config.linkedinOrgClientId,
+      client_secret: config.linkedinOrgClientSecret,
+    }),
+  );
+}
+
+export function refreshOrgAccessToken(refreshToken: string): Promise<LinkedInToken> {
+  return requestToken(
+    new URLSearchParams({
+      grant_type: 'refresh_token',
+      refresh_token: refreshToken,
+      client_id: config.linkedinOrgClientId,
+      client_secret: config.linkedinOrgClientSecret,
     }),
   );
 }

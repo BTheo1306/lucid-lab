@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { config } from '@/lib/bot/config';
 import { listSocialPosts, type SocialPost, type SocialPostStatus } from '@/lib/admin/social';
 import { getLinkedInAccount, type LinkedInAccountSummary } from '@/lib/admin/linkedin/account';
+import { getLinkedInOrgAccount, type LinkedInOrgAccountSummary } from '@/lib/admin/linkedin/org-account';
 import { blogPublicUrl, getBlogVersionsBySocialPostIds, type BlogStatus, type BlogVersionRef } from '@/lib/admin/blog';
 import { cn } from '@/lib/utils';
 import { EmptyState, LucidOsHeader, StatusBadge, formatAdminDate } from '../components';
@@ -289,6 +290,54 @@ function ConnectionBanner({ account }: { account: LinkedInAccountSummary | null 
   );
 }
 
+function OrgConnectionBanner({ account }: { account: LinkedInOrgAccountSummary | null }) {
+  const configured = config.linkedinOrgClientId.length > 0;
+
+  if (!configured) {
+    return (
+      <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-4 text-[13px] leading-6 text-zinc-500">
+        <strong className="font-semibold text-zinc-300">Reshare sur la page Lucid-Lab : app non configurée.</strong>{' '}
+        Nécessite une candidature LinkedIn approuvée au produit « Community Management API » sur un app développeur
+        dédié (LinkedIn interdit ce produit sur le même app que « Share on LinkedIn »), puis{' '}
+        <code className="rounded bg-black/30 px-1">LINKEDIN_ORG_CLIENT_ID</code> /{' '}
+        <code className="rounded bg-black/30 px-1">LINKEDIN_ORG_CLIENT_SECRET</code> sur Vercel.
+      </div>
+    );
+  }
+
+  const connected = account && account.status === 'active';
+  const needsReauth = account && account.status === 'needs_reauth';
+
+  return (
+    <div className={cn(
+      'flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-[13px]',
+      connected ? 'border-emerald-400/20 bg-emerald-500/[0.05]' : 'border-white/[0.08] bg-white/[0.02]',
+    )}>
+      <div className="min-w-0 leading-6">
+        {connected ? (
+          <span className="text-emerald-200/90">
+            <strong className="font-semibold text-emerald-100">Page Lucid-Lab connectée.</strong> Chaque post publié
+            est reposté sur le feed de la page.
+          </span>
+        ) : needsReauth ? (
+          <span className="text-amber-200/90">
+            <strong className="font-semibold text-amber-100">Reconnexion de la page requise.</strong>{' '}
+            {account?.lastError ?? 'Le jeton a expiré.'}
+          </span>
+        ) : (
+          <span className="text-zinc-300">
+            <strong className="font-semibold text-zinc-100">Page Lucid-Lab non connectée.</strong> Connectez-la (en
+            tant qu’admin de la page) pour reposter automatiquement chaque post publié.
+          </span>
+        )}
+      </div>
+      <a href="/admin/integrations/linkedin-org/connect" className={connected ? BTN_NEUTRAL : BTN_PRIMARY}>
+        {connected ? 'Reconnecter' : 'Connecter la page'}
+      </a>
+    </div>
+  );
+}
+
 function NewPostForm({ activeView }: { activeView: ViewKey }) {
   return (
     <details className="rounded-lg border border-white/[0.08] bg-white/[0.02]">
@@ -334,13 +383,23 @@ function NewPostForm({ activeView }: { activeView: ViewKey }) {
 export default async function LucidOsSocialPage({
   searchParams,
 }: {
-  searchParams?: Promise<{ vue?: string | string[]; linkedin_connected?: string; linkedin_error?: string }>;
+  searchParams?: Promise<{
+    vue?: string | string[];
+    linkedin_connected?: string;
+    linkedin_error?: string;
+    linkedin_org_connected?: string;
+    linkedin_org_error?: string;
+  }>;
 }) {
   const resolved = searchParams ? await searchParams : {};
   const rawView = Array.isArray(resolved.vue) ? resolved.vue[0] : resolved.vue;
   const activeView: ViewKey = VIEWS.some((v) => v.key === rawView) ? (rawView as ViewKey) : 'a-valider';
 
-  const [posts, account] = await Promise.all([listSocialPosts(200), getLinkedInAccount()]);
+  const [posts, account, orgAccount] = await Promise.all([
+    listSocialPosts(200),
+    getLinkedInAccount(),
+    getLinkedInOrgAccount(),
+  ]);
   const blogVersions = await getBlogVersionsBySocialPostIds(posts.map((p) => p.id));
   const countFor = (view: (typeof VIEWS)[number]) => posts.filter((p) => view.statuses.includes(p.status)).length;
 
@@ -363,8 +422,19 @@ export default async function LucidOsSocialPage({
           Connexion LinkedIn échouée : {resolved.linkedin_error}
         </div>
       ) : null}
+      {resolved.linkedin_org_connected ? (
+        <div className="rounded-lg border border-emerald-400/20 bg-emerald-500/[0.06] p-3 text-[13px] text-emerald-200/90">
+          Page Lucid-Lab connectée.
+        </div>
+      ) : null}
+      {resolved.linkedin_org_error ? (
+        <div className="rounded-lg border border-red-400/20 bg-red-500/[0.06] p-3 text-[13px] text-red-200/90">
+          Connexion de la page échouée : {resolved.linkedin_org_error}
+        </div>
+      ) : null}
 
       <ConnectionBanner account={account} />
+      <OrgConnectionBanner account={orgAccount} />
 
       <p className="-mt-1 max-w-2xl text-sm leading-6 text-zinc-500">
         « À valider » est la file de la semaine. Modifiez ou rejetez ce qui doit l’être ; sans retour de votre part, les posts sont approuvés puis publiés à l’heure prévue (le silence vaut accord). Les posts publiés affichent leurs métriques.

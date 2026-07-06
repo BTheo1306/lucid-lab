@@ -4,6 +4,7 @@ import { config } from '@/lib/bot/config';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
 import { listPostablePosts, recordPostFailure, recordPosted } from '@/lib/admin/social';
 import { getPostingCredentials } from '@/lib/admin/linkedin/account';
+import { getOrgPostingCredentials } from '@/lib/admin/linkedin/org-account';
 import {
   addComment,
   appendOrganizationMention,
@@ -23,9 +24,10 @@ function isAuthorized(req: Request): boolean {
 /**
  * GET /api/cron/linkedin-post
  * Publishes approved + due LinkedIn posts on the connected member's feed, then
- * posts the configured link as the first comment. When the Community
- * Management API is enabled, the Lucid-Lab page reshares each post so it also
- * appears on the company feed.
+ * posts the configured link as the first comment. When the Lucid-Lab page has
+ * its own Community Management API connection (a separate LinkedIn app, see
+ * org-account.ts), the page reshares each post so it also appears on the
+ * company feed.
  */
 export async function GET(req: Request) {
   if (!isAuthorized(req)) {
@@ -42,6 +44,9 @@ export async function GET(req: Request) {
   if (!credentials) {
     return NextResponse.json({ ok: false, reason: 'linkedin_not_connected', due: due.length });
   }
+
+  // Best effort, independent of member credentials: absence must never block posting.
+  const orgCredentials = config.linkedinOrganizationId ? await getOrgPostingCredentials() : null;
 
   let posted = 0;
   let mentioned = 0;
@@ -95,10 +100,10 @@ export async function GET(req: Request) {
 
       // Page reshare (best effort, never blocks the member post).
       let orgPostUrn: string | null = null;
-      if (config.linkedinCommunityManagement && config.linkedinOrganizationId) {
+      if (orgCredentials && config.linkedinOrganizationId) {
         try {
           ({ postUrn: orgPostUrn } = await createOrganizationReshare({
-            accessToken: credentials.accessToken,
+            accessToken: orgCredentials.accessToken,
             organizationId: config.linkedinOrganizationId,
             parentPostUrn: postUrn,
           }));

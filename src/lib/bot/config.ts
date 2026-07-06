@@ -124,13 +124,21 @@ export const config = {
   linkedinRedirectUri: optionalEnv('LINKEDIN_REDIRECT_URI', 'https://lucid-lab.fr/admin/integrations/linkedin/callback'),
   /** Numeric Lucid-Lab company page id, set to tag the page in auto-published posts. */
   linkedinOrganizationId: process.env['LINKEDIN_ORGANIZATION_ID'] ?? '',
+
   /**
-   * Set to 'true' once LinkedIn approves the "Community Management API" product
-   * on the developer app. Adds the `w_organization_social` scope to the OAuth
-   * connect flow and makes the posting cron reshare each member post on the
-   * Lucid-Lab company page feed. Requires reconnecting LinkedIn after enabling.
+   * Community Management API (page reshare) requires its own LinkedIn developer
+   * app: LinkedIn does not allow that product to coexist with "Share on
+   * LinkedIn" / "Sign In with LinkedIn" on the same app, so this is a second
+   * app with its own OAuth client and its own connected account (no member
+   * scopes, no reconnect of the main LinkedIn login). Empty until Anthony
+   * creates that app and the product is approved.
    */
-  linkedinCommunityManagement: (process.env['LINKEDIN_COMMUNITY_MANAGEMENT'] ?? '') === 'true',
+  linkedinOrgClientId: process.env['LINKEDIN_ORG_CLIENT_ID'] ?? '',
+  linkedinOrgClientSecret: process.env['LINKEDIN_ORG_CLIENT_SECRET'] ?? '',
+  linkedinOrgRedirectUri: optionalEnv(
+    'LINKEDIN_ORG_REDIRECT_URI',
+    'https://lucid-lab.fr/admin/integrations/linkedin-org/callback',
+  ),
 
   // Billing
   billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '0.20')),

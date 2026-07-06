@@ -17,11 +17,20 @@ Slots are Monday/Wednesday/Friday 07:30 UTC (published by the 08:00 UTC posting 
 ### Company page: why mentions never showed on the page, and the fix
 A mention (`LINKEDIN_ORGANIZATION_ID`) is just a clickable citation inside Anthony's personal post: LinkedIn never surfaces it on the page feed, and LinkedIn has no Instagram-style "collaboration post". The closest supported mechanism is a **page reshare**: the page publishes a repost of Anthony's post, so the company feed shows it with Anthony's post embedded (both identities visible).
 
-Implemented in `client.ts` (`createOrganizationReshare`, `/rest/posts` + `reshareContext`) and wired into the posting cron, gated behind `LINKEDIN_COMMUNITY_MANAGEMENT=true`. Enabling it requires steps only Anthony can do:
-1. On developer.linkedin.com, apply for the **"Community Management API"** product on the app (LinkedIn approval process, not a flag).
+Implemented in `client.ts` (`createOrganizationReshare`, `/rest/posts` + `reshareContext`) and wired into the posting cron.
+
+**LinkedIn requires the Community Management API to be the only product on a developer app** ("for legal and security reasons" per the app dashboard's own tooltip): it cannot be added to the existing app that already has "Share on LinkedIn" + "Sign In with LinkedIn". So this is a **second, dedicated LinkedIn developer app**, with its own OAuth client and its own connected account:
+- `src/lib/admin/linkedin/org-account.ts` stores the page's token under a separate `integration_accounts` row (`provider = 'linkedin_org'`), independent of the member account in `account.ts`.
+- `client.ts` exposes `buildOrgAuthorizeUrl` / `exchangeOrgCodeForToken` / `refreshOrgAccessToken`, scoped to just `w_organization_social` (no openid/profile: that product isn't on this app).
+- New routes `/admin/integrations/linkedin-org/{connect,callback}`, separate from the member `/admin/integrations/linkedin/{connect,callback}`.
+- The cockpit at `/admin/lucid-os/social` shows a second connection banner ("Page Lucid-Lab connectée / non connectée") next to the existing member one.
+
+Go-live steps (only Anthony can do these):
+1. On developer.linkedin.com, create a **new app** dedicated to the Lucid-Lab page and apply for the **"Community Management API"** product on it (LinkedIn approval process; do not add any other product to this app).
 2. Anthony must be admin of the Lucid-Lab page.
-3. Set `LINKEDIN_COMMUNITY_MANAGEMENT=true` on Vercel, then **reconnect LinkedIn** from the cockpit so the token gains `w_organization_social`.
-Until then the flag stays off and behavior is unchanged (mention only + the manual 1-click "Reposter" from the page). Reshare failures are logged and never block the member post; the page post URN is stored in `social_posts.metadata.org_post_urn`.
+3. Set `LINKEDIN_ORG_CLIENT_ID` / `LINKEDIN_ORG_CLIENT_SECRET` on Vercel (see `.env.example`), then connect from the cockpit's page banner (`/admin/integrations/linkedin-org/connect`). This does not touch or require reconnecting the existing member LinkedIn login.
+
+Until the page account is connected, behavior is unchanged (mention only + the manual 1-click "Reposter" from the page). Reshare is best-effort and independent per post: a missing or expired page token never blocks the member post. The page post URN is stored in `social_posts.metadata.org_post_urn`.
 
 ### Blog decoupled from LinkedIn (SEO pipeline)
 Blog articles are no longer expansions of LinkedIn posts. `/api/cron/blog-generate` (daily 06:30 UTC) now runs the blog's own SEO pipeline:
