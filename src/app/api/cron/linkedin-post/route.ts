@@ -3,9 +3,14 @@ import { NextResponse } from 'next/server';
 import { config } from '@/lib/bot/config';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
 import { listPostablePosts, recordPostFailure, recordPosted } from '@/lib/admin/social';
-import { socialPostsBlockedByUnpublishedBlog } from '@/lib/admin/blog';
 import { getPostingCredentials } from '@/lib/admin/linkedin/account';
-import { addComment, appendOrganizationMention, createMemberPost, postUrlFromUrn } from '@/lib/admin/linkedin/client';
+import {
+  addComment,
+  appendOrganizationMention,
+  createMemberPost,
+  createOrganizationReshare,
+  postUrlFromUrn,
+} from '@/lib/admin/linkedin/client';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
@@ -18,7 +23,9 @@ function isAuthorized(req: Request): boolean {
 /**
  * GET /api/cron/linkedin-post
  * Publishes approved + due LinkedIn posts on the connected member's feed, then
- * posts the configured link as the first comment.
+ * posts the configured link as the first comment. When the Community
+ * Management API is enabled, the Lucid-Lab page reshares each post so it also
+ * appears on the company feed.
  */
 export async function GET(req: Request) {
   if (!isAuthorized(req)) {
@@ -31,25 +38,17 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, posted: 0 });
   }
 
-  // Hold back any post whose linked blog article isn't published yet: its
-  // first-comment link would point at a not-yet-live URL. It posts on a later
-  // run once publish-blog has published the article (and set link_in_comment).
-  const blocked = await socialPostsBlockedByUnpublishedBlog(due.map((p) => p.id));
-  const ready = due.filter((p) => !blocked.has(p.id));
-  if (ready.length === 0) {
-    return NextResponse.json({ ok: true, posted: 0, waitingForBlog: blocked.size });
-  }
-
   const credentials = await getPostingCredentials();
   if (!credentials) {
-    return NextResponse.json({ ok: false, reason: 'linkedin_not_connected', due: ready.length });
+    return NextResponse.json({ ok: false, reason: 'linkedin_not_connected', due: due.length });
   }
 
   let posted = 0;
   let mentioned = 0;
+  let resharedByPage = 0;
   const failures: { id: string; error: string }[] = [];
 
-  for (const post of ready) {
+  for (const post of due) {
     try {
       let postUrn: string;
       if (config.linkedinOrganizationId) {
@@ -94,7 +93,22 @@ export async function GET(req: Request) {
         }
       }
 
-      await recordPosted(post.id, { postUrl: postUrlFromUrn(postUrn), postUrn, firstCommentPosted });
+      // Page reshare (best effort, never blocks the member post).
+      let orgPostUrn: string | null = null;
+      if (config.linkedinCommunityManagement && config.linkedinOrganizationId) {
+        try {
+          ({ postUrn: orgPostUrn } = await createOrganizationReshare({
+            accessToken: credentials.accessToken,
+            organizationId: config.linkedinOrganizationId,
+            parentPostUrn: postUrn,
+          }));
+          resharedByPage += 1;
+        } catch (reshareError) {
+          console.error('[linkedin-post] page reshare failed:', reshareError);
+        }
+      }
+
+      await recordPosted(post.id, { postUrl: postUrlFromUrn(postUrn), postUrn, firstCommentPosted, orgPostUrn });
       posted += 1;
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
@@ -103,5 +117,5 @@ export async function GET(req: Request) {
     }
   }
 
-  return NextResponse.json({ ok: true, posted, mentioned, waitingForBlog: blocked.size, failures });
+  return NextResponse.json({ ok: true, posted, mentioned, resharedByPage, failures });
 }

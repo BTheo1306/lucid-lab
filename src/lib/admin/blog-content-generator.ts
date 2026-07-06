@@ -4,7 +4,6 @@ import Anthropic from '@anthropic-ai/sdk';
 import { config } from '@/lib/bot/config';
 import { getAllPosts } from '@/lib/blog/posts';
 import type { BlogAuthorSlug } from '@/lib/blog/authors';
-import { pickAuthor } from '@/lib/blog/authors';
 
 export interface BlogGenerationInput {
   title: string;
@@ -15,8 +14,8 @@ export interface BlogGenerationInput {
   locale: 'fr' | 'en';
   notes: string | null;
   isPillar: boolean;
-  /** When set, the article is the long-form expansion of this LinkedIn post. */
-  sourceText?: string | null;
+  /** Primary search query the article targets (drives title/H2/FAQ placement). */
+  targetKeyword?: string | null;
   /** Author for the generated article, picked by expertise from the pillar/category. */
   author: BlogAuthorSlug;
 }
@@ -56,7 +55,13 @@ Format obligatoire (markdown) :
 - Tableaux : utilise la syntaxe GFM standard avec séparateurs \`|\` et ligne de séparation \`|---|---|\` — chaque colonne doit avoir un en-tête, aligne bien les pipes, 3 colonnes maximum pour rester lisible sur mobile
 - 1200 à 1800 mots
 - Conclusion courte qui résume + un CTA implicite vers l'Audit Flash gratuit (sans le nommer ainsi de manière forcée)
+- Termine par une section "## Questions fréquentes" avec 3 à 4 questions telles qu'on les taperait dans Google ou qu'on les poserait à un assistant IA, chacune suivie d'une réponse directe de 2 à 4 phrases (la réponse doit se suffire à elle-même, citable hors contexte)
 - Mentions de cas concrets de Lucid-Lab quand c'est naturel (Universal pour la lead gen, Turismo pour le scaling, Périscope pour le monitoring)
+
+SEO :
+- Si un mot-clé cible est fourni, place-le naturellement dans les 100 premiers mots, dans au moins un H2, et dans la section Questions fréquentes ; ne le répète jamais mécaniquement
+- Formule les H2 comme de vraies requêtes ou questions de recherche quand c'est naturel ("Combien coûte...", "Comment choisir...")
+- Chaque affirmation importante doit être autoportante : sujet explicite, pas de "cela" ou "ce dernier" flottants (les moteurs de réponse IA extraient des passages isolés)
 
 Liens internes :
 - Si une liste d'articles existants t'est fournie, intègre 2 à 4 liens internes là où c'est naturellement pertinent
@@ -69,6 +74,7 @@ Liens internes :
 - Les emojis dans le corps du texte
 - Le name-dropping d'outils sans justification
 - Les tirets longs (—) ou demi-tirets (–) : utilise des deux-points (:), des virgules ou des points à la place
+- L'expression "feuille de route" : écrire "roadmap IA" ou "plan d'action IA"
 
 Réponds UNIQUEMENT avec le markdown du contenu, rien avant, rien après.`;
 
@@ -88,7 +94,13 @@ Required format (markdown):
 - Tables: use standard GFM pipe syntax with a separator row \`|---|---|\` — every column must have a header, align pipes properly, max 3 columns to stay readable on mobile
 - 1200-1800 words
 - Short conclusion summarising + an implicit CTA towards the free Audit Flash
+- End with a "## Frequently asked questions" section: 3-4 questions phrased the way people type them into Google or ask an AI assistant, each answered directly in 2-4 self-contained sentences
 - Mention concrete Lucid-Lab cases when natural (Universal for lead gen, Turismo for scaling, Périscope for monitoring)
+
+SEO:
+- If a target keyword is provided, place it naturally in the first 100 words, in at least one H2, and in the FAQ section; never repeat it mechanically
+- Phrase H2s as real search queries or questions when natural ("How much does...", "How to choose...")
+- Keep important claims self-contained: explicit subjects, no floating "this" or "the latter" (AI answer engines extract isolated passages)
 
 Internal links:
 - If a list of existing posts is provided, weave in 2-4 internal links where naturally relevant
@@ -129,18 +141,8 @@ function buildUserPrompt(input: BlogGenerationInput, existingPosts: ExistingPost
     lines.push(`Étape funnel : ${funnelLabel}`);
   }
   if (input.isPillar) lines.push('Type : article PILIER (plus exhaustif, ~1800 mots, vise à devenir une référence sur le sujet)');
+  if (input.targetKeyword) lines.push(`Mot-clé cible : ${input.targetKeyword}`);
   if (input.notes) lines.push('', `Notes éditoriales : ${input.notes}`);
-
-  if (input.sourceText && input.sourceText.trim()) {
-    lines.push('');
-    lines.push(
-      'Cet article est la version longue du post LinkedIn ci-dessous. Garde son angle, sa thèse et ses exemples, mais approfondis vraiment : pose le contexte, développe chaque point, ajoute des exemples chiffrés, des nuances et une structure complète. Ne te contente pas de paraphraser le post.',
-    );
-    lines.push('');
-    lines.push('--- Post LinkedIn source ---');
-    lines.push(input.sourceText.trim());
-    lines.push('--- Fin du post source ---');
-  }
 
   if (existingPosts.length > 0) {
     const blogBase = input.locale === 'fr' ? '/blog' : '/en/blog';
@@ -223,50 +225,83 @@ export async function generateBlogContent(input: BlogGenerationInput): Promise<B
 }
 
 // =============================================================================
-// LinkedIn post -> blog generation input
+// SEO idea generation (fills the blog's own editorial backlog)
 // =============================================================================
 
-/** Map a LinkedIn content pillar onto a blog category (best effort, defaults to methode). */
-function categoryFromPillar(pillar: string | null): string {
-  const p = (pillar ?? '').toLowerCase();
-  if (p.includes('automat')) return 'automatisation';
-  if (p.includes('outil') || p.includes('tool') || p.includes('interne')) return 'outils-internes';
-  if (p.includes('pme') || p.includes('sme')) return 'ia-pme';
-  // ai-readiness, gouvernance, opinion, poc-graveyard, ... -> methodology bucket
-  return 'methode';
+export interface GeneratedSeoIdea {
+  title: string;
+  description: string | null;
+  category: string | null;
+  funnelStage: string | null;
+  targetKeyword: string | null;
+  isPillar: boolean;
 }
 
-/** Derive a blog-worthy title from a LinkedIn hook (or the first line of the body). */
-function deriveTitle(hook: string | null, body: string): string {
-  const raw = (hook && hook.trim()) || body.split('\n').map((l) => l.trim()).find(Boolean) || 'Article';
-  // Keep the first sentence, drop trailing punctuation/ellipsis.
-  const firstSentence = raw.split(/(?<=[.!?])\s/)[0].trim();
-  const base = firstSentence.replace(/[.!?…:]+$/u, '').trim();
-  if (base.length <= 70) return base;
-  const cut = base.slice(0, 70);
-  const lastSpace = cut.lastIndexOf(' ');
-  return (lastSpace > 30 ? cut.slice(0, lastSpace) : cut).trim();
-}
+const IDEA_SYSTEM_PROMPT = `Tu es le responsable SEO de Lucid-Lab, agence française qui vend des audits IA (Audit Flash), des roadmaps IA, des automatisations de processus, des agents IA en production et des sites web à des PME et ETI françaises.
 
-/** Build a generation input that expands a LinkedIn post into a long-form article. */
-export function blogInputFromSocialPost(post: {
-  hook: string | null;
-  body: string;
-  pillar: string | null;
-}): BlogGenerationInput {
-  const title = deriveTitle(post.hook, post.body);
-  const category = categoryFromPillar(post.pillar);
-  const tags = post.pillar ? [post.pillar] : [];
-  return {
-    title,
-    description: null,
-    category,
-    tags,
-    funnelStage: null,
-    locale: 'fr',
-    notes: null,
-    isPillar: false,
-    sourceText: post.body,
-    author: pickAuthor({ category, tags, title }),
-  };
+Ta mission : proposer des sujets d'articles de blog qui captent du trafic de recherche qualifié. Chaque sujet doit viser une vraie requête qu'un dirigeant, un DSI ou un responsable opérations tape dans Google (ou demande à un assistant IA), et se raccrocher à ce que Lucid-Lab vend.
+
+Règles :
+- Requêtes en français, intention business ou informationnelle à forte proximité d'achat ("audit ia entreprise", "automatiser la saisie de factures", "agent ia service client pme", "eu ai act obligations pme", "combien coute un agent ia")
+- Catégories autorisées : methode, automatisation, outils-internes, ia-pme
+- funnelStage : TOFU, MOFU ou BOFU
+- isPillar true seulement pour un sujet large qui mérite un article de référence (~1 sur 6)
+- Jamais deux sujets qui se cannibalisent entre eux ou avec les articles existants fournis
+- Titre : formulation naturelle et cliquable, pas de "guide ultime", pas de tirets longs (—), jamais "feuille de route" (dire "roadmap IA" ou "plan d'action IA")
+
+Réponds UNIQUEMENT avec un tableau JSON :
+[{"title": "...", "description": "angle en 1-2 phrases", "category": "methode|automatisation|outils-internes|ia-pme", "funnelStage": "TOFU|MOFU|BOFU", "targetKeyword": "la requête visée", "isPillar": false}]`;
+
+/** Generate fresh SEO article ideas, avoiding overlap with existing titles. */
+export async function generateSeoIdeas(existingTitles: string[], count: number): Promise<GeneratedSeoIdea[]> {
+  if (!config.anthropicApiKey) {
+    throw new Error('ANTHROPIC_API_KEY missing: cannot generate blog ideas');
+  }
+
+  const client = new Anthropic({ apiKey: config.anthropicApiKey });
+  const userPrompt = [
+    `Propose ${count} nouveaux sujets d'articles.`,
+    '',
+    'Sujets déjà couverts (ne pas dupliquer ni cannibaliser) :',
+    ...existingTitles.slice(0, 60).map((t) => `- ${t}`),
+  ].join('\n');
+
+  const response = await client.messages.create({
+    model: config.aiModel,
+    max_tokens: 2500,
+    system: IDEA_SYSTEM_PROMPT,
+    messages: [{ role: 'user', content: userPrompt }],
+  });
+
+  const text = response.content
+    .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+    .map((b) => b.text)
+    .join('\n')
+    .trim();
+
+  const start = text.indexOf('[');
+  const end = text.lastIndexOf(']');
+  if (start === -1 || end === -1) throw new Error('AI idea response contains no JSON array');
+
+  const parsed = JSON.parse(text.slice(start, end + 1)) as unknown;
+  if (!Array.isArray(parsed)) throw new Error('AI idea response is not a JSON array');
+
+  const validCategories = new Set(['methode', 'automatisation', 'outils-internes', 'ia-pme']);
+  const validFunnel = new Set(['TOFU', 'MOFU', 'BOFU']);
+
+  const ideas: GeneratedSeoIdea[] = [];
+  for (const item of parsed) {
+    const row = item as Record<string, unknown>;
+    const title = typeof row.title === 'string' ? row.title.trim() : '';
+    if (!title) continue;
+    ideas.push({
+      title,
+      description: typeof row.description === 'string' ? row.description : null,
+      category: typeof row.category === 'string' && validCategories.has(row.category) ? row.category : 'methode',
+      funnelStage: typeof row.funnelStage === 'string' && validFunnel.has(row.funnelStage) ? row.funnelStage : null,
+      targetKeyword: typeof row.targetKeyword === 'string' ? row.targetKeyword : null,
+      isPillar: row.isPillar === true,
+    });
+  }
+  return ideas;
 }

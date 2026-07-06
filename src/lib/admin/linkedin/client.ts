@@ -22,8 +22,17 @@ const RESTLI_HEADER = { 'X-Restli-Protocol-Version': '2.0.0' } as const;
 /** State cookie used to protect the OAuth round-trip against CSRF. */
 export const LINKEDIN_OAUTH_STATE_COOKIE = 'll_linkedin_oauth_state';
 
-/** Scopes requested at authorize time. */
-export const LINKEDIN_SCOPES = ['openid', 'profile', 'email', 'w_member_social'] as const;
+/**
+ * Scopes requested at authorize time. `w_organization_social` (posting on the
+ * company page) is only requested once LinkedIn has approved the Community
+ * Management API product, otherwise the authorize call fails with
+ * `unauthorized_scope_error`.
+ */
+export function linkedInScopes(): string[] {
+  const scopes = ['openid', 'profile', 'email', 'w_member_social'];
+  if (config.linkedinCommunityManagement) scopes.push('w_organization_social');
+  return scopes;
+}
 
 export type LinkedInToken = {
   accessToken: string;
@@ -50,7 +59,7 @@ export function buildAuthorizeUrl(state: string): string {
     client_id: config.linkedinClientId,
     redirect_uri: config.linkedinRedirectUri,
     state,
-    scope: LINKEDIN_SCOPES.join(' '),
+    scope: linkedInScopes().join(' '),
   });
   return `${OAUTH_BASE}/authorization?${params.toString()}`;
 }
@@ -186,6 +195,59 @@ export function appendOrganizationMention(
       },
     ],
   };
+}
+
+/**
+ * Version header required by the /rest/* Posts API. Monthly versions stay
+ * valid for about a year; bump if LinkedIn starts returning 426 errors.
+ */
+const LINKEDIN_REST_VERSION = '202506';
+
+/**
+ * Reshare a member post on the company page feed (the closest thing LinkedIn
+ * has to a "collaboration post": the page publishes a repost of Anthony's
+ * post, so it shows on the page feed with the member post embedded).
+ *
+ * Requires the Community Management API product on the developer app and the
+ * `w_organization_social` scope on the token, with the member being an admin
+ * of the page. Uses /rest/posts because reshares are not supported on
+ * ugcPosts; with an empty commentary there is nothing to escape.
+ */
+export async function createOrganizationReshare(input: {
+  accessToken: string;
+  organizationId: string;
+  parentPostUrn: string;
+}): Promise<{ postUrn: string }> {
+  const res = await fetch(`${API_BASE}/rest/posts`, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${input.accessToken}`,
+      'Content-Type': 'application/json',
+      'LinkedIn-Version': LINKEDIN_REST_VERSION,
+      ...RESTLI_HEADER,
+    },
+    cache: 'no-store',
+    body: JSON.stringify({
+      author: `urn:li:organization:${input.organizationId}`,
+      commentary: '',
+      visibility: 'PUBLIC',
+      distribution: {
+        feedDistribution: 'MAIN_FEED',
+        targetEntities: [],
+        thirdPartyDistributionChannels: [],
+      },
+      lifecycleState: 'PUBLISHED',
+      isReshareDisabledByAuthor: false,
+      reshareContext: { parent: input.parentPostUrn },
+    }),
+  });
+
+  const postUrn = res.headers.get('x-restli-id') || res.headers.get('x-linkedin-id');
+  if (!res.ok || !postUrn) {
+    const detail = await res.text().catch(() => '');
+    throw new Error(`LinkedIn org reshare error ${res.status}: ${detail || 'missing post URN header'}`);
+  }
+  return { postUrn };
 }
 
 /** Add the first comment (used to carry the link out of the post body). */

@@ -3,7 +3,7 @@ import 'server-only';
 import { supabase } from '@/lib/bot/db/supabase';
 import { getLucidOrganizationId } from '@/lib/admin/social';
 import {
-  LINKEDIN_SCOPES,
+  linkedInScopes,
   refreshAccessToken,
   type LinkedInMember,
   type LinkedInToken,
@@ -139,7 +139,7 @@ export async function saveLinkedInAccount(input: {
     connected_by: 'admin',
     last_error: null,
   };
-  const scopes = input.token.scope ? input.token.scope.split(/[\s,]+/).filter(Boolean) : [...LINKEDIN_SCOPES];
+  const scopes = input.token.scope ? input.token.scope.split(/[\s,]+/).filter(Boolean) : linkedInScopes();
 
   const existing = await supabase
     .from('integration_accounts')

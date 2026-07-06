@@ -223,10 +223,14 @@ async function mergeMetadata(id: string, patch: Record<string, unknown>): Promis
   return { ...current, ...patch };
 }
 
-export async function recordPosted(id: string, input: { postUrl: string; postUrn: string; firstCommentPosted: boolean }): Promise<void> {
+export async function recordPosted(
+  id: string,
+  input: { postUrl: string; postUrn: string; firstCommentPosted: boolean; orgPostUrn?: string | null },
+): Promise<void> {
   const metadata = await mergeMetadata(id, {
     post_urn: input.postUrn,
     first_comment_posted: input.firstCommentPosted,
+    ...(input.orgPostUrn ? { org_post_urn: input.orgPostUrn } : {}),
     last_error: null,
   });
   const { error } = await supabase
@@ -267,6 +271,41 @@ export async function listUpcomingPosts(days = 7): Promise<SocialPost[]> {
     .lte('scheduled_for', horizon)
     .order('scheduled_for', { ascending: true });
   return ((data as Record<string, unknown>[]) ?? []).map(normalizeSocialPost);
+}
+
+/** LinkedIn posts (any live status) scheduled inside [startIso, endIso). Used to
+ * skip weekly generation when the week is already planned, manually or not. */
+export async function listPostsScheduledBetween(startIso: string, endIso: string): Promise<{ id: string }[]> {
+  const organizationId = await getLucidOrganizationId();
+  if (!organizationId) return [];
+  const { data } = await supabase
+    .from('social_posts')
+    .select('id')
+    .eq('organization_id', organizationId)
+    .eq('platform', 'linkedin')
+    .in('status', ['draft', 'queued', 'approved', 'posted'])
+    .gte('scheduled_for', startIso)
+    .lt('scheduled_for', endIso);
+  return ((data as { id: string }[]) ?? []);
+}
+
+/** Latest post hooks/pillars, newest first, fed to the generator so it does not
+ * repeat angles from previous weeks. */
+export async function listRecentPostsForContext(limit = 12): Promise<{ hook: string | null; pillar: string | null }[]> {
+  const organizationId = await getLucidOrganizationId();
+  if (!organizationId) return [];
+  const { data } = await supabase
+    .from('social_posts')
+    .select('hook,pillar,scheduled_for')
+    .eq('organization_id', organizationId)
+    .eq('platform', 'linkedin')
+    .in('status', ['queued', 'approved', 'posted'])
+    .order('scheduled_for', { ascending: false, nullsFirst: false })
+    .limit(limit);
+  return (((data as Record<string, unknown>[]) ?? [])).map((r) => ({
+    hook: typeof r.hook === 'string' ? r.hook : null,
+    pillar: typeof r.pillar === 'string' ? r.pillar : null,
+  }));
 }
 
 /** Posts published in the last N days (for the weekly digest performance section). */

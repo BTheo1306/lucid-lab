@@ -5,11 +5,9 @@ import { config } from '@/lib/bot/config';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
 import {
   autoApproveDueBlogPosts,
-  blogPublicUrl,
   listPublishableBlogPosts,
   markBlogPostPublished,
 } from '@/lib/admin/blog';
-import { setLinkInComment } from '@/lib/admin/social';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -24,8 +22,6 @@ function isAuthorized(req: Request): boolean {
  * Mirrors the LinkedIn flow for the blog:
  *   1. "Silence = approval": flip `queued` posts within 24h of their slot to `approved`.
  *   2. Publish `approved` posts whose `scheduled_for <= now()`.
- *   3. For each published article linked to a LinkedIn post, point that post's
- *      first-comment link at the freshly published article URL (the "raccord").
  */
 export async function GET(req: Request) {
   if (!isAuthorized(req)) {
@@ -42,19 +38,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ ok: true, autoApproved, published: 0 });
   }
 
-  const published: { id: string; slug: string | null; locale: string; linkedSocialPostId: string | null }[] = [];
+  const published: { id: string; slug: string | null; locale: string }[] = [];
 
   for (const post of due) {
     await markBlogPostPublished(post.id);
-
-    // 3. Point the linked LinkedIn post at the article (best effort, non-fatal).
-    if (post.social_post_id && post.slug) {
-      try {
-        await setLinkInComment(post.social_post_id, blogPublicUrl(post.locale, post.slug));
-      } catch (err) {
-        console.error('[publish-blog] setLinkInComment failed:', (err as Error).message);
-      }
-    }
 
     // Refresh the public pages so the article shows immediately.
     if (post.locale === 'en') {
@@ -69,7 +56,6 @@ export async function GET(req: Request) {
       id: post.id,
       slug: post.slug,
       locale: post.locale,
-      linkedSocialPostId: post.social_post_id,
     });
   }
 

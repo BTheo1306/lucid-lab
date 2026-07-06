@@ -124,6 +124,13 @@ export const config = {
   linkedinRedirectUri: optionalEnv('LINKEDIN_REDIRECT_URI', 'https://lucid-lab.fr/admin/integrations/linkedin/callback'),
   /** Numeric Lucid-Lab company page id, set to tag the page in auto-published posts. */
   linkedinOrganizationId: process.env['LINKEDIN_ORGANIZATION_ID'] ?? '',
+  /**
+   * Set to 'true' once LinkedIn approves the "Community Management API" product
+   * on the developer app. Adds the `w_organization_social` scope to the OAuth
+   * connect flow and makes the posting cron reshare each member post on the
+   * Lucid-Lab company page feed. Requires reconnecting LinkedIn after enabling.
+   */
+  linkedinCommunityManagement: (process.env['LINKEDIN_COMMUNITY_MANAGEMENT'] ?? '') === 'true',
 
   // Billing
   billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '0.20')),

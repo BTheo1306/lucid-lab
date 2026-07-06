@@ -103,14 +103,13 @@ export interface PublishableBlogPost {
   id: string;
   locale: BlogLocale;
   slug: string | null;
-  social_post_id: string | null;
 }
 
 /** Approved posts whose slot has passed and which actually have content to publish. */
 export async function listPublishableBlogPosts(): Promise<PublishableBlogPost[]> {
   const { data, error } = await supabase
     .from('blog_posts')
-    .select('id,locale,slug,social_post_id')
+    .select('id,locale,slug')
     .eq('status', 'approved')
     .lte('scheduled_for', new Date().toISOString())
     .not('content', 'is', null);
@@ -128,87 +127,107 @@ export async function markBlogPostPublished(id: string): Promise<void> {
 }
 
 // =============================================================================
-// Blog <-> LinkedIn link (the "raccord")
+// SEO idea backlog (the blog's own editorial pipeline, decoupled from LinkedIn)
 // =============================================================================
 
-export interface SocialPostForBlog {
+export interface BlogIdeaRow {
   id: string;
-  hook: string | null;
-  body: string;
-  pillar: string | null;
-  scheduledFor: string | null;
-}
-
-/**
- * LinkedIn posts that deserve a long-form companion but have no blog version yet.
- * Scoped to posts in the publishing pipeline (not rejected/skipped). Capped per call
- * to bound generation cost in the cron.
- */
-export async function getSocialPostsMissingBlogVersion(limit = 5): Promise<SocialPostForBlog[]> {
-  const { data: socials, error } = await supabase
-    .from('social_posts')
-    .select('id,hook,body,pillar,scheduled_for')
-    .in('status', ['draft', 'queued', 'approved', 'posted']);
-  if (error || !socials) return [];
-
-  const { data: existing } = await supabase
-    .from('blog_posts')
-    .select('social_post_id')
-    .not('social_post_id', 'is', null);
-  const have = new Set((existing ?? []).map((r) => (r as { social_post_id: string }).social_post_id));
-
-  return (socials as Record<string, unknown>[])
-    .filter((s) => !have.has(String(s.id)))
-    .slice(0, limit)
-    .map((s) => ({
-      id: String(s.id),
-      hook: typeof s.hook === 'string' ? s.hook : null,
-      body: typeof s.body === 'string' ? s.body : '',
-      pillar: typeof s.pillar === 'string' ? s.pillar : null,
-      scheduledFor: typeof s.scheduled_for === 'string' ? s.scheduled_for : null,
-    }));
-}
-
-export interface CreateBlogVersionInput {
-  socialPostId: string;
   title: string;
-  slug: string;
   description: string | null;
-  content: string | null;
   category: string | null;
+  tags: string[];
+  funnel_stage: string | null;
+  is_pillar: boolean;
+  notes: string | null;
   locale: BlogLocale;
-  status: BlogStatus;
-  scheduledFor: string | null;
-  author: BlogAuthorSlug;
 }
 
-/** Insert a blog article generated from a LinkedIn post. Retries once with a
- * disambiguated slug on a unique-slug collision. Returns the new row id. */
-export async function createBlogVersion(input: CreateBlogVersionInput): Promise<string | null> {
-  const row = {
-    status: input.status,
-    locale: input.locale,
-    title: input.title,
+/** Idea rows awaiting content generation, oldest first. */
+export async function listIdeaBacklog(limit = 10): Promise<BlogIdeaRow[]> {
+  const { data, error } = await supabase
+    .from('blog_posts')
+    .select('id,title,description,category,tags,funnel_stage,is_pillar,notes,locale')
+    .eq('status', 'idea')
+    .order('created_at', { ascending: true })
+    .limit(limit);
+  if (error || !data) return [];
+  return data as BlogIdeaRow[];
+}
+
+/** All titles in the table (any status), used to dedupe new idea generation. */
+export async function listBlogTitles(): Promise<string[]> {
+  const { data } = await supabase.from('blog_posts').select('title');
+  return ((data ?? []) as { title: string }[]).map((r) => r.title);
+}
+
+export interface NewBlogIdea {
+  title: string;
+  description: string | null;
+  category: string | null;
+  funnelStage: string | null;
+  targetKeyword: string | null;
+  isPillar: boolean;
+}
+
+/** Insert freshly generated SEO ideas into the backlog (status `idea`). */
+export async function insertBlogIdeas(ideas: NewBlogIdea[]): Promise<number> {
+  if (ideas.length === 0) return 0;
+  const rows = ideas.map((idea) => ({
+    status: 'idea',
+    locale: 'fr',
+    title: idea.title,
+    description: idea.description,
+    category: idea.category,
+    funnel_stage: idea.funnelStage,
+    is_pillar: idea.isPillar,
+    notes: idea.targetKeyword ? `Mot-clé cible : ${idea.targetKeyword}` : null,
+  }));
+  const { data, error } = await supabase.from('blog_posts').insert(rows).select('id');
+  if (error) {
+    console.error('[blog] insertBlogIdeas failed:', error.message);
+    return 0;
+  }
+  return ((data ?? []) as unknown[]).length;
+}
+
+/** Upcoming scheduled articles (queued/approved with a future slot). */
+export async function listUpcomingScheduledArticles(): Promise<{ id: string; scheduled_for: string }[]> {
+  const { data } = await supabase
+    .from('blog_posts')
+    .select('id,scheduled_for')
+    .in('status', ['queued', 'approved'])
+    .gte('scheduled_for', new Date().toISOString());
+  return ((data ?? []) as { id: string; scheduled_for: string }[]);
+}
+
+/** Fill an idea row with generated content and move it into the review queue.
+ * Retries once with a disambiguated slug on a unique-slug collision. */
+export async function fillIdeaWithContent(
+  id: string,
+  input: {
+    slug: string;
+    description: string | null;
+    content: string;
+    scheduledFor: string;
+    author: BlogAuthorSlug;
+  },
+): Promise<void> {
+  const patch = {
+    status: 'queued',
     slug: input.slug,
     description: input.description,
     content: input.content,
-    category: input.category,
-    social_post_id: input.socialPostId,
     scheduled_for: input.scheduledFor,
-    content_updated_at: input.content ? new Date().toISOString() : null,
+    content_updated_at: new Date().toISOString(),
     author: input.author,
   };
 
-  let res = await supabase.from('blog_posts').insert(row).select('id').single();
+  let res = await supabase.from('blog_posts').update(patch).eq('id', id);
   if (res.error && /duplicate|unique|23505/i.test(res.error.message)) {
-    row.slug = `${input.slug}-${input.socialPostId.slice(0, 6)}`;
-    res = await supabase.from('blog_posts').insert(row).select('id').single();
+    patch.slug = `${input.slug}-${id.slice(0, 6)}`;
+    res = await supabase.from('blog_posts').update(patch).eq('id', id);
   }
-  if (res.error || !res.data) {
-    console.error('[blog] createBlogVersion failed:', res.error?.message);
-    return null;
-  }
-  return (res.data as { id: string }).id;
+  if (res.error) throw new Error(`fillIdeaWithContent: ${res.error.message}`);
 }
 
 export interface BlogVersionRef {
@@ -242,21 +261,3 @@ export async function getBlogVersionsBySocialPostIds(
   return out;
 }
 
-/**
- * Of the given LinkedIn posts, which ones are blocked from posting because their
- * linked blog article is not published yet (so the link_in_comment URL is not live).
- */
-export async function socialPostsBlockedByUnpublishedBlog(socialIds: string[]): Promise<Set<string>> {
-  if (socialIds.length === 0) return new Set();
-  const { data } = await supabase
-    .from('blog_posts')
-    .select('social_post_id,status')
-    .in('social_post_id', socialIds)
-    .neq('status', 'published');
-  const blocked = new Set<string>();
-  for (const r of (data ?? []) as Record<string, unknown>[]) {
-    const sid = r.social_post_id as string | null;
-    if (sid) blocked.add(sid);
-  }
-  return blocked;
-}

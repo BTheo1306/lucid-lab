@@ -2,6 +2,34 @@
 
 Status: LIVE (2026-06-23). Deployed (commit 2971f56) and connected on Anthony's personal profile. Env vars set, OAuth authorized, banner green. Crons run once per day (forced by the Vercel Hobby limit, see "Hobby cron constraint" below).
 
+## 2026-07-06 update: newsletter engine + page reshare + blog split
+
+### Weekly newsletter-style generation (3 posts/week)
+The seeded batch was the only content source; once it ran out nothing new appeared, and the posts read as isolated dumps. Now `/api/cron/linkedin-autoapprove` (daily 07:00 UTC) also generates content every **Friday**: one Claude call (`src/lib/admin/social-content-generator.ts`) writes the 3 posts of the coming week, landing as `queued` in the cockpit (silence = approval still applies, review window = the weekend + the Monday email).
+
+Recurring rubriques, so the feed reads like a newsletter with rendez-vous:
+- **lundi** "[Le décryptage du lundi]": one AI mechanism explained properly for a PME decision-maker, educational stats only with a real source (institution + chiffre + année), never invented.
+- **mercredi** "[Sur le terrain]": a real Lucid-Lab delivery story, drawn from a whitelist of cases baked into the prompt (Universal, Turismo, Périscope, le groupe assurantiel et financier belge, BSP37, setups Claude+Obsidian). No invented client numbers.
+- **vendredi** "[Point de vue]": a clear stance on a live AI debate (ton: François Rivard).
+
+Slots are Monday/Wednesday/Friday 07:30 UTC (published by the 08:00 UTC posting run, ~10h Paris). If the coming week already has any post scheduled (manual planning), generation skips entirely. The prompt receives the last 12 hooks to avoid repeating angles. Editorial bans enforced in the prompt: emojis, long dashes, "feuille de route", corporate jargon, unverifiable claims.
+
+### Company page: why mentions never showed on the page, and the fix
+A mention (`LINKEDIN_ORGANIZATION_ID`) is just a clickable citation inside Anthony's personal post: LinkedIn never surfaces it on the page feed, and LinkedIn has no Instagram-style "collaboration post". The closest supported mechanism is a **page reshare**: the page publishes a repost of Anthony's post, so the company feed shows it with Anthony's post embedded (both identities visible).
+
+Implemented in `client.ts` (`createOrganizationReshare`, `/rest/posts` + `reshareContext`) and wired into the posting cron, gated behind `LINKEDIN_COMMUNITY_MANAGEMENT=true`. Enabling it requires steps only Anthony can do:
+1. On developer.linkedin.com, apply for the **"Community Management API"** product on the app (LinkedIn approval process, not a flag).
+2. Anthony must be admin of the Lucid-Lab page.
+3. Set `LINKEDIN_COMMUNITY_MANAGEMENT=true` on Vercel, then **reconnect LinkedIn** from the cockpit so the token gains `w_organization_social`.
+Until then the flag stays off and behavior is unchanged (mention only + the manual 1-click "Reposter" from the page). Reshare failures are logged and never block the member post; the page post URN is stored in `social_posts.metadata.org_post_urn`.
+
+### Blog decoupled from LinkedIn (SEO pipeline)
+Blog articles are no longer expansions of LinkedIn posts. `/api/cron/blog-generate` (daily 06:30 UTC) now runs the blog's own SEO pipeline:
+1. **Idea backlog**: when fewer than 4 `idea` rows exist in `blog_posts`, Claude generates 6 SEO topics (title, angle, category, funnel stage, target keyword stored in `notes`), deduped against every existing title. Ideas are visible/editable in `/admin/blog` before any content is written.
+2. **Article generation**: keeps 2 articles queued ahead, scheduled Tuesday/Thursday 06:00 UTC (published by publish-blog 07:00 UTC). The article prompt now enforces target-keyword placement, search-query H2s and a "Questions fréquentes" section (AEO).
+
+Consequences: the posting cron no longer holds LinkedIn posts back waiting for a blog article, publish-blog no longer rewrites `link_in_comment` (the "raccord" is gone; generated posts default their first comment to `https://lucid-lab.fr/audit-flash`), and the LinkedIn cockpit's blog link column only shows for historical rows.
+
 ## What shipped
 - **Validate in the CRM** (`/admin/lucid-os/social`): approve / reject / re-queue / edit, plus "Nouveau post". Server actions in `src/app/admin/(dashboard)/lucid-os/social/actions.ts`.
 - **OAuth connect** at `/admin/integrations/linkedin/connect` (+ `/callback`). Lives under `/admin` so the admin session cookie reaches it; CSRF-protected with a `state` cookie. Tokens stored in `integration_accounts.metadata` (service-role only), parent `integrations` row created lazily.
