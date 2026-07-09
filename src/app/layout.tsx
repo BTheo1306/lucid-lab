@@ -257,6 +257,8 @@ export default async function RootLayout({
                         "AI monitoring",
                         "Documentation and runbooks",
                         "AI governance, GDPR and EU AI Act",
+                        "Second brain installs (Claude and company knowledge base)",
+                        "Enterprise AI training",
                       ]
                     : [
                         "Audit Flash",
@@ -267,6 +269,8 @@ export default async function RootLayout({
                         "Monitoring IA",
                         "Documentation et runbooks",
                         "Gouvernance IA, RGPD et EU AI Act",
+                        "Installation second brain (Claude et base de connaissance)",
+                        "Formations IA entreprises",
                       ],
                   hasOfferCatalog: {
                     "@type": "OfferCatalog",
@@ -301,6 +305,20 @@ export default async function RootLayout({
                         description: isEn
                           ? "Sources, access, risks, EU hosting and target architecture before the build."
                           : "Sources, accès, risques, hébergement EU et architecture cible avant build.",
+                      },
+                      {
+                        "@type": "Offer",
+                        name: isEn ? "Second Brain install" : "Installation Second Brain",
+                        description: isEn
+                          ? "Claude installed and connected to company knowledge: structured context, connectors, two proof automations, training. In 14 days."
+                          : "Claude installé et branché sur la connaissance de l’entreprise : contexte structuré, connecteurs, deux automatisations de preuve, formation. En 14 jours.",
+                      },
+                      {
+                        "@type": "Offer",
+                        name: isEn ? "Enterprise AI training" : "Formations IA entreprises",
+                        description: isEn
+                          ? "AI literacy for leadership, Claude day to day, second brain, agents and automations, governance. On real company cases."
+                          : "Acculturation dirigeants, Claude au quotidien, second brain, agents et automatisations, gouvernance. Sur les cas réels de l’entreprise.",
                       },
                     ],
                   },

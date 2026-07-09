@@ -20,6 +20,8 @@ export function Header() {
   const links = [
     { label: t.nav.expertise, href: `${homePrefix}/#expertises` },
     { label: t.nav.offers, href: `${homePrefix}/#offres` },
+    { label: t.nav.secondBrain, href: `${homePrefix}/second-brain` },
+    { label: t.nav.training, href: lang === 'en' ? '/en/ai-training' : '/formations-ia' },
     { label: t.nav.delivery, href: `${homePrefix}/#comment-on-livre` },
     { label: t.nav.cases, href: `${homePrefix}/#acquis-livres` },
     { label: t.nav.blog, href: `${homePrefix === '' ? '/blog' : '/en/blog'}` },
@@ -77,7 +79,7 @@ export function Header() {
         </a>
 
         {/* Desktop Nav — Centered */}
-        <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-5 lg:flex">
+        <div className="absolute left-1/2 top-1/2 hidden -translate-x-1/2 -translate-y-1/2 items-center gap-4 xl:gap-5 lg:flex">
           {links.map((link) => (
             <a
               key={link.label}

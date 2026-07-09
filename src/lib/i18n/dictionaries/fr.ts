@@ -3,6 +3,8 @@ export const fr = {
     nav: {
       expertise: 'Expertises',
       offers: 'Offres',
+      secondBrain: 'Second Brain',
+      training: 'Formations',
       delivery: 'Méthode',
       cases: 'Cas clients',
       team: 'Équipe',

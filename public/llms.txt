@@ -12,6 +12,8 @@ Lucid-Lab works in French and English. Founded in 2026. Co-founders: Anthony Poi
 - [Automation roadmap](https://lucid-lab.fr/roadmap-automatisation): sequencing the AI and automation build plan.
 - [AI agents and internal tools](https://lucid-lab.fr/agents-ia-outils-internes): production agents, dashboards, workflows, connectors and internal interfaces.
 - [Build and Run](https://lucid-lab.fr/build-run): deployment, monitoring, runbooks, documentation and long-term operation.
+- [Second Brain](https://lucid-lab.fr/second-brain): Claude installed and connected to the company context: a structured Markdown knowledge base, email, calendar, Drive and CRM connectors, two proof automations and team training, delivered in 14 days.
+- [Enterprise AI training](https://lucid-lab.fr/formations-ia): on-site or remote modules: AI literacy for leadership, Claude and ChatGPT day to day, second brain, agents and automations, GDPR and EU AI Act governance, custom modules.
 - [Method](https://lucid-lab.fr/methode): how Lucid-Lab delivers, from workflow diagnosis to production and team handover.
 - [Client cases](https://lucid-lab.fr/cas-clients): selected delivered projects.
 
@@ -25,6 +27,8 @@ Lucid-Lab works in French and English. Founded in 2026. Co-founders: Anthony Poi
 
 - [Home (English)](https://lucid-lab.fr/en)
 - [AI Opportunity Audit (English)](https://lucid-lab.fr/en/audit-ia)
+- [Second Brain (English)](https://lucid-lab.fr/en/second-brain)
+- [Enterprise AI training (English)](https://lucid-lab.fr/en/ai-training)
 - [Method (English)](https://lucid-lab.fr/en/method)
 - [Client cases (English)](https://lucid-lab.fr/en/case-studies)
 

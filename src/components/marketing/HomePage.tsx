@@ -1333,6 +1333,8 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
             <ul className="mt-4 space-y-3">
               <li><Link href={routes.blog} className="text-[14px]" style={{ color: GRAY_600 }}>Blog</Link></li>
               <li><Link href={routes.audit} className="text-[14px]" style={{ color: GRAY_600 }}>Audit Flash</Link></li>
+              <li><Link href={lang === 'en' ? '/en/second-brain' : '/second-brain'} className="text-[14px]" style={{ color: GRAY_600 }}>Second Brain</Link></li>
+              <li><Link href={lang === 'en' ? '/en/ai-training' : '/formations-ia'} className="text-[14px]" style={{ color: GRAY_600 }}>{lang === 'en' ? 'AI training' : 'Formations IA'}</Link></li>
               <li><Link href={lang === 'en' ? '/en/#offres' : '/#offres'} className="text-[14px]" style={{ color: GRAY_600 }}>Build & Run</Link></li>
             </ul>
           </div>
