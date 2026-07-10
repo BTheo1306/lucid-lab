@@ -1,15 +1,17 @@
 'use client'
 
 // Scroll-driven particle scene for /second-brain.
-// One particle cloud morphs through three shapes as the dark zone scrolls:
-// scattered fragments (the problem) -> brain (the second brain) -> lattice
-// (the structured knowledge base). Ember/amber palette on ink, additive glow.
+// The particle brain sits fully visible in the dark hero, glides to the
+// center behind the statement text as you scroll, then explodes and settles
+// into a wide network of interconnected nodes and lines that stays as the
+// background of the rest of the dark zone. Ember/amber palette on ink.
 
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
 const COUNT = 9000
 const AMBIENT_COUNT = 160
+const NODE_COUNT = 130
 
 const INK = '#0A0A0A'
 
@@ -42,29 +44,6 @@ function mulberry32(seed: number) {
 }
 
 // ─── Shape targets ──────────────────────────────────────────────────────────
-
-// Scattered fragments: a wide fog with a few dense clumps (the silos).
-function scatterShape(rand: () => number): Float32Array {
-  const arr = new Float32Array(COUNT * 3)
-  const clumps = [
-    [-2.6, 0.95, -0.7], [2.45, 1.15, -1.1], [-1.7, -1.05, -0.4],
-    [1.9, -0.85, -0.9], [0.15, 0.25, -1.5],
-  ]
-  for (let i = 0; i < COUNT; i++) {
-    let x: number, y: number, z: number
-    if (rand() < 0.62) {
-      const c = clumps[Math.floor(rand() * clumps.length)]
-      const g = () => (rand() + rand() + rand() - 1.5) * 0.62
-      x = c[0] + g(); y = c[1] + g() * 0.8; z = c[2] + g() * 0.7
-    } else {
-      x = (rand() - 0.5) * 7.2
-      y = (rand() - 0.5) * 4.0
-      z = -1.2 + (rand() - 0.5) * 2.2
-    }
-    arr[i * 3] = x; arr[i * 3 + 1] = y; arr[i * 3 + 2] = z
-  }
-  return arr
-}
 
 // Procedural brain: cortex shell with fissure and gyri ridges + cerebellum.
 function brainShape(rand: () => number): Float32Array {
@@ -105,25 +84,57 @@ function brainShape(rand: () => number): Float32Array {
   return arr
 }
 
-// Structured lattice: a crisp grid, the knowledge base in order.
-function latticeShape(rand: () => number): Float32Array {
-  const arr = new Float32Array(COUNT * 3)
-  const nx = 26, ny = 14, nz = 25 // 9100 cells >= COUNT
-  const sx = 3.6, sy = 2.0, sz = 1.9
-  let i = 0
-  outer: for (let ix = 0; ix < nx; ix++) {
-    for (let iy = 0; iy < ny; iy++) {
-      for (let iz = 0; iz < nz; iz++) {
-        if (i >= COUNT) break outer
-        const j = () => (rand() - 0.5) * 0.02
-        arr[i * 3] = (ix / (nx - 1) - 0.5) * sx + j()
-        arr[i * 3 + 1] = (iy / (ny - 1) - 0.5) * sy + j()
-        arr[i * 3 + 2] = (iz / (nz - 1) - 0.5) * sz - 0.4 + j()
-        i++
-      }
+// The exploded knowledge network: node positions, edges between close nodes,
+// and dust targets clustered around the nodes.
+function networkLayout(rand: () => number) {
+  const nodes = new Float32Array(NODE_COUNT * 3)
+  for (let i = 0; i < NODE_COUNT; i++) {
+    nodes[i * 3] = (rand() - 0.5) * 8.6
+    nodes[i * 3 + 1] = (rand() - 0.5) * 5.4
+    nodes[i * 3 + 2] = -1.8 + rand() * 2.1
+  }
+
+  // Connect each node to its 3 nearest neighbours (deduplicated).
+  const edgeSet = new Set<string>()
+  for (let i = 0; i < NODE_COUNT; i++) {
+    const dists: { j: number; d: number }[] = []
+    for (let j = 0; j < NODE_COUNT; j++) {
+      if (i === j) continue
+      const dx = nodes[i * 3] - nodes[j * 3]
+      const dy = nodes[i * 3 + 1] - nodes[j * 3 + 1]
+      const dz = nodes[i * 3 + 2] - nodes[j * 3 + 2]
+      dists.push({ j, d: dx * dx + dy * dy + dz * dz })
+    }
+    dists.sort((a, b) => a.d - b.d)
+    for (let k = 0; k < 3; k++) {
+      const j = dists[k].j
+      edgeSet.add(i < j ? `${i}-${j}` : `${j}-${i}`)
     }
   }
-  return arr
+  const edges = [...edgeSet].map((s) => s.split('-').map(Number) as [number, number])
+  const lines = new Float32Array(edges.length * 6)
+  edges.forEach(([a, b], e) => {
+    lines[e * 6] = nodes[a * 3]; lines[e * 6 + 1] = nodes[a * 3 + 1]; lines[e * 6 + 2] = nodes[a * 3 + 2]
+    lines[e * 6 + 3] = nodes[b * 3]; lines[e * 6 + 4] = nodes[b * 3 + 1]; lines[e * 6 + 5] = nodes[b * 3 + 2]
+  })
+
+  // Dust: 55% clustered around nodes, the rest spread across the slab.
+  const dust = new Float32Array(COUNT * 3)
+  const g = () => (rand() + rand() + rand() - 1.5) * 0.42
+  for (let i = 0; i < COUNT; i++) {
+    if (rand() < 0.55) {
+      const n = Math.floor(rand() * NODE_COUNT)
+      dust[i * 3] = nodes[n * 3] + g()
+      dust[i * 3 + 1] = nodes[n * 3 + 1] + g()
+      dust[i * 3 + 2] = nodes[n * 3 + 2] + g() * 0.6
+    } else {
+      dust[i * 3] = (rand() - 0.5) * 8.8
+      dust[i * 3 + 1] = (rand() - 0.5) * 5.6
+      dust[i * 3 + 2] = -1.8 + rand() * 2.2
+    }
+  }
+
+  return { nodes, lines, dust }
 }
 
 // Soft round sprite for glow points.
@@ -161,6 +172,7 @@ const smootherstep = (t: number) => {
   const x = Math.min(1, Math.max(0, t))
   return x * x * x * (x * (x * 6 - 15) + 10)
 }
+const clamp01 = (t: number) => Math.min(1, Math.max(0, t))
 
 export default function SecondBrainScene({
   zoneId,
@@ -186,20 +198,29 @@ export default function SecondBrainScene({
     const camera = new THREE.PerspectiveCamera(50, 1, 0.1, 30)
     camera.position.set(0, 0, 4.3)
 
+    // Brain/dust cloud rides in `group` (moves right -> center with scroll).
     const group = new THREE.Group()
     scene.add(group)
+    // The network (nodes + lines) is fixed at the center behind the content.
+    const netGroup = new THREE.Group()
+    scene.add(netGroup)
 
-    // ── Morphing cloud ──
-    const shapes = [scatterShape(rand), brainShape(rand), latticeShape(rand)]
-    const positions = new Float32Array(shapes[0])
+    // ── Morphing cloud: brain -> exploded network dust ──
+    const brain = brainShape(rand)
+    const { nodes, lines, dust } = networkLayout(rand)
+    const positions = new Float32Array(brain)
     const colors = new Float32Array(COUNT * 3)
     const delays = new Float32Array(COUNT)
     const seeds = new Float32Array(COUNT)
+    const burstDirs = new Float32Array(COUNT * 3) // radial explosion directions
     for (let i = 0; i < COUNT; i++) {
       const [r, g, b] = pickColor(rand)
       colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b
       delays[i] = rand()
       seeds[i] = rand() * Math.PI * 2
+      const bx = brain[i * 3], by = brain[i * 3 + 1], bz = brain[i * 3 + 2]
+      const len = Math.sqrt(bx * bx + by * by + bz * bz) || 1
+      burstDirs[i * 3] = bx / len; burstDirs[i * 3 + 1] = by / len; burstDirs[i * 3 + 2] = bz / len
     }
     const geo = new THREE.BufferGeometry()
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
@@ -215,6 +236,32 @@ export default function SecondBrainScene({
       sizeAttenuation: true,
     })
     group.add(new THREE.Points(geo, mat))
+
+    // ── Network nodes and connecting lines (revealed by the explosion) ──
+    const nodeGeo = new THREE.BufferGeometry()
+    nodeGeo.setAttribute('position', new THREE.BufferAttribute(nodes, 3))
+    const nodeMat = new THREE.PointsMaterial({
+      size: 0.11,
+      map: dotTexture(),
+      color: new THREE.Color(0.95, 0.72, 0.34),
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true,
+    })
+    netGroup.add(new THREE.Points(nodeGeo, nodeMat))
+
+    const lineGeo = new THREE.BufferGeometry()
+    lineGeo.setAttribute('position', new THREE.BufferAttribute(lines, 3))
+    const lineMat = new THREE.LineBasicMaterial({
+      color: new THREE.Color(0.784, 0.369, 0.102),
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+    })
+    netGroup.add(new THREE.LineSegments(lineGeo, lineMat))
 
     // ── Ambient drifting specks and triangles ──
     const ambPos = new Float32Array(AMBIENT_COUNT * 3)
@@ -285,17 +332,18 @@ export default function SecondBrainScene({
       const vh = window.innerHeight
       const focus = window.scrollY + vh * 0.55
 
-      // Canvas opacity: only inside the dark zone.
-      const fadeIn = smootherstep((focus - zoneTop) / (vh * 0.5))
+      // Canvas opacity: only inside the dark zone (instantly on at the top,
+      // since the zone now starts at the hero).
+      const fadeIn = smootherstep((focus - zoneTop) / (vh * 0.35))
       const fadeOut = 1 - smootherstep((focus - (zoneBottom - vh * 0.35)) / (vh * 0.5))
       const opacity = Math.min(fadeIn, fadeOut)
       canvas.style.opacity = opacity.toFixed(3)
       if (opacity <= 0.001) return
 
-      // Phase: 0 scatter -> 1 brain -> 2 lattice, anchored at section centers.
+      // Phase: 0 brain in hero -> 1 brain behind the statement -> 2 network.
       let phase: number
       if (reducedMotion) {
-        phase = 1
+        phase = 0
       } else if (focus <= anchors[0]) {
         phase = 0
       } else if (focus >= anchors[2]) {
@@ -306,31 +354,40 @@ export default function SecondBrainScene({
         phase = 1 + (focus - anchors[1]) / (anchors[2] - anchors[1])
       }
 
-      const seg = Math.min(1, Math.floor(phase))
-      const frac = phase - seg
-      const from = shapes[seg]
-      const to = shapes[seg + 1]
-      const wobble = 0.05 - 0.03 * Math.min(1, phase) // calmer as it organizes
+      // 0 -> 1: the brain glides from the right of the hero to the center.
+      const glide = smootherstep(clamp01(phase))
+      group.position.x = 1.42 * (1 - glide)
+      group.position.y = -0.1 * glide
+
+      // 1 -> 2: explosion into the network dust.
+      const shapeFrac = clamp01(phase - 1)
+      const wobble = 0.05 - 0.025 * shapeFrac
       for (let i = 0; i < COUNT; i++) {
-        const t = smootherstep((frac - delays[i] * 0.35) / 0.65)
+        const t = smootherstep((shapeFrac - delays[i] * 0.35) / 0.65)
+        const burst = Math.sin(Math.PI * t) * (1.4 + delays[i] * 0.8)
         const s = seeds[i]
         const w = Math.sin(time * (0.6 + delays[i] * 0.5) + s) * wobble
-        positions[i * 3] = from[i * 3] + (to[i * 3] - from[i * 3]) * t + w
-        positions[i * 3 + 1] = from[i * 3 + 1] + (to[i * 3 + 1] - from[i * 3 + 1]) * t + Math.cos(time * 0.5 + s * 1.7) * wobble
-        positions[i * 3 + 2] = from[i * 3 + 2] + (to[i * 3 + 2] - from[i * 3 + 2]) * t
+        positions[i * 3] = brain[i * 3] + (dust[i * 3] - brain[i * 3]) * t + burstDirs[i * 3] * burst + w
+        positions[i * 3 + 1] = brain[i * 3 + 1] + (dust[i * 3 + 1] - brain[i * 3 + 1]) * t + burstDirs[i * 3 + 1] * burst + Math.cos(time * 0.5 + s * 1.7) * wobble
+        positions[i * 3 + 2] = brain[i * 3 + 2] + (dust[i * 3 + 2] - brain[i * 3 + 2]) * t + burstDirs[i * 3 + 2] * burst
       }
       geo.attributes.position.needsUpdate = true
 
-      // Dim the cloud while the bento cards sit on top of it.
-      mat.opacity = 0.85 - 0.4 * Math.max(0, phase - 1)
+      // Dust settles quieter once the network is formed, so content stays readable.
+      mat.opacity = 0.85 - 0.4 * shapeFrac
 
-      // Slow presence: breathing scale on the brain, gentle rotation always.
-      const brainHold = 1 - Math.min(1, Math.abs(phase - 1) * 2)
+      // Nodes and lines materialize as the explosion settles.
+      const netReveal = smootherstep((shapeFrac - 0.45) / 0.55)
+      nodeMat.opacity = netReveal * 0.95
+      lineMat.opacity = netReveal * 0.22
+
+      // Slow presence: breathing while the brain holds, gentle parallax always.
+      const brainHold = 1 - shapeFrac
       group.scale.setScalar(1 + brainHold * 0.06 * Math.sin(time * 0.8))
-      // Turn the lattice slightly so its depth reads instead of a flat moiré.
-      const latticeTurn = 0.24 * Math.max(0, Math.min(1, phase - 1))
-      group.rotation.y += ((mx * 0.14 + Math.sin(time * 0.05) * 0.06 + latticeTurn) - group.rotation.y) * 0.04
-      group.rotation.x += ((my * 0.08 - latticeTurn * 0.35) - group.rotation.x) * 0.04
+      group.rotation.y += ((mx * 0.14 + Math.sin(time * 0.05) * 0.06) - group.rotation.y) * 0.04
+      group.rotation.x += ((my * 0.08) - group.rotation.x) * 0.04
+      netGroup.rotation.y += ((mx * 0.05) - netGroup.rotation.y) * 0.03
+      netGroup.rotation.x += ((my * 0.03) - netGroup.rotation.x) * 0.03
 
       // Ambient drift upward, wrapping.
       const ap = ambientDots.geo.attributes.position as THREE.BufferAttribute
@@ -370,6 +427,8 @@ export default function SecondBrainScene({
       window.removeEventListener('mousemove', onMouse)
       window.removeEventListener('scroll', onScroll)
       geo.dispose(); mat.dispose()
+      nodeGeo.dispose(); nodeMat.dispose()
+      lineGeo.dispose(); lineMat.dispose()
       ambientDots.geo.dispose(); ambientDots.mat.dispose()
       ambientTris.geo.dispose(); ambientTris.mat.dispose()
       renderer.dispose()

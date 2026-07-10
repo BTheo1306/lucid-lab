@@ -39,9 +39,7 @@ export type HeroCopy = {
 export function HeroSection({
   lang = 'fr',
   copy,
-  videoSrc,
-  videoPoster,
-}: { lang?: Locale; copy?: HeroCopy; videoSrc?: string; videoPoster?: string } = {}) {
+}: { lang?: Locale; copy?: HeroCopy } = {}) {
   const dict = getDictionary(lang).hero
   const homePrefix = lang === 'en' ? '/en' : ''
   const t: HeroCopy = copy ?? {
@@ -56,7 +54,6 @@ export function HeroSection({
   }
   const sectionRef = useRef<HTMLElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const videoRef = useRef<HTMLVideoElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const appRef = useRef<any>(null)
   const robotRef = useRef<LucidRobot | null>(null)
@@ -64,25 +61,8 @@ export function HeroSection({
   // in BEFORE the visible reassembly tween starts.
   const [canvasVisible, setCanvasVisible] = useState(false)
 
-  // ─── Video mode: make sure the muted loop actually starts ────────────────
-  useEffect(() => {
-    if (!videoSrc) return
-    const video = videoRef.current
-    if (!video) return
-    const tryPlay = () => { video.play().catch(() => {}) }
-    const onVisible = () => { if (document.visibilityState === 'visible') tryPlay() }
-    tryPlay()
-    video.addEventListener('canplay', tryPlay, { once: true })
-    document.addEventListener('visibilitychange', onVisible)
-    return () => {
-      video.removeEventListener('canplay', tryPlay)
-      document.removeEventListener('visibilitychange', onVisible)
-    }
-  }, [videoSrc])
-
   // ─── Load Spline scene with full lifecycle control ───────────────────────
   useEffect(() => {
-    if (videoSrc) return
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -173,11 +153,10 @@ export function HeroSection({
       try { app?.dispose() } catch {}
       appRef.current = null
     }
-  }, [videoSrc])
+  }, [])
 
   // ─── Responsive canvas sizing ────────────────────────────────────────────
   useEffect(() => {
-    if (videoSrc) return
     const canvas = canvasRef.current
     if (!canvas) return
     const parent = canvas.parentElement
@@ -191,11 +170,10 @@ export function HeroSection({
     })
     ro.observe(parent)
     return () => ro.disconnect()
-  }, [videoSrc])
+  }, [])
 
   // ─── Forward mouse → Spline (full-page mouse follow) ────────────────────
   useEffect(() => {
-    if (videoSrc) return
     const forward = (e: MouseEvent) => {
       const section = sectionRef.current
       if (!section) return
@@ -219,7 +197,7 @@ export function HeroSection({
     }
     window.addEventListener('mousemove', forward, { passive: true })
     return () => window.removeEventListener('mousemove', forward)
-  }, [videoSrc])
+  }, [])
 
   return (
     <section
@@ -280,26 +258,9 @@ export function HeroSection({
           </div>
         </div>
 
-        {videoSrc ? (
-          /* Page-specific looping visual (e.g. MRI brain scan) in place of the robot. */
-          <div className="relative flex w-full items-center justify-center px-6 pb-10 pt-2 sm:absolute sm:inset-y-0 sm:right-0 sm:w-[55%] sm:p-0">
-            <div className="w-[min(100%,420px)] overflow-hidden rounded-[16px] border border-black/10 bg-black shadow-[0_24px_60px_-24px_rgba(10,10,10,0.45)]">
-              <video
-                ref={videoRef}
-                src={videoSrc}
-                poster={videoPoster}
-                autoPlay
-                muted
-                loop
-                playsInline
-                className="block aspect-square w-full object-cover"
-              />
-            </div>
-          </div>
-        ) : (
-        /* Robot — custom runtime integration, no dezoom.
+        {/* Robot — custom runtime integration, no dezoom.
             Canvas is always mounted (prevents any replay).
-            contain:layout paint isolates the WebGL repaints from the rest of the page. */
+            contain:layout paint isolates the WebGL repaints from the rest of the page. */}
         <div
           className="relative h-[260px] w-full overflow-hidden sm:absolute sm:inset-y-0 sm:right-0 sm:h-auto sm:w-[55%]"
           style={{ contain: 'layout paint' }}
@@ -330,7 +291,6 @@ export function HeroSection({
             }}
           />
         </div>
-        )}
       </div>
     </section>
   )

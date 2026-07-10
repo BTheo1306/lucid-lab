@@ -7,7 +7,7 @@ import { motion } from 'framer-motion'
 import { Brain, FolderOpen, Network, Sparkles, Users, Zap } from 'lucide-react'
 
 import { Header } from '@/components/ui/header'
-import { HeroSection, type HeroCopy } from '@/components/ui/hero-section'
+import type { HeroCopy } from '@/components/ui/hero-section'
 import { AuditFlashBookingSection } from '@/components/marketing/AuditFlashBookingSection'
 import { MarketingFooter } from '@/components/marketing/HomePage'
 import type { Locale } from '@/lib/i18n/client'
@@ -366,6 +366,16 @@ const content: Record<Locale, SecondBrainContent> = {
 
 const problemIcons = [Network, Zap, Users, Sparkles] as const
 
+// Render text containing **bold** markers (same convention as the home hero).
+function renderBold(text: string, className: string) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g)
+  return parts.map((p, i) =>
+    p.startsWith('**') && p.endsWith('**')
+      ? <span key={i} className={className}>{p.slice(2, -2)}</span>
+      : <span key={i}>{p}</span>
+  )
+}
+
 function Section({
   id,
   tone = 'paper',
@@ -446,6 +456,71 @@ function SectionLede({ children, light = false }: { children: React.ReactNode; l
   )
 }
 
+// Dark hero: home-hero typography on ink, the particle brain (canvas behind)
+// fills the right half on desktop. On mobile the canvas is off, so the MRI
+// loop takes over as the visual.
+function DarkHero({ lang }: { lang: Locale }) {
+  const t = content[lang].hero
+
+  return (
+    <section id="sb-hero" className="relative z-10 flex min-h-[100vh] items-center pt-[68px]">
+      <div className="mx-auto w-full max-w-[1264px] px-6 py-12 sm:px-[48px]">
+        <motion.div
+          className="flex max-w-[560px] flex-col gap-8"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.75, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <h1 className="text-[40px] font-bold leading-[1.1] tracking-[-0.03em] sm:text-[48px] lg:text-[56px]" style={{ color: PAPER }}>
+            {t.titleLine1}
+            <br />
+            {t.titleLine2}
+          </h1>
+
+          <p className="max-w-[480px] text-[17px] leading-[1.65]" style={{ color: D_TEXT }}>
+            {renderBold(t.subtitle, 'font-semibold text-[#FAFAF7]')}
+            <br />
+            {renderBold(t.subtitleLine2, 'text-[#FAFAF7]')}
+          </p>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <a
+              href={t.ctaPrimaryHref}
+              className="flex h-[40px] items-center rounded-[10px] px-6 text-[14px] font-medium transition-colors hover:bg-white"
+              style={{ background: PAPER, color: INK }}
+            >
+              {t.ctaPrimary}
+            </a>
+            <a
+              href={t.ctaSecondaryHref}
+              className="flex h-[40px] items-center rounded-[10px] border border-white/25 px-6 text-[14px] font-medium transition-colors hover:bg-white/5"
+              style={{ color: PAPER }}
+            >
+              {t.ctaSecondary}
+            </a>
+          </div>
+        </motion.div>
+
+        {/* Mobile visual: the particle canvas only runs on lg+, the MRI loop
+            carries the brain on small screens. */}
+        <div className="mt-12 lg:hidden">
+          <div className="mx-auto w-[min(100%,420px)] overflow-hidden rounded-[16px] border border-white/10 bg-black">
+            <video
+              src="/second-brain-scan.mp4"
+              poster="/second-brain-scan-poster.png"
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="block aspect-square w-full object-cover"
+            />
+          </div>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 // Live "second brain" monitor, dark variant: sources feed the hub, statuses pulse.
 function SecondBrainMonitor({ t }: { t: SecondBrainContent['problems'] }) {
   return (
@@ -489,6 +564,35 @@ function SecondBrainMonitor({ t }: { t: SecondBrainContent['problems'] }) {
         ))}
       </div>
     </div>
+  )
+}
+
+// Tall centered statement: the brain glides here and sits behind the text.
+function BrainStatement({ lang }: { lang: Locale }) {
+  const t = content[lang].statement
+
+  return (
+    <section id="sb-brain-statement" className="relative z-10 flex min-h-[130vh] items-center justify-center px-6">
+      {/* Soft vignette so the statement stays readable over the particle brain. */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
+        <div className="h-[480px] w-[860px] max-w-full rounded-full" style={{ background: 'radial-gradient(closest-side, rgba(10,10,10,0.7), rgba(10,10,10,0) 72%)' }} />
+      </div>
+      <motion.div
+        className="relative max-w-[720px] pb-24 text-center"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-30% 0px -30% 0px' }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <p className="text-[12px] font-medium uppercase tracking-[0.18em]" style={{ color: EMBER }}>{t.eyebrow}</p>
+        <h2 className="mt-5 text-[30px] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[38px] md:text-[46px]" style={{ color: PAPER }}>
+          {t.title}
+        </h2>
+        <p className="mx-auto mt-5 max-w-[46ch] text-[15px] leading-[1.6] md:text-[16px]" style={{ color: D_TEXT }}>
+          {t.sub}
+        </p>
+      </motion.div>
+    </section>
   )
 }
 
@@ -546,35 +650,6 @@ function ContextProblems({ lang }: { lang: Locale }) {
         </ul>
       </div>
     </DarkSection>
-  )
-}
-
-// Tall centered statement while the particles form the brain behind it.
-function BrainStatement({ lang }: { lang: Locale }) {
-  const t = content[lang].statement
-
-  return (
-    <section id="sb-brain-statement" className="relative z-10 flex min-h-[130vh] items-center justify-center px-6">
-      {/* Soft vignette so the statement stays readable over the particle brain. */}
-      <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
-        <div className="h-[480px] w-[860px] max-w-full rounded-full" style={{ background: 'radial-gradient(closest-side, rgba(10,10,10,0.7), rgba(10,10,10,0) 72%)' }} />
-      </div>
-      <motion.div
-        className="relative max-w-[720px] pb-24 text-center"
-        initial={{ opacity: 0, y: 24 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: '-30% 0px -30% 0px' }}
-        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-      >
-        <p className="text-[12px] font-medium uppercase tracking-[0.18em]" style={{ color: EMBER }}>{t.eyebrow}</p>
-        <h2 className="mt-5 text-[30px] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[38px] md:text-[46px]" style={{ color: PAPER }}>
-          {t.title}
-        </h2>
-        <p className="mx-auto mt-5 max-w-[46ch] text-[15px] leading-[1.6] md:text-[16px]" style={{ color: D_TEXT }}>
-          {t.sub}
-        </p>
-      </motion.div>
-    </section>
   )
 }
 
@@ -775,10 +850,6 @@ function FAQ({ lang }: { lang: Locale }) {
 
 export function SecondBrainPage({ lang }: { lang: Locale }) {
   const page = content[lang]
-  const heroCopy: HeroCopy = {
-    ...page.hero,
-    ctaSecondaryHref: lang === 'en' ? '/en/method' : '/methode',
-  }
 
   const pageUrl = `https://lucid-lab.fr${pagePath[lang]}`
   const homeUrl = lang === 'en' ? 'https://lucid-lab.fr/en' : 'https://lucid-lab.fr'
@@ -806,18 +877,14 @@ export function SecondBrainPage({ lang }: { lang: Locale }) {
       ))}
       <Header />
       <main className="grow">
-        <HeroSection
-          lang={lang}
-          copy={heroCopy}
-          videoSrc="/second-brain-scan.mp4"
-          videoPoster="/second-brain-scan-poster.png"
-        />
-        {/* Dark story zone: the particle canvas is fixed behind these three
-            sections and morphs scatter -> brain -> lattice as they scroll. */}
+        {/* Dark story zone: the fixed particle canvas sits behind everything.
+            The brain fills the hero, glides behind the statement text, then
+            explodes into the connected network that backs the rest. */}
         <div id="sb-dark-zone" className="relative" style={{ background: INK }}>
-          <SecondBrainScene zoneId="sb-dark-zone" sectionIds={['sb-problems', 'sb-brain-statement', 'sb-install']} />
-          <ContextProblems lang={lang} />
+          <SecondBrainScene zoneId="sb-dark-zone" sectionIds={['sb-hero', 'sb-brain-statement', 'sb-problems']} />
+          <DarkHero lang={lang} />
           <BrainStatement lang={lang} />
+          <ContextProblems lang={lang} />
           <SystemBento lang={lang} />
         </div>
         <Timeline lang={lang} />
