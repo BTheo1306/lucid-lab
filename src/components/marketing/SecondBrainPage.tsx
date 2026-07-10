@@ -2,6 +2,7 @@
 
 import React, { useState } from 'react'
 import Image from 'next/image'
+import dynamic from 'next/dynamic'
 import { motion } from 'framer-motion'
 import { Brain, FolderOpen, Network, Sparkles, Users, Zap } from 'lucide-react'
 
@@ -12,13 +13,19 @@ import { MarketingFooter } from '@/components/marketing/HomePage'
 import type { Locale } from '@/lib/i18n/client'
 import { breadcrumbSchema, faqPageSchema, serviceSchema, jsonLd } from '@/lib/seo/schema'
 
+const SecondBrainScene = dynamic(() => import('./SecondBrainScene'), { ssr: false })
+
 const INK = '#0A0A0A'
 const PAPER = '#FAFAF7'
 const GRAY_600 = '#525252'
-const GRAY_400 = '#A3A3A3'
 const GRAY_200 = '#E5E5E5'
 const GRAY_100 = '#F2F2EE'
 const EMBER = '#C85E1A'
+
+// Light-on-ink tones for the dark story zone.
+const D_TEXT = 'rgba(250,250,247,0.72)'
+const D_TEXT_DIM = 'rgba(250,250,247,0.55)'
+const D_BORDER = 'rgba(250,250,247,0.12)'
 
 const pagePath = { fr: '/second-brain', en: '/en/second-brain' } as const
 
@@ -32,6 +39,11 @@ type SecondBrainContent = {
     hub: string
     statuses: string[]
     items: [string, string][]
+  }
+  statement: {
+    eyebrow: string
+    title: string
+    sub: string
   }
   system: {
     title: string
@@ -96,6 +108,11 @@ const content: Record<Locale, SecondBrainContent> = {
           'L’expérience accumulée reste dans quelques têtes. Quand une personne s’en va, tout est à reconstruire.',
         ],
       ],
+    },
+    statement: {
+      eyebrow: 'Second Brain',
+      title: 'La mémoire de votre entreprise, réunie au même endroit.',
+      sub: 'Interrogeable par vos équipes, utilisable par vos automatisations.',
     },
     system: {
       title: 'Ce qu’on installe.',
@@ -238,6 +255,11 @@ const content: Record<Locale, SecondBrainContent> = {
         ],
       ],
     },
+    statement: {
+      eyebrow: 'Second Brain',
+      title: 'Your company’s memory, gathered in one place.',
+      sub: 'Queryable by your teams, usable by your automations.',
+    },
     system: {
       title: 'What we install.',
       subtitle: 'Not another subscription: a knowledge base and tools connected to your accounts, and they stay yours.',
@@ -355,7 +377,7 @@ function Section({
 }) {
   const bg = tone === 'ink' ? INK : tone === 'gray' ? GRAY_100 : PAPER
   const fg = tone === 'ink' ? PAPER : INK
-  const divider = tone === 'ink' ? 'rgba(250,250,247,0.12)' : GRAY_200
+  const divider = tone === 'ink' ? D_BORDER : GRAY_200
 
   return (
     <motion.section
@@ -366,6 +388,34 @@ function Section({
       viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
       transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
       className="relative scroll-mt-[68px]"
+    >
+      <div className="mx-auto w-full max-w-[1200px] px-6 pb-12 pt-8 md:px-10 md:pb-16 md:pt-10">
+        {children}
+      </div>
+    </motion.section>
+  )
+}
+
+// Transparent sibling of Section for the dark story zone: the fixed particle
+// canvas shows through, content stays above it.
+function DarkSection({
+  id,
+  divider = true,
+  children,
+}: {
+  id?: string
+  divider?: boolean
+  children: React.ReactNode
+}) {
+  return (
+    <motion.section
+      id={id}
+      style={{ color: PAPER, borderTop: divider ? `1px solid ${D_BORDER}` : undefined }}
+      initial={{ opacity: 0, y: 16 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-10% 0px -10% 0px' }}
+      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      className="relative z-10 scroll-mt-[68px]"
     >
       <div className="mx-auto w-full max-w-[1200px] px-6 pb-12 pt-8 md:px-10 md:pb-16 md:pt-10">
         {children}
@@ -389,25 +439,24 @@ function SectionLede({ children, light = false }: { children: React.ReactNode; l
   return (
     <p
       className="mt-3 max-w-[60ch] text-[14px] leading-[1.5] md:text-[15px]"
-      style={{ color: light ? 'rgba(250,250,247,0.72)' : GRAY_600 }}
+      style={{ color: light ? D_TEXT : GRAY_600 }}
     >
       {children}
     </p>
   )
 }
 
-// Live "second brain" monitor: sources feed the hub, statuses pulse. Sibling of
-// the homepage's diagnostic monitor, built with the same motion idioms.
+// Live "second brain" monitor, dark variant: sources feed the hub, statuses pulse.
 function SecondBrainMonitor({ t }: { t: SecondBrainContent['problems'] }) {
   return (
-    <div className="mt-6 hidden rounded-[8px] border bg-[#FDFDFB] p-4 lg:block" style={{ borderColor: GRAY_200 }}>
-      <span className="mb-3 block font-mono text-[10px] uppercase tracking-[0.14em] text-[#8a8276]">{t.monitorLabel}</span>
+    <div className="mt-6 hidden rounded-[8px] border p-4 lg:block" style={{ borderColor: D_BORDER, background: 'rgba(250,250,247,0.04)' }}>
+      <span className="mb-3 block font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: 'rgba(250,250,247,0.45)' }}>{t.monitorLabel}</span>
       <div className="flex flex-wrap gap-1.5">
         {t.sources.map((source, index) => (
           <motion.span
             key={source}
             className="flex items-center gap-1.5 rounded-[6px] border px-2 py-1 font-mono text-[11px]"
-            style={{ borderColor: GRAY_200, color: GRAY_600, background: 'rgba(10,10,10,0.02)' }}
+            style={{ borderColor: D_BORDER, color: D_TEXT, background: 'rgba(250,250,247,0.03)' }}
             animate={{ opacity: [0.45, 1, 0.45] }}
             transition={{ duration: 3.2, delay: index * 0.4, repeat: Infinity, ease: 'easeOut' }}
           >
@@ -416,9 +465,9 @@ function SecondBrainMonitor({ t }: { t: SecondBrainContent['problems'] }) {
           </motion.span>
         ))}
       </div>
-      <div className="mt-3 flex items-center gap-2 rounded-[6px] border px-3 py-2" style={{ borderColor: GRAY_200, background: PAPER }}>
+      <div className="mt-3 flex items-center gap-2 rounded-[6px] border px-3 py-2" style={{ borderColor: D_BORDER, background: 'rgba(250,250,247,0.05)' }}>
         <Brain className="size-4" style={{ color: EMBER }} aria-hidden />
-        <span className="text-[12.5px] font-semibold" style={{ color: INK }}>{t.hub}</span>
+        <span className="text-[12.5px] font-semibold" style={{ color: PAPER }}>{t.hub}</span>
         <motion.span
           className="ml-auto h-2 w-2 rounded-full"
           style={{ background: EMBER }}
@@ -431,11 +480,11 @@ function SecondBrainMonitor({ t }: { t: SecondBrainContent['problems'] }) {
           <div key={status} className="flex items-center gap-2 font-mono text-[11px] leading-none">
             <motion.span
               className="h-1.5 w-1.5 rounded-full"
-              style={{ background: index === 0 ? EMBER : GRAY_200 }}
+              style={{ background: index === 0 ? EMBER : 'rgba(250,250,247,0.25)' }}
               animate={{ opacity: [0.4, 1, 0.4] }}
               transition={{ duration: 2.4, delay: index * 0.5, repeat: Infinity, ease: 'easeOut' }}
             />
-            <span style={{ color: '#8b8478' }}>{status}</span>
+            <span style={{ color: 'rgba(250,250,247,0.5)' }}>{status}</span>
           </div>
         ))}
       </div>
@@ -448,15 +497,15 @@ function ContextProblems({ lang }: { lang: Locale }) {
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null)
 
   return (
-    <Section id="probleme">
-      <div className="grid gap-8 lg:grid-cols-[1fr_1.2fr] lg:gap-12">
+    <DarkSection id="sb-problems" divider={false}>
+      <div className="grid gap-8 py-8 md:py-12 lg:grid-cols-[1fr_1.2fr] lg:gap-12">
         <div>
-          <SectionTitle>{t.title}</SectionTitle>
-          <SectionLede>{t.subtitle}</SectionLede>
+          <SectionTitle light>{t.title}</SectionTitle>
+          <SectionLede light>{t.subtitle}</SectionLede>
           <SecondBrainMonitor t={t} />
         </div>
 
-        <ul className="flex flex-col divide-y" style={{ borderColor: GRAY_400 + '30' }}>
+        <ul className="flex flex-col divide-y self-center" style={{ borderColor: D_BORDER }}>
           {t.items.map(([title, body], index) => {
             const Icon = problemIcons[index] ?? Sparkles
             const isActive = hoveredIdx === index
@@ -475,12 +524,12 @@ function ContextProblems({ lang }: { lang: Locale }) {
                   />
                 )}
                 <div className="mt-0.5">
-                  <Icon className="size-4 transition-transform duration-200" style={{ color: isActive ? EMBER : GRAY_600, transform: isActive ? 'scale(1.1)' : 'none' }} />
+                  <Icon className="size-4 transition-transform duration-200" style={{ color: isActive ? EMBER : D_TEXT_DIM, transform: isActive ? 'scale(1.1)' : 'none' }} />
                 </div>
                 <div className="grow">
                   <div className="flex items-baseline justify-between gap-4">
-                    <h3 className="text-[15px] font-semibold transition-all duration-200" style={{ color: isActive ? INK : GRAY_600 }}>{title}</h3>
-                    <span className="font-mono text-[10px] text-[#a3a3a3]">0{index + 1}</span>
+                    <h3 className="text-[15px] font-semibold transition-all duration-200" style={{ color: isActive ? PAPER : D_TEXT_DIM }}>{title}</h3>
+                    <span className="font-mono text-[10px]" style={{ color: 'rgba(250,250,247,0.3)' }}>0{index + 1}</span>
                   </div>
                   <motion.div
                     initial={false}
@@ -488,7 +537,7 @@ function ContextProblems({ lang }: { lang: Locale }) {
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                     className="overflow-hidden"
                   >
-                    <p className="pb-1 pt-2 text-[13.5px] leading-[1.55]" style={{ color: GRAY_600 }}>{body}</p>
+                    <p className="pb-1 pt-2 text-[13.5px] leading-[1.55]" style={{ color: D_TEXT }}>{body}</p>
                   </motion.div>
                 </div>
               </li>
@@ -496,7 +545,36 @@ function ContextProblems({ lang }: { lang: Locale }) {
           })}
         </ul>
       </div>
-    </Section>
+    </DarkSection>
+  )
+}
+
+// Tall centered statement while the particles form the brain behind it.
+function BrainStatement({ lang }: { lang: Locale }) {
+  const t = content[lang].statement
+
+  return (
+    <section id="sb-brain-statement" className="relative z-10 flex min-h-[130vh] items-center justify-center px-6">
+      {/* Soft vignette so the statement stays readable over the particle brain. */}
+      <div className="pointer-events-none absolute inset-0 flex items-center justify-center" aria-hidden>
+        <div className="h-[480px] w-[860px] max-w-full rounded-full" style={{ background: 'radial-gradient(closest-side, rgba(10,10,10,0.7), rgba(10,10,10,0) 72%)' }} />
+      </div>
+      <motion.div
+        className="relative max-w-[720px] pb-24 text-center"
+        initial={{ opacity: 0, y: 24 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: '-30% 0px -30% 0px' }}
+        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      >
+        <p className="text-[12px] font-medium uppercase tracking-[0.18em]" style={{ color: EMBER }}>{t.eyebrow}</p>
+        <h2 className="mt-5 text-[30px] font-bold leading-[1.12] tracking-[-0.02em] sm:text-[38px] md:text-[46px]" style={{ color: PAPER }}>
+          {t.title}
+        </h2>
+        <p className="mx-auto mt-5 max-w-[46ch] text-[15px] leading-[1.6] md:text-[16px]" style={{ color: D_TEXT }}>
+          {t.sub}
+        </p>
+      </motion.div>
+    </section>
   )
 }
 
@@ -516,7 +594,7 @@ function SystemBento({ lang }: { lang: Locale }) {
   }
 
   return (
-    <Section id="systeme" tone="ink">
+    <DarkSection id="sb-install">
       <div className="flex flex-col justify-between gap-6 pb-4 md:flex-row md:items-end">
         <div className="max-w-2xl">
           <SectionTitle light>{t.title}</SectionTitle>
@@ -530,9 +608,9 @@ function SystemBento({ lang }: { lang: Locale }) {
           return (
             <motion.article
               key={item.title}
-              className={`group relative flex flex-col justify-between overflow-hidden rounded-[16px] border p-6 transition-all duration-500 hover:-translate-y-1 hover:border-[#C85E1A]/40 md:p-8 ${getBentoClass(idx)}`}
+              className={`group relative flex flex-col justify-between overflow-hidden rounded-[16px] border p-6 backdrop-blur-[2px] transition-all duration-500 hover:-translate-y-1 hover:border-[#C85E1A]/40 md:p-8 ${getBentoClass(idx)}`}
               style={{
-                background: 'linear-gradient(180deg, rgba(30,30,30,0.4) 0%, rgba(15,15,15,0.8) 100%)',
+                background: 'linear-gradient(180deg, rgba(24,24,24,0.55) 0%, rgba(12,12,12,0.85) 100%)',
                 borderColor: 'rgba(250,250,247,0.1)',
               }}
               initial={{ opacity: 0, scale: 0.96 }}
@@ -562,7 +640,7 @@ function SystemBento({ lang }: { lang: Locale }) {
           )
         })}
       </div>
-    </Section>
+    </DarkSection>
   )
 }
 
@@ -734,8 +812,14 @@ export function SecondBrainPage({ lang }: { lang: Locale }) {
           videoSrc="/second-brain-scan.mp4"
           videoPoster="/second-brain-scan-poster.png"
         />
-        <ContextProblems lang={lang} />
-        <SystemBento lang={lang} />
+        {/* Dark story zone: the particle canvas is fixed behind these three
+            sections and morphs scatter -> brain -> lattice as they scroll. */}
+        <div id="sb-dark-zone" className="relative" style={{ background: INK }}>
+          <SecondBrainScene zoneId="sb-dark-zone" sectionIds={['sb-problems', 'sb-brain-statement', 'sb-install']} />
+          <ContextProblems lang={lang} />
+          <BrainStatement lang={lang} />
+          <SystemBento lang={lang} />
+        </div>
         <Timeline lang={lang} />
         <Proof lang={lang} />
         <FAQ lang={lang} />
