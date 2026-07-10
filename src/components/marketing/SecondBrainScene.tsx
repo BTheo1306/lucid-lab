@@ -45,52 +45,39 @@ function mulberry32(seed: number) {
 
 // ─── Shape targets ──────────────────────────────────────────────────────────
 
-// Anatomical particle brain, built from the classic profile silhouette
-// (frontal lobe, dome, occiput, cerebellum notch, flat temporal underside)
-// inflated laterally into a volume. Particles run along dozens of tight
-// serpentine fold strands over that surface; the cerebellum is a separate
-// striped lobe and the brainstem a short stalk. Also returns per-particle
-// colors: deep ember at the base rising to gold on the crown, with the far
-// side shaded down so the brain reads as a solid volume.
-
-// Profile radius by angle in the sagittal plane. v = 0 points to the front,
-// v = PI/2 to the top, v = PI to the back, 3PI/2 to the underside.
-const PROFILE_ANGLES = [0, 0.7, 1.4, 2.2, 2.9, 3.6, 4.1, 4.6, 5.1, 5.7] as const
-const PROFILE_RADII = [1.14, 1.06, 0.96, 1.0, 1.04, 0.66, 0.6, 0.78, 0.98, 1.08] as const
-
-function profileRadius(v: number): number {
-  const TAU = Math.PI * 2
-  let a = v % TAU
-  if (a < 0) a += TAU
-  const n = PROFILE_ANGLES.length
-  for (let k = 0; k < n; k++) {
-    const a0 = PROFILE_ANGLES[k]
-    const a1 = k + 1 < n ? PROFILE_ANGLES[k + 1] : TAU
-    if (a >= a0 && a < a1) {
-      const r0 = PROFILE_RADII[k]
-      const r1 = PROFILE_RADII[(k + 1) % n]
-      const t = (a - a0) / (a1 - a0)
-      const s = 0.5 - 0.5 * Math.cos(t * Math.PI) // cosine ease between control points
-      return r0 + (r1 - r0) * s
-    }
-  }
-  return 1
-}
-
+// Anatomical particle brain, modeled after the reference: a front 3/4 view
+// of the TWO hemispheres with the longitudinal fissure clearly readable
+// between them. Each hemisphere is a shaped dome covered in dense serpentine
+// fold strands; the underside is not closed, it dissolves into darkness
+// (no cerebellum, no stem). Also returns per-particle colors: deep ember at
+// the base rising to gold on the crown, far side shaded down for volume.
 function brainShape(rand: () => number): { positions: Float32Array; colors: Float32Array } {
   const pos = new Float32Array(COUNT * 3)
   const col = new Float32Array(COUNT * 3)
-  const S = 1.3
-  const W = 0.66 // lateral half-width
-  const YAW = 1.22, PITCH = 0.08 // near-profile pose, facing the headline
+  const S = 1.18
+  const YAW = -0.12, PITCH = 0.16 // near-frontal pose, fissure facing the camera
   const cosY = Math.cos(YAW), sinY = Math.sin(YAW)
   const cosP = Math.cos(PITCH), sinP = Math.sin(PITCH)
+  // one brain-sized dome, folded at the midplane into two hemispheres
+  // separated by a constant thin fissure
+  const HX = 1.02, HY = 0.97, HZ = 1.14
+  const ROLL = 0.09
+  const cosR = Math.cos(ROLL), sinR = Math.sin(ROLL)
   let i = 0
 
-  const write = (x: number, y: number, z: number) => {
-    if (i >= COUNT) return
+  const write = (x: number, y: number, z: number, dim0 = 1) => {
+    if (i >= COUNT) return false
+    // the underside dissolves: particles below get sparser, drift down, dim
+    let dim = dim0
+    if (y < -0.28) {
+      const d = Math.min(1, (-y - 0.28) / 0.75)
+      if (rand() < d * d * 0.9) return true // thin out, but keep walking
+      y -= rand() * 0.22 * d
+      x += (rand() - 0.5) * 0.12 * d
+      dim *= 1 - 0.55 * d
+    }
     // color before posing: ember base -> gold crown, a few paper sparks
-    const t = Math.min(1, Math.max(0, (y + 0.9) / 1.7))
+    const t = Math.min(1, Math.max(0, (y + 1) / 1.9))
     if (rand() < 0.02) {
       col[i * 3] = 0.98; col[i * 3 + 1] = 0.97; col[i * 3 + 2] = 0.94
     } else {
@@ -98,84 +85,78 @@ function brainShape(rand: () => number): { positions: Float32Array; colors: Floa
       col[i * 3 + 1] = 0.30 + 0.42 * t
       col[i * 3 + 2] = 0.06 + 0.26 * t
     }
-    // pose (yaw then pitch)
+    // pose (yaw, pitch, then a slight roll like the reference)
     const px = x * cosY - z * sinY
     const pz = x * sinY + z * cosY
     const py = y * cosP - pz * sinP
     const pz2 = y * sinP + pz * cosP
+    const px2 = px * cosR - py * sinR
+    const py2 = px * sinR + py * cosR
     // depth shading: the far side fades out so the brain reads as a volume
-    const shade = 0.3 + 0.7 * Math.min(1, Math.max(0, pz2 / 2.6 + 0.72))
+    const shade = (0.3 + 0.7 * Math.min(1, Math.max(0, pz2 / 2.6 + 0.72))) * dim
     col[i * 3] *= shade; col[i * 3 + 1] *= shade; col[i * 3 + 2] *= shade
-    pos[i * 3] = px * S
-    pos[i * 3 + 1] = (py + 0.1) * S
+    pos[i * 3] = px2 * S
+    pos[i * 3 + 1] = (py2 + 0.16) * S
     pos[i * 3 + 2] = pz2 * S
     i++
+    return true
   }
 
-  // Point on the inflated-profile surface: v = sagittal angle, alpha = lateral.
-  const surface = (v: number, alpha: number, q: number, j: () => number) => {
-    const rho = profileRadius(v) * Math.cos(alpha) * q
-    write(W * Math.sin(alpha) * q + j(), rho * Math.sin(v) + j(), rho * Math.cos(v) + j())
+  // Point on the brain dome. The longitudinal fissure is a deep dark crease
+  // carved along the midplane: particles near it are pulled toward the core,
+  // dimmed and thinned, so the groove reads from any angle (like the
+  // reference), instead of a see-through slit.
+  const domePoint = (u: number, phi: number, q: number, j: () => number, bright = 1) => {
+    let lx = HX * Math.sqrt(Math.max(0, 1 - u * u)) * Math.cos(phi) * q
+    let ly = HY * u * q
+    let lz = HZ * Math.sqrt(Math.max(0, 1 - u * u)) * Math.sin(phi) * q
+    // frontal taper so the front rounds off
+    const front = Math.max(0, lz / HZ - 0.5)
+    lx *= 1 - front * 0.22
+    ly *= 1 - front * 0.14
+    // temporal bulge on the lower sides
+    if (ly < -0.05 && Math.abs(lx) > 0.4) lx *= 1.07
+    // longitudinal fissure: gaussian crease around the midplane, deeper on
+    // the upper half where it is visible
+    const crease = Math.exp(-(lx * lx) / 0.09) * (ly > -0.45 ? 1 : 0.4)
+    if (rand() < crease * 0.85) return // the groove is nearly empty
+    const pull = 1 - 0.5 * crease
+    ly *= pull; lz *= pull
+    write(lx + j(), ly + j(), lz + j(), bright * (1 - 0.75 * crease))
   }
 
-  // ── Cortex: tight serpentine fold strands over the surface ──
+  // ── Cortex: tight serpentine fold strands over the dome ──
   const STRANDS = 84
   const STEPS = 40
-  const PER_STEP = Math.max(1, Math.floor((COUNT * 0.85) / (STRANDS * STEPS)))
-  const A_MAX = 1.25 // keep off the exact lateral poles
+  const PER_STEP = Math.max(1, Math.floor((COUNT * 0.9) / (STRANDS * STEPS)))
   for (let s = 0; s < STRANDS; s++) {
-    let v = rand() * Math.PI * 2
-    let alpha = (rand() * 2 - 1) * A_MAX * 0.85
+    // area-true walk (u = cos(theta)) so strands spread evenly
+    let u = (rand() * 2 - 1) * 0.8
+    let phi = rand() * Math.PI * 2
     let psi = rand() * Math.PI * 2
+    // each strand is a ridge (bulging, brighter) or a sulcus (sunken, dimmer)
+    const isRidge = rand() < 0.7
+    const relief = 1 + (isRidge ? 1 : -1.4) * (0.015 + rand() * 0.03)
+    const bright = isRidge ? 0.8 + rand() * 0.4 : 0.45 + rand() * 0.25
     for (let p = 0; p < STEPS; p++) {
-      v += 0.055 * Math.cos(psi)
-      alpha += 0.05 * Math.sin(psi)
+      u += 0.038 * Math.cos(psi)
+      phi += 0.08 * Math.sin(psi)
       // serpentine wander: folds curve back and forth like real gyri
-      psi += Math.sin(p * 0.7 + s * 1.3) * 0.3 + (rand() - 0.5) * 0.18
-      // bounce off the lateral poles without piling up on them
-      if (alpha > A_MAX) { alpha = A_MAX - rand() * 0.05; psi = -psi }
-      if (alpha < -A_MAX) { alpha = -A_MAX + rand() * 0.05; psi = -psi }
+      psi += Math.sin(p * 0.7 + s * 1.3) * 0.3 + (rand() - 0.5) * 0.14
+      // bounce at the poles without piling up on them
+      if (u > 0.85) { u = 0.85 - rand() * 0.04; psi = Math.PI - psi }
+      if (u < -0.85) { u = -0.85 + rand() * 0.04; psi = Math.PI - psi }
       for (let q = 0; q < PER_STEP; q++) {
-        surface(v, alpha, 1, () => (rand() - 0.5) * 0.022)
+        domePoint(u, phi, relief, () => (rand() - 0.5) * 0.02, bright)
       }
     }
   }
 
-  // ── Cerebellum: striped small lobe tucked in the back notch ──
-  const RINGS = 11
-  const perRing = Math.floor((COUNT * 0.08) / RINGS)
-  for (let rg = 0; rg < RINGS; rg++) {
-    const lat = -0.8 + (1.6 * rg) / (RINGS - 1)
-    const ringR = Math.sqrt(Math.max(0.04, 1 - lat * lat))
-    for (let p = 0; p < perRing; p++) {
-      const ang = (Math.PI * 2 * p) / perRing
-      const j = () => (rand() - 0.5) * 0.018
-      write(
-        0.34 * ringR * Math.sin(ang) + j(),
-        0.24 * lat - 0.58 + j(),
-        0.30 * ringR * Math.cos(ang) - 0.62 + j(),
-      )
-    }
-  }
-
-  // ── Brainstem: a short stalk under the middle, leaning back ──
-  const stemCount = Math.floor(COUNT * 0.025)
-  for (let p = 0; p < stemCount; p++) {
-    const t = rand()
-    const r = (0.14 - 0.05 * t) * Math.sqrt(rand())
-    const ang = rand() * Math.PI * 2
-    write(
-      r * Math.cos(ang),
-      -0.52 - 0.4 * t,
-      -0.05 - 0.3 * t + r * Math.sin(ang),
-    )
-  }
-
-  // ── Soft inner fill for body ──
-  while (i < COUNT) {
-    const v = rand() * Math.PI * 2
-    const alpha = (rand() * 2 - 1) * A_MAX
-    surface(v, alpha, Math.cbrt(rand()) * 0.9, () => (rand() - 0.5) * 0.02)
+  // ── Soft inner fill for body, dimmed so the surface folds stay dominant ──
+  let guard = COUNT * 20
+  while (i < COUNT && guard-- > 0) {
+    const u = rand() * 2 - 1
+    domePoint(u, rand() * Math.PI * 2, Math.cbrt(rand()) * 0.92, () => (rand() - 0.5) * 0.02, 0.5)
   }
 
   return { positions: pos, colors: col }
