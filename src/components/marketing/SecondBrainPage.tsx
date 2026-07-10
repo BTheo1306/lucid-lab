@@ -60,282 +60,282 @@ type SecondBrainContent = {
 const content: Record<Locale, SecondBrainContent> = {
   fr: {
     hero: {
-      titleLine1: 'Un second cerveau.',
-      titleLine2: 'Pour votre entreprise.',
+      titleLine1: 'Un second cerveau',
+      titleLine2: 'pour votre entreprise.',
       subtitle:
-        'Vos équipes utilisent déjà l’IA, chacune dans son coin. On installe **Claude branché sur votre contexte** : offres, process, clients, décisions.',
-      subtitleLine2: 'Installé en 14 jours. **Propriété de l’entreprise.**',
+        'On installe Claude et on le connecte à ce que votre entreprise sait déjà : **vos offres, vos process, vos clients**. Vos équipes n’ont plus à tout réexpliquer à chaque conversation.',
+      subtitleLine2: 'Installé en 14 jours. Tout reste **votre propriété**.',
       ctaPrimary: 'Réserver un audit IA',
       ctaPrimaryHref: '#booking',
       ctaSecondary: 'Voir la méthode',
       ctaSecondaryHref: '/methode',
     },
     problems: {
-      title: 'Vos équipes ont l’IA. Votre entreprise n’a rien.',
+      title: 'Chacun utilise l’IA dans son coin.',
       subtitle:
-        'L’usage individuel progresse vite. L’intelligence collective, elle, ne se capitalise nulle part : c’est exactement ce que le second cerveau corrige.',
+        'ChatGPT et Claude sont déjà dans l’entreprise, mais rien ne se transmet : ce que l’un apprend ne sert pas aux autres, et tout reste à refaire.',
       monitorLabel: '// Second cerveau en direct',
       sources: ['Mails', 'Agenda', 'Drive', 'CRM'],
       hub: 'Second cerveau',
-      statuses: ['contexte chargé', 'réponse sourcée', 'automatisation exécutée'],
+      statuses: ['contexte chargé', 'dossier retrouvé', 'réponse préparée'],
       items: [
         [
-          'Le contexte est dispersé',
-          'Les process vivent dans des têtes, les documents dans le Drive, les décisions dans les mails, les chiffres dans le CRM. Aucun outil ne voit l’ensemble.',
+          'Les informations sont éparpillées',
+          'Les process sont dans les têtes, les documents dans le Drive, les décisions dans les mails, les chiffres dans le CRM. Personne n’a la vue d’ensemble.',
         ],
         [
-          'Chaque prompt repart de zéro',
-          'Sans contexte partagé, une IA générique donne des réponses génériques. Chacun réexplique l’entreprise à chaque conversation.',
+          'L’IA ne connaît pas votre entreprise',
+          'Un assistant générique ne sait rien de vos offres ni de vos clients. Il faut tout lui réexpliquer, et les réponses restent vagues.',
         ],
         [
-          'La qualité dépend de qui prompte',
-          'Chaque équipe réinvente ses usages dans son coin. Les résultats varient d’une personne à l’autre et rien ne se capitalise.',
+          'Les résultats dépendent des personnes',
+          'Chacun utilise l’IA à sa manière. La qualité varie d’une personne à l’autre et les bonnes pratiques ne circulent pas.',
         ],
         [
-          'Le savoir part avec les gens',
-          'Ce que savent dix personnes devrait être interrogeable par toute l’équipe. Aujourd’hui, un départ efface des années de contexte.',
+          'Le savoir part avec les départs',
+          'L’expérience accumulée reste dans quelques têtes. Quand une personne s’en va, tout est à reconstruire.',
         ],
       ],
     },
     system: {
       title: 'Ce qu’on installe.',
-      subtitle: 'Pas un abonnement de plus : une infrastructure de connaissance branchée sur vos comptes, que vous gardez.',
+      subtitle: 'Pas un abonnement de plus : une base de connaissance et des outils reliés à vos comptes, qui restent à vous.',
       items: [
         {
           detail: 'Claude',
-          title: 'Claude configuré pour vos équipes',
-          body: 'Comptes, projets, instructions et bonnes pratiques : chaque équipe démarre avec un Claude qui connaît déjà le métier, le ton et les règles de la maison.',
+          title: 'Claude, configuré pour vos équipes',
+          body: 'On prépare les comptes, les projets et les instructions pour chaque équipe. Dès le premier jour, Claude connaît votre métier, votre ton et vos règles internes.',
         },
         {
           detail: 'Connaissance',
-          title: 'Le second cerveau',
-          body: 'Votre contexte structuré en fichiers Markdown : offres, process, clients, décisions. Lisible par l’IA et par les humains, propriété de l’entreprise.',
+          title: 'Une base de connaissance structurée',
+          body: 'Vos offres, vos process, vos clients et vos décisions, organisés dans des fichiers simples, lisibles par l’IA comme par vos équipes. C’est le second cerveau de l’entreprise.',
         },
         {
           detail: 'Connecteurs',
-          title: 'Branché sur vos outils',
-          body: 'Mails, agenda, Drive, CRM : Claude lit ce dont il a besoin, selon vos règles d’accès, et chaque accès reste visible.',
+          title: 'Relié à vos outils',
+          body: 'Claude lit vos mails, votre agenda, votre Drive ou votre CRM, selon les règles d’accès que vous fixez.',
         },
         {
           detail: 'Preuves',
-          title: 'Deux automatisations réelles',
-          body: 'Deux workflows mis en production pendant l’installation. La valeur se mesure sur vos tâches, pas sur une démo.',
+          title: 'Deux automatisations pour commencer',
+          body: 'Pendant l’installation, on automatise deux tâches récurrentes de bout en bout. Vous jugez sur vos dossiers, pas sur une démonstration.',
         },
         {
-          detail: 'Adoption',
-          title: 'Formation et référent interne',
-          body: 'Sessions d’usage par équipe, un référent formé pour entretenir le système, guide et bonnes pratiques remis.',
+          detail: 'Formation',
+          title: 'Vos équipes formées',
+          body: 'Chaque équipe apprend à travailler avec le système. Une personne en interne est formée pour le faire vivre, avec un guide écrit.',
         },
         {
           detail: 'Propriété',
-          title: 'Tout vous appartient, dès le premier jour',
-          body: 'Comptes à votre nom, fichiers en clair, connecteurs documentés, runbook de maintenance. Pas de boîte noire, pas de dépendance à l’agence : si on part demain, tout continue de tourner.',
+          title: 'Tout reste à vous',
+          body: 'Les comptes sont à votre nom, les fichiers restent lisibles sans nous et la maintenance est documentée. Si la collaboration s’arrête, le système continue de fonctionner.',
         },
       ],
     },
     timeline: {
       title: 'Installé en 14 jours.',
-      subtitle: 'Du premier entretien au transfert complet : un calendrier court et des étapes lisibles.',
+      subtitle: 'Le déroulé est le même pour chaque installation, du premier entretien à l’autonomie de vos équipes.',
       steps: [
-        'Cadrage : sources, accès et automatisations à prouver',
-        'Installation de Claude, de la base et des connecteurs',
-        'Le contexte se remplit, les deux preuves tournent',
-        'Formation des équipes et transfert complet',
+        'Jours 1 à 3 : état des lieux de vos outils et choix des deux automatisations',
+        'Jours 4 à 8 : installation de Claude et connexion à vos outils',
+        'Jours 9 à 12 : la base se remplit, les automatisations démarrent',
+        'Jours 13 et 14 : formation des équipes et passage de relais',
       ],
     },
     proof: {
-      title: 'Ce que ça change, mesuré.',
+      title: 'Les résultats chez une cliente.',
       subtitle:
-        'Premier système installé chez une artisane (signalétique, dirigeante seule) : mémoire d’entreprise, assistant branché sur les mails, l’agenda et le Drive, génération de documents. Chiffres issus de l’étude de cas produite avec la cliente.',
-      imageAlt: 'Une dirigeante travaille avec Claude branché sur la connaissance de son entreprise',
+        'Artisane en signalétique, seule à la tête de son atelier. On a installé la mémoire de son entreprise, un assistant relié à ses mails, son agenda et son Drive, et la génération de ses documents. Les chiffres, arrondis, viennent de l’étude de cas réalisée avec elle.',
+      imageAlt: 'Une dirigeante travaille avec Claude connecté à la connaissance de son entreprise',
       impactLabel: '// Impact',
       items: [
         {
-          title: 'Mails, devis et documents préparés avec le contexte maison',
-          body: 'L’assistant lit la demande, retrouve le dossier et prépare la réponse ou le document.',
-          metric: '≈ 9 h / semaine',
+          title: 'Les demandes clients traitées plus vite',
+          body: 'L’assistant lit la demande, retrouve le dossier et prépare une réponse ou un devis, qu’elle relit avant envoi.',
+          metric: '9 h gagnées par semaine',
         },
         {
-          title: 'Du temps administratif rendu au métier',
-          body: 'Le back-office récurrent est absorbé par le système, la dirigeante retourne à l’atelier.',
-          metric: '≈ 40 h / mois',
+          title: 'Moins de travail administratif',
+          body: 'Les tâches répétitives sont prises en charge par le système. Ce temps retourne à l’atelier.',
+          metric: '40 h gagnées par mois',
         },
         {
-          title: 'L’équivalent d’un quart de poste',
-          body: 'Sans recrutement, dès le premier mois d’usage réel.',
-          metric: '≈ ¼ de poste admin',
+          title: 'Sans embaucher',
+          body: 'Le temps récupéré équivaut à un quart de poste administratif, dès le premier mois.',
+          metric: 'un quart de poste',
         },
       ],
     },
     faq: {
       title: 'Questions fréquentes.',
-      subtitle: 'Le périmètre exact se cadre lors du premier échange.',
+      subtitle: 'Les réponses aux questions qu’on nous pose le plus souvent.',
       items: [
         {
           question: 'Qu’est-ce qu’un second cerveau d’entreprise ?',
           answer:
-            'Une base de connaissance structurée qui centralise le contexte de l’entreprise (offres, process, clients, décisions) dans des fichiers lisibles par l’IA et par les humains. Branchée sur Claude, elle transforme un chatbot générique en assistant qui connaît réellement votre entreprise.',
+            'Une base de connaissance qui rassemble ce que votre entreprise sait : offres, process, clients, décisions. Elle est écrite dans des fichiers simples, lisibles par l’IA comme par vos équipes. Connectée à Claude, elle lui permet de répondre avec votre contexte plutôt que par des généralités.',
         },
         {
-          question: 'Pourquoi Claude plutôt qu’un autre outil ?',
+          question: 'Pourquoi Claude et pas un autre outil ?',
           answer:
-            'Claude gère de gros volumes de contexte, se connecte à vos outils via les connecteurs MCP et travaille directement sur des fichiers. C’est aujourd’hui le socle le plus solide pour ce type de système. Et le contenu reste en Markdown standard : si un autre modèle fait mieux demain, votre second cerveau le suit.',
+            'C’est aujourd’hui l’outil le plus solide pour travailler avec beaucoup de contexte et se connecter à vos logiciels. Et comme la base est en fichiers standards, elle ne dépend pas de Claude : si un meilleur outil sort demain, vous changez sans tout refaire.',
         },
         {
           question: 'Nos données restent-elles chez nous ?',
           answer:
-            'Oui. La base de connaissance vit dans vos outils (fichiers, Drive ou Git selon votre choix), les accès suivent vos règles, et les données sensibles sont exclues du périmètre dès le cadrage. Les comptes Claude sont les vôtres.',
+            'Oui. La base est stockée dans vos outils (fichiers, Drive ou Git, au choix), les accès suivent vos règles et les données sensibles sont écartées dès le départ. Les comptes Claude sont ouverts à votre nom.',
         },
         {
           question: 'Combien de temps prend l’installation ?',
           answer:
-            '14 jours entre le premier entretien et le transfert : cadrage, installation, remplissage du contexte, deux automatisations de preuve, formation des équipes.',
+            '14 jours entre le premier entretien et la fin de la formation, en suivant le déroulé décrit plus haut. De votre côté : quelques entretiens courts et deux sessions de formation.',
         },
         {
-          question: 'Que se passe-t-il après l’installation ?',
+          question: 'Et après l’installation ?',
           answer:
-            'Vos équipes sont autonomes : un référent interne entretient le second cerveau avec le guide remis. Si vous voulez aller plus loin (agents, automatisations métier), l’offre Build & Run prend le relais.',
+            'Vos équipes sont autonomes. Une personne en interne fait vivre la base avec le guide fourni. Si vous voulez aller plus loin (agents, automatisations métier), on peut continuer ensemble, mais rien ne vous y oblige.',
         },
       ],
     },
   },
   en: {
     hero: {
-      titleLine1: 'A second brain.',
-      titleLine2: 'For your company.',
+      titleLine1: 'A second brain',
+      titleLine2: 'for your company.',
       subtitle:
-        'Your teams already use AI, each on their own. We install **Claude connected to your context**: offers, processes, clients, decisions.',
-      subtitleLine2: 'Installed in 14 days. **Owned by your company.**',
+        'We install Claude and connect it to what your company already knows: **your offers, your processes, your clients**. Your teams stop re-explaining the company in every conversation.',
+      subtitleLine2: 'Installed in 14 days. Everything stays **your property**.',
       ctaPrimary: 'Book an AI audit',
       ctaPrimaryHref: '#booking',
       ctaSecondary: 'See the method',
       ctaSecondaryHref: '/en/method',
     },
     problems: {
-      title: 'Your team has AI. Your company has nothing.',
+      title: 'Everyone uses AI on their own.',
       subtitle:
-        'Individual usage grows fast. Collective intelligence compounds nowhere: that is exactly what the second brain fixes.',
+        'ChatGPT and Claude are already inside the company, but nothing carries over: what one person learns does not help the others, and the same work gets redone.',
       monitorLabel: '// Second brain, live',
       sources: ['Email', 'Calendar', 'Drive', 'CRM'],
       hub: 'Second brain',
-      statuses: ['context loaded', 'answer sourced', 'automation executed'],
+      statuses: ['context loaded', 'file found', 'answer drafted'],
       items: [
         [
-          'Context is scattered',
-          'Processes live in heads, documents in the Drive, decisions in emails, numbers in the CRM. No tool sees the whole picture.',
+          'Information is scattered',
+          'Processes live in heads, documents in the Drive, decisions in emails, numbers in the CRM. Nobody has the full picture.',
         ],
         [
-          'Every prompt starts from zero',
-          'Without shared context, generic AI gives generic answers. Everyone re-explains the company in every conversation.',
+          'AI does not know your company',
+          'A generic assistant knows nothing about your offers or your clients. Everything has to be re-explained, and answers stay vague.',
         ],
         [
-          'Quality depends on who prompts',
-          'Each team reinvents its own usage. Results vary from one person to the next and nothing compounds.',
+          'Results depend on people',
+          'Everyone uses AI their own way. Quality varies from one person to the next and good practices do not spread.',
         ],
         [
-          'Knowledge leaves with people',
-          'What ten people know should be queryable by the whole team. Today, one departure erases years of context.',
+          'Knowledge leaves with departures',
+          'Accumulated experience sits in a few heads. When one person leaves, everything has to be rebuilt.',
         ],
       ],
     },
     system: {
       title: 'What we install.',
-      subtitle: 'Not another subscription: a knowledge infrastructure connected to your accounts, and it stays yours.',
+      subtitle: 'Not another subscription: a knowledge base and tools connected to your accounts, and they stay yours.',
       items: [
         {
           detail: 'Claude',
-          title: 'Claude configured for your teams',
-          body: 'Accounts, projects, instructions and best practices: every team starts with a Claude that already knows the business, the tone and the house rules.',
+          title: 'Claude, configured for your teams',
+          body: 'We prepare the accounts, projects and instructions for each team. From day one, Claude knows your business, your tone and your internal rules.',
         },
         {
           detail: 'Knowledge',
-          title: 'The second brain',
-          body: 'Your context structured in Markdown files: offers, processes, clients, decisions. Readable by AI and by humans, owned by the company.',
+          title: 'A structured knowledge base',
+          body: 'Your offers, processes, clients and decisions, organized in simple files readable by AI and by your teams. This is the company’s second brain.',
         },
         {
           detail: 'Connectors',
           title: 'Connected to your tools',
-          body: 'Email, calendar, Drive, CRM: Claude reads what it needs, under your access rules, and every access stays visible.',
+          body: 'Claude reads your email, calendar, Drive or CRM, under access rules you define.',
         },
         {
           detail: 'Proof',
-          title: 'Two real automations',
-          body: 'Two workflows shipped to production during the install. Value is measured on your tasks, not on a demo.',
+          title: 'Two automations to start',
+          body: 'During the install, we automate two recurring tasks end to end. You judge on your files, not on a demonstration.',
         },
         {
-          detail: 'Adoption',
-          title: 'Training and internal owner',
-          body: 'Usage sessions per team, one internal owner trained to maintain the system, guide and best practices delivered.',
+          detail: 'Training',
+          title: 'Your teams trained',
+          body: 'Each team learns to work with the system. One person in-house is trained to keep it alive, with a written guide.',
         },
         {
           detail: 'Ownership',
-          title: 'Everything is yours, from day one',
-          body: 'Accounts in your name, plain files, documented connectors, maintenance runbook. No black box, no agency dependence: if we leave tomorrow, everything keeps running.',
+          title: 'Everything stays yours',
+          body: 'Accounts in your name, files readable without us, documented maintenance. If the collaboration stops, the system keeps working.',
         },
       ],
     },
     timeline: {
       title: 'Installed in 14 days.',
-      subtitle: 'From the first interview to the full handover: a short calendar with readable steps.',
+      subtitle: 'The sequence is the same for every install, from the first interview to your teams’ autonomy.',
       steps: [
-        'Framing: sources, access and automations to prove',
-        'Install of Claude, the knowledge base and connectors',
-        'Context fills up, the two proofs run',
-        'Team training and full handover',
+        'Days 1 to 3: review of your tools and choice of the two automations',
+        'Days 4 to 8: Claude install and connection to your tools',
+        'Days 9 to 12: the base fills up, the automations start',
+        'Days 13 and 14: team training and handover',
       ],
     },
     proof: {
-      title: 'What it changes, measured.',
+      title: 'Results with one client.',
       subtitle:
-        'First system installed for a solo founder (signage workshop): company memory, an assistant connected to email, calendar and Drive, document generation. Numbers from the case study produced with the client.',
+        'A signage craftswoman running her workshop alone. We installed her company memory, an assistant connected to her email, calendar and Drive, and document generation. The rounded numbers come from the case study produced with her.',
       imageAlt: 'A founder working with Claude connected to her company knowledge',
       impactLabel: '// Impact',
       items: [
         {
-          title: 'Emails, quotes and documents prepared with house context',
-          body: 'The assistant reads the request, finds the file and prepares the answer or the document.',
-          metric: '≈ 9 h / week',
+          title: 'Client requests handled faster',
+          body: 'The assistant reads the request, finds the file and prepares an answer or a quote, which she reviews before sending.',
+          metric: '9 h saved per week',
         },
         {
-          title: 'Admin time given back to the craft',
-          body: 'Recurring back-office is absorbed by the system, the founder goes back to the workshop.',
-          metric: '≈ 40 h / month',
+          title: 'Less admin work',
+          body: 'Recurring tasks are handled by the system. That time goes back to the workshop.',
+          metric: '40 h saved per month',
         },
         {
-          title: 'The equivalent of a quarter position',
-          body: 'Without hiring, from the first month of real usage.',
-          metric: '≈ ¼ admin position',
+          title: 'Without hiring',
+          body: 'The recovered time equals a quarter of an admin position, from the first month.',
+          metric: 'a quarter position',
         },
       ],
     },
     faq: {
       title: 'Frequent questions.',
-      subtitle: 'The exact scope is framed during the first call.',
+      subtitle: 'Answers to the questions we hear most often.',
       items: [
         {
           question: 'What is a company second brain?',
           answer:
-            'A structured knowledge base that centralizes company context (offers, processes, clients, decisions) in files readable by AI and by humans. Connected to Claude, it turns a generic chatbot into an assistant that actually knows your company.',
+            'A knowledge base that gathers what your company knows: offers, processes, clients, decisions. It is written in simple files, readable by AI and by your teams. Connected to Claude, it lets him answer with your context instead of generalities.',
         },
         {
-          question: 'Why Claude rather than another tool?',
+          question: 'Why Claude and not another tool?',
           answer:
-            'Claude handles large context, connects to your tools through MCP connectors and works directly on files. It is the most solid base for this kind of system today. And the content stays in standard Markdown: if another model does better tomorrow, your second brain follows.',
+            'It is currently the most solid tool for working with large context and connecting to your software. And since the base is standard files, it does not depend on Claude: if a better tool ships tomorrow, you switch without redoing everything.',
         },
         {
           question: 'Does our data stay with us?',
           answer:
-            'Yes. The knowledge base lives in your tools (files, Drive or Git, your choice), access follows your rules, and sensitive data is excluded from scope at framing. The Claude accounts are yours.',
+            'Yes. The base is stored in your tools (files, Drive or Git, your choice), access follows your rules and sensitive data is excluded from the start. The Claude accounts are opened in your name.',
         },
         {
           question: 'How long does the install take?',
           answer:
-            '14 days from the first interview to the handover: framing, install, context filling, two proof automations, team training.',
+            '14 days from the first interview to the end of training, following the sequence described above. On your side: a few short interviews and two training sessions.',
         },
         {
           question: 'What happens after the install?',
           answer:
-            'Your teams are autonomous: an internal owner maintains the second brain with the delivered guide. If you want to go further (agents, business automations), the Build & Run offer takes over.',
+            'Your teams are autonomous. One person in-house keeps the base alive with the delivered guide. If you want to go further (agents, business automations), we can continue together, but nothing forces you to.',
         },
       ],
     },
@@ -546,7 +546,7 @@ function SystemBento({ lang }: { lang: Locale }) {
 
               <div className="relative z-10">
                 <div className="mb-8 flex items-center gap-3">
-                  <span className="flex size-6 items-center justify-center rounded-full border border-white/10 bg-white/5 font-mono text-[10px] text-white/50">0{idx + 1}</span>
+                  <span className="flex size-6 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 font-mono text-[10px] text-white/50">0{idx + 1}</span>
                   <span className="text-[10px] font-semibold uppercase tracking-[0.14em] text-[#C85E1A]">{item.detail}</span>
                 </div>
                 <h3 className={`font-bold leading-tight ${isFirstRow ? 'text-[22px] md:text-[28px]' : 'text-[18px] md:text-[22px]'}`} style={{ color: PAPER }}>
@@ -728,7 +728,12 @@ export function SecondBrainPage({ lang }: { lang: Locale }) {
       ))}
       <Header />
       <main className="grow">
-        <HeroSection lang={lang} copy={heroCopy} />
+        <HeroSection
+          lang={lang}
+          copy={heroCopy}
+          videoSrc="/second-brain-scan.mp4"
+          videoPoster="/second-brain-scan-poster.png"
+        />
         <ContextProblems lang={lang} />
         <SystemBento lang={lang} />
         <Timeline lang={lang} />

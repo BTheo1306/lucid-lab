@@ -6,7 +6,7 @@ import { pageAlternates } from '@/lib/seo/schema'
 export const metadata: Metadata = {
   title: 'Formations IA pour entreprises | Lucid-Lab',
   description:
-    'Formations IA intra-entreprise : acculturation dirigeants, Claude et ChatGPT au quotidien, second brain, agents et automatisations, gouvernance RGPD et AI Act. Sur vos cas réels.',
+    'Formations IA en entreprise, sur vos cas réels : comprendre l’IA pour décider, Claude et ChatGPT au quotidien, second brain, agents et automatisations, règles d’usage et conformité.',
   alternates: pageAlternates('/formations-ia', '/en/ai-training', 'fr'),
 }
 

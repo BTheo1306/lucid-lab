@@ -4,9 +4,9 @@ import { SecondBrainPage } from '@/components/marketing/SecondBrainPage'
 import { pageAlternates } from '@/lib/seo/schema'
 
 export const metadata: Metadata = {
-  title: 'Second Brain : Claude installé avec tout votre contexte | Lucid-Lab',
+  title: 'Second Brain : Claude connecté à votre entreprise | Lucid-Lab',
   description:
-    'Installation de Claude branché sur le contexte de votre entreprise : base de connaissance, connecteurs mails, agenda, Drive et CRM, deux automatisations de preuve, formation. En 14 jours.',
+    'On installe Claude et on le connecte à ce que votre entreprise sait déjà : offres, process, clients. Base de connaissance, connexion à vos outils, deux automatisations et formation, en 14 jours.',
   alternates: pageAlternates('/second-brain', '/en/second-brain', 'fr'),
 }
 

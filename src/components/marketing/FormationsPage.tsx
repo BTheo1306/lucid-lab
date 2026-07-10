@@ -45,198 +45,198 @@ type FormationsContent = {
 const content: Record<Locale, FormationsContent> = {
   fr: {
     hero: {
-      titleLine1: 'Des équipes formées.',
-      titleLine2: 'Sur vos cas réels.',
+      titleLine1: 'Des formations IA',
+      titleLine2: 'sur vos cas réels.',
       subtitle:
-        'Des formations **construites par ceux qui livrent** des systèmes IA en production : vos outils, vos documents, vos workflows.',
-      subtitleLine2: 'Dirigeants. Équipes métier. Ops. **Intra ou distanciel.**',
-      ctaPrimary: 'Cadrer une formation',
+        'Les formations sont préparées et animées par ceux qui construisent nos systèmes clients. On travaille sur **vos outils et vos documents**, pas sur des exemples génériques.',
+      subtitleLine2: 'En intra ou à distance. Pour la direction comme pour les équipes.',
+      ctaPrimary: 'Organiser une formation',
       ctaPrimaryHref: '#booking',
       ctaSecondary: 'Voir la méthode',
       ctaSecondaryHref: '/methode',
     },
     catalog: {
-      title: 'Le catalogue.',
-      subtitle: 'Six modules, du comité de direction aux équipes techniques. Chacun se cale sur votre niveau, vos outils et vos règles.',
+      title: 'Les six modules.',
+      subtitle: 'Du comité de direction aux équipes techniques. Chaque module s’adapte à votre niveau, vos outils et vos règles.',
       items: [
         {
-          detail: 'Une demi-journée · Comex, direction',
-          title: 'Acculturation IA pour dirigeants',
-          body: 'Ce que l’IA change pour votre secteur, ce que ça coûte, ce que ça risque. De quoi arbitrer vos chantiers sans dépendre du discours des vendeurs : panorama concret des usages, lecture coûts et RGPD, grille de décision.',
+          detail: 'Une demi-journée · Direction',
+          title: 'Comprendre l’IA pour décider',
+          body: 'Ce que l’IA sait faire aujourd’hui, ce que ça coûte, ce que ça risque, et comment repérer les projets utiles dans votre secteur. De quoi arbitrer sans dépendre du discours des vendeurs.',
         },
         {
           detail: 'Une journée · Toutes équipes',
-          title: 'Claude & ChatGPT au quotidien',
-          body: 'Écrire des prompts qui tiennent, structurer des projets, produire des documents. Chaque participant repart avec ses propres cas d’usage configurés et une méthode reproductible.',
+          title: 'Claude et ChatGPT au quotidien',
+          body: 'Écrire des demandes précises, organiser ses projets, produire des documents. Chaque participant repart avec ses propres cas d’usage installés et une méthode réutilisable.',
         },
         {
-          detail: 'Une journée · Dirigeants, support',
-          title: 'Second Brain : l’IA avec votre contexte',
-          body: 'Structurer le contexte de l’entreprise pour que l’IA travaille avec, pas à côté. Le module qui prolonge notre installation Second Brain : base de connaissance, connecteurs, routines d’entretien.',
+          detail: 'Une journée · Direction, équipes support',
+          title: 'Travailler avec le contexte de l’entreprise',
+          body: 'Organiser les informations de l’entreprise pour que l’IA s’en serve vraiment. C’est le module qui accompagne notre installation Second Brain : base de connaissance, connexions aux outils, entretien dans le temps.',
         },
         {
-          detail: 'Un à deux jours · Ops, tech',
-          title: 'Agents IA & automatisations',
-          body: 'Construire des workflows n8n et des agents outillés, avec validation humaine sur les actions sensibles. Monitoring et reprise en main inclus.',
+          detail: 'Un à deux jours · Équipes techniques',
+          title: 'Agents IA et automatisations',
+          body: 'Construire des automatisations avec n8n et des agents reliés à vos outils, avec validation humaine sur les actions sensibles. On apprend aussi à les surveiller et à les corriger.',
         },
         {
           detail: 'Une demi-journée · Direction, DSI, juridique',
-          title: 'Gouvernance, sécurité & conformité',
-          body: 'Règles d’usage, données sensibles, RGPD et AI Act : un cadre clair pour ouvrir l’IA aux équipes sans s’exposer. Charte d’usage et cartographie des données sensibles.',
+          title: 'Règles d’usage et conformité',
+          body: 'Qui peut utiliser quoi, avec quelles données, dans quel cadre : RGPD, AI Act, données sensibles. Vous repartez avec une charte d’usage claire pour l’entreprise.',
         },
         {
-          detail: 'À cadrer · Votre périmètre',
-          title: 'Sur mesure, construit sur vos workflows',
-          body: 'Un besoin spécifique, un métier particulier, un outil interne : on cadre sur vos irritants, on construit le contenu sur vos cas réels, et on assure le suivi après la session.',
+          detail: 'À définir ensemble · Votre périmètre',
+          title: 'Un module sur mesure',
+          body: 'Un besoin particulier, un métier spécifique, un outil interne : on prépare le contenu sur vos dossiers et on assure le suivi après la session.',
         },
       ],
     },
     approach: {
-      title: 'La pédagogie de ceux qui construisent.',
+      title: 'Comment se passent nos formations.',
       subtitle:
-        'Les formateurs sont les ingénieurs qui livrent nos systèmes clients. Les exemples viennent de projets réels, pas de démos préparées.',
+        'Les formateurs sont les ingénieurs qui construisent nos systèmes clients. Les exemples viennent de projets réels.',
       imageAlt: 'L’équipe Lucid-Lab anime un atelier IA en entreprise',
       items: [
         [
-          'Vos cas, pas les nôtres',
-          'Chaque session travaille sur vos documents, vos outils et vos workflows. Les acquis sont utilisables dès le lendemain.',
+          'On travaille sur vos documents',
+          'Chaque exercice utilise vos outils et vos dossiers. Ce qui est appris en session sert dès le lendemain.',
         ],
         [
-          'Des formats courts et denses',
-          'Une demi-journée à deux jours par module, en groupes de 4 à 12 personnes, en français ou en anglais.',
+          'Des groupes de 4 à 12 personnes',
+          'Une demi-journée à deux jours selon le module, en français ou en anglais.',
         ],
         [
-          'Dans vos locaux ou à distance',
-          'Intra-entreprise partout en France, ou en visio. Les supports sont remis à chaque participant.',
+          'Chez vous ou à distance',
+          'Dans vos locaux partout en France, ou en visio. Les supports sont remis à chaque participant.',
         ],
         [
-          'Un suivi de 30 jours',
-          'Canal de questions ouvert un mois après la session, et option de suivi mensuel pour ancrer les usages.',
+          'Un mois de suivi après la session',
+          'Un canal reste ouvert pour vos questions pendant 30 jours. Un accompagnement mensuel est possible ensuite.',
         ],
       ],
     },
     faq: {
       title: 'Questions fréquentes.',
-      subtitle: 'Les publics, les modules et le calendrier se cadrent lors du premier échange.',
+      subtitle: 'Le programme et le calendrier se définissent lors du premier échange.',
       items: [
         {
           question: 'À qui s’adressent ces formations ?',
           answer:
-            'Aux TPE, PME et ETI qui veulent des équipes opérationnelles sur l’IA : direction, équipes métier, ops et tech. Chaque module précise son public et s’ajuste à votre niveau de départ.',
+            'Aux TPE, PME et ETI. Selon le module : direction, équipes métier ou équipes techniques. Le niveau de départ des participants est pris en compte à chaque fois.',
         },
         {
-          question: 'Faut-il des prérequis techniques ?',
+          question: 'Faut-il des connaissances techniques ?',
           answer:
-            'Non pour les modules dirigeants, quotidien et gouvernance. Le module agents & automatisations vise des profils ops ou tech à l’aise avec leurs outils.',
+            'Non pour les modules direction, quotidien et conformité. Le module agents et automatisations demande simplement d’être à l’aise avec ses outils numériques.',
         },
         {
           question: 'Peut-on combiner plusieurs modules ?',
           answer:
-            'Oui. Le parcours type combine une acculturation dirigeants, un module quotidien pour les équipes et un module spécialisé. On cadre l’ensemble lors du premier échange.',
+            'Oui. Le parcours le plus courant : une session pour la direction, une journée pour les équipes, puis un module spécialisé. On définit l’ensemble lors du premier échange.',
         },
         {
           question: 'Travaillez-vous sur nos données réelles ?',
           answer:
-            'Oui, c’est le principe. On définit ensemble en amont ce qui peut être utilisé en session, et les exercices respectent vos règles de confidentialité.',
+            'Oui, c’est le principe. On définit ensemble, avant la session, ce qui peut être utilisé, dans le respect de vos règles de confidentialité.',
         },
       ],
     },
   },
   en: {
     hero: {
-      titleLine1: 'Teams trained.',
-      titleLine2: 'On your real cases.',
+      titleLine1: 'AI training',
+      titleLine2: 'on your real cases.',
       subtitle:
-        'Training **built by the people who ship** AI systems to production: your tools, your documents, your workflows.',
-      subtitleLine2: 'Leadership. Business teams. Ops. **On site or remote.**',
-      ctaPrimary: 'Frame a training',
+        'Sessions are prepared and led by the people who build our client systems. We work on **your tools and your documents**, not on generic examples.',
+      subtitleLine2: 'On site or remote. For leadership and for teams.',
+      ctaPrimary: 'Plan a training',
       ctaPrimaryHref: '#booking',
       ctaSecondary: 'See the method',
       ctaSecondaryHref: '/en/method',
     },
     catalog: {
-      title: 'The catalog.',
-      subtitle: 'Six modules, from the boardroom to technical teams. Each one adjusts to your level, your tools and your rules.',
+      title: 'The six modules.',
+      subtitle: 'From the boardroom to technical teams. Each module adjusts to your level, your tools and your rules.',
       items: [
         {
-          detail: 'Half a day · Board, executives',
-          title: 'AI literacy for leadership',
-          body: 'What AI changes for your sector, what it costs, what it risks. Enough to decide on your builds without depending on vendor talk: concrete usage panorama, cost and GDPR reading, decision grid.',
+          detail: 'Half a day · Leadership',
+          title: 'Understanding AI to decide',
+          body: 'What AI can do today, what it costs, what it risks, and how to spot useful projects in your sector. Enough to decide without depending on vendor talk.',
         },
         {
           detail: 'One day · All teams',
-          title: 'Claude & ChatGPT day to day',
-          body: 'Write prompts that hold, structure projects, produce documents. Every participant leaves with their own use cases configured and a repeatable method.',
+          title: 'Claude and ChatGPT day to day',
+          body: 'Write precise requests, organize projects, produce documents. Every participant leaves with their own use cases set up and a reusable method.',
         },
         {
-          detail: 'One day · Leaders, support',
-          title: 'Second Brain: AI with your context',
-          body: 'Structure company context so AI works with it, not next to it. The module that extends our Second Brain install: knowledge base, connectors, maintenance routines.',
+          detail: 'One day · Leadership, support teams',
+          title: 'Working with company context',
+          body: 'Organize company information so AI actually uses it. This is the module that goes with our Second Brain install: knowledge base, tool connections, upkeep over time.',
         },
         {
-          detail: 'One to two days · Ops, tech',
-          title: 'AI agents & automations',
-          body: 'Build n8n workflows and tool-using agents, with human validation on sensitive actions. Monitoring and recovery included.',
+          detail: 'One to two days · Technical teams',
+          title: 'AI agents and automations',
+          body: 'Build automations with n8n and agents connected to your tools, with human validation on sensitive actions. We also cover how to monitor and fix them.',
         },
         {
-          detail: 'Half a day · Executives, IT, legal',
-          title: 'Governance, security & compliance',
-          body: 'Usage rules, sensitive data, GDPR and the EU AI Act: a clear frame to open AI to teams without exposure. Usage charter and sensitive data mapping.',
+          detail: 'Half a day · Leadership, IT, legal',
+          title: 'Usage rules and compliance',
+          body: 'Who can use what, with which data, in which frame: GDPR, the EU AI Act, sensitive data. You leave with a clear usage charter for the company.',
         },
         {
-          detail: 'To frame · Your scope',
-          title: 'Custom, built on your workflows',
-          body: 'A specific need, a particular craft, an internal tool: we frame on your pain points, build the content on your real cases, and follow up after the session.',
+          detail: 'To define together · Your scope',
+          title: 'A custom module',
+          body: 'A specific need, a particular craft, an internal tool: we prepare the content on your files and follow up after the session.',
         },
       ],
     },
     approach: {
-      title: 'Taught by the people who build.',
+      title: 'How our sessions work.',
       subtitle:
-        'The trainers are the engineers who ship our client systems. Examples come from real projects, not prepared demos.',
+        'The trainers are the engineers who build our client systems. Examples come from real projects.',
       imageAlt: 'The Lucid-Lab team leading an AI workshop in a company',
       items: [
         [
-          'Your cases, not ours',
-          'Every session works on your documents, your tools and your workflows. Skills are usable the next day.',
+          'We work on your documents',
+          'Every exercise uses your tools and your files. What is learned in session is useful the next day.',
         ],
         [
-          'Short, dense formats',
-          'Half a day to two days per module, in groups of 4 to 12 people, in French or in English.',
+          'Groups of 4 to 12 people',
+          'Half a day to two days depending on the module, in French or in English.',
         ],
         [
-          'On site or remote',
-          'In-company anywhere in France, or by video. Support material is delivered to every participant.',
+          'At your office or remote',
+          'On site anywhere in France, or by video. Support material is delivered to every participant.',
         ],
         [
-          'A 30-day follow-up',
-          'A questions channel open for a month after the session, and an optional monthly follow-up to anchor usage.',
+          'One month of follow-up',
+          'A channel stays open for your questions for 30 days. Monthly support is possible afterwards.',
         ],
       ],
     },
     faq: {
       title: 'Frequent questions.',
-      subtitle: 'Audiences, modules and calendar are framed during the first call.',
+      subtitle: 'The program and calendar are defined during the first call.',
       items: [
         {
           question: 'Who is this training for?',
           answer:
-            'Small and mid-size companies that want teams operational on AI: leadership, business teams, ops and tech. Each module states its audience and adjusts to your starting level.',
+            'Small and mid-size companies. Depending on the module: leadership, business teams or technical teams. The starting level of participants is taken into account every time.',
         },
         {
-          question: 'Are technical prerequisites required?',
+          question: 'Are technical skills required?',
           answer:
-            'Not for the leadership, day-to-day and governance modules. The agents & automations module targets ops or tech profiles comfortable with their tools.',
+            'Not for the leadership, day-to-day and compliance modules. The agents and automations module simply requires being comfortable with your digital tools.',
         },
         {
           question: 'Can we combine several modules?',
           answer:
-            'Yes. The typical path combines a leadership session, a day-to-day module for teams and one specialized module. We frame the whole during the first call.',
+            'Yes. The most common path: one session for leadership, one day for teams, then one specialized module. We define the whole during the first call.',
         },
         {
           question: 'Do you work on our real data?',
           answer:
-            'Yes, that is the point. We define upfront what can be used in session, and exercises follow your confidentiality rules.',
+            'Yes, that is the point. We define together, before the session, what can be used, within your confidentiality rules.',
         },
       ],
     },
