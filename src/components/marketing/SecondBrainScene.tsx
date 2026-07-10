@@ -9,7 +9,7 @@
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
 
-const COUNT = 9000
+const COUNT = 14000
 const AMBIENT_COUNT = 160
 const NODE_COUNT = 130
 
@@ -45,43 +45,140 @@ function mulberry32(seed: number) {
 
 // ─── Shape targets ──────────────────────────────────────────────────────────
 
-// Procedural brain: cortex shell with fissure and gyri ridges + cerebellum.
-function brainShape(rand: () => number): Float32Array {
-  const arr = new Float32Array(COUNT * 3)
-  const S = 1.5
-  for (let i = 0; i < COUNT; i++) {
-    if (rand() < 0.88) {
-      // cortex
-      const theta = Math.acos(2 * rand() - 1)
-      const phi = rand() * Math.PI * 2
-      let r = 0.9 + 0.1 * Math.sqrt(rand())
-      r *= 1
-        + 0.055 * Math.sin(theta * 7 + 1.7) * Math.cos(phi * 5 + 0.6)
-        + 0.032 * Math.sin(theta * 13 + 0.4) * Math.sin(phi * 11 + 2.1)
-      let x = r * Math.sin(theta) * Math.cos(phi) * 1.02
-      let y = r * Math.cos(theta) * 0.82
-      const z = r * Math.sin(theta) * Math.sin(phi) * 1.32
-      // longitudinal fissure on top
-      if (y > 0.1) {
-        const gap = Math.exp(-(x * x) / 0.02) * Math.min(1, (y - 0.1) / 0.3)
-        x += Math.sign(x || rand() - 0.5) * 0.09 * gap
-      }
-      // flatten the underside
-      if (y < -0.35) y *= 0.82
-      arr[i * 3] = x * S; arr[i * 3 + 1] = (y + 0.08) * S; arr[i * 3 + 2] = z * S
-    } else {
-      // cerebellum
-      const theta = Math.acos(2 * rand() - 1)
-      const phi = rand() * Math.PI * 2
-      let r = 0.86 + 0.14 * rand()
-      const y0 = Math.cos(theta)
-      r *= 1 + 0.07 * Math.sin(y0 * 22)
-      arr[i * 3] = r * Math.sin(theta) * Math.cos(phi) * 0.52 * S
-      arr[i * 3 + 1] = (y0 * 0.30 - 0.48) * S
-      arr[i * 3 + 2] = (r * Math.sin(theta) * Math.sin(phi) * 0.40 - 0.72) * S
+// Anatomical particle brain, built from the classic profile silhouette
+// (frontal lobe, dome, occiput, cerebellum notch, flat temporal underside)
+// inflated laterally into a volume. Particles run along dozens of tight
+// serpentine fold strands over that surface; the cerebellum is a separate
+// striped lobe and the brainstem a short stalk. Also returns per-particle
+// colors: deep ember at the base rising to gold on the crown, with the far
+// side shaded down so the brain reads as a solid volume.
+
+// Profile radius by angle in the sagittal plane. v = 0 points to the front,
+// v = PI/2 to the top, v = PI to the back, 3PI/2 to the underside.
+const PROFILE_ANGLES = [0, 0.7, 1.4, 2.2, 2.9, 3.6, 4.1, 4.6, 5.1, 5.7] as const
+const PROFILE_RADII = [1.14, 1.06, 0.96, 1.0, 1.04, 0.66, 0.6, 0.78, 0.98, 1.08] as const
+
+function profileRadius(v: number): number {
+  const TAU = Math.PI * 2
+  let a = v % TAU
+  if (a < 0) a += TAU
+  const n = PROFILE_ANGLES.length
+  for (let k = 0; k < n; k++) {
+    const a0 = PROFILE_ANGLES[k]
+    const a1 = k + 1 < n ? PROFILE_ANGLES[k + 1] : TAU
+    if (a >= a0 && a < a1) {
+      const r0 = PROFILE_RADII[k]
+      const r1 = PROFILE_RADII[(k + 1) % n]
+      const t = (a - a0) / (a1 - a0)
+      const s = 0.5 - 0.5 * Math.cos(t * Math.PI) // cosine ease between control points
+      return r0 + (r1 - r0) * s
     }
   }
-  return arr
+  return 1
+}
+
+function brainShape(rand: () => number): { positions: Float32Array; colors: Float32Array } {
+  const pos = new Float32Array(COUNT * 3)
+  const col = new Float32Array(COUNT * 3)
+  const S = 1.3
+  const W = 0.66 // lateral half-width
+  const YAW = 1.22, PITCH = 0.08 // near-profile pose, facing the headline
+  const cosY = Math.cos(YAW), sinY = Math.sin(YAW)
+  const cosP = Math.cos(PITCH), sinP = Math.sin(PITCH)
+  let i = 0
+
+  const write = (x: number, y: number, z: number) => {
+    if (i >= COUNT) return
+    // color before posing: ember base -> gold crown, a few paper sparks
+    const t = Math.min(1, Math.max(0, (y + 0.9) / 1.7))
+    if (rand() < 0.02) {
+      col[i * 3] = 0.98; col[i * 3 + 1] = 0.97; col[i * 3 + 2] = 0.94
+    } else {
+      col[i * 3] = 0.70 + 0.25 * t
+      col[i * 3 + 1] = 0.30 + 0.42 * t
+      col[i * 3 + 2] = 0.06 + 0.26 * t
+    }
+    // pose (yaw then pitch)
+    const px = x * cosY - z * sinY
+    const pz = x * sinY + z * cosY
+    const py = y * cosP - pz * sinP
+    const pz2 = y * sinP + pz * cosP
+    // depth shading: the far side fades out so the brain reads as a volume
+    const shade = 0.3 + 0.7 * Math.min(1, Math.max(0, pz2 / 2.6 + 0.72))
+    col[i * 3] *= shade; col[i * 3 + 1] *= shade; col[i * 3 + 2] *= shade
+    pos[i * 3] = px * S
+    pos[i * 3 + 1] = (py + 0.1) * S
+    pos[i * 3 + 2] = pz2 * S
+    i++
+  }
+
+  // Point on the inflated-profile surface: v = sagittal angle, alpha = lateral.
+  const surface = (v: number, alpha: number, q: number, j: () => number) => {
+    const rho = profileRadius(v) * Math.cos(alpha) * q
+    write(W * Math.sin(alpha) * q + j(), rho * Math.sin(v) + j(), rho * Math.cos(v) + j())
+  }
+
+  // ── Cortex: tight serpentine fold strands over the surface ──
+  const STRANDS = 84
+  const STEPS = 40
+  const PER_STEP = Math.max(1, Math.floor((COUNT * 0.85) / (STRANDS * STEPS)))
+  const A_MAX = 1.25 // keep off the exact lateral poles
+  for (let s = 0; s < STRANDS; s++) {
+    let v = rand() * Math.PI * 2
+    let alpha = (rand() * 2 - 1) * A_MAX * 0.85
+    let psi = rand() * Math.PI * 2
+    for (let p = 0; p < STEPS; p++) {
+      v += 0.055 * Math.cos(psi)
+      alpha += 0.05 * Math.sin(psi)
+      // serpentine wander: folds curve back and forth like real gyri
+      psi += Math.sin(p * 0.7 + s * 1.3) * 0.3 + (rand() - 0.5) * 0.18
+      // bounce off the lateral poles without piling up on them
+      if (alpha > A_MAX) { alpha = A_MAX - rand() * 0.05; psi = -psi }
+      if (alpha < -A_MAX) { alpha = -A_MAX + rand() * 0.05; psi = -psi }
+      for (let q = 0; q < PER_STEP; q++) {
+        surface(v, alpha, 1, () => (rand() - 0.5) * 0.022)
+      }
+    }
+  }
+
+  // ── Cerebellum: striped small lobe tucked in the back notch ──
+  const RINGS = 11
+  const perRing = Math.floor((COUNT * 0.08) / RINGS)
+  for (let rg = 0; rg < RINGS; rg++) {
+    const lat = -0.8 + (1.6 * rg) / (RINGS - 1)
+    const ringR = Math.sqrt(Math.max(0.04, 1 - lat * lat))
+    for (let p = 0; p < perRing; p++) {
+      const ang = (Math.PI * 2 * p) / perRing
+      const j = () => (rand() - 0.5) * 0.018
+      write(
+        0.34 * ringR * Math.sin(ang) + j(),
+        0.24 * lat - 0.58 + j(),
+        0.30 * ringR * Math.cos(ang) - 0.62 + j(),
+      )
+    }
+  }
+
+  // ── Brainstem: a short stalk under the middle, leaning back ──
+  const stemCount = Math.floor(COUNT * 0.025)
+  for (let p = 0; p < stemCount; p++) {
+    const t = rand()
+    const r = (0.14 - 0.05 * t) * Math.sqrt(rand())
+    const ang = rand() * Math.PI * 2
+    write(
+      r * Math.cos(ang),
+      -0.52 - 0.4 * t,
+      -0.05 - 0.3 * t + r * Math.sin(ang),
+    )
+  }
+
+  // ── Soft inner fill for body ──
+  while (i < COUNT) {
+    const v = rand() * Math.PI * 2
+    const alpha = (rand() * 2 - 1) * A_MAX
+    surface(v, alpha, Math.cbrt(rand()) * 0.9, () => (rand() - 0.5) * 0.02)
+  }
+
+  return { positions: pos, colors: col }
 }
 
 // The exploded knowledge network: node positions, edges between close nodes,
@@ -190,7 +287,7 @@ export default function SecondBrainScene({
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     const rand = mulberry32(20260710)
-    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: false, powerPreference: 'low-power', preserveDrawingBuffer: true })
+    const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power', preserveDrawingBuffer: true })
     renderer.setClearColor(new THREE.Color(INK), 0)
     renderer.setPixelRatio(Math.min(2, window.devicePixelRatio))
 
@@ -206,16 +303,13 @@ export default function SecondBrainScene({
     scene.add(netGroup)
 
     // ── Morphing cloud: brain -> exploded network dust ──
-    const brain = brainShape(rand)
+    const { positions: brain, colors } = brainShape(rand)
     const { nodes, lines, dust } = networkLayout(rand)
     const positions = new Float32Array(brain)
-    const colors = new Float32Array(COUNT * 3)
     const delays = new Float32Array(COUNT)
     const seeds = new Float32Array(COUNT)
     const burstDirs = new Float32Array(COUNT * 3) // radial explosion directions
     for (let i = 0; i < COUNT; i++) {
-      const [r, g, b] = pickColor(rand)
-      colors[i * 3] = r; colors[i * 3 + 1] = g; colors[i * 3 + 2] = b
       delays[i] = rand()
       seeds[i] = rand() * Math.PI * 2
       const bx = brain[i * 3], by = brain[i * 3 + 1], bz = brain[i * 3 + 2]
@@ -225,17 +319,29 @@ export default function SecondBrainScene({
     const geo = new THREE.BufferGeometry()
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     geo.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-    const mat = new THREE.PointsMaterial({
-      size: 0.045,
+    // Two layers over the same geometry: a crisp core and a soft halo bloom.
+    const coreMat = new THREE.PointsMaterial({
+      size: 0.030,
       map: dotTexture(),
       vertexColors: true,
       transparent: true,
-      opacity: 0.85,
+      opacity: 0.95,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
       sizeAttenuation: true,
     })
-    group.add(new THREE.Points(geo, mat))
+    const haloMat = new THREE.PointsMaterial({
+      size: 0.07,
+      map: dotTexture(),
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.16,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      sizeAttenuation: true,
+    })
+    group.add(new THREE.Points(geo, coreMat))
+    group.add(new THREE.Points(geo, haloMat))
 
     // ── Network nodes and connecting lines (revealed by the explosion) ──
     const nodeGeo = new THREE.BufferGeometry()
@@ -356,12 +462,13 @@ export default function SecondBrainScene({
 
       // 0 -> 1: the brain glides from the right of the hero to the center.
       const glide = smootherstep(clamp01(phase))
-      group.position.x = 1.42 * (1 - glide)
+      group.position.x = 1.15 * (1 - glide)
       group.position.y = -0.1 * glide
 
       // 1 -> 2: explosion into the network dust.
       const shapeFrac = clamp01(phase - 1)
-      const wobble = 0.05 - 0.025 * shapeFrac
+      // The brain stays calm and compact; the dust drifts a little more.
+      const wobble = 0.012 + 0.028 * shapeFrac
       for (let i = 0; i < COUNT; i++) {
         const t = smootherstep((shapeFrac - delays[i] * 0.35) / 0.65)
         const burst = Math.sin(Math.PI * t) * (1.4 + delays[i] * 0.8)
@@ -374,7 +481,8 @@ export default function SecondBrainScene({
       geo.attributes.position.needsUpdate = true
 
       // Dust settles quieter once the network is formed, so content stays readable.
-      mat.opacity = 0.85 - 0.4 * shapeFrac
+      coreMat.opacity = 0.95 - 0.45 * shapeFrac
+      haloMat.opacity = 0.16 - 0.07 * shapeFrac
 
       // Nodes and lines materialize as the explosion settles.
       const netReveal = smootherstep((shapeFrac - 0.45) / 0.55)
@@ -426,7 +534,7 @@ export default function SecondBrainScene({
       window.removeEventListener('resize', measure)
       window.removeEventListener('mousemove', onMouse)
       window.removeEventListener('scroll', onScroll)
-      geo.dispose(); mat.dispose()
+      geo.dispose(); coreMat.dispose(); haloMat.dispose()
       nodeGeo.dispose(); nodeMat.dispose()
       lineGeo.dispose(); lineMat.dispose()
       ambientDots.geo.dispose(); ambientDots.mat.dispose()
