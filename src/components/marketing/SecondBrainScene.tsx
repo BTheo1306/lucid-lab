@@ -45,120 +45,37 @@ function mulberry32(seed: number) {
 
 // ─── Shape targets ──────────────────────────────────────────────────────────
 
-// Anatomical particle brain, modeled after the reference: a front 3/4 view
-// of the TWO hemispheres with the longitudinal fissure clearly readable
-// between them. Each hemisphere is a shaped dome covered in dense serpentine
-// fold strands; the underside is not closed, it dissolves into darkness
-// (no cerebellum, no stem). Also returns per-particle colors: deep ember at
-// the base rising to gold on the crown, far side shaded down for volume.
-function brainShape(rand: () => number): { positions: Float32Array; colors: Float32Array } {
+// The brain is sampled offline from a real 3D brain mesh (generated with
+// Higgsfield image_to_3d, sampled by scripts/sample-brain.py):
+// /second-brain-points.bin holds the points as x, y, z, shade float32
+// quadruples, already centered, scaled and posed. Colors are derived here:
+// ember at the base rising to gold on the crown, multiplied by the baked
+// lambert shade so gyri catch the light and sulci stay dark.
+function brainFromData(data: Float32Array, rand: () => number): { positions: Float32Array; colors: Float32Array } {
+  const n = Math.max(1, Math.min(COUNT, Math.floor(data.length / 4)))
   const pos = new Float32Array(COUNT * 3)
   const col = new Float32Array(COUNT * 3)
-  const S = 1.18
-  const YAW = -0.12, PITCH = 0.16 // near-frontal pose, fissure facing the camera
-  const cosY = Math.cos(YAW), sinY = Math.sin(YAW)
-  const cosP = Math.cos(PITCH), sinP = Math.sin(PITCH)
-  // one brain-sized dome, folded at the midplane into two hemispheres
-  // separated by a constant thin fissure
-  const HX = 1.02, HY = 0.97, HZ = 1.14
-  const ROLL = 0.09
-  const cosR = Math.cos(ROLL), sinR = Math.sin(ROLL)
-  let i = 0
-
-  const write = (x: number, y: number, z: number, dim0 = 1) => {
-    if (i >= COUNT) return false
-    // the underside dissolves: particles below get sparser, drift down, dim
-    let dim = dim0
-    if (y < -0.28) {
-      const d = Math.min(1, (-y - 0.28) / 0.75)
-      if (rand() < d * d * 0.9) return true // thin out, but keep walking
-      y -= rand() * 0.22 * d
-      x += (rand() - 0.5) * 0.12 * d
-      dim *= 1 - 0.55 * d
-    }
-    // color before posing: ember base -> gold crown, a few paper sparks
-    const t = Math.min(1, Math.max(0, (y + 1) / 1.9))
+  const SCALE = 1.32
+  for (let i = 0; i < COUNT; i++) {
+    const k = i < n ? i : Math.floor(rand() * n) // recycle if the file is short
+    const y = data[k * 4 + 1] * SCALE + 0.08
+    const shade = data[k * 4 + 3]
+    pos[i * 3] = data[k * 4] * SCALE
+    pos[i * 3 + 1] = y
+    pos[i * 3 + 2] = data[k * 4 + 2] * SCALE
+    const t = Math.min(1, Math.max(0, (y + 1.1) / 2.1))
+    let r: number, g: number, b: number
     if (rand() < 0.02) {
-      col[i * 3] = 0.98; col[i * 3 + 1] = 0.97; col[i * 3 + 2] = 0.94
+      r = 0.98; g = 0.97; b = 0.94
     } else {
-      col[i * 3] = 0.70 + 0.25 * t
-      col[i * 3 + 1] = 0.30 + 0.42 * t
-      col[i * 3 + 2] = 0.06 + 0.26 * t
+      r = 0.70 + 0.25 * t
+      g = 0.30 + 0.42 * t
+      b = 0.06 + 0.26 * t
     }
-    // pose (yaw, pitch, then a slight roll like the reference)
-    const px = x * cosY - z * sinY
-    const pz = x * sinY + z * cosY
-    const py = y * cosP - pz * sinP
-    const pz2 = y * sinP + pz * cosP
-    const px2 = px * cosR - py * sinR
-    const py2 = px * sinR + py * cosR
-    // depth shading: the far side fades out so the brain reads as a volume
-    const shade = (0.3 + 0.7 * Math.min(1, Math.max(0, pz2 / 2.6 + 0.72))) * dim
-    col[i * 3] *= shade; col[i * 3 + 1] *= shade; col[i * 3 + 2] *= shade
-    pos[i * 3] = px2 * S
-    pos[i * 3 + 1] = (py2 + 0.16) * S
-    pos[i * 3 + 2] = pz2 * S
-    i++
-    return true
+    col[i * 3] = r * shade
+    col[i * 3 + 1] = g * shade
+    col[i * 3 + 2] = b * shade
   }
-
-  // Point on the brain dome. The longitudinal fissure is a deep dark crease
-  // carved along the midplane: particles near it are pulled toward the core,
-  // dimmed and thinned, so the groove reads from any angle (like the
-  // reference), instead of a see-through slit.
-  const domePoint = (u: number, phi: number, q: number, j: () => number, bright = 1) => {
-    let lx = HX * Math.sqrt(Math.max(0, 1 - u * u)) * Math.cos(phi) * q
-    let ly = HY * u * q
-    let lz = HZ * Math.sqrt(Math.max(0, 1 - u * u)) * Math.sin(phi) * q
-    // frontal taper so the front rounds off
-    const front = Math.max(0, lz / HZ - 0.5)
-    lx *= 1 - front * 0.22
-    ly *= 1 - front * 0.14
-    // temporal bulge on the lower sides
-    if (ly < -0.05 && Math.abs(lx) > 0.4) lx *= 1.07
-    // longitudinal fissure: gaussian crease around the midplane, deeper on
-    // the upper half where it is visible
-    const crease = Math.exp(-(lx * lx) / 0.09) * (ly > -0.45 ? 1 : 0.4)
-    if (rand() < crease * 0.85) return // the groove is nearly empty
-    const pull = 1 - 0.5 * crease
-    ly *= pull; lz *= pull
-    write(lx + j(), ly + j(), lz + j(), bright * (1 - 0.75 * crease))
-  }
-
-  // ── Cortex: tight serpentine fold strands over the dome ──
-  const STRANDS = 84
-  const STEPS = 40
-  const PER_STEP = Math.max(1, Math.floor((COUNT * 0.9) / (STRANDS * STEPS)))
-  for (let s = 0; s < STRANDS; s++) {
-    // area-true walk (u = cos(theta)) so strands spread evenly
-    let u = (rand() * 2 - 1) * 0.8
-    let phi = rand() * Math.PI * 2
-    let psi = rand() * Math.PI * 2
-    // each strand is a ridge (bulging, brighter) or a sulcus (sunken, dimmer)
-    const isRidge = rand() < 0.7
-    const relief = 1 + (isRidge ? 1 : -1.4) * (0.015 + rand() * 0.03)
-    const bright = isRidge ? 0.8 + rand() * 0.4 : 0.45 + rand() * 0.25
-    for (let p = 0; p < STEPS; p++) {
-      u += 0.038 * Math.cos(psi)
-      phi += 0.08 * Math.sin(psi)
-      // serpentine wander: folds curve back and forth like real gyri
-      psi += Math.sin(p * 0.7 + s * 1.3) * 0.3 + (rand() - 0.5) * 0.14
-      // bounce at the poles without piling up on them
-      if (u > 0.85) { u = 0.85 - rand() * 0.04; psi = Math.PI - psi }
-      if (u < -0.85) { u = -0.85 + rand() * 0.04; psi = Math.PI - psi }
-      for (let q = 0; q < PER_STEP; q++) {
-        domePoint(u, phi, relief, () => (rand() - 0.5) * 0.02, bright)
-      }
-    }
-  }
-
-  // ── Soft inner fill for body, dimmed so the surface folds stay dominant ──
-  let guard = COUNT * 20
-  while (i < COUNT && guard-- > 0) {
-    const u = rand() * 2 - 1
-    domePoint(u, rand() * Math.PI * 2, Math.cbrt(rand()) * 0.92, () => (rand() - 0.5) * 0.02, 0.5)
-  }
-
   return { positions: pos, colors: col }
 }
 
@@ -267,6 +184,12 @@ export default function SecondBrainScene({
     if (window.innerWidth < 1024) return // canvas is CSS-hidden below lg anyway
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
+    // The brain point cloud loads asynchronously; the scene boots once it
+    // arrives. If the fetch fails the canvas simply stays empty.
+    let disposedEarly = false
+    let cleanup: (() => void) | null = null
+
+    const init = (brainData: Float32Array): (() => void) => {
     const rand = mulberry32(20260710)
     const renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true, powerPreference: 'low-power', preserveDrawingBuffer: true })
     renderer.setClearColor(new THREE.Color(INK), 0)
@@ -284,7 +207,7 @@ export default function SecondBrainScene({
     scene.add(netGroup)
 
     // ── Morphing cloud: brain -> exploded network dust ──
-    const { positions: brain, colors } = brainShape(rand)
+    const { positions: brain, colors } = brainFromData(brainData, rand)
     const { nodes, lines, dust } = networkLayout(rand)
     const positions = new Float32Array(brain)
     const delays = new Float32Array(COUNT)
@@ -522,6 +445,14 @@ export default function SecondBrainScene({
       ambientTris.geo.dispose(); ambientTris.mat.dispose()
       renderer.dispose()
     }
+    }
+
+    fetch('/second-brain-points.bin')
+      .then((r) => r.arrayBuffer())
+      .then((buf) => { if (!disposedEarly) cleanup = init(new Float32Array(buf)) })
+      .catch(() => {})
+
+    return () => { disposedEarly = true; cleanup?.() }
   }, [zoneId, sectionIds])
 
   return (
