@@ -396,8 +396,11 @@ export default function SecondBrainScene({
       // Slow presence: breathing while the brain holds, gentle parallax always.
       const brainHold = 1 - shapeFrac
       group.scale.setScalar(1 + brainHold * 0.06 * Math.sin(time * 0.8))
-      group.rotation.y += ((mx * 0.14 + Math.sin(time * 0.05) * 0.06) - group.rotation.y) * 0.04
-      group.rotation.x += ((my * 0.08) - group.rotation.x) * 0.04
+      // The brain turns with the scroll: a strong yaw while it glides to the
+      // center, then keeps turning slightly as it explodes.
+      const scrollTurn = 1.1 * glide + 0.35 * shapeFrac
+      group.rotation.y += ((mx * 0.14 + Math.sin(time * 0.05) * 0.06 + scrollTurn) - group.rotation.y) * 0.04
+      group.rotation.x += ((my * 0.08 - 0.12 * glide) - group.rotation.x) * 0.04
       netGroup.rotation.y += ((mx * 0.05) - netGroup.rotation.y) * 0.03
       netGroup.rotation.x += ((my * 0.03) - netGroup.rotation.x) * 0.03
 

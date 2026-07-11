@@ -7,6 +7,7 @@ import { BookOpen, GraduationCap, Presentation, Users } from 'lucide-react'
 
 import { Header } from '@/components/ui/header'
 import { HeroSection, type HeroCopy } from '@/components/ui/hero-section'
+import FormationScene from '@/components/marketing/FormationScene'
 import { AuditFlashBookingSection } from '@/components/marketing/AuditFlashBookingSection'
 import { MarketingFooter } from '@/components/marketing/HomePage'
 import type { Locale } from '@/lib/i18n/client'
@@ -494,7 +495,7 @@ export function FormationsPage({ lang }: { lang: Locale }) {
       ))}
       <Header />
       <main className="grow">
-        <HeroSection lang={lang} copy={heroCopy} />
+        <HeroSection lang={lang} copy={heroCopy} visual={<FormationScene />} />
         <CatalogBento lang={lang} />
         <Approach lang={lang} />
         <FAQ lang={lang} />

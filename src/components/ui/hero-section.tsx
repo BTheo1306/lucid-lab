@@ -39,9 +39,11 @@ export type HeroCopy = {
 export function HeroSection({
   lang = 'fr',
   copy,
-}: { lang?: Locale; copy?: HeroCopy } = {}) {
+  visual,
+}: { lang?: Locale; copy?: HeroCopy; visual?: React.ReactNode } = {}) {
   const dict = getDictionary(lang).hero
   const homePrefix = lang === 'en' ? '/en' : ''
+  const hasVisual = visual != null
   const t: HeroCopy = copy ?? {
     titleLine1: dict.titleLine1,
     titleLine2: dict.titleLine2,
@@ -63,6 +65,7 @@ export function HeroSection({
 
   // ─── Load Spline scene with full lifecycle control ───────────────────────
   useEffect(() => {
+    if (hasVisual) return
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -153,10 +156,11 @@ export function HeroSection({
       try { app?.dispose() } catch {}
       appRef.current = null
     }
-  }, [])
+  }, [hasVisual])
 
   // ─── Responsive canvas sizing ────────────────────────────────────────────
   useEffect(() => {
+    if (hasVisual) return
     const canvas = canvasRef.current
     if (!canvas) return
     const parent = canvas.parentElement
@@ -170,10 +174,11 @@ export function HeroSection({
     })
     ro.observe(parent)
     return () => ro.disconnect()
-  }, [])
+  }, [hasVisual])
 
   // ─── Forward mouse → Spline (full-page mouse follow) ────────────────────
   useEffect(() => {
+    if (hasVisual) return
     const forward = (e: MouseEvent) => {
       const section = sectionRef.current
       if (!section) return
@@ -197,7 +202,7 @@ export function HeroSection({
     }
     window.addEventListener('mousemove', forward, { passive: true })
     return () => window.removeEventListener('mousemove', forward)
-  }, [])
+  }, [hasVisual])
 
   return (
     <section
@@ -258,9 +263,12 @@ export function HeroSection({
           </div>
         </div>
 
-        {/* Robot — custom runtime integration, no dezoom.
-            Canvas is always mounted (prevents any replay).
-            contain:layout paint isolates the WebGL repaints from the rest of the page. */}
+        {visual ? (
+          /* Page-specific hero visual in place of the robot. */
+          <div className="relative h-[260px] w-full overflow-hidden sm:absolute sm:inset-y-0 sm:right-0 sm:h-auto sm:w-[55%]">
+            {visual}
+          </div>
+        ) : (
         <div
           className="relative h-[260px] w-full overflow-hidden sm:absolute sm:inset-y-0 sm:right-0 sm:h-auto sm:w-[55%]"
           style={{ contain: 'layout paint' }}
@@ -291,6 +299,7 @@ export function HeroSection({
             }}
           />
         </div>
+        )}
       </div>
     </section>
   )
