@@ -22,9 +22,11 @@ const GRAY_200 = '#E5E5E5'
 const GRAY_100 = '#F2F2EE'
 const EMBER = '#C85E1A'
 
-// Light-on-ink tones for the dark story zone.
-const D_TEXT = 'rgba(250,250,247,0.72)'
-const D_TEXT_DIM = 'rgba(250,250,247,0.55)'
+// Light-on-ink tones for the dark story zone. Kept close to white so the
+// copy pops against the busy particle background.
+const D_TEXT = 'rgba(250,250,247,0.88)'
+const D_TEXT_DIM = 'rgba(250,250,247,0.72)'
+const D_TITLE = 'rgba(250,250,247,0.95)'
 const D_BORDER = 'rgba(250,250,247,0.12)'
 
 const pagePath = { fr: '/second-brain', en: '/en/second-brain' } as const
@@ -525,7 +527,7 @@ function DarkHero({ lang }: { lang: Locale }) {
 function SecondBrainMonitor({ t }: { t: SecondBrainContent['problems'] }) {
   return (
     <div className="mt-6 hidden rounded-[8px] border p-4 lg:block" style={{ borderColor: D_BORDER, background: 'rgba(250,250,247,0.04)' }}>
-      <span className="mb-3 block font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: 'rgba(250,250,247,0.45)' }}>{t.monitorLabel}</span>
+      <span className="mb-3 block font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: 'rgba(250,250,247,0.6)' }}>{t.monitorLabel}</span>
       <div className="flex flex-wrap gap-1.5">
         {t.sources.map((source, index) => (
           <motion.span
@@ -559,7 +561,7 @@ function SecondBrainMonitor({ t }: { t: SecondBrainContent['problems'] }) {
               animate={{ opacity: [0.4, 1, 0.4] }}
               transition={{ duration: 2.4, delay: index * 0.5, repeat: Infinity, ease: 'easeOut' }}
             />
-            <span style={{ color: 'rgba(250,250,247,0.5)' }}>{status}</span>
+            <span style={{ color: 'rgba(250,250,247,0.78)' }}>{status}</span>
           </div>
         ))}
       </div>
@@ -632,8 +634,8 @@ function ContextProblems({ lang }: { lang: Locale }) {
                 </div>
                 <div className="grow">
                   <div className="flex items-baseline justify-between gap-4">
-                    <h3 className="text-[15px] font-semibold transition-all duration-200" style={{ color: isActive ? PAPER : D_TEXT_DIM }}>{title}</h3>
-                    <span className="font-mono text-[10px]" style={{ color: 'rgba(250,250,247,0.3)' }}>0{index + 1}</span>
+                    <h3 className="text-[15px] font-semibold transition-all duration-200" style={{ color: isActive ? PAPER : D_TITLE }}>{title}</h3>
+                    <span className="font-mono text-[10px]" style={{ color: 'rgba(250,250,247,0.45)' }}>0{index + 1}</span>
                   </div>
                   <motion.div
                     initial={false}
@@ -705,7 +707,7 @@ function SystemBento({ lang }: { lang: Locale }) {
                 <h3 className={`font-bold leading-tight ${isFirstRow ? 'text-[22px] md:text-[28px]' : 'text-[18px] md:text-[22px]'}`} style={{ color: PAPER }}>
                   {item.title}
                 </h3>
-                <p className={`mt-4 leading-[1.6] ${isFirstRow ? 'text-[15px]' : 'text-[14px]'}`} style={{ color: 'rgba(250,250,247,0.64)' }}>
+                <p className={`mt-4 leading-[1.6] ${isFirstRow ? 'text-[15px]' : 'text-[14px]'}`} style={{ color: 'rgba(250,250,247,0.8)' }}>
                   {item.body}
                 </p>
               </div>

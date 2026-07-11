@@ -1,16 +1,20 @@
 'use client'
 
-// Hero animation for /formations-ia, playing on the double meaning of
-// "formation": scattered, jittery gray dots (the team before training) take
-// flight and dock into a clean V formation flying forward (the team after),
-// warming from gray to ember as they land. Waves keep cycling so the flock
-// continuously rebuilds itself. Plain 2D canvas, light and cheap.
+// Hero animation for /formations-ia: knowledge transmission. A source dot
+// (the trainer) emits soft ember ripples; as each wave front passes, the
+// dots of the room ignite one by one (gray -> ember with a small bloom),
+// then link up with their lit neighbours into a growing network: the team
+// leveling up together. Loops with a graceful fade. Plain 2D canvas.
 
 import { useEffect, useRef } from 'react'
 
-const WING = 20 // dots per wing, plus the apex dot
-const DOTS = WING * 2 + 1
-const CYCLE = 10 // seconds
+const COLS = 10
+const ROWS = 7
+const WAVE_PERIOD = 2.6 // seconds between ripples
+const WAVE_SPEED = 0.24 // unit distance per second
+const WAVES_PER_CYCLE = 4
+const FADE = 1.4 // fade-out duration at the end of a cycle
+const CYCLE = WAVE_PERIOD * WAVES_PER_CYCLE + 3.2 // hold, then fade
 
 // Deterministic PRNG so SSR/CSR and re-mounts agree.
 function mulberry32(seed: number) {
@@ -23,53 +27,33 @@ function mulberry32(seed: number) {
   }
 }
 
-const smootherstep = (t: number) => {
-  const x = Math.min(1, Math.max(0, t))
-  return x * x * x * (x * (x * 6 - 15) + 10)
-}
+const clamp01 = (t: number) => Math.min(1, Math.max(0, t))
 
-type Dot = {
-  slotX: number
-  slotY: number
-  offset: number // stagger within the cycle
-  seedX: number
-  seedY: number
-  scatterX: number
-  scatterY: number
-  wing: -1 | 0 | 1
-  rank: number // 0 = apex, grows toward the back of the wing
-}
+type Dot = { x: number; y: number; d: number } // d = distance to the source
 
-function buildDots(rand: () => number): Dot[] {
+const SOURCE = { x: 0.16, y: 0.5 }
+
+function buildDots(rand: () => number): { dots: Dot[]; links: [number, number][] } {
   const dots: Dot[] = []
-  const push = (slotX: number, slotY: number, wing: -1 | 0 | 1, rank: number) => {
-    dots.push({
-      slotX: slotX + (rand() - 0.5) * 0.006,
-      slotY: slotY + (rand() - 0.5) * 0.006,
-      offset: rand() * 0.3,
-      seedX: rand() * Math.PI * 2,
-      seedY: rand() * Math.PI * 2,
-      scatterX: 0.05 + rand() * 0.3,
-      scatterY: 0.12 + rand() * 0.76,
-      wing,
-      rank,
-    })
+  for (let c = 0; c < COLS; c++) {
+    for (let r = 0; r < ROWS; r++) {
+      // offset grid with jitter, spread over the right side of the area
+      const x = 0.3 + (c / (COLS - 1)) * 0.62 + (r % 2 === 0 ? 0.012 : -0.012) + (rand() - 0.5) * 0.03
+      const y = 0.14 + (r / (ROWS - 1)) * 0.72 + (rand() - 0.5) * 0.04
+      const d = Math.hypot(x - SOURCE.x, y - SOURCE.y)
+      dots.push({ x, y, d })
+    }
   }
-  // apex, then two wings sweeping back-left with a slight curve
-  push(0.82, 0.48, 0, 0)
-  for (let k = 1; k <= WING; k++) {
-    const x = 0.82 - k * 0.024
-    const spread = k * 0.0125 + k * k * 0.00012
-    push(x, 0.48 - spread, -1, k)
-    push(x, 0.48 + spread, 1, k)
+  // links between close neighbours
+  const links: [number, number][] = []
+  for (let i = 0; i < dots.length; i++) {
+    for (let j = i + 1; j < dots.length; j++) {
+      const dist = Math.hypot(dots[i].x - dots[j].x, dots[i].y - dots[j].y)
+      if (dist < 0.105) links.push([i, j])
+    }
   }
-  return dots
+  return { dots, links }
 }
-
-// Lifecycle inside one cycle: scattered -> flight -> docked -> fade out.
-const FLIGHT_START = 0.18
-const FLIGHT_END = 0.38
-const FADE_START = 0.94
 
 export default function FormationScene() {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -84,7 +68,7 @@ export default function FormationScene() {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     const rand = mulberry32(20260711)
-    const dots = buildDots(rand)
+    const { dots, links } = buildDots(rand)
     const dpr = Math.min(2, window.devicePixelRatio || 1)
     let W = 0, H = 0
 
@@ -108,104 +92,93 @@ export default function FormationScene() {
     window.addEventListener('mousemove', onMouse, { passive: true })
 
     const start = performance.now()
-    // dot indices along each wing, apex first, for the wing lines
-    const wingIndices: Record<'-1' | '1', number[]> = { '-1': [0], '1': [0] }
-    dots.forEach((d, idx) => {
-      if (d.wing !== 0) wingIndices[String(d.wing) as '-1' | '1'][d.rank] = idx
-    })
-
-    // Where a dot is (in unit space) and how "landed" it is, at time t.
-    const evalDot = (d: Dot, t: number) => {
-      const tau = reducedMotion ? 0.6 : ((t / CYCLE + d.offset) % 1)
-      // the whole formation breathes and leans forward slightly
-      const driftX = Math.sin(t * 0.5) * 0.008 + 0.01 * Math.sin(t * 0.23 + d.rank * 0.3)
-      const driftY = Math.cos(t * 0.4 + d.rank * 0.18) * 0.008
-      const slotX = d.slotX + driftX
-      const slotY = d.slotY + driftY
-
-      let alpha: number, docked: number, x: number, y: number
-      if (tau < FLIGHT_START) {
-        // scattered and jittery on the left
-        docked = 0
-        alpha = Math.min(1, tau / 0.05) * 0.75
-        x = d.scatterX + Math.sin(t * 1.1 + d.seedX) * 0.022
-        y = d.scatterY + Math.cos(t * 0.9 + d.seedY) * 0.03
-      } else if (tau < FLIGHT_END) {
-        // flight toward the slot, along a soft arc
-        const s = smootherstep((tau - FLIGHT_START) / (FLIGHT_END - FLIGHT_START))
-        docked = s
-        alpha = 0.75 + 0.25 * s
-        const sx = d.scatterX + Math.sin(t * 1.1 + d.seedX) * 0.022 * (1 - s)
-        const sy = d.scatterY + Math.cos(t * 0.9 + d.seedY) * 0.03 * (1 - s)
-        x = sx + (slotX - sx) * s
-        y = sy + (slotY - sy) * s + Math.sin(s * Math.PI) * (d.wing === 0 ? -0.04 : d.wing * -0.05)
-      } else if (tau < FADE_START) {
-        docked = 1
-        alpha = 1
-        x = slotX
-        y = slotY
-      } else {
-        docked = 1
-        alpha = 1 - (tau - FADE_START) / (1 - FADE_START)
-        x = slotX
-        y = slotY
-      }
-      return { x, y, alpha, docked }
-    }
-
     let raf = 0
     let running = true
     let lastRender = 0
 
     const renderFrame = () => {
       lastRender = performance.now()
-      const t = (lastRender - start) / 1000
+      const tAbs = (lastRender - start) / 1000
+      const t = reducedMotion ? CYCLE - FADE - 0.1 : tAbs % CYCLE
+      // graceful fade at the end of each cycle
+      const globalAlpha = reducedMotion ? 1 : 1 - clamp01((t - (CYCLE - FADE)) / FADE)
+
       ctx.clearRect(0, 0, W, H)
       const px = (u: number) => u * W + mx * 7
       const py = (u: number) => u * H + my * 7
 
-      const states = dots.map((d) => evalDot(d, t))
-
-      // wing lines between consecutive docked dots
-      ctx.lineWidth = 1
-      for (const wing of ['-1', '1'] as const) {
-        const chain = wingIndices[wing]
-        let prev = states[chain[0]]
-        for (let rank = 1; rank <= WING; rank++) {
-          const cur = states[chain[rank]]
-          // only draw the wing line once both ends have really landed
-          const landed = prev.docked > 0.85 && cur.docked > 0.85 ? 1 : 0
-          const link = landed * Math.min(prev.alpha, cur.alpha)
-          if (link > 0.05) {
-            ctx.strokeStyle = `rgba(200,94,26,${(0.08 + 0.14 * link).toFixed(3)})`
-            ctx.beginPath()
-            ctx.moveTo(px(prev.x), py(prev.y))
-            ctx.lineTo(px(cur.x), py(cur.y))
-            ctx.stroke()
-          }
-          prev = cur
+      // per-dot ignition level and pulse boost from passing waves
+      const lit = new Float32Array(dots.length)
+      const boost = new Float32Array(dots.length)
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i]
+        for (let k = 0; k < WAVES_PER_CYCLE; k++) {
+          const hitTime = k * WAVE_PERIOD + dot.d / WAVE_SPEED
+          const since = t - hitTime
+          if (since > 0) lit[i] = Math.max(lit[i], clamp01(since / 0.4))
+          const g = Math.exp(-(since * since) / (2 * 0.16 * 0.16))
+          boost[i] = Math.max(boost[i], g)
         }
       }
 
-      // dots
-      for (let k = 0; k < dots.length; k++) {
-        const d = dots[k]
-        const s = states[k]
-        if (s.alpha <= 0.01) continue
-        const isApex = d.rank === 0
-        const r = (2 + s.docked * 0.7 + (isApex ? 0.9 : 0)) * (W / 560)
-        // gray while lost, ember once in formation
-        const cr = Math.round(110 + (200 - 110) * s.docked)
-        const cg = Math.round(104 + (94 - 104) * s.docked)
-        const cb = Math.round(95 + (26 - 95) * s.docked)
-        ctx.shadowBlur = 12 * s.docked
-        ctx.shadowColor = 'rgba(200,94,26,0.55)'
-        ctx.fillStyle = `rgba(${cr},${cg},${cb},${s.alpha.toFixed(3)})`
+      // links between lit neighbours, building the team network
+      ctx.lineWidth = 1
+      for (const [i, j] of links) {
+        const l = Math.min(lit[i], lit[j])
+        if (l <= 0.05) continue
+        const a = (0.07 + 0.1 * l + 0.08 * Math.min(boost[i], boost[j])) * globalAlpha
+        ctx.strokeStyle = `rgba(200,94,26,${a.toFixed(3)})`
         ctx.beginPath()
-        ctx.arc(px(s.x), py(s.y), r, 0, Math.PI * 2)
-        ctx.fill()
-        ctx.shadowBlur = 0
+        ctx.moveTo(px(dots[i].x), py(dots[i].y))
+        ctx.lineTo(px(dots[j].x), py(dots[j].y))
+        ctx.stroke()
       }
+
+      // expanding ripples from the source
+      if (!reducedMotion) {
+        for (let k = 0; k < WAVES_PER_CYCLE; k++) {
+          const age = t - k * WAVE_PERIOD
+          if (age < 0) continue
+          const r = age * WAVE_SPEED
+          if (r > 1.3) continue
+          const a = 0.32 * (1 - r / 1.3) * globalAlpha
+          ctx.strokeStyle = `rgba(200,94,26,${a.toFixed(3)})`
+          ctx.lineWidth = 1.4
+          ctx.beginPath()
+          ctx.ellipse(px(SOURCE.x), py(SOURCE.y), r * W, r * W, 0, 0, Math.PI * 2)
+          ctx.stroke()
+        }
+      }
+
+      // the room
+      const scale = W / 560
+      for (let i = 0; i < dots.length; i++) {
+        const dot = dots[i]
+        const l = lit[i]
+        const b = boost[i]
+        const cr = Math.round(120 + (200 - 120) * l)
+        const cg = Math.round(114 + (94 - 114) * l)
+        const cb = Math.round(105 + (26 - 105) * l)
+        const alpha = (0.35 + 0.65 * l) * globalAlpha
+        const radius = (2 + 1.1 * l + 1.6 * b) * scale
+        ctx.shadowBlur = (10 * l + 8 * b) * scale
+        ctx.shadowColor = 'rgba(200,94,26,0.5)'
+        ctx.fillStyle = `rgba(${cr},${cg},${cb},${alpha.toFixed(3)})`
+        ctx.beginPath()
+        ctx.arc(px(dot.x), py(dot.y), radius, 0, Math.PI * 2)
+        ctx.fill()
+      }
+      ctx.shadowBlur = 0
+
+      // the source (trainer): steady ember, pulsing at each emission
+      const emit = Math.exp(-Math.pow((t % WAVE_PERIOD) / 0.25, 2))
+      ctx.shadowBlur = (14 + 10 * emit) * scale
+      ctx.shadowColor = 'rgba(200,94,26,0.6)'
+      ctx.fillStyle = `rgba(200,94,26,${(0.95 * globalAlpha).toFixed(3)})`
+      ctx.beginPath()
+      ctx.arc(px(SOURCE.x), py(SOURCE.y), (3.6 + 1.4 * emit) * scale, 0, Math.PI * 2)
+      ctx.fill()
+      ctx.shadowBlur = 0
     }
 
     const frame = () => {
