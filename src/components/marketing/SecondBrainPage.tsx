@@ -526,14 +526,17 @@ function DarkHero({ lang }: { lang: Locale }) {
 // Live "second brain" monitor, dark variant: sources feed the hub, statuses pulse.
 function SecondBrainMonitor({ t }: { t: SecondBrainContent['problems'] }) {
   return (
-    <div className="mt-6 hidden rounded-[8px] border p-4 lg:block" style={{ borderColor: D_BORDER, background: 'rgba(250,250,247,0.04)' }}>
-      <span className="mb-3 block font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: 'rgba(250,250,247,0.6)' }}>{t.monitorLabel}</span>
+    <div
+      className="mt-6 hidden rounded-[12px] border p-4 backdrop-blur-[3px] lg:block"
+      style={{ borderColor: 'rgba(250,250,247,0.16)', background: 'linear-gradient(180deg, rgba(24,24,24,0.82) 0%, rgba(12,12,12,0.92) 100%)', boxShadow: '0 18px 40px -18px rgba(0,0,0,0.8)' }}
+    >
+      <span className="mb-3 block font-mono text-[10px] uppercase tracking-[0.14em]" style={{ color: 'rgba(250,250,247,0.7)' }}>{t.monitorLabel}</span>
       <div className="flex flex-wrap gap-1.5">
         {t.sources.map((source, index) => (
           <motion.span
             key={source}
             className="flex items-center gap-1.5 rounded-[6px] border px-2 py-1 font-mono text-[11px]"
-            style={{ borderColor: D_BORDER, color: D_TEXT, background: 'rgba(250,250,247,0.03)' }}
+            style={{ borderColor: 'rgba(250,250,247,0.18)', color: D_TITLE, background: 'rgba(250,250,247,0.07)' }}
             animate={{ opacity: [0.45, 1, 0.45] }}
             transition={{ duration: 3.2, delay: index * 0.4, repeat: Infinity, ease: 'easeOut' }}
           >
@@ -542,7 +545,7 @@ function SecondBrainMonitor({ t }: { t: SecondBrainContent['problems'] }) {
           </motion.span>
         ))}
       </div>
-      <div className="mt-3 flex items-center gap-2 rounded-[6px] border px-3 py-2" style={{ borderColor: D_BORDER, background: 'rgba(250,250,247,0.05)' }}>
+      <div className="mt-3 flex items-center gap-2 rounded-[6px] border px-3 py-2" style={{ borderColor: 'rgba(250,250,247,0.2)', background: 'rgba(250,250,247,0.09)' }}>
         <Brain className="size-4" style={{ color: EMBER }} aria-hidden />
         <span className="text-[12.5px] font-semibold" style={{ color: PAPER }}>{t.hub}</span>
         <motion.span
@@ -557,7 +560,7 @@ function SecondBrainMonitor({ t }: { t: SecondBrainContent['problems'] }) {
           <div key={status} className="flex items-center gap-2 font-mono text-[11px] leading-none">
             <motion.span
               className="h-1.5 w-1.5 rounded-full"
-              style={{ background: index === 0 ? EMBER : 'rgba(250,250,247,0.25)' }}
+              style={{ background: index === 0 ? EMBER : 'rgba(250,250,247,0.4)' }}
               animate={{ opacity: [0.4, 1, 0.4] }}
               transition={{ duration: 2.4, delay: index * 0.5, repeat: Infinity, ease: 'easeOut' }}
             />
