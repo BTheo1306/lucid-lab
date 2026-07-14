@@ -459,15 +459,16 @@ function SectionLede({ children, light = false }: { children: React.ReactNode; l
 }
 
 // Dark hero: home-hero typography on ink, the particle brain (canvas behind)
-// fills the right half on desktop. On mobile the canvas is off, so the MRI
-// loop takes over as the visual.
+// fills the right half on desktop and the reserved space under the copy on
+// mobile (same animation everywhere).
 function DarkHero({ lang }: { lang: Locale }) {
   const t = content[lang].hero
 
   return (
     <section id="sb-hero" className="relative z-10 flex min-h-[100vh] items-center pt-[68px]">
-      <div className="mx-auto w-full max-w-[1264px] px-6 py-12 sm:px-[48px]">
+      <div className="mx-auto w-full max-w-[1264px] px-6 py-12 pb-[42vh] sm:px-[48px] lg:pb-12">
         <motion.div
+          id="sb-hero-copy"
           className="flex max-w-[560px] flex-col gap-8"
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -502,22 +503,6 @@ function DarkHero({ lang }: { lang: Locale }) {
             </a>
           </div>
         </motion.div>
-
-        {/* Mobile visual: the particle canvas only runs on lg+, the MRI loop
-            carries the brain on small screens. */}
-        <div className="mt-12 lg:hidden">
-          <div className="mx-auto w-[min(100%,420px)] overflow-hidden rounded-[16px] border border-white/10 bg-black">
-            <video
-              src="/second-brain-scan.mp4"
-              poster="/second-brain-scan-poster.png"
-              autoPlay
-              muted
-              loop
-              playsInline
-              className="block aspect-square w-full object-cover"
-            />
-          </div>
-        </div>
       </div>
     </section>
   )
@@ -855,9 +840,6 @@ function FAQ({ lang }: { lang: Locale }) {
 
 export function SecondBrainPage({ lang }: { lang: Locale }) {
   const page = content[lang]
-  // Two hero orientations to compare live; the pill toggle switches them.
-  const [brainVariant, setBrainVariant] = useState<'A' | 'B'>('A')
-
   const pageUrl = `https://lucid-lab.fr${pagePath[lang]}`
   const homeUrl = lang === 'en' ? 'https://lucid-lab.fr/en' : 'https://lucid-lab.fr'
   const structuredData = [
@@ -888,7 +870,7 @@ export function SecondBrainPage({ lang }: { lang: Locale }) {
             The brain fills the hero, glides behind the statement text, then
             explodes into the connected network that backs the rest. */}
         <div id="sb-dark-zone" className="relative" style={{ background: INK }}>
-          <SecondBrainScene key={brainVariant} variant={brainVariant} zoneId="sb-dark-zone" sectionIds={['sb-hero', 'sb-brain-statement', 'sb-problems']} />
+          <SecondBrainScene zoneId="sb-dark-zone" sectionIds={['sb-hero', 'sb-brain-statement', 'sb-problems']} />
           <DarkHero lang={lang} />
           <BrainStatement lang={lang} />
           <ContextProblems lang={lang} />
@@ -900,21 +882,6 @@ export function SecondBrainPage({ lang }: { lang: Locale }) {
         <AuditFlashBookingSection lang={lang} />
       </main>
       <MarketingFooter lang={lang} />
-
-      {/* Temporary compare toggle for the two brain orientations. */}
-      <div className="fixed bottom-5 left-5 z-[60] hidden items-center gap-1 rounded-full border border-white/15 bg-[#0A0A0A]/85 p-1 text-[12px] font-medium backdrop-blur-md lg:flex" style={{ color: 'rgba(250,250,247,0.7)' }}>
-        <span className="pl-2.5 pr-1">Cerveau</span>
-        {(['A', 'B'] as const).map((v) => (
-          <button
-            key={v}
-            onClick={() => setBrainVariant(v)}
-            className="rounded-full px-3 py-1 transition-colors"
-            style={brainVariant === v ? { background: EMBER, color: PAPER } : { color: 'rgba(250,250,247,0.6)' }}
-          >
-            {v}
-          </button>
-        ))}
-      </div>
     </div>
   )
 }

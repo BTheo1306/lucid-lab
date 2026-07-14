@@ -1,10 +1,11 @@
 'use client'
 
-// Scroll-driven particle scene for /second-brain.
-// The particle brain sits fully visible in the dark hero, glides to the
-// center behind the statement text as you scroll, then explodes and settles
-// into a wide network of interconnected nodes and lines that stays as the
-// background of the rest of the dark zone. Ember/amber palette on ink.
+// Scroll-driven particle scene for /second-brain, on every screen size.
+// The particle brain sits fully visible in the dark hero (right of the copy
+// on desktop, below it on mobile), glides to the center behind the statement
+// text as you scroll, then explodes and settles into a wide network of
+// interconnected nodes and lines that stays as the background of the rest
+// of the dark zone. Ember/amber palette on ink.
 
 import { useEffect, useRef } from 'react'
 import * as THREE from 'three'
@@ -52,7 +53,7 @@ function mulberry32(seed: number) {
 // and the lighting is computed live: a front-top key light plus a rim term
 // on the silhouette, so gyri catch the light, sulci stay dark and the edge
 // glows. Colors run ember at the base to gold on the crown.
-export type BrainPose = { yaw: number; pitch: number; roll: number }
+type BrainPose = { yaw: number; pitch: number; roll: number }
 
 function brainFromData(data: Float32Array, rand: () => number, pose: BrainPose): { positions: Float32Array; colors: Float32Array } {
   const n = Math.max(1, Math.min(COUNT, Math.floor(data.length / 6)))
@@ -100,11 +101,11 @@ function brainFromData(data: Float32Array, rand: () => number, pose: BrainPose):
   return { positions: pos, colors: col }
 }
 
-// Hero orientation presets, compared live with the page toggle.
-export const BRAIN_POSES: Record<'A' | 'B', BrainPose> = {
-  A: { yaw: -0.5, pitch: 0.16, roll: 0.05 },  // three-quarter, front-left
-  B: { yaw: -1.15, pitch: 0.1, roll: 0.03 },  // near profile, facing the copy
-}
+// Hero pose: full profile facing the copy, the instantly readable brain
+// silhouette (frontal lobe left), with a hint of yaw left so the particle
+// cloud keeps some depth. World footprint after SCALE: ~3.0 wide, ~2.65 tall.
+const POSE: BrainPose = { yaw: -1.45, pitch: 0.08, roll: 0.02 }
+const BRAIN_WIDTH = 3.0
 
 // The exploded knowledge network: node positions, edges between close nodes,
 // and dust targets clustered around the nodes.
@@ -184,18 +185,15 @@ const clamp01 = (t: number) => Math.min(1, Math.max(0, t))
 export default function SecondBrainScene({
   zoneId,
   sectionIds,
-  variant = 'A',
 }: {
   zoneId: string
   sectionIds: [string, string, string]
-  variant?: 'A' | 'B'
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
   useEffect(() => {
     const canvas = canvasRef.current
     if (!canvas) return
-    if (window.innerWidth < 1024) return // canvas is CSS-hidden below lg anyway
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches
 
     // The brain point cloud loads asynchronously; the scene boots once it
@@ -221,7 +219,7 @@ export default function SecondBrainScene({
     scene.add(netGroup)
 
     // ── Morphing cloud: brain -> exploded network dust ──
-    const { positions: brain, colors } = brainFromData(brainData, rand, BRAIN_POSES[variant])
+    const { positions: brain, colors } = brainFromData(brainData, rand, POSE)
     const { nodes, lines, dust } = networkLayout(rand)
     const positions = new Float32Array(brain)
     const delays = new Float32Array(COUNT)
@@ -312,7 +310,11 @@ export default function SecondBrainScene({
     const ambientDots = makeAmbient(dotTexture(), AMBIENT_COUNT, 0, 0.10, 0.35)
 
     // ── Zone and section measurements ──
+    // heroX/heroY place the assembled brain in the hero (right of the copy on
+    // wide screens, centered under it on portrait), baseScale shrinks it to
+    // fit narrow viewports. Recomputed on resize.
     let zoneTop = 0, zoneBottom = 1, anchors = [0, 0.5, 1]
+    let heroX = 1.15, heroY = 0, baseScale = 1
     const measure = () => {
       const zone = document.getElementById(zoneId)
       if (!zone) return
@@ -327,13 +329,37 @@ export default function SecondBrainScene({
       })
       const { width, height } = canvas.getBoundingClientRect()
       renderer.setSize(width, height, false)
-      camera.aspect = width / height
+      camera.aspect = width / (height || 1)
       camera.updateProjectionMatrix()
+      const halfH = Math.tan((camera.fov * Math.PI) / 360) * camera.position.z
+      const halfW = halfH * camera.aspect
+      const portrait = camera.aspect < 1.05
+      if (portrait) {
+        // Centered under the hero copy (measured live so it clears the CTAs),
+        // sized to the viewport width. The brain bbox is y [-1.24, 1.41].
+        heroX = 0
+        baseScale = Math.min(0.38, (halfW * 2 * 0.88) / BRAIN_WIDTH)
+        const copy = document.getElementById('sb-hero-copy')
+        const copyBottom = copy
+          ? copy.getBoundingClientRect().bottom + window.scrollY
+          : height * 0.72
+        const pxPerWorld = (height / 2) / halfH
+        // The sparse crown may slide slightly behind the last CTA; that beats
+        // pushing most of the brain below the fold.
+        const topWorld = halfH - (copyBottom - 30) / pxPerWorld
+        heroY = topWorld - 1.41 * baseScale
+      } else {
+        heroX = Math.max(0.4, Math.min(1.15, halfW - BRAIN_WIDTH / 2 - 0.06))
+        heroY = 0
+        baseScale = 1
+      }
     }
     measure()
-    // Re-measure once layout settles (fonts, images) and on resize.
-    const settleTimer = window.setTimeout(measure, 1200)
-    window.addEventListener('resize', measure)
+    // Re-measure once layout settles (fonts, images) and on resize; repaint
+    // right away so occluded tabs (throttled rAF) pick the new layout up too.
+    const settleTimer = window.setTimeout(() => { measure(); renderFrame() }, 1200)
+    const onResize = () => { measure(); renderFrame() }
+    window.addEventListener('resize', onResize)
 
     // ── Mouse parallax ──
     let mx = 0, my = 0
@@ -377,10 +403,10 @@ export default function SecondBrainScene({
         phase = 1 + (focus - anchors[1]) / (anchors[2] - anchors[1])
       }
 
-      // 0 -> 1: the brain glides from the right of the hero to the center.
+      // 0 -> 1: the brain glides from its hero spot to the center.
       const glide = smootherstep(clamp01(phase))
-      group.position.x = 1.15 * (1 - glide)
-      group.position.y = -0.1 * glide
+      group.position.x = heroX * (1 - glide)
+      group.position.y = heroY * (1 - glide) - 0.1 * glide
 
       // 1 -> 2: explosion into the network dust.
       const shapeFrac = clamp01(phase - 1)
@@ -407,12 +433,21 @@ export default function SecondBrainScene({
       lineMat.opacity = netReveal * 0.22
 
       // Slow presence: breathing while the brain holds, gentle parallax always.
+      // The fit scale eases back to 1 with the explosion so the network dust
+      // spreads across the full viewport even on portrait screens. Point
+      // sizes follow the scale, otherwise the shrunk cloud saturates into a
+      // solid blob on small screens (additive blending).
       const brainHold = 1 - shapeFrac
-      group.scale.setScalar(1 + brainHold * 0.06 * Math.sin(time * 0.8))
+      const fit = baseScale + (1 - baseScale) * shapeFrac
+      group.scale.setScalar(fit * (1 + brainHold * 0.06 * Math.sin(time * 0.8)))
+      coreMat.size = 0.030 * fit
+      haloMat.size = 0.07 * fit
       // Scrolling tips the brain forward: by the time it sits behind the
       // statement you are looking at the top of both hemispheres. The tilt
-      // eases back out as the explosion turns it into the network.
-      const tilt = 1.02 * glide * (1 - shapeFrac)
+      // waits out the first third of the glide so the profile stays readable
+      // while the brain travels, and eases back out as the explosion turns
+      // it into the network.
+      const tilt = 1.02 * smootherstep((glide - 0.3) / 0.7) * (1 - shapeFrac)
       const swing = 0.18 * glide * (1 - shapeFrac)
       group.rotation.x += ((tilt + my * 0.08) - group.rotation.x) * 0.04
       group.rotation.y += ((mx * 0.14 + Math.sin(time * 0.05) * 0.06 + swing) - group.rotation.y) * 0.04
@@ -447,13 +482,15 @@ export default function SecondBrainScene({
     if (process.env.NODE_ENV === 'development') {
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       ;(window as any).__sbRender = renderFrame
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      ;(window as any).__sbInfo = () => ({ anchors: [...anchors], zoneTop, zoneBottom, heroX, heroY, baseScale, aspect: camera.aspect })
     }
 
     return () => {
       running = false
       cancelAnimationFrame(raf)
       window.clearTimeout(settleTimer)
-      window.removeEventListener('resize', measure)
+      window.removeEventListener('resize', onResize)
       window.removeEventListener('mousemove', onMouse)
       window.removeEventListener('scroll', onScroll)
       geo.dispose(); coreMat.dispose(); haloMat.dispose()
@@ -470,13 +507,13 @@ export default function SecondBrainScene({
       .catch(() => {})
 
     return () => { disposedEarly = true; cleanup?.() }
-  }, [zoneId, sectionIds, variant])
+  }, [zoneId, sectionIds])
 
   return (
     <canvas
       ref={canvasRef}
       aria-hidden
-      className="pointer-events-none fixed inset-0 z-0 hidden h-full w-full lg:block"
+      className="pointer-events-none fixed inset-0 z-0 h-full w-full"
       style={{ opacity: 0, transition: 'opacity 0.2s linear' }}
     />
   )
