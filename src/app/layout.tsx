@@ -156,6 +156,9 @@ export default async function RootLayout({
 }>) {
   const lang = await getRequestLocale();
   const isEn = lang === "en";
+  const pathname = (await headers()).get("x-pathname") ?? "/";
+  // The dark immersive page carries no side grid lines.
+  const hideGridLines = pathname === "/second-brain" || pathname === "/en/second-brain";
 
   return (
     <html
@@ -328,9 +331,11 @@ export default async function RootLayout({
           }}
         />
         {/* Full-page vertical grid lines — spans the entire scroll height */}
-        <div className="pointer-events-none fixed inset-0 z-[5] hidden md:block" aria-hidden="true">
-          <div className="mx-auto h-full max-w-[1264px] border-x border-[#e5e5e5]" />
-        </div>
+        {!hideGridLines && (
+          <div className="pointer-events-none fixed inset-0 z-[5] hidden md:block" aria-hidden="true">
+            <div className="mx-auto h-full max-w-[1264px] border-x border-[#e5e5e5]" />
+          </div>
+        )}
         {children}
         <AdminAwareChatWidget lang={lang} />
         <Analytics />

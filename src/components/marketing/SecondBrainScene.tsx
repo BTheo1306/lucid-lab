@@ -47,23 +47,44 @@ function mulberry32(seed: number) {
 
 // The brain is sampled offline from a real 3D brain mesh (generated with
 // Higgsfield image_to_3d, sampled by scripts/sample-brain.py):
-// /second-brain-points.bin holds the points as x, y, z, shade float32
-// quadruples, already centered, scaled and posed. Colors are derived here:
-// ember at the base rising to gold on the crown, multiplied by the baked
-// lambert shade so gyri catch the light and sulci stay dark.
-function brainFromData(data: Float32Array, rand: () => number): { positions: Float32Array; colors: Float32Array } {
-  const n = Math.max(1, Math.min(COUNT, Math.floor(data.length / 4)))
+// /second-brain-points.bin holds x, y, z, nx, ny, nz float32 per point in
+// mesh space. The pose is applied here (so orientation variants are free)
+// and the lighting is computed live: a front-top key light plus a rim term
+// on the silhouette, so gyri catch the light, sulci stay dark and the edge
+// glows. Colors run ember at the base to gold on the crown.
+export type BrainPose = { yaw: number; pitch: number; roll: number }
+
+function brainFromData(data: Float32Array, rand: () => number, pose: BrainPose): { positions: Float32Array; colors: Float32Array } {
+  const n = Math.max(1, Math.min(COUNT, Math.floor(data.length / 6)))
   const pos = new Float32Array(COUNT * 3)
   const col = new Float32Array(COUNT * 3)
   const SCALE = 1.32
+  const cy = Math.cos(pose.yaw), sy = Math.sin(pose.yaw)
+  const cp = Math.cos(pose.pitch), sp = Math.sin(pose.pitch)
+  const cr = Math.cos(pose.roll), sr = Math.sin(pose.roll)
+  // camera-space key light: from the front, above, slightly right
+  const L = [0.32, 0.52, 0.79]
+  const rot = (x: number, y: number, z: number): [number, number, number] => {
+    let px = x * cy - z * sy
+    const pz0 = x * sy + z * cy
+    let py = y * cp - pz0 * sp
+    const pz = y * sp + pz0 * cp
+    const px2 = px * cr - py * sr
+    py = px * sr + py * cr
+    px = px2
+    return [px, py, pz]
+  }
   for (let i = 0; i < COUNT; i++) {
     const k = i < n ? i : Math.floor(rand() * n) // recycle if the file is short
-    const y = data[k * 4 + 1] * SCALE + 0.08
-    const shade = data[k * 4 + 3]
-    pos[i * 3] = data[k * 4] * SCALE
-    pos[i * 3 + 1] = y
-    pos[i * 3 + 2] = data[k * 4 + 2] * SCALE
-    const t = Math.min(1, Math.max(0, (y + 1.1) / 2.1))
+    const [x, y, z] = rot(data[k * 6], data[k * 6 + 1], data[k * 6 + 2])
+    const [nx, ny, nz] = rot(data[k * 6 + 3], data[k * 6 + 4], data[k * 6 + 5])
+    pos[i * 3] = x * SCALE
+    pos[i * 3 + 1] = y * SCALE + 0.08
+    pos[i * 3 + 2] = z * SCALE
+    const lam = Math.max(0, nx * L[0] + ny * L[1] + nz * L[2])
+    const rim = Math.pow(1 - Math.abs(nz), 2) * 0.42
+    const shade = 0.2 + 0.62 * lam + rim
+    const t = Math.min(1, Math.max(0, (y * SCALE + 1.15) / 2.2))
     let r: number, g: number, b: number
     if (rand() < 0.02) {
       r = 0.98; g = 0.97; b = 0.94
@@ -77,6 +98,12 @@ function brainFromData(data: Float32Array, rand: () => number): { positions: Flo
     col[i * 3 + 2] = b * shade
   }
   return { positions: pos, colors: col }
+}
+
+// Hero orientation presets, compared live with the page toggle.
+export const BRAIN_POSES: Record<'A' | 'B', BrainPose> = {
+  A: { yaw: -0.5, pitch: 0.16, roll: 0.05 },  // three-quarter, front-left
+  B: { yaw: -1.15, pitch: 0.1, roll: 0.03 },  // near profile, facing the copy
 }
 
 // The exploded knowledge network: node positions, edges between close nodes,
@@ -148,21 +175,6 @@ function dotTexture(): THREE.Texture {
   return tex
 }
 
-// Thin triangle outline sprite, the ambient nod to the reference.
-function triTexture(): THREE.Texture {
-  const c = document.createElement('canvas')
-  c.width = c.height = 64
-  const ctx = c.getContext('2d')!
-  ctx.strokeStyle = 'rgba(255,255,255,0.9)'
-  ctx.lineWidth = 3
-  ctx.beginPath()
-  ctx.moveTo(32, 10); ctx.lineTo(54, 50); ctx.lineTo(10, 50); ctx.closePath()
-  ctx.stroke()
-  const tex = new THREE.CanvasTexture(c)
-  tex.colorSpace = THREE.SRGBColorSpace
-  return tex
-}
-
 const smootherstep = (t: number) => {
   const x = Math.min(1, Math.max(0, t))
   return x * x * x * (x * (x * 6 - 15) + 10)
@@ -172,9 +184,11 @@ const clamp01 = (t: number) => Math.min(1, Math.max(0, t))
 export default function SecondBrainScene({
   zoneId,
   sectionIds,
+  variant = 'A',
 }: {
   zoneId: string
   sectionIds: [string, string, string]
+  variant?: 'A' | 'B'
 }) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
 
@@ -207,7 +221,7 @@ export default function SecondBrainScene({
     scene.add(netGroup)
 
     // ── Morphing cloud: brain -> exploded network dust ──
-    const { positions: brain, colors } = brainFromData(brainData, rand)
+    const { positions: brain, colors } = brainFromData(brainData, rand, BRAIN_POSES[variant])
     const { nodes, lines, dust } = networkLayout(rand)
     const positions = new Float32Array(brain)
     const delays = new Float32Array(COUNT)
@@ -295,8 +309,7 @@ export default function SecondBrainScene({
       scene.add(pts)
       return { geo: g2, mat: m2 }
     }
-    const ambientDots = makeAmbient(dotTexture(), AMBIENT_COUNT - 40, 0, 0.10, 0.35)
-    const ambientTris = makeAmbient(triTexture(), 40, AMBIENT_COUNT - 40, 0.16, 0.28)
+    const ambientDots = makeAmbient(dotTexture(), AMBIENT_COUNT, 0, 0.10, 0.35)
 
     // ── Zone and section measurements ──
     let zoneTop = 0, zoneBottom = 1, anchors = [0, 0.5, 1]
@@ -396,11 +409,13 @@ export default function SecondBrainScene({
       // Slow presence: breathing while the brain holds, gentle parallax always.
       const brainHold = 1 - shapeFrac
       group.scale.setScalar(1 + brainHold * 0.06 * Math.sin(time * 0.8))
-      // The brain turns with the scroll: a strong yaw while it glides to the
-      // center, then keeps turning slightly as it explodes.
-      const scrollTurn = 1.1 * glide + 0.35 * shapeFrac
-      group.rotation.y += ((mx * 0.14 + Math.sin(time * 0.05) * 0.06 + scrollTurn) - group.rotation.y) * 0.04
-      group.rotation.x += ((my * 0.08 - 0.12 * glide) - group.rotation.x) * 0.04
+      // Scrolling tips the brain forward: by the time it sits behind the
+      // statement you are looking at the top of both hemispheres. The tilt
+      // eases back out as the explosion turns it into the network.
+      const tilt = 1.02 * glide * (1 - shapeFrac)
+      const swing = 0.18 * glide * (1 - shapeFrac)
+      group.rotation.x += ((tilt + my * 0.08) - group.rotation.x) * 0.04
+      group.rotation.y += ((mx * 0.14 + Math.sin(time * 0.05) * 0.06 + swing) - group.rotation.y) * 0.04
       netGroup.rotation.y += ((mx * 0.05) - netGroup.rotation.y) * 0.03
       netGroup.rotation.x += ((my * 0.03) - netGroup.rotation.x) * 0.03
 
@@ -445,7 +460,6 @@ export default function SecondBrainScene({
       nodeGeo.dispose(); nodeMat.dispose()
       lineGeo.dispose(); lineMat.dispose()
       ambientDots.geo.dispose(); ambientDots.mat.dispose()
-      ambientTris.geo.dispose(); ambientTris.mat.dispose()
       renderer.dispose()
     }
     }
@@ -456,7 +470,7 @@ export default function SecondBrainScene({
       .catch(() => {})
 
     return () => { disposedEarly = true; cleanup?.() }
-  }, [zoneId, sectionIds])
+  }, [zoneId, sectionIds, variant])
 
   return (
     <canvas

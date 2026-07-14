@@ -855,6 +855,8 @@ function FAQ({ lang }: { lang: Locale }) {
 
 export function SecondBrainPage({ lang }: { lang: Locale }) {
   const page = content[lang]
+  // Two hero orientations to compare live; the pill toggle switches them.
+  const [brainVariant, setBrainVariant] = useState<'A' | 'B'>('A')
 
   const pageUrl = `https://lucid-lab.fr${pagePath[lang]}`
   const homeUrl = lang === 'en' ? 'https://lucid-lab.fr/en' : 'https://lucid-lab.fr'
@@ -880,13 +882,13 @@ export function SecondBrainPage({ lang }: { lang: Locale }) {
           dangerouslySetInnerHTML={{ __html: jsonLd(schema) }}
         />
       ))}
-      <Header />
+      <Header darkZoneId="sb-dark-zone" />
       <main className="grow">
         {/* Dark story zone: the fixed particle canvas sits behind everything.
             The brain fills the hero, glides behind the statement text, then
             explodes into the connected network that backs the rest. */}
         <div id="sb-dark-zone" className="relative" style={{ background: INK }}>
-          <SecondBrainScene zoneId="sb-dark-zone" sectionIds={['sb-hero', 'sb-brain-statement', 'sb-problems']} />
+          <SecondBrainScene key={brainVariant} variant={brainVariant} zoneId="sb-dark-zone" sectionIds={['sb-hero', 'sb-brain-statement', 'sb-problems']} />
           <DarkHero lang={lang} />
           <BrainStatement lang={lang} />
           <ContextProblems lang={lang} />
@@ -898,6 +900,21 @@ export function SecondBrainPage({ lang }: { lang: Locale }) {
         <AuditFlashBookingSection lang={lang} />
       </main>
       <MarketingFooter lang={lang} />
+
+      {/* Temporary compare toggle for the two brain orientations. */}
+      <div className="fixed bottom-5 left-5 z-[60] hidden items-center gap-1 rounded-full border border-white/15 bg-[#0A0A0A]/85 p-1 text-[12px] font-medium backdrop-blur-md lg:flex" style={{ color: 'rgba(250,250,247,0.7)' }}>
+        <span className="pl-2.5 pr-1">Cerveau</span>
+        {(['A', 'B'] as const).map((v) => (
+          <button
+            key={v}
+            onClick={() => setBrainVariant(v)}
+            className="rounded-full px-3 py-1 transition-colors"
+            style={brainVariant === v ? { background: EMBER, color: PAPER } : { color: 'rgba(250,250,247,0.6)' }}
+          >
+            {v}
+          </button>
+        ))}
+      </div>
     </div>
   )
 }

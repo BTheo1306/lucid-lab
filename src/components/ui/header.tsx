@@ -8,9 +8,30 @@ import { useScroll } from '@/components/ui/use-scroll'
 import { createPortal } from 'react-dom'
 import { detectLocale, getDictionary, localizeHref } from '@/lib/i18n/client'
 
-export function Header() {
+// When `darkZoneId` is set, the header turns ink-on-dark while that zone is
+// under it, and flips back to the light style once the page scrolls onto
+// light sections.
+export function Header({ darkZoneId }: { darkZoneId?: string } = {}) {
   const [open, setOpen] = React.useState(false)
   const scrolled = useScroll(10)
+  const [overDark, setOverDark] = React.useState(Boolean(darkZoneId))
+
+  React.useEffect(() => {
+    if (!darkZoneId) return
+    const measure = () => {
+      const zone = document.getElementById(darkZoneId)
+      if (!zone) { setOverDark(false); return }
+      const r = zone.getBoundingClientRect()
+      setOverDark(r.top < 68 && r.bottom > 68)
+    }
+    measure()
+    window.addEventListener('scroll', measure, { passive: true })
+    window.addEventListener('resize', measure)
+    return () => {
+      window.removeEventListener('scroll', measure)
+      window.removeEventListener('resize', measure)
+    }
+  }, [darkZoneId])
   const pathname = usePathname() ?? '/'
   const lang = detectLocale(pathname)
   const t = getDictionary(lang).header
@@ -60,18 +81,20 @@ export function Header() {
   return (
     <header
       className={cn(
-        'fixed top-0 z-50 w-full border-b border-[#e5e5e5] transition-all duration-300',
-        scrolled
-          ? 'bg-[#F7F5F1]/80 backdrop-blur-xl'
-          : 'bg-[#F7F5F1]'
+        'fixed top-0 z-50 w-full border-b transition-all duration-300',
+        overDark
+          ? 'border-white/10 bg-[#0A0A0A]/85 backdrop-blur-xl'
+          : scrolled
+            ? 'border-[#e5e5e5] bg-[#F7F5F1]/80 backdrop-blur-xl'
+            : 'border-[#e5e5e5] bg-[#F7F5F1]'
       )}
     >
-      <nav className="mx-auto flex h-[68px] w-full max-w-[1264px] items-center justify-between border-x border-[#e5e5e5] px-[48px] max-lg:px-6">
+      <nav className={cn('mx-auto flex h-[68px] w-full max-w-[1264px] items-center justify-between border-x px-[48px] max-lg:px-6', overDark ? 'border-white/10' : 'border-[#e5e5e5]')}>
         {/* Wordmark */}
         <a href={lang === 'en' ? '/en' : '/'} onClick={nav(lang === 'en' ? '/en/#' : '/#')} className="flex items-center gap-2 transition-opacity hover:opacity-70">
-          <img src="/logo.png" alt="Lucid-Lab" className="size-6" />
+          <img src="/logo.png" alt="Lucid-Lab" className={cn('size-6 transition-[filter] duration-300', overDark && 'invert')} />
           <span
-            className="text-[16px] font-bold tracking-tight text-black"
+            className={cn('text-[16px] font-bold tracking-tight transition-colors duration-300', overDark ? 'text-white' : 'text-black')}
             style={{ fontFamily: 'var(--font-syne), sans-serif' }}
           >
             Lucid-Lab
@@ -85,7 +108,7 @@ export function Header() {
               key={link.label}
               href={link.href}
               onClick={nav(link.href)}
-              className="text-[14px] font-medium text-[#666] transition-colors hover:text-black"
+              className={cn('text-[14px] font-medium transition-colors', overDark ? 'text-white/70 hover:text-white' : 'text-[#666] hover:text-black')}
             >
               {link.label}
             </a>
@@ -96,7 +119,7 @@ export function Header() {
         <div className="hidden items-center gap-5 lg:flex">
           <a
             href={switchHref}
-            className="group flex h-[34px] items-center px-3.5 rounded-full border border-stone-200 bg-white transition-all hover:border-stone-300 hover:bg-stone-50 text-stone-500 hover:text-stone-900"
+            className={cn('group flex h-[34px] items-center px-3.5 rounded-full border transition-all', overDark ? 'border-white/20 bg-white/10 text-white/80 hover:bg-white/20 hover:text-white' : 'border-stone-200 bg-white text-stone-500 hover:border-stone-300 hover:bg-stone-50 hover:text-stone-900')}
             aria-label={t.languageLabel}
             title={lang === 'en' ? t.switchToFrench : t.switchToEnglish}
           >
@@ -106,7 +129,7 @@ export function Header() {
           </a>
           <a
             href={`${homePrefix}/audit-flash`}
-            className="flex h-[40px] items-center rounded-[10px] bg-black px-5 text-[14px] font-medium text-white transition-colors hover:bg-[#333]"
+            className={cn('flex h-[40px] items-center rounded-[10px] px-5 text-[14px] font-medium transition-colors', overDark ? 'bg-white text-black hover:bg-[#e8e8e4]' : 'bg-black text-white hover:bg-[#333]')}
           >
             {t.cta}
           </a>
@@ -115,7 +138,7 @@ export function Header() {
         {/* Mobile Toggle */}
         <button
           onClick={() => setOpen(!open)}
-          className="flex items-center justify-center text-black lg:hidden"
+          className={cn('flex items-center justify-center lg:hidden transition-colors', overDark ? 'text-white' : 'text-black')}
           aria-expanded={open}
           aria-controls="mobile-menu"
           aria-label="Toggle menu"
