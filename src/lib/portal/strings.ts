@@ -89,6 +89,8 @@ export const portalStrings = {
   },
 
   documents: {
+    title: 'Documents',
+    description: 'Vos contrats, bons de commande et documents signés avec Lucid-Lab.',
     statusLabels: {
       sent_for_signature: 'À signer',
       viewed: 'À signer',
@@ -110,6 +112,10 @@ export const portalStrings = {
   },
 
   billing: {
+    title: 'Facturation',
+    description: 'Vos documents commerciaux, leurs montants et le suivi des paiements.',
+    documentsTitle: 'Documents',
+    historyTitle: 'Suivi des paiements',
     statusLabels: {
       pending: 'En préparation',
       quoted: 'Devis envoyé',
@@ -120,7 +126,25 @@ export const portalStrings = {
       overdue: 'En retard',
       cancelled: 'Annulé',
     } as Record<string, string>,
+    eventLabels: {
+      bdc_drafted: 'Bon de commande préparé',
+      bdc_sent: 'Bon de commande envoyé',
+      bdc_signed: 'Bon de commande signé',
+      invoice_generated: 'Facture émise',
+      invoice_sent: 'Facture envoyée',
+      payment_due: 'Paiement attendu',
+      payment_received: 'Paiement reçu',
+      payment_overdue: 'Paiement en retard',
+      credit_note: 'Avoir émis',
+      other: 'Facturation',
+    } as Record<string, string>,
+    setupLabel: 'mise en place',
+    monthlyLabel: 'par mois',
+    issuedOn: 'Émis le',
+    dueOn: 'Échéance',
+    signedOn: 'Signé le',
     empty: 'Aucun élément de facturation pour le moment.',
+    historyEmpty: 'Aucun paiement enregistré pour le moment.',
   },
 
   requests: {
