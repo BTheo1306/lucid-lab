@@ -91,8 +91,17 @@ export const config = {
   retentionLeadsLostDays: parseInt(optionalEnv('RETENTION_LEADS_LOST_DAYS', '365'), 10),
   retentionAuditLogDays: parseInt(optionalEnv('RETENTION_AUDIT_LOG_DAYS', '730'), 10),
 
-  // IP hashing salt — rotate periodically in production
-  ipHashSalt: optionalEnv('IP_HASH_SALT', 'lucid-lab-default-salt-change-me'),
+  // IP hashing salt — required in production so hashed visitor IPs cannot be
+  // de-anonymized against the known default salt. Resolved lazily at request
+  // time (like the Supabase keys) so the build does not need it present.
+  get ipHashSalt() {
+    const value = process.env['IP_HASH_SALT'];
+    if (value && value.length > 0) return value;
+    if ((process.env['NODE_ENV'] ?? 'development') === 'production') {
+      throw new Error('IP_HASH_SALT must be set in production (e.g. `openssl rand -hex 32`).');
+    }
+    return 'lucid-lab-default-salt-change-me';
+  },
 
   // DocuSeal
   docusealApiKey: process.env['DOCUSEAL_API_KEY'] ?? '',

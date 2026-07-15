@@ -4,14 +4,13 @@ import { deleteMessagesOlderThan } from '@/lib/bot/db/queries/messages';
 import { deleteOldRateLimitBuckets } from '@/lib/bot/db/queries/rate-limit';
 import { deleteAuditLogsOlderThan, logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
 import { supabase } from '@/lib/bot/db/supabase';
+import { bearerMatches } from '@/lib/security/constant-time';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
 function isAuthorized(req: Request): boolean {
-  if (!config.cronSecret) return false;
-  const header = req.headers.get('authorization');
-  return header === `Bearer ${config.cronSecret}`;
+  return bearerMatches(req.headers.get('authorization'), config.cronSecret);
 }
 
 /** GET /api/cron/data-retention — Enforce GDPR retention windows. */

@@ -1,4 +1,5 @@
 import { config } from '@/lib/bot/config';
+import { safeEqual } from '@/lib/security/constant-time';
 
 /**
  * Bearer auth for the local Chrome runner.
@@ -20,7 +21,7 @@ export function authenticateRunner(req: Request): RunnerAuth {
 
   const header = req.headers.get('authorization') ?? '';
   const provided = header.toLowerCase().startsWith('bearer ') ? header.slice(7).trim() : '';
-  if (!provided || provided !== token) return { ok: false, senderLabel: '', error: 'unauthorized' };
+  if (!safeEqual(provided, token)) return { ok: false, senderLabel: '', error: 'unauthorized' };
 
   const senderLabel = req.headers.get('x-sender-account')?.trim() || 'Anthony';
   return { ok: true, senderLabel };
