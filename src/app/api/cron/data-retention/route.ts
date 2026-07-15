@@ -81,6 +81,15 @@ export async function GET(req: Request) {
     await deleteOldRateLimitBuckets(86_400);
     results.rate_limit_cleaned = 1;
 
+    // Purge portal login tokens expired for more than 30 days (covers used
+    // tokens too: they all carry a short expiry from creation)
+    const portalTokenCutoff = new Date(Date.now() - 30 * 86_400_000).toISOString();
+    const { count: portalTokensDeleted } = await supabase
+      .from('portal_login_tokens')
+      .delete({ count: 'exact' })
+      .lt('expires_at', portalTokenCutoff);
+    results.portal_login_tokens_deleted = portalTokensDeleted ?? 0;
+
     return NextResponse.json({ ok: true, results });
   } catch (err) {
     console.error('[cron/data-retention] failed:', err);

@@ -102,6 +102,31 @@ async function getGoogleDriveAccessToken(): Promise<string> {
   return body.access_token;
 }
 
+/**
+ * Stream a Drive file (alt=media). Used by the portal download proxy so
+ * clients get their PDFs through an authenticated route, never a Drive URL.
+ */
+export async function downloadGoogleDriveFile(fileId: string): Promise<{
+  body: ReadableStream<Uint8Array> | null;
+  contentType: string;
+}> {
+  const token = await getGoogleDriveAccessToken();
+  const response = await fetch(
+    `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media&supportsAllDrives=true`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+
+  if (!response.ok) {
+    const text = await response.text().catch(() => '');
+    throw new Error(`Google Drive download ${response.status}: ${text.slice(0, 300) || response.statusText}`);
+  }
+
+  return {
+    body: response.body,
+    contentType: response.headers.get('content-type') ?? 'application/pdf',
+  };
+}
+
 function escapeDriveQueryValue(value: string): string {
   return value.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
 }

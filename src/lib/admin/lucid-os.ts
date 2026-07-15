@@ -187,6 +187,7 @@ export interface LucidClientTaskSummary {
   dueAt: string | null;
   completedAt: string | null;
   createdBy: string;
+  clientVisible: boolean;
   contactName: string | null;
   opportunityTitle: string | null;
   interactionSummary: string | null;
@@ -1183,6 +1184,7 @@ function normalizeClientTask(value: unknown): LucidClientTaskSummary {
     dueAt: asString(record.due_at),
     completedAt: asString(record.completed_at),
     createdBy: asString(record.created_by) ?? 'admin',
+    clientVisible: record.client_visible === true,
     contactName: asString(contact?.full_name),
     opportunityTitle: asString(opportunity?.title),
     interactionSummary: asString(interaction?.summary),
@@ -1365,7 +1367,7 @@ export async function listLucidClientTasksForClient(clientId: string, limit = 50
   const rows = await selectRows<unknown>(
     supabase
       .from('client_tasks')
-      .select('id,title,description,status,priority,owner_label,due_at,completed_at,created_by,created_at,updated_at,contact:client_contacts(full_name),opportunity:client_opportunities(title),interaction:client_interactions(summary)')
+      .select('id,title,description,status,priority,owner_label,due_at,completed_at,created_by,client_visible,created_at,updated_at,contact:client_contacts(full_name),opportunity:client_opportunities(title),interaction:client_interactions(summary)')
       .eq('organization_id', organizationId)
       .eq('client_id', clientId)
       .order('status', { ascending: true })
