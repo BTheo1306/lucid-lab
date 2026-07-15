@@ -1,5 +1,6 @@
 import Link from 'next/link';
-import { AlertTriangle, ArrowRight, CalendarClock, CheckCircle2, Inbox, ListChecks, PlayCircle, ShieldCheck, Users } from 'lucide-react';
+import { AlertTriangle, ArrowRight, CalendarClock, CheckCircle2, Inbox, ListChecks, MessageSquare, PlayCircle, ShieldCheck, Users } from 'lucide-react';
+import { listOpenClientRequests } from '@/lib/admin/portal';
 import {
   listLucidAgentRuns,
   listLucidAgentTasks,
@@ -274,13 +275,14 @@ function ProcessQueueButton() {
 }
 
 export default async function LucidOsInboxPage() {
-  const [pendingApprovals, incidents, clients, agentTasks, agentRuns, automationRuns] = await Promise.all([
+  const [pendingApprovals, incidents, clients, agentTasks, agentRuns, automationRuns, openClientRequests] = await Promise.all([
     listLucidApprovals(20, 'pending'),
     listLucidIncidents(20),
     listLucidClients(50),
     listLucidAgentTasks(40),
     listLucidAgentRuns(20),
     listLucidAutomationRuns(20),
+    listOpenClientRequests(20).catch(() => []),
   ]);
   const openIncidents = incidents.filter((incident) => !['resolved', 'closed'].includes(incident.status));
   const pendingApprovalByTaskId = new Map(pendingApprovals.filter((approval) => approval.taskId).map((approval) => [approval.taskId as string, approval.id]));
@@ -304,6 +306,46 @@ export default async function LucidOsInboxPage() {
         <StatCard label="Incidents" value={openIncidents.length} hint="Événements opérationnels actifs" icon={AlertTriangle} />
         <StatCard label="Actions client" value={clientNextActions.length} hint="Relances et signaux de santé" icon={CalendarClock} />
       </div>
+
+      <Section title="Demandes clients (portail)">
+        {openClientRequests.length === 0 ? (
+          <EmptyState>Aucune demande client en attente.</EmptyState>
+        ) : (
+          <div className="divide-y divide-zinc-100">
+            {openClientRequests.map((request) => (
+              <div key={request.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                <div className="min-w-0">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <MessageSquare className="size-4 shrink-0 text-blue-600" />
+                    {request.clientSlug ? (
+                      <Link href={`/admin/lucid-os/clients/${request.clientSlug}`} className="text-sm font-semibold text-blue-700 hover:underline">
+                        {request.clientName}
+                      </Link>
+                    ) : (
+                      <span className="text-sm font-semibold text-zinc-700">{request.clientName ?? 'Client'}</span>
+                    )}
+                    <p className="text-sm font-medium text-zinc-950">{request.title}</p>
+                    <StatusBadge tone="warning">{request.status === 'open' ? 'Ouverte' : request.status === 'in_progress' ? 'En cours' : 'En attente'}</StatusBadge>
+                  </div>
+                  <p className="mt-1 text-xs text-zinc-500">
+                    {request.createdByContactName ? `De ${request.createdByContactName} · ` : ''}
+                    {formatAdminDateTime(request.createdAt)}
+                  </p>
+                </div>
+                {request.clientSlug ? (
+                  <Link
+                    href={`/admin/lucid-os/clients/${request.clientSlug}`}
+                    className="inline-flex h-8 items-center gap-1.5 rounded border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
+                  >
+                    Traiter
+                    <ArrowRight className="size-3.5" />
+                  </Link>
+                ) : null}
+              </div>
+            ))}
+          </div>
+        )}
+      </Section>
 
       <Section title="Tâches en attente de validation">
         {pendingValidationTasks.length === 0 ? (

@@ -10,6 +10,7 @@ export default async function PortalAppLayout({ children }: { children: React.Re
   const navItems: PortalNavItem[] = [
     { href: '/', label: portalStrings.nav.home },
     { href: '/projets', label: portalStrings.nav.projects },
+    { href: '/echanges', label: portalStrings.nav.requests },
     { href: '/reunions', label: portalStrings.nav.meetings },
     { href: '/facturation', label: portalStrings.nav.billing },
     { href: '/documents', label: portalStrings.nav.documents },

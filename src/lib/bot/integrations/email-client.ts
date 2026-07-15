@@ -426,6 +426,124 @@ export async function sendPortalInvite(input: {
   });
 }
 
+const PORTAL_REQUEST_TYPE_LABELS: Record<string, string> = {
+  question: 'Question',
+  change_request: 'Demande de modification',
+  asset_request: 'Éléments à fournir',
+  approval: 'Validation attendue',
+  info_request: 'Informations à compléter',
+};
+
+/** Portal: a client submitted a request, notify the team. */
+export async function sendPortalRequestCreatedTeamNotification(input: {
+  clientName: string;
+  contactName: string;
+  requestType: string;
+  title: string;
+  body: string | null;
+  adminUrl: string;
+}): Promise<void> {
+  const typeLabel = PORTAL_REQUEST_TYPE_LABELS[input.requestType] ?? 'Demande';
+  await sendEmail({
+    to: config.teamNotificationEmail,
+    subject: `[Portail] ${typeLabel} de ${input.clientName} : ${input.title}`,
+    html: `
+      <h2>Nouvelle demande client via le portail</h2>
+      <p><strong>Client :</strong> ${escapeHtml(input.clientName)}</p>
+      <p><strong>Contact :</strong> ${escapeHtml(input.contactName)}</p>
+      <p><strong>Type :</strong> ${escapeHtml(typeLabel)}</p>
+      <p><strong>Objet :</strong> ${escapeHtml(input.title)}</p>
+      ${input.body ? `<p><strong>Détail :</strong><br>${escapeHtml(input.body).replace(/\n/g, '<br>')}</p>` : ''}
+      <p><a href="${escapeHtml(input.adminUrl)}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:6px;">Ouvrir la fiche client</a></p>
+    `,
+  });
+}
+
+/** Portal: a client answered an agency request, notify the team. */
+export async function sendPortalClientResponseTeamNotification(input: {
+  clientName: string;
+  contactName: string;
+  title: string;
+  status: string;
+  note: string | null;
+  adminUrl: string;
+}): Promise<void> {
+  const statusLabel =
+    input.status === 'approved' ? 'Approuvé' : input.status === 'done' ? 'Traité par le client' : 'Modifications demandées';
+  await sendEmail({
+    to: config.teamNotificationEmail,
+    subject: `[Portail] ${statusLabel} par ${input.clientName} : ${input.title}`,
+    html: `
+      <h2>Réponse client sur le portail</h2>
+      <p><strong>Client :</strong> ${escapeHtml(input.clientName)} (${escapeHtml(input.contactName)})</p>
+      <p><strong>Demande :</strong> ${escapeHtml(input.title)}</p>
+      <p><strong>Décision :</strong> ${escapeHtml(statusLabel)}</p>
+      ${input.note ? `<p><strong>Commentaire :</strong><br>${escapeHtml(input.note).replace(/\n/g, '<br>')}</p>` : ''}
+      <p><a href="${escapeHtml(input.adminUrl)}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:6px;">Ouvrir la fiche client</a></p>
+    `,
+  });
+}
+
+/** Portal: the agency asks the client for something (validation, assets, info). */
+export async function sendPortalRequestToClient(input: {
+  to: string;
+  contactName?: string | null;
+  clientName: string;
+  requestType: string;
+  title: string;
+  body: string | null;
+  portalUrl: string;
+}): Promise<void> {
+  const name = input.contactName?.trim();
+  const greeting = name ? `Bonjour ${name},` : 'Bonjour,';
+  const typeLabel = PORTAL_REQUEST_TYPE_LABELS[input.requestType] ?? 'Demande';
+  const safeUrl = escapeHtml(input.portalUrl);
+
+  await sendEmail({
+    to: input.to,
+    subject: `[Lucid-Lab] ${typeLabel} : ${input.title}`,
+    text: `${greeting}\n\nNous avons besoin de vous sur votre espace client Lucid-Lab.\n\n${typeLabel} : ${input.title}\n${input.body ? `\n${input.body}\n` : ''}\nRépondre ici : ${input.portalUrl}\n\nBien à vous,\nL'équipe Lucid-Lab`,
+    html: `
+      <p>${escapeHtml(greeting)}</p>
+      <p>Nous avons besoin de vous sur votre espace client Lucid-Lab.</p>
+      <p><strong>${escapeHtml(typeLabel)} :</strong> ${escapeHtml(input.title)}</p>
+      ${input.body ? `<p>${escapeHtml(input.body).replace(/\n/g, '<br>')}</p>` : ''}
+      <p><a href="${safeUrl}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:6px;">Répondre sur le portail</a></p>
+      <p>Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><a href="${safeUrl}">${safeUrl}</a></p>
+      <p>Bien à vous,<br>L'équipe Lucid-Lab</p>
+    `,
+  });
+}
+
+/** Portal: the agency answered a client request. */
+export async function sendPortalRequestAnsweredToClient(input: {
+  to: string;
+  contactName?: string | null;
+  title: string;
+  status: 'in_progress' | 'done' | 'declined';
+  responseNote: string | null;
+  portalUrl: string;
+}): Promise<void> {
+  const name = input.contactName?.trim();
+  const greeting = name ? `Bonjour ${name},` : 'Bonjour,';
+  const statusLabel =
+    input.status === 'done' ? 'a été traitée' : input.status === 'declined' ? "n'a pas pu être retenue" : 'est en cours de traitement';
+  const safeUrl = escapeHtml(input.portalUrl);
+
+  await sendEmail({
+    to: input.to,
+    subject: `[Lucid-Lab] Votre demande "${input.title}" ${input.status === 'done' ? 'est traitée' : input.status === 'declined' ? 'a reçu une réponse' : 'est en cours'}`,
+    text: `${greeting}\n\nVotre demande "${input.title}" ${statusLabel}.\n${input.responseNote ? `\nNotre réponse : ${input.responseNote}\n` : ''}\nVoir le détail : ${input.portalUrl}\n\nBien à vous,\nL'équipe Lucid-Lab`,
+    html: `
+      <p>${escapeHtml(greeting)}</p>
+      <p>Votre demande <strong>${escapeHtml(input.title)}</strong> ${escapeHtml(statusLabel)}.</p>
+      ${input.responseNote ? `<p><strong>Notre réponse :</strong><br>${escapeHtml(input.responseNote).replace(/\n/g, '<br>')}</p>` : ''}
+      <p><a href="${safeUrl}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:6px;">Voir sur le portail</a></p>
+      <p>Bien à vous,<br>L'équipe Lucid-Lab</p>
+    `,
+  });
+}
+
 function buildFollowupTemplate(
   name: string,
   lang: 'fr' | 'en',

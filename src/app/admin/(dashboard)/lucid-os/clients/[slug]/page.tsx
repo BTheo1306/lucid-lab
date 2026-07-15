@@ -65,6 +65,7 @@ import { DeleteClientForm } from '../DeleteClientForm';
 import { InlineSelectForm } from '../InlineSelectForm';
 import { MeetingRecapsPanel } from './MeetingRecapsPanel';
 import { PortalPanel } from './PortalPanel';
+import { RequestsPanel } from './RequestsPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -1213,6 +1214,7 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
           <CompanyContactPanel client={client} contacts={contacts} />
           <SmartNotesPanel client={client} imports={imports} interactions={interactions} />
           <TasksPanel client={client} contacts={contacts} opportunities={opportunities} tasks={tasks} />
+          <RequestsPanel clientId={client.id} clientSlug={client.slug} />
           <MeetingRecapsPanel clientId={client.id} clientSlug={client.slug} />
           <BillingSummaryPanel documents={documents} opportunities={opportunities} />
           <DeliverablesPanel projects={projects} websites={websites} databases={databases} deployments={deployments} integrations={integrations} />
