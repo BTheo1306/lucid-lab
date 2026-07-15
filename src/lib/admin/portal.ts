@@ -86,6 +86,82 @@ export async function setContactPortalAccess(contactId: string, enabled: boolean
   });
 }
 
+export interface MeetingRecapSummary {
+  id: string;
+  summary: string;
+  occurredAt: string;
+  clientVisible: boolean;
+  clientSummary: string | null;
+  sourceUri: string | null;
+}
+
+/** Meeting interactions of a client, with portal visibility state (admin view). */
+export async function listMeetingInteractionsForClient(clientId: string, limit = 10): Promise<MeetingRecapSummary[]> {
+  const { data, error } = await supabase
+    .from('client_interactions')
+    .select('id,summary,occurred_at,client_visible,client_summary,source_uri')
+    .eq('client_id', clientId)
+    .eq('interaction_type', 'meeting')
+    .order('occurred_at', { ascending: false })
+    .limit(limit);
+
+  if (error) throw new Error(`listMeetingInteractionsForClient: ${error.message}`);
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    summary: String(row.summary ?? 'Réunion'),
+    occurredAt: String(row.occurred_at ?? ''),
+    clientVisible: row.client_visible === true,
+    clientSummary: row.client_summary ? String(row.client_summary) : null,
+    sourceUri: row.source_uri ? String(row.source_uri) : null,
+  }));
+}
+
+/** Show or hide a meeting recap on the client portal. */
+export async function setInteractionClientVisibility(interactionId: string, visible: boolean): Promise<void> {
+  const { data, error } = await supabase
+    .from('client_interactions')
+    .update({ client_visible: visible })
+    .eq('id', interactionId)
+    .select('id,summary,client_id')
+    .maybeSingle();
+
+  if (error) throw new Error(`setInteractionClientVisibility: ${error.message}`);
+  if (!data) throw new Error('Compte rendu introuvable.');
+
+  await recordLucidAuditEvent({
+    clientId: String(data.client_id),
+    actorType: 'admin',
+    eventType: visible ? 'portal_recap_shown' : 'portal_recap_hidden',
+    targetTable: 'client_interactions',
+    targetId: String(data.id),
+    summary: `${visible ? 'Compte rendu publié sur le portail' : 'Compte rendu masqué du portail'} : ${String(data.summary)}`,
+  });
+}
+
+/** Edit the client-facing recap text of a meeting interaction. */
+export async function updateInteractionClientSummary(interactionId: string, clientSummary: string): Promise<void> {
+  const trimmed = clientSummary.trim();
+  const { data, error } = await supabase
+    .from('client_interactions')
+    .update({ client_summary: trimmed || null })
+    .eq('id', interactionId)
+    .select('id,summary,client_id')
+    .maybeSingle();
+
+  if (error) throw new Error(`updateInteractionClientSummary: ${error.message}`);
+  if (!data) throw new Error('Compte rendu introuvable.');
+
+  await recordLucidAuditEvent({
+    clientId: String(data.client_id),
+    actorType: 'admin',
+    eventType: 'portal_recap_edited',
+    targetTable: 'client_interactions',
+    targetId: String(data.id),
+    summary: `Compte rendu client modifié : ${String(data.summary)}`,
+  });
+}
+
 /** Publish or hide a task on the client portal, with an audit trail. */
 export async function setTaskClientVisibility(taskId: string, visible: boolean): Promise<void> {
   const { data, error } = await supabase

@@ -51,6 +51,41 @@ export async function listPortalTasks(session: PortalSession, limit = 120): Prom
   }));
 }
 
+export interface PortalMeeting {
+  id: string;
+  title: string;
+  clientSummary: string;
+  occurredAt: string;
+}
+
+/** Client-safe meeting recaps only: the internal notes column is never selected. */
+export async function listPortalMeetings(session: PortalSession, limit = 20): Promise<PortalMeeting[]> {
+  const { data, error } = await supabase
+    .from('client_interactions')
+    .select('id,summary,client_summary,occurred_at')
+    .eq('organization_id', session.organizationId)
+    .eq('client_id', session.clientId)
+    .eq('interaction_type', 'meeting')
+    .eq('client_visible', true)
+    .not('client_summary', 'is', null)
+    .order('occurred_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[portal] listPortalMeetings failed:', error.message);
+    return [];
+  }
+
+  return (data ?? [])
+    .filter((row) => row.client_summary)
+    .map((row) => ({
+      id: String(row.id),
+      title: String(row.summary ?? 'Réunion'),
+      clientSummary: String(row.client_summary),
+      occurredAt: String(row.occurred_at ?? ''),
+    }));
+}
+
 export interface PortalProject {
   id: string;
   name: string;

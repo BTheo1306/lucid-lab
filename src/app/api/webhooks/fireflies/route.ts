@@ -72,6 +72,40 @@ async function extractSynthesis(transcript: unknown): Promise<string> {
     .trim();
 }
 
+// ─── Client-safe recap (portal) ──────────────────────────────────────────────
+
+const CLIENT_RECAP_PROMPT = `Tu rédiges un compte rendu de réunion destiné AU CLIENT, affiché sur son portail client Lucid-Lab. En français, ton professionnel et chaleureux, à la première personne du pluriel (nous).
+Contenu STRICTEMENT limité à : 1) Ce qui a été vu ensemble ; 2) Les décisions prises ; 3) Les prochaines étapes, avec responsable et échéance quand elles sont connues.
+INTERDIT : budgets, prix, négociation, objections, risques, analyse interne, remarques sur le client, informations sur d'autres clients.
+N'invente rien : si une information manque, ne la mentionne pas. N'utilise jamais de tirets longs. 5 à 10 lignes maximum. Commence directement par le contenu, sans titre.`;
+
+async function extractClientRecap(transcript: unknown): Promise<string | null> {
+  const t = transcript as { title?: string; dateString?: string; summary?: { overview?: string; short_summary?: string; action_items?: string } };
+  const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+  const context = [
+    `Titre : ${t.title}`,
+    `Date : ${t.dateString}`,
+    `Résumé : ${t.summary?.overview ?? t.summary?.short_summary ?? ''}`,
+    `Action items : ${t.summary?.action_items ?? ''}`,
+  ].join('\n');
+  try {
+    const msg = await anthropic.messages.create({
+      model: process.env.AI_MODEL || 'claude-sonnet-4-6',
+      max_tokens: 700,
+      messages: [{ role: 'user', content: `${CLIENT_RECAP_PROMPT}\n\n---\n${context}` }],
+    });
+    const text = msg.content
+      .filter((b): b is Anthropic.TextBlock => b.type === 'text')
+      .map((b) => b.text)
+      .join('\n')
+      .trim();
+    return text || null;
+  } catch (error) {
+    console.error('[fireflies-webhook] client recap failed:', error instanceof Error ? error.message : error);
+    return null;
+  }
+}
+
 // ─── Structured action items extraction ──────────────────────────────────────
 
 interface ActionItem {
@@ -269,6 +303,37 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       );
     }
 
+    // Meeting recap on the client record: internal synthesis in notes, a
+    // second client-safe recap in client_summary for the portal. Visible by
+    // default only when the client attended the call.
+    let interactionId: string | null = null;
+    if (clientId) {
+      const clientRecap = await extractClientRecap(transcript);
+      const parsedDate = transcript.dateString ? new Date(transcript.dateString) : new Date();
+      const occurredAt = Number.isNaN(parsedDate.getTime()) ? new Date().toISOString() : parsedDate.toISOString();
+
+      const { data: interactionRow, error: interactionError } = await supabase
+        .from('client_interactions')
+        .insert({
+          organization_id: ORG_ID,
+          client_id: clientId,
+          interaction_type: 'meeting',
+          direction: 'outbound',
+          summary: `Réunion : ${transcript.title ?? 'sans titre'}`,
+          notes: synthesis,
+          client_summary: clientRecap,
+          client_visible: clientPresent && Boolean(clientRecap),
+          occurred_at: occurredAt,
+          source_system: 'fireflies',
+          source_uri: transcript.transcript_url ?? null,
+        })
+        .select('id')
+        .maybeSingle();
+
+      if (interactionError) console.error('[fireflies-webhook] interaction insert error:', interactionError.message);
+      else interactionId = interactionRow ? String(interactionRow.id) : null;
+    }
+
     // Create tasks for each action item
     let tasksCreated = 0;
     if (actionItems.length > 0) {
@@ -302,6 +367,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         transcript_url: transcript.transcript_url,
         matched_client_id: clientId,
         client_present: clientPresent,
+        interaction_id: interactionId,
         action_items: actionItems,
         synthesis,
       },
