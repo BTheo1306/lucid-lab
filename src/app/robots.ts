@@ -6,6 +6,7 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: "*",
         allow: "/",
+        disallow: "/portal",
       },
     ],
     sitemap: "https://lucid-lab.fr/sitemap.xml",

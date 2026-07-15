@@ -63,6 +63,7 @@ import {
 } from '../actions';
 import { DeleteClientForm } from '../DeleteClientForm';
 import { InlineSelectForm } from '../InlineSelectForm';
+import { PortalPanel } from './PortalPanel';
 
 export const dynamic = 'force-dynamic';
 
@@ -1283,6 +1284,8 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
             <FoldoutForm title="Ajouter une opportunité" icon={BriefcaseBusiness}><AddOpportunityForm client={client} contacts={contacts} /></FoldoutForm>
             <FoldoutForm title="Générer un BDC" icon={FileText}><CreateDocumentForm client={client} contacts={contacts} opportunities={opportunities} defaultPricingModel={defaultPricingModel} /></FoldoutForm>
           </RecordPanel>
+
+          <PortalPanel clientId={client.id} clientSlug={client.slug} />
 
           {vaultProfile ? (
             <RecordPanel title="Sources internes">

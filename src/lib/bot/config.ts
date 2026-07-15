@@ -140,6 +140,10 @@ export const config = {
     'https://lucid-lab.fr/admin/integrations/linkedin-org/callback',
   ),
 
+  // Client portal (client.lucid-lab.fr)
+  portalSessionSecret: process.env['PORTAL_SESSION_SECRET'] ?? '',
+  portalBaseUrl: optionalEnv('PORTAL_BASE_URL', 'https://client.lucid-lab.fr'),
+
   // Billing
   billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '0.20')),
 

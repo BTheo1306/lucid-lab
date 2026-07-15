@@ -375,6 +375,57 @@ export async function sendDocumentSignedClientConfirmation(input: {
   });
 }
 
+/** Client portal: magic login link (valid 15 minutes, single use). */
+export async function sendPortalLoginLink(input: {
+  to: string;
+  contactName?: string | null;
+  loginUrl: string;
+}): Promise<void> {
+  const name = input.contactName?.trim();
+  const greeting = name ? `Bonjour ${name},` : 'Bonjour,';
+  const safeUrl = escapeHtml(input.loginUrl);
+
+  await sendEmail({
+    to: input.to,
+    subject: 'Votre lien de connexion au portail client Lucid-Lab',
+    text: `${greeting}\n\nVoici votre lien de connexion au portail client Lucid-Lab. Il est valable 15 minutes et ne peut servir qu'une seule fois : ${input.loginUrl}\n\nSi vous n'êtes pas à l'origine de cette demande, ignorez cet email.\n\nBien à vous,\nL'équipe Lucid-Lab`,
+    html: `
+      <p>${escapeHtml(greeting)}</p>
+      <p>Voici votre lien de connexion au portail client Lucid-Lab. Il est valable 15 minutes et ne peut servir qu'une seule fois.</p>
+      <p><a href="${safeUrl}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:6px;">Se connecter au portail</a></p>
+      <p>Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><a href="${safeUrl}">${safeUrl}</a></p>
+      <p>Si vous n'êtes pas à l'origine de cette demande, ignorez cet email.</p>
+      <p>Bien à vous,<br>L'équipe Lucid-Lab</p>
+    `,
+  });
+}
+
+/** Client portal: invitation sent by the agency (link valid 7 days). */
+export async function sendPortalInvite(input: {
+  to: string;
+  contactName?: string | null;
+  clientName: string;
+  inviteUrl: string;
+}): Promise<void> {
+  const name = input.contactName?.trim();
+  const greeting = name ? `Bonjour ${name},` : 'Bonjour,';
+  const safeUrl = escapeHtml(input.inviteUrl);
+
+  await sendEmail({
+    to: input.to,
+    subject: `Votre espace client Lucid-Lab est ouvert - ${input.clientName}`,
+    text: `${greeting}\n\nVotre espace client Lucid-Lab est ouvert pour ${input.clientName}. Vous y suivez l'avancement de vos projets, vos documents, votre facturation et nos échanges.\n\nActivez votre accès ici (lien valable 7 jours) : ${input.inviteUrl}\n\nEnsuite, connectez-vous à tout moment sur ${input.inviteUrl.split('/connexion')[0]} avec votre adresse email : vous recevrez un lien de connexion, sans mot de passe.\n\nBien à vous,\nL'équipe Lucid-Lab`,
+    html: `
+      <p>${escapeHtml(greeting)}</p>
+      <p>Votre espace client Lucid-Lab est ouvert pour <strong>${escapeHtml(input.clientName)}</strong>. Vous y suivez l'avancement de vos projets, vos documents, votre facturation et nos échanges.</p>
+      <p><a href="${safeUrl}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:12px 18px;border-radius:6px;">Activer mon accès</a></p>
+      <p>Ce lien est valable 7 jours. Si le bouton ne fonctionne pas, copiez ce lien dans votre navigateur :<br><a href="${safeUrl}">${safeUrl}</a></p>
+      <p>Ensuite, connectez-vous à tout moment avec votre adresse email : vous recevrez un lien de connexion, sans mot de passe.</p>
+      <p>Bien à vous,<br>L'équipe Lucid-Lab</p>
+    `,
+  });
+}
+
 function buildFollowupTemplate(
   name: string,
   lang: 'fr' | 'en',
