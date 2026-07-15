@@ -1,9 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { redirect } from 'next/navigation';
-import { LockKeyhole } from 'lucide-react';
-import { isAdminApiKeyConfigured, isAdminAuthenticated } from '@/lib/admin/auth';
-import { loginAdmin } from '../actions';
+import { isAdminAuthenticated, isGoogleSsoConfigured } from '@/lib/admin/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -13,6 +11,13 @@ export const metadata: Metadata = {
     index: false,
     follow: false,
   },
+};
+
+const ERROR_MESSAGES: Record<string, string> = {
+  not_allowed: "Ce compte Google n'est pas autorisé à accéder au tableau de bord.",
+  oauth_failed: 'La connexion Google a échoué. Réessayez.',
+  oauth_state: 'Vérification de sécurité échouée. Relancez la connexion.',
+  config: "La connexion Google n'est pas encore configurée.",
 };
 
 export default async function AdminLoginPage({
@@ -25,8 +30,9 @@ export default async function AdminLoginPage({
   }
 
   const params = await searchParams;
-  const error = Array.isArray(params.error) ? params.error[0] : params.error;
-  const missingKey = !isAdminApiKeyConfigured();
+  const errorCode = Array.isArray(params.error) ? params.error[0] : params.error;
+  const errorMessage = errorCode ? ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES.oauth_failed : null;
+  const ssoReady = isGoogleSsoConfigured();
 
   return (
     <main className="relative z-10 grid min-h-[100dvh] place-items-center bg-[#f5f6f2] px-4 py-10 text-zinc-950">
@@ -37,44 +43,32 @@ export default async function AdminLoginPage({
           <span className="text-[18px] font-bold tracking-tight text-zinc-950" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Lucid-Lab</span>
         </div>
         <h1 className="mt-5 text-base font-semibold text-zinc-900">Accès admin</h1>
+        <p className="mt-1.5 text-sm text-zinc-500">Connectez-vous avec votre compte Google Lucid-Lab.</p>
 
-        <form action={loginAdmin} className="mt-6 grid gap-4">
-          <label className="grid gap-2 text-sm font-medium text-zinc-700" htmlFor="admin_key">
-            Admin API key
-            <div className="relative">
-              <LockKeyhole className="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-zinc-400" />
-              <input
-                id="admin_key"
-                name="admin_key"
-                type="password"
-                autoComplete="current-password"
-                required
-                className="h-11 w-full rounded-lg border border-zinc-200 bg-white pl-10 pr-3 text-sm outline-none transition focus:border-zinc-400 focus:ring-4 focus:ring-zinc-100"
-                placeholder="Paste ADMIN_API_KEY"
-              />
-            </div>
-          </label>
+        {errorMessage ? (
+          <div className="mt-5 rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-900">
+            {errorMessage}
+          </div>
+        ) : null}
 
-          {missingKey ? (
-            <div className="rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
-              ADMIN_API_KEY is not configured. Set it before using the dashboard.
-            </div>
-          ) : null}
-
-          {error === 'invalid' ? (
-            <div className="rounded-lg border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-900">
-              Invalid admin key.
-            </div>
-          ) : null}
-
-          <button
-            type="submit"
-            className="inline-flex h-11 items-center justify-center rounded-lg bg-zinc-950 px-4 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
-            disabled={missingKey}
+        {ssoReady ? (
+          <a
+            href="/admin/auth/google"
+            className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50"
           >
-            Open dashboard
-          </button>
-        </form>
+            <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">
+              <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92a5.06 5.06 0 0 1-2.2 3.32v2.77h3.57c2.08-1.92 3.27-4.74 3.27-8.1Z" />
+              <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84A11 11 0 0 0 12 23Z" />
+              <path fill="#FBBC05" d="M5.84 14.1a6.6 6.6 0 0 1 0-4.2V7.06H2.18a11 11 0 0 0 0 9.88l3.66-2.84Z" />
+              <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1A11 11 0 0 0 2.18 7.06l3.66 2.84C6.71 7.31 9.14 5.38 12 5.38Z" />
+            </svg>
+            Continuer avec Google
+          </a>
+        ) : (
+          <div className="mt-6 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-900">
+            La connexion Google n&apos;est pas configurée. Définissez GOOGLE_OAUTH_CLIENT_ID et GOOGLE_OAUTH_CLIENT_SECRET.
+          </div>
+        )}
       </div>
     </main>
   );
