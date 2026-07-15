@@ -19,7 +19,6 @@ export default async function PortalHomePage() {
   const data = await getPortalHomeData(session);
 
   const s = portalStrings.home;
-  const r = portalStrings.requests;
   const d = portalStrings.documents;
   const firstName = session.contactName.split(' ')[0] || session.contactName;
 
