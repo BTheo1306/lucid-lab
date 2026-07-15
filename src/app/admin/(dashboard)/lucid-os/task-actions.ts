@@ -1,9 +1,18 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/admin/auth';
+import { setTaskClientVisibility } from '@/lib/admin/portal';
 import { supabase } from '@/lib/bot/db/supabase';
 
 const ORG_SLUG = 'lucid-lab';
+
+/** Eye toggle on the task boards: publish or hide a task on the client portal. */
+export async function setClientTaskVisibilityAction(taskId: string, visible: boolean): Promise<void> {
+  await requireAdmin();
+  await setTaskClientVisibility(taskId, visible);
+  revalidatePath('/admin/lucid-os');
+}
 
 export async function updateAnyClientTaskStatus(taskId: string, status: string): Promise<void> {
   const { error } = await supabase

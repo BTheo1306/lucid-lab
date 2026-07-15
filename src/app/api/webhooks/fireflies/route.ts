@@ -248,6 +248,27 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       clients,
     );
 
+    // Portal visibility rule: publish the action items on the client portal
+    // only when the client was actually on the call (one of its contact emails
+    // appears among the participants). Fail closed when participants carry no
+    // exploitable email: the admin can publish manually from the task board.
+    let clientPresent = false;
+    if (clientId) {
+      const { data: contactRows } = await supabase
+        .from('client_contacts')
+        .select('email')
+        .eq('client_id', clientId)
+        .not('email', 'is', null);
+      const contactEmails = new Set(
+        (contactRows ?? [])
+          .map((row) => String((row as { email: string | null }).email ?? '').toLowerCase().trim())
+          .filter(Boolean),
+      );
+      clientPresent = (transcript.participants ?? []).some((participant) =>
+        contactEmails.has(String(participant).toLowerCase().trim()),
+      );
+    }
+
     // Create tasks for each action item
     let tasksCreated = 0;
     if (actionItems.length > 0) {
@@ -261,6 +282,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
           priority: item.priority,
           due_at: item.dueDate,
           status: 'todo',
+          client_visible: clientPresent,
         })),
       );
       if (!insertError) tasksCreated = actionItems.length;
@@ -279,6 +301,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
         fireflies_id: meetingId,
         transcript_url: transcript.transcript_url,
         matched_client_id: clientId,
+        client_present: clientPresent,
         action_items: actionItems,
         synthesis,
       },

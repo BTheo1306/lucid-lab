@@ -53,7 +53,31 @@ export const portalStrings = {
     seeAll: 'Tout voir',
   },
 
+  projects: {
+    title: 'Projets',
+    description: "L'avancement de vos projets et les tâches partagées par l'équipe Lucid-Lab.",
+    listTitle: 'Vos projets',
+    empty: 'Aucun projet actif pour le moment.',
+    typeLabels: {
+      website: 'Site web',
+      automation: 'Automatisation',
+      agent: 'Agent IA',
+      app: 'Application',
+      strategy: 'Stratégie',
+      ops: 'Opérations',
+    } as Record<string, string>,
+    statusLabels: {
+      idea: 'En cadrage',
+      planned: 'Planifié',
+      active: 'En cours',
+      blocked: 'En attente',
+      completed: 'Livré',
+      archived: 'Archivé',
+    } as Record<string, string>,
+  },
+
   tasks: {
+    title: 'Tâches',
     todo: 'À faire',
     inProgress: 'En cours',
     waiting: 'En attente',
@@ -61,6 +85,7 @@ export const portalStrings = {
     doneOn: 'Terminé le',
     due: 'Échéance',
     empty: 'Aucune tâche partagée pour le moment.',
+    doneEmpty: 'Aucune tâche terminée pour le moment.',
   },
 
   documents: {

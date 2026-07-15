@@ -86,6 +86,30 @@ export async function setContactPortalAccess(contactId: string, enabled: boolean
   });
 }
 
+/** Publish or hide a task on the client portal, with an audit trail. */
+export async function setTaskClientVisibility(taskId: string, visible: boolean): Promise<void> {
+  const { data, error } = await supabase
+    .from('client_tasks')
+    .update({ client_visible: visible })
+    .eq('id', taskId)
+    .select('id,title,client_id')
+    .maybeSingle();
+
+  if (error) throw new Error(`setTaskClientVisibility: ${error.message}`);
+  if (!data) throw new Error('Tâche introuvable.');
+
+  if (data.client_id) {
+    await recordLucidAuditEvent({
+      clientId: String(data.client_id),
+      actorType: 'admin',
+      eventType: visible ? 'portal_task_shown' : 'portal_task_hidden',
+      targetTable: 'client_tasks',
+      targetId: String(data.id),
+      summary: `${visible ? 'Tâche publiée sur le portail' : 'Tâche masquée du portail'} : ${String(data.title)}`,
+    });
+  }
+}
+
 /**
  * Invite = enable access + 7-day magic link by email. Reusable to re-send an
  * invitation at any time.

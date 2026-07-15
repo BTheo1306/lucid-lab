@@ -2,11 +2,13 @@
 
 import { useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
+import { Eye, EyeOff } from 'lucide-react';
 import type { LucidClientTaskStatus, LucidClientTaskSummary } from '@/lib/admin/lucid-os';
 import { cn } from '@/lib/utils';
 import { updateClientTaskStatusAction } from '../actions';
+import { setClientTaskVisibilityAction } from '../../task-actions';
 
-type BoardTask = Pick<LucidClientTaskSummary, 'id' | 'title' | 'description' | 'status' | 'priority' | 'ownerLabel' | 'dueAt'>;
+type BoardTask = Pick<LucidClientTaskSummary, 'id' | 'title' | 'description' | 'status' | 'priority' | 'ownerLabel' | 'dueAt' | 'clientVisible'>;
 
 type BoardColumnStatus = Extract<LucidClientTaskStatus, 'todo' | 'in_progress' | 'done'>;
 
@@ -71,6 +73,21 @@ export function ClientTaskBoard({ clientId, clientSlug, tasks }: { clientId: str
     });
   }
 
+  function toggleVisibility(taskId: string, visible: boolean) {
+    const previousTasks = localTasks;
+    setError(null);
+    setLocalTasks((current) => current.map((task) => task.id === taskId ? { ...task, clientVisible: visible } : task));
+    startTransition(async () => {
+      try {
+        await setClientTaskVisibilityAction(taskId, visible);
+        router.refresh();
+      } catch (toggleError) {
+        setLocalTasks(previousTasks);
+        setError(toggleError instanceof Error ? toggleError.message : String(toggleError));
+      }
+    });
+  }
+
   return (
     <div className="grid gap-3">
       {error ? <div className="border border-rose-200 bg-rose-50 px-3 py-2 text-sm text-rose-700">{error}</div> : null}
@@ -110,12 +127,27 @@ export function ClientTaskBoard({ clientId, clientSlug, tasks }: { clientId: str
                 onDragEnd={() => setDraggedTaskId(null)}
                 className="cursor-grab border border-zinc-200 bg-white p-3 active:cursor-grabbing"
               >
-                <p className="text-sm font-semibold leading-5 text-zinc-950">{task.title}</p>
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-sm font-semibold leading-5 text-zinc-950">{task.title}</p>
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => toggleVisibility(task.id, !task.clientVisible)}
+                    title={task.clientVisible ? 'Visible sur le portail client. Cliquer pour masquer.' : 'Masquée du portail client. Cliquer pour publier.'}
+                    className={cn(
+                      'shrink-0 rounded p-1 transition',
+                      task.clientVisible ? 'text-blue-600 hover:bg-blue-50' : 'text-zinc-300 hover:bg-zinc-100 hover:text-zinc-600',
+                    )}
+                  >
+                    {task.clientVisible ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+                  </button>
+                </div>
                 {task.description ? <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">{task.description}</p> : null}
                 <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] uppercase tracking-[0.08em] text-zinc-600">
                   <span>{priorityLabel(task.priority)}</span>
                   {task.ownerLabel ? <span>{task.ownerLabel}</span> : null}
                   {formatDate(task.dueAt) ? <span>{formatDate(task.dueAt)}</span> : null}
+                  {task.clientVisible ? <span className="rounded-full border border-blue-200 bg-blue-50 px-1.5 py-0.5 normal-case tracking-normal text-blue-700">Visible client</span> : null}
                 </div>
                 <div className="mt-3 grid grid-cols-3 gap-1">
                   {columns.map((option) => {

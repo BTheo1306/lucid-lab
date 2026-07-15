@@ -7,7 +7,10 @@ export default async function PortalAppLayout({ children }: { children: React.Re
   const session = await requirePortalUser();
   const base = await portalBasePath();
 
-  const navItems: PortalNavItem[] = [{ href: '/', label: portalStrings.nav.home }];
+  const navItems: PortalNavItem[] = [
+    { href: '/', label: portalStrings.nav.home },
+    { href: '/projets', label: portalStrings.nav.projects },
+  ];
 
   return (
     <div className="flex min-h-[100dvh] flex-col">
