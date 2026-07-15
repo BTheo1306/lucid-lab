@@ -81,6 +81,28 @@ export const config = {
   adminApiKey: process.env['ADMIN_API_KEY'] ?? '',
   cronSecret: process.env['CRON_SECRET'] ?? '',
 
+  // Admin human login via Google SSO (restricted to an email allowlist).
+  // The shared ADMIN_API_KEY stays a machine-only credential (contact-delete,
+  // debug routes); it can no longer mint a browser session.
+  googleOAuthClientId: process.env['GOOGLE_OAUTH_CLIENT_ID'] ?? '',
+  googleOAuthClientSecret: process.env['GOOGLE_OAUTH_CLIENT_SECRET'] ?? '',
+  /** Optional hard override; otherwise derived from the request origin. */
+  googleOAuthRedirectUri: process.env['GOOGLE_OAUTH_REDIRECT_URI'] ?? '',
+  /** Signs the admin session cookie. Falls back to ADMIN_API_KEY so a value is
+   *  always present; set it explicitly so rotating ADMIN_API_KEY does not log
+   *  everyone out. */
+  get adminSessionSecret() {
+    return process.env['ADMIN_SESSION_SECRET'] || (process.env['ADMIN_API_KEY'] ?? '');
+  },
+  /** Comma-separated allowlist of Google emails permitted into the dashboard.
+   *  Empty = deny all (fail closed). Kept in env, never hardcoded. */
+  get adminAllowedEmails(): string[] {
+    return (process.env['ADMIN_ALLOWED_EMAILS'] ?? '')
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .filter((email) => email.length > 0);
+  },
+
   // Budget + rate limit
   dailyAiBudgetEur: parseFloat(optionalEnv('DAILY_AI_BUDGET_EUR', '5')),
   rateLimitMax: parseInt(optionalEnv('RATE_LIMIT_MAX', '60'), 10),
