@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { config } from '@/lib/bot/config';
+import { bearerMatches } from '@/lib/security/constant-time';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
 import { listPostablePosts, recordPostFailure, recordPosted } from '@/lib/admin/social';
 import { getPostingCredentials } from '@/lib/admin/linkedin/account';
@@ -18,7 +19,7 @@ export const maxDuration = 60;
 
 function isAuthorized(req: Request): boolean {
   if (!config.cronSecret) return false;
-  return req.headers.get('authorization') === `Bearer ${config.cronSecret}`;
+  return bearerMatches(req.headers.get('authorization'), config.cronSecret);
 }
 
 /**

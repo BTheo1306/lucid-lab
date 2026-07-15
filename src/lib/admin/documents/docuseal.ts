@@ -2,6 +2,7 @@ import 'server-only';
 
 import { createHmac, timingSafeEqual } from 'node:crypto';
 import { config } from '@/lib/bot/config';
+import { safeEqual } from '@/lib/security/constant-time';
 import type { DocuSealHtmlDocumentPayload, DocuSealSubmissionResponse, DocuSealSubmitterPayload } from './types';
 
 export interface CreateDocuSealSubmissionInput {
@@ -132,14 +133,16 @@ export async function getDocuSealSubmissionDocuments(submissionId: string): Prom
 }
 
 export function verifyDocuSealWebhookSignature(rawBody: string, signatureHeader: string | null | Array<string | null>): boolean {
-  if (!config.docusealWebhookSecret) return config.nodeEnv !== 'production';
+  // Fail closed when the secret is unset: an unsigned webhook is never trusted,
+  // in any environment.
+  if (!config.docusealWebhookSecret) return false;
   const signatureHeaders = (Array.isArray(signatureHeader) ? signatureHeader : [signatureHeader])
     .map((header) => header?.trim())
     .filter((header): header is string => Boolean(header));
   if (signatureHeaders.length === 0) return false;
 
   for (const trimmedSignature of signatureHeaders) {
-    if (trimmedSignature === config.docusealWebhookSecret) return true;
+    if (safeEqual(trimmedSignature, config.docusealWebhookSecret)) return true;
 
     const [timestamp, timestampedSignature] = trimmedSignature.split('.', 2);
     const signedPayload = timestamp && timestampedSignature ? `${timestamp}.${rawBody}` : rawBody;

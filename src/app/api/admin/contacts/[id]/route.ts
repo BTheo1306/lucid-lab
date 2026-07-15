@@ -3,13 +3,13 @@ import { config } from '@/lib/bot/config';
 import { anonymizeContact, findContactById } from '@/lib/bot/db/queries/contacts';
 import { supabase } from '@/lib/bot/db/supabase';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
+import { bearerMatches } from '@/lib/security/constant-time';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
 
 function isAuthorized(req: Request): boolean {
-  if (!config.adminApiKey) return false;
-  return req.headers.get('authorization') === `Bearer ${config.adminApiKey}`;
+  return bearerMatches(req.headers.get('authorization'), config.adminApiKey);
 }
 
 /** DELETE /api/admin/contacts/[id] — GDPR erasure for a contact. */

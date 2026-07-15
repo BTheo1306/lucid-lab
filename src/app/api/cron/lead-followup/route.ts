@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { config } from '@/lib/bot/config';
+import { bearerMatches } from '@/lib/security/constant-time';
 import { findLeadsDueForFollowUp, updateLead } from '@/lib/bot/db/queries/leads';
 import { findContactById } from '@/lib/bot/db/queries/contacts';
 import { sendLeadFollowup } from '@/lib/bot/integrations/email-client';
@@ -10,7 +11,7 @@ export const maxDuration = 60;
 
 function isAuthorized(req: Request): boolean {
   if (!config.cronSecret) return false;
-  return req.headers.get('authorization') === `Bearer ${config.cronSecret}`;
+  return bearerMatches(req.headers.get('authorization'), config.cronSecret);
 }
 
 /** GET /api/cron/lead-followup — Send nurture emails to leads due. */

@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { config } from '@/lib/bot/config';
+import { bearerMatches } from '@/lib/security/constant-time';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
 import {
   fillIdeaWithContent,
@@ -28,7 +29,7 @@ const IDEA_BATCH_SIZE = 6;
 
 function isAuthorized(req: Request): boolean {
   if (!config.cronSecret) return false;
-  return req.headers.get('authorization') === `Bearer ${config.cronSecret}`;
+  return bearerMatches(req.headers.get('authorization'), config.cronSecret);
 }
 
 /** Publication slots: Tuesday and Thursday at 06:00 UTC (published by the
