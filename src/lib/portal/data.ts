@@ -2,7 +2,10 @@ import 'server-only';
 
 import { downloadGoogleDriveFile } from '@/lib/admin/documents/google-drive';
 import { supabase } from '@/lib/bot/db/supabase';
+import { sendPortalRequestCreatedTeamNotification } from '@/lib/bot/integrations/email-client';
+import { recordPortalAuditEvent } from './audit';
 import type { PortalSession } from './auth';
+import { listPortalRequests, type PortalRequest } from './requests';
 
 /**
  * Unique read layer for the client portal. Every function takes the
@@ -260,6 +263,267 @@ export async function downloadPortalDocumentFile(
 
   const file = await downloadGoogleDriveFile(download.fileId);
   return { body: file.body, contentType: file.contentType, fileName: download.fileName };
+}
+
+export interface PortalWebsite {
+  id: string;
+  name: string;
+  status: string;
+  healthStatus: string;
+  primaryDomain: string | null;
+  productionUrl: string | null;
+  lastCheckedAt: string | null;
+}
+
+export async function listPortalWebsites(session: PortalSession, limit = 10): Promise<PortalWebsite[]> {
+  const { data, error } = await supabase
+    .from('websites')
+    .select('id,name,status,health_status,primary_domain,production_url,last_checked_at')
+    .eq('organization_id', session.organizationId)
+    .eq('client_id', session.clientId)
+    .neq('status', 'archived')
+    .order('updated_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    console.error('[portal] listPortalWebsites failed:', error.message);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    name: String(row.name ?? ''),
+    status: String(row.status ?? 'planned'),
+    healthStatus: String(row.health_status ?? 'unknown'),
+    primaryDomain: row.primary_domain ? String(row.primary_domain) : null,
+    productionUrl: row.production_url ? String(row.production_url) : null,
+    lastCheckedAt: row.last_checked_at ? String(row.last_checked_at) : null,
+  }));
+}
+
+export async function countPortalWebsites(session: PortalSession): Promise<number> {
+  const { count, error } = await supabase
+    .from('websites')
+    .select('id', { count: 'exact', head: true })
+    .eq('organization_id', session.organizationId)
+    .eq('client_id', session.clientId)
+    .neq('status', 'archived');
+
+  if (error) return 0;
+  return count ?? 0;
+}
+
+export interface PortalDomain {
+  id: string;
+  hostname: string;
+  status: string;
+  sslStatus: string;
+  expiresAt: string | null;
+}
+
+export async function listPortalDomains(session: PortalSession, limit = 10): Promise<PortalDomain[]> {
+  const { data, error } = await supabase
+    .from('domains')
+    .select('id,hostname,status,ssl_status,expires_at')
+    .eq('organization_id', session.organizationId)
+    .eq('client_id', session.clientId)
+    .order('hostname')
+    .limit(limit);
+
+  if (error) {
+    console.error('[portal] listPortalDomains failed:', error.message);
+    return [];
+  }
+
+  return (data ?? []).map((row) => ({
+    id: String(row.id),
+    hostname: String(row.hostname ?? ''),
+    status: String(row.status ?? 'planned'),
+    sslStatus: String(row.ssl_status ?? 'unknown'),
+    expiresAt: row.expires_at ? String(row.expires_at) : null,
+  }));
+}
+
+export interface PortalClientInfo {
+  name: string;
+  industry: string | null;
+  websiteUrl: string | null;
+  legalName: string | null;
+  siren: string | null;
+  siret: string | null;
+  billingAddress: string | null;
+}
+
+export async function getPortalClientInfo(session: PortalSession): Promise<PortalClientInfo> {
+  const { data } = await supabase
+    .from('clients')
+    .select('name,industry,website_url,metadata')
+    .eq('organization_id', session.organizationId)
+    .eq('id', session.clientId)
+    .maybeSingle();
+
+  const metadata = (data?.metadata ?? {}) as { legal?: Record<string, unknown> };
+  const legal = metadata.legal ?? {};
+
+  return {
+    name: String(data?.name ?? session.clientName),
+    industry: data?.industry ? String(data.industry) : null,
+    websiteUrl: data?.website_url ? String(data.website_url) : null,
+    legalName: legal.legalName ? String(legal.legalName) : null,
+    siren: legal.siren ? String(legal.siren) : null,
+    siret: legal.siret ? String(legal.siret) : null,
+    billingAddress: legal.billingAddress ? String(legal.billingAddress) : null,
+  };
+}
+
+function cleanField(value: string, maxLength: number): string | null {
+  const trimmed = value.trim().slice(0, maxLength);
+  return trimmed || null;
+}
+
+/**
+ * Client-editable company info: only the whitelisted legal keys are merged
+ * into clients.metadata.legal, the rest of the metadata stays untouched.
+ */
+export async function updatePortalClientLegalInfo(
+  session: PortalSession,
+  input: { legalName: string; siren: string; siret: string; billingAddress: string; websiteUrl: string },
+): Promise<{ ok: boolean }> {
+  const { data: current, error: readError } = await supabase
+    .from('clients')
+    .select('metadata')
+    .eq('organization_id', session.organizationId)
+    .eq('id', session.clientId)
+    .maybeSingle();
+
+  if (readError || !current) return { ok: false };
+
+  const metadata = (current.metadata ?? {}) as Record<string, unknown>;
+  const legal = (metadata.legal ?? {}) as Record<string, unknown>;
+
+  const nextLegal = {
+    ...legal,
+    legalName: cleanField(input.legalName, 200),
+    siren: cleanField(input.siren.replace(/\s+/g, ''), 20),
+    siret: cleanField(input.siret.replace(/\s+/g, ''), 20),
+    billingAddress: cleanField(input.billingAddress, 400),
+    legalUpdatedViaPortalAt: new Date().toISOString(),
+  };
+
+  const websiteUrl = cleanField(input.websiteUrl, 300);
+
+  const { error } = await supabase
+    .from('clients')
+    .update({
+      metadata: { ...metadata, legal: nextLegal },
+      website_url: websiteUrl,
+    })
+    .eq('organization_id', session.organizationId)
+    .eq('id', session.clientId);
+
+  if (error) {
+    console.error('[portal] updatePortalClientLegalInfo failed:', error.message);
+    return { ok: false };
+  }
+
+  await recordPortalAuditEvent({
+    organizationId: session.organizationId,
+    clientId: session.clientId,
+    eventType: 'portal_company_info_updated',
+    summary: `Informations entreprise mises à jour via le portail par ${session.contactName || session.contactEmail || 'un contact'}`,
+    actorId: session.contactId,
+    targetTable: 'clients',
+    targetId: session.clientId,
+  });
+
+  return { ok: true };
+}
+
+/**
+ * Free-text context from the client, dropped into the existing client_imports
+ * intake pipeline (visible in the admin "Sources internes" panel).
+ */
+export async function createPortalImport(session: PortalSession, input: { content: string }): Promise<{ ok: boolean }> {
+  const content = input.content.trim().slice(0, 20000);
+  if (!content) return { ok: false };
+
+  const { data, error } = await supabase
+    .from('client_imports')
+    .insert({
+      organization_id: session.organizationId,
+      client_id: session.clientId,
+      title: `Informations transmises via le portail (${session.contactName || session.contactEmail || 'contact'})`,
+      source_type: 'note',
+      source_uri: 'portal',
+      raw_content: content,
+      status: 'pending',
+    })
+    .select('id')
+    .single();
+
+  if (error) {
+    console.error('[portal] createPortalImport failed:', error.message);
+    return { ok: false };
+  }
+
+  try {
+    await sendPortalRequestCreatedTeamNotification({
+      clientName: session.clientName,
+      contactName: session.contactName,
+      requestType: 'info_request',
+      title: 'Informations transmises via le portail',
+      body: content.slice(0, 1500),
+      adminUrl: `https://lucid-lab.fr/admin/lucid-os/clients/${session.clientSlug}`,
+    });
+  } catch (emailError) {
+    console.error('[portal] intake notification failed:', emailError instanceof Error ? emailError.message : emailError);
+  }
+
+  await recordPortalAuditEvent({
+    organizationId: session.organizationId,
+    clientId: session.clientId,
+    eventType: 'portal_intake_submitted',
+    summary: 'Contexte transmis par le client via le portail',
+    actorId: session.contactId,
+    targetTable: 'client_imports',
+    targetId: String(data.id),
+  });
+
+  return { ok: true };
+}
+
+export interface PortalHomeData {
+  openTasks: PortalTask[];
+  openTaskCount: number;
+  pendingAgencyRequests: PortalRequest[];
+  documentsToSign: PortalDocument[];
+  dueBillingEvents: PortalBillingEvent[];
+  lastMeeting: PortalMeeting | null;
+}
+
+/** Home aggregation: what needs the client's attention right now. */
+export async function getPortalHomeData(session: PortalSession): Promise<PortalHomeData> {
+  const [tasks, requests, documents, billingEvents, meetings] = await Promise.all([
+    listPortalTasks(session),
+    listPortalRequests(session, 20),
+    listPortalDocuments(session, 20),
+    listPortalBillingEvents(session, 20),
+    listPortalMeetings(session, 1),
+  ]);
+
+  const openTasks = tasks.filter((task) => task.status !== 'done');
+
+  return {
+    openTasks: openTasks.slice(0, 4),
+    openTaskCount: openTasks.length,
+    pendingAgencyRequests: requests.filter(
+      (request) =>
+        request.direction === 'agency_to_client' && ['open', 'in_progress', 'waiting'].includes(request.status),
+    ),
+    documentsToSign: documents.filter((doc) => ['sent_for_signature', 'viewed', 'in_progress'].includes(doc.status)),
+    dueBillingEvents: billingEvents.filter((event) => ['due', 'overdue'].includes(event.billingStatus)),
+    lastMeeting: meetings[0] ?? null,
+  };
 }
 
 export interface PortalProject {

@@ -1,11 +1,12 @@
 import Image from 'next/image';
 import { portalBasePath, requirePortalUser } from '@/lib/portal/auth';
+import { countPortalWebsites } from '@/lib/portal/data';
 import { portalStrings } from '@/lib/portal/strings';
 import { PortalNav, type PortalNavItem } from './PortalNav';
 
 export default async function PortalAppLayout({ children }: { children: React.ReactNode }) {
   const session = await requirePortalUser();
-  const base = await portalBasePath();
+  const [base, websiteCount] = await Promise.all([portalBasePath(), countPortalWebsites(session)]);
 
   const navItems: PortalNavItem[] = [
     { href: '/', label: portalStrings.nav.home },
@@ -14,6 +15,8 @@ export default async function PortalAppLayout({ children }: { children: React.Re
     { href: '/reunions', label: portalStrings.nav.meetings },
     { href: '/facturation', label: portalStrings.nav.billing },
     { href: '/documents', label: portalStrings.nav.documents },
+    ...(websiteCount > 0 ? [{ href: '/site', label: portalStrings.nav.website }] : []),
+    { href: '/informations', label: portalStrings.nav.info },
   ];
 
   return (
