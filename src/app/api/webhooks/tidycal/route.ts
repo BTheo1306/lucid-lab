@@ -20,14 +20,15 @@ const ORG_ID = '2ee10622-ce92-454a-af4e-693b2007b42c';
  * too. It captures the call into `tidycal_bookings`, the Lead Engine prospect
  * tables, and the CRM clients board (Prospects section) so direct-link bookings
  * are no longer lost. Auth is a shared secret (TIDYCAL_WEBHOOK_SECRET) passed as
- * an `x-webhook-secret` header or `?secret=` query param.
+ * an `x-webhook-secret` header. The `?secret=` query-param form was removed: a
+ * secret in the URL leaks into access logs and Referer headers. The Apps Script
+ * in docs/tidycal-booking-apps-script.md already sends the header.
  */
 
 function secretOk(req: NextRequest): boolean {
   const secret = process.env.TIDYCAL_WEBHOOK_SECRET;
   if (!secret) return false;
-  const provided =
-    req.headers.get('x-webhook-secret') ?? new URL(req.url).searchParams.get('secret') ?? '';
+  const provided = req.headers.get('x-webhook-secret') ?? '';
   const a = Buffer.from(provided);
   const b = Buffer.from(secret);
   if (a.length !== b.length) return false;
