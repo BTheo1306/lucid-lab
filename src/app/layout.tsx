@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import { headers } from "next/headers";
-import Script from "next/script";
 import { Figtree, Syne } from "next/font/google";
 import { Analytics } from "@vercel/analytics/next";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { AdminAwareChatWidget } from "@/components/chat-widget/AdminAwareChatWidget";
-import { SAME_AS, founderNodes } from "@/lib/seo/schema";
+import { ConsentBanner } from "@/components/consent/ConsentBanner";
+import { SAME_AS, founderNodes, jsonLd } from "@/lib/seo/schema";
 import "./globals.css";
 
 const fontSans = Figtree({
@@ -173,7 +173,7 @@ export default async function RootLayout({
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
-            __html: JSON.stringify({
+            __html: jsonLd({
               "@context": "https://schema.org",
               "@graph": [
                 {
@@ -240,9 +240,14 @@ export default async function RootLayout({
                     : "Lucid-Lab livre des agents, outils internes et automatisations qui tournent en production, avec monitoring, documentation, transfert de propriété et adoption des équipes.",
                   address: {
                     "@type": "PostalAddress",
+                    streetAddress: "47 rue Vivienne",
+                    postalCode: "75002",
                     addressLocality: "Paris",
+                    addressRegion: "Île-de-France",
                     addressCountry: "FR",
                   },
+                  telephone: "+33759563847",
+                  email: "info@lucid-lab.fr",
                   areaServed: {
                     "@type": "Country",
                     name: "France",
@@ -315,20 +320,13 @@ export default async function RootLayout({
         </div>
         {children}
         <AdminAwareChatWidget lang={lang} />
+        {/* Analytics Vercel : sans cookie, donc hors périmètre du consentement. */}
         <Analytics />
         <SpeedInsights />
-        
-        {/* Google Analytics */}
-        <Script src="https://www.googletagmanager.com/gtag/js?id=G-CPQT0JQE7N" strategy="afterInteractive" />
-        <Script id="google-analytics" strategy="afterInteractive">
-          {`
-            window.dataLayer = window.dataLayer || [];
-            function gtag(){dataLayer.push(arguments);}
-            gtag('js', new Date());
 
-            gtag('config', 'G-CPQT0JQE7N');
-          `}
-        </Script>
+        {/* Google Analytics n'est chargé qu'après consentement explicite (CNIL) :
+            la bannière porte le chargement du tag, il n'y a plus de gtag inconditionnel. */}
+        <ConsentBanner lang={lang} />
       </body>
     </html>
   );
