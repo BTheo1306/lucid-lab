@@ -2,7 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 import { getAllPosts } from "@/lib/blog/posts";
+import { blogIndexSchema } from "@/lib/blog/schema";
 import { CATEGORIES, type PostCategory } from "@/lib/blog/types";
+import { jsonLd } from "@/lib/seo/schema";
 
 export const metadata: Metadata = {
   title: "Blog : automatisation, IA et systèmes pour PME",
@@ -27,6 +29,11 @@ export default async function BlogIndex() {
   const categoryEntries = Object.values(CATEGORIES);
 
   return (
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: jsonLd(blogIndexSchema(posts, "fr")) }}
+      />
     <main className="mx-auto max-w-[1264px] border-x border-[#e5e5e5] px-[48px] py-[100px] max-sm:px-6 max-sm:py-16">
       <header className="mb-14 max-w-[700px]">
         <p className="mb-3 text-[12px] uppercase tracking-wider text-zinc-500">
@@ -134,5 +141,6 @@ export default async function BlogIndex() {
         </>
       )}
     </main>
+    </>
   );
 }

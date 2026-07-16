@@ -33,6 +33,56 @@ export function articleSchema(post: Post) {
   };
 }
 
+// Blog index: a Blog node listing every post, plus its breadcrumb trail.
+// Used by /blog and /en/blog so the editorial corpus is machine-readable by
+// search engines and AI crawlers instead of existing only as HTML.
+export function blogIndexSchema(posts: Post[], lang: "fr" | "en" = "fr") {
+  const isEn = lang === "en";
+  const base = isEn ? `${SITE_URL}/en` : SITE_URL;
+  const blogUrl = `${base}/blog`;
+
+  return [
+    {
+      "@context": "https://schema.org",
+      "@type": "Blog",
+      "@id": `${blogUrl}#blog`,
+      url: blogUrl,
+      name: isEn ? "Lucid-Lab Blog" : "Blog Lucid-Lab",
+      description: isEn
+        ? "Real cases, real costs, measured ROI. We document what we learn while building systems for French and Belgian SMEs."
+        : "Cas concrets, coûts réels, ROI mesurés. On documente ce qu'on apprend en construisant des systèmes pour des PME françaises et belges.",
+      inLanguage: isEn ? "en-US" : "fr-FR",
+      publisher: { "@id": ORG_ID },
+      blogPost: posts.map((p) => ({
+        "@type": "BlogPosting",
+        headline: p.frontmatter.title,
+        description: p.frontmatter.description,
+        url: `${blogUrl}/${p.slug}`,
+        datePublished: p.frontmatter.publishedAt,
+        dateModified: p.frontmatter.updatedAt ?? p.frontmatter.publishedAt,
+      })),
+    },
+    {
+      "@context": "https://schema.org",
+      "@type": "BreadcrumbList",
+      itemListElement: [
+        {
+          "@type": "ListItem",
+          position: 1,
+          name: isEn ? "Home" : "Accueil",
+          item: base,
+        },
+        {
+          "@type": "ListItem",
+          position: 2,
+          name: "Blog",
+          item: blogUrl,
+        },
+      ],
+    },
+  ];
+}
+
 export function breadcrumbSchema(post: Post) {
   const cat = CATEGORIES[post.frontmatter.category];
   return {
