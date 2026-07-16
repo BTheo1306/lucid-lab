@@ -31,6 +31,7 @@ Lucid-Lab works in French and English. Founded in 2026. Co-founders: Anthony Poi
 ## Content
 
 - [Blog](https://lucid-lab.fr/blog): guides on business process automation and AI for SMEs (French and English).
+- [Full text of every article](https://lucid-lab.fr/llms-full.txt): the whole corpus in a single file.
 
 ## Contact
 
