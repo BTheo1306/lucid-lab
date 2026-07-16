@@ -1,10 +1,12 @@
 import type { NextConfig } from "next";
 
-// CSP volontairement en Report-Only pour cette première passe. Le site charge
-// des scripts inline (hydratation Next), du WebAssembly (Spline) et des tiers
-// (TidyCal, Google Analytics après consentement). On observe les rapports avant
-// de basculer en enforce, sinon le risque de casser le rendu est réel.
-// Passage en enforce = renommer l'en-tête en "Content-Security-Policy".
+// CSP en enforce, vérifiée page par page (home + Spline, service, blog,
+// audit-flash) : console sans violation.
+// `'unsafe-inline'` reste nécessaire tant que la CSP n'est pas passée à nonce,
+// à cause des scripts d'hydratation injectés par Next. La politique bloque
+// malgré tout le vrai vecteur XSS : les scripts d'origines non autorisées.
+// Prochaine étape possible : CSP à nonce via le middleware pour retirer
+// 'unsafe-inline'.
 const CONTENT_SECURITY_POLICY = [
   "default-src 'self'",
   "base-uri 'self'",
@@ -41,7 +43,7 @@ const securityHeaders = [
   },
   // allow-popups : ne pas casser un éventuel flux OAuth en popup (SSO admin).
   { key: "Cross-Origin-Opener-Policy", value: "same-origin-allow-popups" },
-  { key: "Content-Security-Policy-Report-Only", value: CONTENT_SECURITY_POLICY },
+  { key: "Content-Security-Policy", value: CONTENT_SECURITY_POLICY },
 ];
 
 const nextConfig: NextConfig = {
