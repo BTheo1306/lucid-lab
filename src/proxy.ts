@@ -68,5 +68,7 @@ export function proxy(request: NextRequest) {
 
 export const config = {
   // Run broadly so the DocuSeal signing subdomain can proxy assets and form POSTs.
-  matcher: ['/:path*'],
+  // Only Next's own static assets are excluded: they never transit through that
+  // proxy, and skipping them avoids invoking the edge function on every file.
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

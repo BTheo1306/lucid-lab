@@ -241,21 +241,12 @@ export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
           className="relative h-[260px] w-full overflow-hidden sm:absolute sm:inset-y-0 sm:right-0 sm:h-auto sm:w-[55%]"
           style={{ contain: 'layout paint' }}
         >
-          {/* Static poster — hidden until Spline loads.
-              The canvas + assembly animation handles the reveal. */}
-          <img
-            src="/robot-poster.png"
-            alt=""
-            aria-hidden
-            // eslint-disable-next-line @typescript-eslint/no-explicit-any
-            {...{ fetchPriority: 'high' } as any}
-            draggable={false}
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover"
-            style={{
-              opacity: 0,
-              visibility: 'hidden',
-            }}
-          />
+          {/* Le poster statique a été retiré : il était rendu en opacity:0 +
+              visibility:hidden et aucun état ne le révélait jamais, alors qu'il
+              était téléchargé en fetchPriority:high (189 Ko sur le chemin
+              critique, pour rien). Le canvas + l'animation d'assemblage gèrent
+              seuls le reveal. Si un poster de chargement est souhaité un jour,
+              il faut le brancher sur `!canvasVisible`, pas le laisser masqué. */}
           <canvas
             ref={canvasRef}
             style={{
