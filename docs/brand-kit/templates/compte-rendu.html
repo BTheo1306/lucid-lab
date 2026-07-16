@@ -1,0 +1,366 @@
+<!-- @dsCard group="Templates" viewport="900x1180" name="Compte rendu de livraison" subtitle="Cover · réalisations · fonctionnement · besoins client · suite" -->
+<!--
+  TEMPLATE · Compte rendu de livraison client
+  Usage : expliquer au client ce qui a été fait, comment le système fonctionne,
+  ce qu'on attend encore de lui, et la suite. À envoyer après une livraison
+  (ordre 10 du cycle documentaire, phase Livraison).
+  1. Copier ce fichier vers docs/brand-kit/clients/<client>/compte-rendu-<client>.html
+     (et remplacer les chemins ../assets et ../styles.css par ../../assets et ../../styles.css)
+  2. Remplacer tous les [CROCHETS]
+  3. Adapter les cartes, circuits et cases à la mission (exemple complet :
+     clients/jardin-deden/compte-rendu-jardin-deden.html)
+  4. Exporter en PDF : Chrome headless, marges aucune, graphiques d'arrière-plan
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Compte rendu de livraison</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-gray-100); font-family: var(--font-body); color: var(--text-primary); -webkit-font-smoothing: antialiased; padding: 40px 20px; }
+  .page { position: relative; width: 820px; max-width: 100%; min-height: 1160px; margin: 0 auto 28px; background: var(--color-paper); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 52px 56px 64px; display: flex; flex-direction: column; overflow: hidden; }
+  .run { display: flex; align-items: center; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--border-default); }
+  .brand { display: flex; align-items: center; gap: 9px; }
+  .brand img { width: 20px; height: 20px; display: block; }
+  .wordmark { font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.08em; font-size: 14px; }
+  .run__meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .pagenum { position: absolute; bottom: 26px; right: 56px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); }
+  .foot-rule { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: center; }
+  .foot-rule .path { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
+  .foot-rule .contact { font-size: 12.5px; color: var(--text-secondary); }
+  .foot-rule .contact a { color: var(--text-accent); text-decoration: none; }
+  .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-accent); }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+  .sec-title { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.1; margin: 14px 0 0; }
+  .cover-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; }
+  .cover-eyebrow { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 22px; }
+  .cover-ember-rule { height: 2px; width: 52px; background: var(--accent); border-radius: 2px; margin-bottom: 28px; }
+  h1.cover-title { font-family: var(--font-display); font-weight: 700; font-size: 54px; line-height: 1.04; letter-spacing: -0.03em; margin: 0 0 26px; }
+  .cover-lead { font-size: 17px; line-height: 1.65; color: var(--text-secondary); max-width: 58ch; margin: 0 0 38px; }
+  .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border-default); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 40px; }
+  .meta-cell { background: var(--color-white); padding: 14px 16px; }
+  .meta-cell .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+  .meta-cell .v { font-family: var(--font-display); font-weight: 600; font-size: 13.5px; margin-top: 7px; line-height: 1.3; }
+  .quote { border-left: 2px solid var(--accent); padding: 4px 0 4px 22px; max-width: 60ch; }
+  .quote p { font-family: var(--font-display); font-weight: 600; font-size: 21px; line-height: 1.35; letter-spacing: -0.01em; margin: 0; }
+  .quote cite { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-style: normal; margin-top: 12px; }
+  .toc { margin-top: 44px; border-top: 1px solid var(--border-default); }
+  .toc__row { display: flex; align-items: baseline; gap: 14px; padding: 14px 0; border-bottom: 1px solid var(--border-default); }
+  .toc__n { font-family: var(--font-mono); font-size: 12px; color: var(--text-accent); letter-spacing: 0.1em; }
+  .toc__t { font-family: var(--font-display); font-weight: 600; font-size: 16px; }
+  .toc__dots { flex: 1; border-bottom: 1px dotted var(--border-strong); transform: translateY(-3px); }
+  .toc__p { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+  .monitor { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 18px 20px; margin-top: 14px; }
+  .monitor__label { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  .mrow { display: flex; align-items: center; gap: 11px; font-family: var(--font-mono); font-size: 13px; line-height: 2.1; color: var(--text-primary); }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; background: var(--accent); }
+  .bento-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+  .bento { position: relative; overflow: hidden; background: var(--color-anthracite); border: 1px solid rgba(255,255,255,0.07); border-radius: var(--radius-lg); padding: 24px 24px 26px; }
+  .bento__wm { position: absolute; top: -22px; right: 8px; font-family: var(--font-display); font-weight: 800; font-size: 118px; line-height: 1; letter-spacing: -0.04em; color: rgba(255,255,255,0.04); z-index: 0; }
+  .bento__cat { position: relative; z-index: 1; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent-on-dark); }
+  .bento__t { position: relative; z-index: 1; font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: -0.015em; color: var(--text-on-dark); margin: 14px 0 8px; }
+  .bento__d { position: relative; z-index: 1; font-size: 13px; line-height: 1.55; color: var(--text-on-dark-muted); margin: 0; }
+  .verif { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-muted); margin-top: 16px; line-height: 1.7; }
+  .verif b { color: var(--text-accent); font-weight: 600; }
+  .circuit { margin-top: 26px; }
+  .circuit__head { display: flex; align-items: baseline; gap: 12px; }
+  .circuit__n { font-family: var(--font-display); font-weight: 800; font-size: 30px; color: var(--accent); letter-spacing: -0.02em; }
+  .circuit__t { font-family: var(--font-display); font-weight: 700; font-size: 19px; letter-spacing: -0.01em; }
+  .circuit__geste { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.06em; text-transform: uppercase; margin-left: auto; }
+  .flow { display: flex; align-items: stretch; gap: 0; margin-top: 14px; }
+  .fstep { flex: 1; border: 1px solid var(--border-default); background: var(--color-white); border-radius: var(--radius-md); padding: 13px 14px; font-size: 12.5px; line-height: 1.45; color: var(--text-primary); }
+  .fstep .fk { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); display: block; margin-bottom: 6px; }
+  .fstep--vous { background: var(--color-ember); border-color: var(--color-ember); color: #fff; }
+  .fstep--vous .fk { color: rgba(255,255,255,0.75); }
+  .fstep--accent { border-color: var(--accent); background: #FDF0E7; }
+  .farrow { align-self: center; padding: 0 7px; color: var(--text-accent); font-family: var(--font-mono); font-size: 14px; flex-shrink: 0; }
+  .circuit__note { font-size: 12.5px; color: var(--text-secondary); margin: 10px 0 0; line-height: 1.55; }
+  .check { display: grid; grid-template-columns: 30px 1fr auto; gap: 16px; padding: 17px 0; border-top: 1px solid var(--border-default); align-items: start; }
+  .check:last-of-type { border-bottom: 1px solid var(--border-default); }
+  .check__box { width: 20px; height: 20px; border: 2px solid var(--accent); border-radius: 5px; margin-top: 2px; }
+  .check__t { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin: 0 0 5px; }
+  .check__d { font-size: 13px; line-height: 1.55; color: var(--text-secondary); margin: 0; }
+  .check__tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-accent); white-space: nowrap; padding-top: 3px; }
+  .cal { display: flex; gap: 14px; margin-top: 18px; }
+  .cal__step { flex: 1; border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 16px 18px; }
+  .cal__k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-accent); }
+  .cal__t { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin: 8px 0 6px; }
+  .cal__d { font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+  .case { display: grid; grid-template-columns: 150px 1fr; gap: 24px; padding: 20px 0; border-top: 1px solid var(--border-default); }
+  .case:last-of-type { border-bottom: 1px solid var(--border-default); }
+  .case__tag { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); }
+  .case__name { font-family: var(--font-display); font-weight: 700; font-size: 15px; margin-top: 6px; }
+  .case__desc { font-size: 13.5px; line-height: 1.55; color: var(--text-secondary); margin: 0; }
+  .cta { margin-top: 34px; background: var(--surface-dark); color: var(--text-on-dark); border-radius: var(--radius-lg); padding: 32px 34px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+  .cta__k { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-on-dark-muted); margin-bottom: 9px; }
+  .cta__h { font-family: var(--font-display); font-weight: 700; font-size: 24px; line-height: 1.15; letter-spacing: -0.02em; margin: 0; }
+  .cta__sub { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-on-dark-muted); margin-top: 10px; }
+  .cta__btn { flex-shrink: 0; background: var(--accent); color: var(--accent-on); font-family: var(--font-body); font-weight: 600; font-size: 14px; padding: 14px 22px; border-radius: var(--radius-sm); white-space: nowrap; text-decoration: none; }
+  @page { size: A4; margin: 0; }
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; padding: 0; }
+    .page { border: none; border-radius: 0; margin: 0; width: 210mm; min-height: 297mm; padding: 12mm 15mm; break-after: page; break-inside: avoid; }
+    .page:last-child { break-after: auto; }
+    h1.cover-title { font-size: 48px; }
+    .bento { padding: 18px 20px 20px; } .bento__wm { font-size: 100px; }
+    .circuit { margin-top: 18px; }
+    .check { padding: 12px 0; }
+    .cta { margin-top: 22px; padding: 24px 28px; }
+  }
+  @media (max-width: 680px) {
+    .page { padding: 32px 22px 54px; }
+    h1.cover-title { font-size: 36px; }
+    .bento-grid, .meta-grid { grid-template-columns: 1fr; }
+    .flow { flex-direction: column; } .farrow { transform: rotate(90deg); align-self: flex-start; }
+    .case { grid-template-columns: 1fr; gap: 8px; }
+    .cta { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ P1 · COUVERTURE ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Compte rendu · [Client] · [Année]</span>
+  </div>
+  <div class="cover-body">
+    <div class="cover-eyebrow">Compte rendu de mise en place</div>
+    <div class="cover-ember-rule"></div>
+    <h1 class="cover-title">[Titre orienté<br>bénéfice client.]</h1>
+    <p class="cover-lead">Ce document récapitule ce que nous avons mis en place, comment le système fonctionne au quotidien, et les quelques éléments dont nous avons encore besoin de votre côté pour l'activer. Tout est expliqué simplement, sans jargon.</p>
+    <div class="meta-grid">
+      <div class="meta-cell"><span class="k">Client</span><div class="v">[Client]</div></div>
+      <div class="meta-cell"><span class="k">Contact</span><div class="v">[Prénom Nom]</div></div>
+      <div class="meta-cell"><span class="k">Référence</span><div class="v">CR-2026-0XX-01<br>Contrat CTR-2026-0XX</div></div>
+      <div class="meta-cell"><span class="k">Date</span><div class="v">[JJ mois AAAA]</div></div>
+    </div>
+    <div class="quote">
+      <p>[La promesse clé de la livraison, en une phrase. Exemple : rien ne modifie votre fichier sans votre validation.]</p>
+      <cite>La règle du système</cite>
+    </div>
+    <div class="toc">
+      <div class="toc__row"><span class="toc__n">01</span><span class="toc__t">Ce qui a été fait</span><span class="toc__dots"></span><span class="toc__p">p. 02</span></div>
+      <div class="toc__row"><span class="toc__n">02</span><span class="toc__t">Comment ça fonctionne au quotidien</span><span class="toc__dots"></span><span class="toc__p">p. 03</span></div>
+      <div class="toc__row"><span class="toc__n">03</span><span class="toc__t">Ce dont nous avons besoin de vous</span><span class="toc__dots"></span><span class="toc__p">p. 04</span></div>
+      <div class="toc__row"><span class="toc__n">04</span><span class="toc__t">La suite du programme</span><span class="toc__dots"></span><span class="toc__p">p. 05</span></div>
+    </div>
+  </div>
+  <div class="foot-rule">
+    <span class="path">comprendre → construire → valider ensemble → activer</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> · lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">01 / 05</span>
+</section>
+
+<!-- ══════════ P2 · CE QUI A ÉTÉ FAIT ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Ce qui a été fait</span>
+  </div>
+  <div style="margin-top:30px">
+    <span class="eyebrow">01 · Ce qui a été fait</span>
+    <h2 class="sec-title" style="font-size:30px">[Résumé de la livraison<br>en une phrase.]</h2>
+  </div>
+
+  <div class="bento-grid" style="margin-top:26px">
+    <div class="bento">
+      <span class="bento__wm">01</span>
+      <div class="bento__cat">[Catégorie]</div>
+      <h3 class="bento__t">[Livrable 1]</h3>
+      <p class="bento__d">[Ce que c'est, où ça vit, ce que ça remplace. Langage client, pas de jargon technique.]</p>
+    </div>
+    <div class="bento">
+      <span class="bento__wm">02</span>
+      <div class="bento__cat">[Catégorie]</div>
+      <h3 class="bento__t">[Livrable 2]</h3>
+      <p class="bento__d">[Description courte orientée bénéfice.]</p>
+    </div>
+    <div class="bento">
+      <span class="bento__wm">03</span>
+      <div class="bento__cat">[Catégorie]</div>
+      <h3 class="bento__t">[Livrable 3]</h3>
+      <p class="bento__d">[Description courte orientée bénéfice.]</p>
+    </div>
+    <div class="bento">
+      <span class="bento__wm">04</span>
+      <div class="bento__cat">[Catégorie]</div>
+      <h3 class="bento__t">[Livrable 4]</h3>
+      <p class="bento__d">[Description courte orientée bénéfice.]</p>
+    </div>
+  </div>
+
+  <div style="margin-top:34px">
+    <span class="kicker">Ce qui ne change pas pour vous</span>
+    <div class="monitor">
+      <div class="monitor__label">Vos repères restent les mêmes</div>
+      <div class="mrow"><span class="dot"></span>[Repère conservé 1 : outil, habitude ou document qui ne bouge pas]</div>
+      <div class="mrow"><span class="dot"></span>[Repère conservé 2]</div>
+      <div class="mrow"><span class="dot"></span>[Repère conservé 3]</div>
+    </div>
+    <p class="verif">[Preuve de qualité chiffrée. Exemple : vérification effectuée le JJ/MM : <b>0 écart</b> sur les X éléments comparés un à un.]</p>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">[Bénéfice résumé de la page]</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">02 / 05</span>
+</section>
+
+<!-- ══════════ P3 · COMMENT ÇA FONCTIONNE ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Comment ça fonctionne</span>
+  </div>
+  <div style="margin-top:28px">
+    <span class="eyebrow">02 · Comment ça fonctionne au quotidien</span>
+    <h2 class="sec-title" style="font-size:30px">[X] circuits, un seul geste<br>pour vous.</h2>
+  </div>
+
+  <div class="circuit">
+    <div class="circuit__head"><span class="circuit__n">1</span><span class="circuit__t">[Nom du circuit, côté client]</span><span class="circuit__geste">Votre geste : [le geste]</span></div>
+    <div class="flow">
+      <div class="fstep fstep--vous"><span class="fk">Vous</span>[Ce que fait le client, en une phrase]</div>
+      <span class="farrow">→</span>
+      <div class="fstep"><span class="fk">Le système</span>[Ce que fait le système, étape 1]</div>
+      <span class="farrow">→</span>
+      <div class="fstep"><span class="fk">Le système</span>[Ce que fait le système, étape 2]</div>
+    </div>
+    <p class="circuit__note">[Le bénéfice ou la nuance importante du circuit.]</p>
+  </div>
+
+  <div class="circuit">
+    <div class="circuit__head"><span class="circuit__n">2</span><span class="circuit__t">[Nom du circuit]</span><span class="circuit__geste">Votre geste : [le geste]</span></div>
+    <div class="flow">
+      <div class="fstep"><span class="fk">Le système</span>[Étape]</div>
+      <span class="farrow">→</span>
+      <div class="fstep fstep--vous"><span class="fk">Vous</span>[Le point de validation humaine : mettre en ember chaque endroit où le client garde la main]</div>
+      <span class="farrow">→</span>
+      <div class="fstep"><span class="fk">Le système</span>[Étape après validation]</div>
+    </div>
+    <p class="circuit__note">[Ce qui se passe dans le cas défavorable : refus, dossier incomplet, erreur.]</p>
+  </div>
+
+  <div class="circuit">
+    <div class="circuit__head"><span class="circuit__n">3</span><span class="circuit__t">[Nom du circuit]</span><span class="circuit__geste">Votre geste : aucun</span></div>
+    <div class="flow">
+      <div class="fstep"><span class="fk">[Déclencheur]</span>[Étape]</div>
+      <span class="farrow">→</span>
+      <div class="fstep"><span class="fk">Le système</span>[Étape]</div>
+      <span class="farrow">→</span>
+      <div class="fstep fstep--accent"><span class="fk">[Garde-fou]</span>[La limite après laquelle le système s'arrête et rend la main]</div>
+    </div>
+  </div>
+
+  <div class="quote" style="margin-top:32px">
+    <p>[La garantie de traçabilité ou de contrôle. Exemple : chaque action est notée dans un journal visible.]</p>
+    <cite>[Où la vérifier]</cite>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Le système propose, vous validez, il exécute.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">03 / 05</span>
+</section>
+
+<!-- ══════════ P4 · CE DONT NOUS AVONS BESOIN ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Ce dont nous avons besoin</span>
+  </div>
+  <div style="margin-top:28px">
+    <span class="eyebrow">03 · Ce dont nous avons besoin de vous</span>
+    <h2 class="sec-title" style="font-size:30px">[N] choses, dont [n]<br>en un seul rendez-vous.</h2>
+  </div>
+
+  <div style="margin-top:24px">
+    <div class="check">
+      <div class="check__box"></div>
+      <div><h3 class="check__t">[Action attendue du client]</h3>
+      <p class="check__d">[Pourquoi c'est nécessaire + comment on l'accompagne. Rassurer : durée, pas de compétence technique requise.]</p></div>
+      <span class="check__tag">[durée · canal]</span>
+    </div>
+    <div class="check">
+      <div class="check__box"></div>
+      <div><h3 class="check__t">[Action 2]</h3>
+      <p class="check__d">[Détail.]</p></div>
+      <span class="check__tag">[quand]</span>
+    </div>
+    <div class="check">
+      <div class="check__box"></div>
+      <div><h3 class="check__t">[Action 3]</h3>
+      <p class="check__d">[Détail.]</p></div>
+      <span class="check__tag">[quand]</span>
+    </div>
+  </div>
+
+  <div style="margin-top:30px">
+    <span class="kicker">Le calendrier proposé</span>
+    <div class="cal">
+      <div class="cal__step"><span class="cal__k">Étape 1</span><div class="cal__t">[Jalon]</div><p class="cal__d">[Ce qui se passe, qui fait quoi.]</p></div>
+      <div class="cal__step"><span class="cal__k">Étape 2</span><div class="cal__t">[Jalon]</div><p class="cal__d">[Détail.]</p></div>
+      <div class="cal__step"><span class="cal__k">Étape 3</span><div class="cal__t">[Jalon]</div><p class="cal__d">[Détail.]</p></div>
+    </div>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">[Résumé : l'effort demandé au client est minime]</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">04 / 05</span>
+</section>
+
+<!-- ══════════ P5 · LA SUITE ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">La suite du programme</span>
+  </div>
+  <div style="margin-top:28px">
+    <span class="eyebrow">04 · La suite du programme</span>
+    <h2 class="sec-title" style="font-size:30px">[Titre de projection :<br>ce qui arrive ensuite.]</h2>
+  </div>
+
+  <div style="margin-top:26px">
+    <div class="case">
+      <div><div class="case__tag">[Horizon]</div><div class="case__name">[Chantier suivant 1]</div></div>
+      <p class="case__desc">[Description simple, liée à ce qui vient d'être livré.]</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">[Horizon]</div><div class="case__name">[Chantier suivant 2]</div></div>
+      <p class="case__desc">[Description.]</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">[Horizon]</div><div class="case__name">[Chantier suivant 3]</div></div>
+      <p class="case__desc">[Description.]</p>
+    </div>
+  </div>
+
+  <div class="cta">
+    <div>
+      <div class="cta__k">Prochaine étape</div>
+      <p class="cta__h">[L'appel à l'action, une question directe.]</p>
+      <div class="cta__sub">[Comment répondre : email, lien, téléphone.]</div>
+    </div>
+    <a class="cta__btn" href="mailto:info@lucid-lab.fr">Écrire à Lucid-Lab →</a>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Lucid-Lab · Clarity in strategy, precision in design</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> · lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">05 / 05</span>
+</section>
+
+</body>
+</html>

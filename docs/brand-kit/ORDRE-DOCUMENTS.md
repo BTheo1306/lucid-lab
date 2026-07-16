@@ -24,6 +24,7 @@ et le document de démarrage (`docs/brand-kit/clients/<client>/`).
 | 7 | Facture (pro forma puis facture) | Démarrage | Après signature, avant de démarrer | Encaisser le 1er paiement (déclenche le travail) |
 | 8 | Guide RustDesk | Démarrage | Au lancement, pour récupérer les accès | Installer l'accès à distance chez le client |
 | 9 | Document de démarrage | Démarrage | Juste après le call de lancement | Récapituler accès à fournir, actions client, fonctionnement |
+| 10 | Compte rendu de livraison | Livraison | Quand une brique est livrée (ou à chaque jalon) | Expliquer au client ce qui a été fait, comment ça marche, ce qu'on attend de lui |
 
 ---
 
