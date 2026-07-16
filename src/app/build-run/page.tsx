@@ -4,7 +4,7 @@ import { ServicePage } from '@/components/marketing/ServicePage'
 import { pageAlternates } from '@/lib/seo/schema'
 
 export const metadata: Metadata = {
-  title: 'Build & Run | Lucid-Lab',
+  title: 'Build & Run',
   description: 'Déploiement, monitoring, documentation, runbooks, formation et transfert d’exploitation des systèmes IA métier.',
   alternates: pageAlternates('/build-run', '/en/build-run', 'fr'),
 }

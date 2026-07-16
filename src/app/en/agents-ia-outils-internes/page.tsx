@@ -4,7 +4,7 @@ import { ServicePage } from '@/components/marketing/ServicePage'
 import { pageAlternates } from '@/lib/seo/schema'
 
 export const metadata: Metadata = {
-  title: 'AI Agents & Internal Tools | Lucid-Lab',
+  title: 'AI Agents & Internal Tools',
   description: 'AI agents, dashboards, portals, connectors and business automations connected to existing tools.',
   alternates: pageAlternates('/agents-ia-outils-internes', '/en/agents-ia-outils-internes', 'en'),
 }

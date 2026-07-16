@@ -4,7 +4,7 @@ import { ServicePage } from '@/components/marketing/ServicePage'
 import { pageAlternates } from '@/lib/seo/schema'
 
 export const metadata: Metadata = {
-  title: 'Automation Roadmap | Lucid-Lab',
+  title: 'Automation Roadmap',
   description: 'A ranked automation backlog that turns manual processes into sequenced business builds.',
   alternates: pageAlternates('/roadmap-automatisation', '/en/roadmap-automatisation', 'en'),
 }

@@ -4,7 +4,7 @@ import { ServicePage } from '@/components/marketing/ServicePage'
 import { pageAlternates } from '@/lib/seo/schema'
 
 export const metadata: Metadata = {
-  title: 'Cas clients | Lucid-Lab',
+  title: 'Cas clients',
   description: 'Cas clients anonymisés, workflows traités, systèmes IA livrés, métriques métier et livrables transférés.',
   alternates: pageAlternates('/cas-clients', '/en/case-studies', 'fr'),
 }

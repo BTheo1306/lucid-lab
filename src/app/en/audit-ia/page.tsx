@@ -4,7 +4,7 @@ import { ServicePage } from '@/components/marketing/ServicePage'
 import { pageAlternates } from '@/lib/seo/schema'
 
 export const metadata: Metadata = {
-  title: 'AI Audit & Opportunities | Lucid-Lab',
+  title: 'AI Audit & Opportunities',
   description: 'Workflow, data, AI use-case, risk and priority audit to choose the first business system to build.',
   alternates: pageAlternates('/audit-ia', '/en/audit-ia', 'en'),
 }
