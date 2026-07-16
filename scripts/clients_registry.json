@@ -7,7 +7,7 @@
     "supabase_project_id": "qkctlntxhfxlidodxewh",
     "organization_id": "2ee10622-ce92-454a-af4e-693b2007b42c",
     "rule": "Pour un nouveau client sans dossier, créer un sous-dossier sous parent_clients_folder_id, puis ajouter son entrée ici.",
-    "updated": "2026-06-21"
+    "updated": "2026-07-03"
   },
   "clients": [
     {
@@ -73,6 +73,14 @@
       "drive_folder_name": null,
       "obsidian": null,
       "match": { "name_hints": ["bsp37", "bsp 37"], "emails": [], "domains": [] }
+    },
+    {
+      "slug": "linea-ac",
+      "name": "Linea AC (Arnaud Aoudiani)",
+      "drive_folder_id": "1PLZIPgpfKAvD5HxXAzjIvBGcL5ExyHHd",
+      "drive_folder_name": "Linea AC",
+      "obsidian": "clients/clients.md",
+      "match": { "name_hints": ["linea ac", "linea", "aoudiani"], "emails": ["contact@lineaac.com"], "domains": ["lineaac.com"] }
     }
   ],
   "_unmapped_drive_folders": [
