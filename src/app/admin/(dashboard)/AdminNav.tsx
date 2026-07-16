@@ -66,7 +66,6 @@ const navSections: NavSection[] = [
     icon: Search,
     items: [
       { href: '/admin/lead-engine', label: 'Moteur de leads', icon: Search, exact: true },
-      { href: '/admin/leads', label: 'Anciens leads', icon: Users },
     ],
   },
   {

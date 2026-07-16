@@ -24,6 +24,7 @@ import { listLucidClientDocumentsForClient } from '@/lib/admin/documents/workflo
 import type { LucidClientDocumentStatus, LucidClientDocumentSummary } from '@/lib/admin/documents/types';
 import {
   getLucidClientBySlug,
+  markLucidClientOpened,
   listLucidClientContactsForClient,
   listLucidDatabasesForClient,
   listLucidDeploymentsForClient,
@@ -1166,6 +1167,11 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
     if (!vaultProfile) notFound();
     const resolvedSearchParams = searchParams ? await searchParams : {};
     return <VaultOnlyClientPage profile={vaultProfile} clientError={firstSearchParam(resolvedSearchParams.client_error)} />;
+  }
+
+  // Opening a prospect clears its "New" badge (first view only).
+  if (!client.openedAt) {
+    await markLucidClientOpened(client.id);
   }
 
   const resolvedSearchParams = searchParams ? await searchParams : {};

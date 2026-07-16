@@ -44,6 +44,7 @@ function clientFromVaultProfile(profile: VaultClientProfile): LucidClientSummary
     nextAction: profile.nextStep,
     nextActionDueAt: null,
     lastContactedAt: null,
+    openedAt: null,
     industry: profile.industry,
     websiteUrl: profile.websiteUrl,
     legalName: profile.name,

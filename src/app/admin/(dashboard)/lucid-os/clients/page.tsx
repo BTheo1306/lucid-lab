@@ -89,6 +89,10 @@ function recordIsTerminated(record: ClientRecordListItem): boolean {
   return status === 'offboarded' || status === 'archived';
 }
 
+function recordIsNew(record: ClientRecordListItem): boolean {
+  return record.source === 'lucid_os' && record.client.status === 'lead' && !record.client.openedAt;
+}
+
 function normalizeListSearch(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
@@ -132,7 +136,14 @@ function RecordRow({ record, acquired }: { record: ClientRecordListItem; acquire
       <span className="truncate text-base font-semibold tracking-[-0.01em] text-zinc-950 group-hover:text-zinc-900">
         {recordName(record)}
       </span>
-      <StatusBadge tone={tone}>{label}</StatusBadge>
+      <span className="flex items-center justify-end gap-2">
+        {recordIsNew(record) ? (
+          <span className="inline-flex items-center rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">
+            New
+          </span>
+        ) : null}
+        <StatusBadge tone={tone}>{label}</StatusBadge>
+      </span>
     </Link>
   );
 }
