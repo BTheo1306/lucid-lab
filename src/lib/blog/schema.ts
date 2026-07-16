@@ -28,7 +28,9 @@ export function articleSchema(post: Post) {
     },
     publisher: { "@id": ORG_ID },
     mainEntityOfPage: { "@type": "WebPage", "@id": postUrl(slug) },
-    inLanguage: "fr-FR",
+    // Derive from the post: hardcoding fr-FR declared the English articles as
+    // French to search engines and AI crawlers.
+    inLanguage: frontmatter.locale === "en" ? "en-US" : "fr-FR",
     keywords: frontmatter.tags?.join(", "),
   };
 }
