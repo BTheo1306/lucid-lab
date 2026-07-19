@@ -1,6 +1,6 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
-import { isEmailAllowed, setAdminSessionCookie } from '@/lib/admin/auth';
+import { adminRedirectUrl, isEmailAllowed, setAdminSessionCookie } from '@/lib/admin/auth';
 import {
   GOOGLE_OAUTH_STATE_COOKIE,
   exchangeGoogleCode,
@@ -20,8 +20,10 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: Request) {
   const url = new URL(request.url);
+  // adminRedirectUrl and not `new URL(..., request.url)`: after the subdomain
+  // rewrite, request.url carries the internal origin.
   const fail = (error: string) =>
-    NextResponse.redirect(new URL(`/admin/login?error=${error}`, request.url));
+    NextResponse.redirect(adminRedirectUrl(request, `/login?error=${error}`));
 
   const oauthError = url.searchParams.get('error');
   if (oauthError) return fail('oauth_failed');
@@ -51,7 +53,7 @@ export async function GET(request: Request) {
       details: { route: 'admin/auth/google/callback', email },
     });
     const denied = fail('not_allowed');
-    denied.cookies.set({ name: GOOGLE_OAUTH_STATE_COOKIE, value: '', path: '/admin', maxAge: 0 });
+    denied.cookies.set({ name: GOOGLE_OAUTH_STATE_COOKIE, value: '', path: '/', maxAge: 0 });
     return denied;
   }
 
@@ -61,7 +63,7 @@ export async function GET(request: Request) {
     details: { route: 'admin/auth/google/callback', email },
   });
 
-  const response = NextResponse.redirect(new URL('/admin/lucid-os', request.url));
-  response.cookies.set({ name: GOOGLE_OAUTH_STATE_COOKIE, value: '', path: '/admin', maxAge: 0 });
+  const response = NextResponse.redirect(adminRedirectUrl(request, '/lucid-os'));
+  response.cookies.set({ name: GOOGLE_OAUTH_STATE_COOKIE, value: '', path: '/', maxAge: 0 });
   return response;
 }

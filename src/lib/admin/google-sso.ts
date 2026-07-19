@@ -1,5 +1,6 @@
 import 'server-only';
 
+import { adminRedirectUrl } from '@/lib/admin/auth';
 import { config } from '@/lib/bot/config';
 
 /**
@@ -14,11 +15,21 @@ const AUTHORIZE_ENDPOINT = 'https://accounts.google.com/o/oauth2/v2/auth';
 const TOKEN_ENDPOINT = 'https://oauth2.googleapis.com/token';
 const USERINFO_ENDPOINT = 'https://openidconnect.googleapis.com/v1/userinfo';
 
-/** Registered redirect URI. Prefers the explicit env override, else derives it
- *  from the current request origin (works on localhost, previews and prod). */
+/**
+ * Registered redirect URI.
+ *
+ * Google requires an exact match against a pre-registered value, and the same
+ * string on both the authorize and the token-exchange call, so
+ * GOOGLE_OAUTH_REDIRECT_URI is the intended way to set this in production.
+ *
+ * The fallback derives it from the request for localhost. It goes through
+ * `adminRedirectUrl` rather than `request.url`, because after the admin
+ * subdomain rewrite `request.url` carries the internal origin and would produce
+ * a URI Google never saw.
+ */
 export function googleRedirectUri(request: Request): string {
   if (config.googleOAuthRedirectUri) return config.googleOAuthRedirectUri;
-  return new URL('/admin/auth/google/callback', request.url).toString();
+  return adminRedirectUrl(request, '/auth/google/callback');
 }
 
 export function buildGoogleAuthorizeUrl(state: string, redirectUri: string): string {
