@@ -1,6 +1,7 @@
 import 'server-only';
 
 import { downloadGoogleDriveFile } from '@/lib/admin/documents/google-drive';
+import { config } from '@/lib/bot/config';
 import { supabase } from '@/lib/bot/db/supabase';
 import { sendPortalRequestCreatedTeamNotification } from '@/lib/bot/integrations/email-client';
 import { recordPortalAuditEvent } from './audit';
@@ -473,7 +474,7 @@ export async function createPortalImport(session: PortalSession, input: { conten
       requestType: 'info_request',
       title: 'Informations transmises via le portail',
       body: content.slice(0, 1500),
-      adminUrl: `https://lucid-lab.fr/admin/lucid-os/clients/${session.clientSlug}`,
+      adminUrl: `${config.adminBaseUrl}/lucid-os/clients/${session.clientSlug}`,
     });
   } catch (emailError) {
     console.error('[portal] intake notification failed:', emailError instanceof Error ? emailError.message : emailError);

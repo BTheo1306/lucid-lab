@@ -1265,7 +1265,7 @@ async function sendSignedDocumentNotificationOnce(input: {
   if (!notificationClaimed) return;
 
   const clientSlug = asString(input.client?.slug);
-  const adminUrl = clientSlug ? `https://lucid-lab.fr/admin/lucid-os/clients/${clientSlug}` : null;
+  const adminUrl = clientSlug ? `${config.adminBaseUrl}/lucid-os/clients/${clientSlug}` : null;
   try {
     await sendDocumentSignedNotification({
       clientName: asString(input.client?.name),
