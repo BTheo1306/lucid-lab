@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { AlertTriangle, MessageSquare } from 'lucide-react';
+import { adminBasePath } from '@/lib/admin/auth';
 import { getAdminConversationsPageData, type AdminConversationSummary } from '@/lib/admin/dashboard';
 import { updateConversationStatusAction } from '../../actions';
 import { cn } from '@/lib/utils';
@@ -64,6 +65,7 @@ function ConversationStatusForm({ conversation }: { conversation: AdminConversat
 
 export default async function AdminConversationsPage() {
   const { conversations } = await getAdminConversationsPageData();
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-6">
@@ -88,7 +90,7 @@ export default async function AdminConversationsPage() {
             <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
               <div>
                 <div className="flex flex-wrap items-center gap-2">
-                  <Link href={`/admin/contacts/${conversation.contactId}`} className="font-medium text-zinc-950 hover:underline">
+                  <Link href={`${base}/contacts/${conversation.contactId}`} className="font-medium text-zinc-950 hover:underline">
                     {contactLabel(conversation.contact)}
                   </Link>
                   <span className={cn('inline-flex rounded-full px-2 py-1 text-xs font-medium ring-1', statusClass(conversation.status))}>
