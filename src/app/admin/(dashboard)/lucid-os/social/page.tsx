@@ -5,6 +5,7 @@ import { getLinkedInAccount, type LinkedInAccountSummary } from '@/lib/admin/lin
 import { getLinkedInOrgAccount, type LinkedInOrgAccountSummary } from '@/lib/admin/linkedin/org-account';
 import { blogPublicUrl, getBlogVersionsBySocialPostIds, type BlogStatus, type BlogVersionRef } from '@/lib/admin/blog';
 import { cn } from '@/lib/utils';
+import { adminBasePath } from '@/lib/admin/auth';
 import { EmptyState, LucidOsHeader, StatusBadge, formatAdminDate } from '../components';
 import {
   approveSocialPostAction,
@@ -174,11 +175,12 @@ function PostActions({ post, activeView }: { post: SocialPost; activeView: ViewK
   );
 }
 
-function PostCard({ post, activeView, blogVersion }: { post: SocialPost; activeView: ViewKey; blogVersion?: BlogVersionRef }) {
+async function PostCard({ post, activeView, blogVersion }: { post: SocialPost; activeView: ViewKey; blogVersion?: BlogVersionRef }) {
   const dateLabel = post.status === 'posted'
     ? post.postedAt ? `publié le ${formatAdminDate(post.postedAt)}` : 'publié'
     : post.scheduledFor ? `prévu le ${formatAdminDate(post.scheduledFor)}` : 'non planifié';
   const body = bodyWithoutHook(post);
+  const base = await adminBasePath();
 
   return (
     <article className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5">
@@ -208,7 +210,7 @@ function PostCard({ post, activeView, blogVersion }: { post: SocialPost; activeV
       {blogVersion ? (
         <p className="mt-2 text-xs text-zinc-500">
           Version blog :{' '}
-          <Link href={`/admin/blog/${blogVersion.id}/edit`} className="text-zinc-300 underline-offset-2 hover:underline">
+          <Link href={`${base}/blog/${blogVersion.id}/edit`} className="text-zinc-300 underline-offset-2 hover:underline">
             {BLOG_STATUS_LABELS[blogVersion.status]}
           </Link>
           {blogVersion.status === 'published' && blogVersion.slug ? (
@@ -243,7 +245,8 @@ function PostCard({ post, activeView, blogVersion }: { post: SocialPost; activeV
   );
 }
 
-function ConnectionBanner({ account }: { account: LinkedInAccountSummary | null }) {
+async function ConnectionBanner({ account }: { account: LinkedInAccountSummary | null }) {
+  const base = await adminBasePath();
   const configured = config.linkedinClientId.length > 0;
 
   if (!configured) {
@@ -283,14 +286,15 @@ function ConnectionBanner({ account }: { account: LinkedInAccountSummary | null 
           </span>
         )}
       </div>
-      <a href="/admin/integrations/linkedin/connect" className={connected ? BTN_NEUTRAL : BTN_PRIMARY}>
+      <a href={`${base}/integrations/linkedin/connect`} className={connected ? BTN_NEUTRAL : BTN_PRIMARY}>
         {connected ? 'Reconnecter' : 'Connecter LinkedIn'}
       </a>
     </div>
   );
 }
 
-function OrgConnectionBanner({ account }: { account: LinkedInOrgAccountSummary | null }) {
+async function OrgConnectionBanner({ account }: { account: LinkedInOrgAccountSummary | null }) {
+  const base = await adminBasePath();
   const configured = config.linkedinOrgClientId.length > 0;
 
   if (!configured) {
@@ -331,7 +335,7 @@ function OrgConnectionBanner({ account }: { account: LinkedInOrgAccountSummary |
           </span>
         )}
       </div>
-      <a href="/admin/integrations/linkedin-org/connect" className={connected ? BTN_NEUTRAL : BTN_PRIMARY}>
+      <a href={`${base}/integrations/linkedin-org/connect`} className={connected ? BTN_NEUTRAL : BTN_PRIMARY}>
         {connected ? 'Reconnecter' : 'Connecter la page'}
       </a>
     </div>
@@ -407,6 +411,7 @@ export default async function LucidOsSocialPage({
   const visiblePosts = posts
     .filter((p) => active.statuses.includes(p.status))
     .sort((a, b) => sortKey(a) - sortKey(b));
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-6">
@@ -448,7 +453,7 @@ export default async function LucidOsSocialPage({
           return (
             <Link
               key={view.key}
-              href={`/admin/lucid-os/social?vue=${view.key}`}
+              href={`${base}/lucid-os/social?vue=${view.key}`}
               className={cn(
                 'inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors',
                 isActive ? 'bg-[#17171a] text-zinc-50 ring-1 ring-white/10' : 'text-zinc-400 hover:bg-[#121215] hover:text-zinc-100',
