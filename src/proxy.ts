@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-import { ADMIN_HOSTNAMES } from '@/lib/admin/urls';
+import { isAdminHost } from '@/lib/admin/urls';
 
 const PORTAL_HOSTNAMES = new Set(['client.lucid-lab.fr', 'client.localhost']);
 const APEX_HOSTNAMES = new Set(['lucid-lab.fr', 'www.lucid-lab.fr']);
@@ -67,7 +67,10 @@ export function proxy(request: NextRequest) {
   }
 
   // Admin subdomain: rewrite /x to /admin/x, mirroring the portal above.
-  if (ADMIN_HOSTNAMES.has(hostname)) {
+  // isAdminHost consults ADMIN_HOSTNAMES *and* ADMIN_BASE_URL, so a staging host
+  // (admin-staging.lucid-lab.fr) is recognized via the Preview env var without
+  // hardcoding it here.
+  if (isAdminHost(hostname)) {
     // A leftover /admin path lands here (a redirect or href we missed). 308 to
     // the clean URL rather than passing it through: it keeps a single canonical
     // URL, self-corrects in the address bar, and the miss stays observable as a
