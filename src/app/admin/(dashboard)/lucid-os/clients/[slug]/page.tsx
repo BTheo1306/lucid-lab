@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
+import { adminBasePath } from '@/lib/admin/auth';
 import {
   ArrowLeft,
   BriefcaseBusiness,
@@ -358,11 +359,12 @@ function ActionErrorBanner({ message }: { message: string | null }) {
   );
 }
 
-function VaultEditPanel({ profile, supabaseWriteError }: { profile: VaultClientProfile; supabaseWriteError: string | null }) {
+async function VaultEditPanel({ profile, supabaseWriteError }: { profile: VaultClientProfile; supabaseWriteError: string | null }) {
+  const base = await adminBasePath();
   return (
     <RecordPanel title="Actions">
       <div className="grid gap-3">
-        <Link href={`/admin/lucid-os/clients/${profile.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition hover:bg-zinc-800">
+        <Link href={`${base}/lucid-os/clients/${profile.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition hover:bg-zinc-800">
           <Edit3 className="size-4" />
           Modifier / rendre éditable
         </Link>
@@ -483,8 +485,9 @@ function VaultDeliverablesPanel({ profile }: { profile: VaultClientProfile }) {
   );
 }
 
-function VaultOnlyClientPage({ profile, clientError }: { profile: VaultClientProfile; clientError: string | null }) {
+async function VaultOnlyClientPage({ profile, clientError }: { profile: VaultClientProfile; clientError: string | null }) {
   const supabaseWriteError = supabaseServiceRoleConfigurationError();
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-7">
@@ -495,9 +498,9 @@ function VaultOnlyClientPage({ profile, clientError }: { profile: VaultClientPro
         websiteUrl={profile.websiteUrl}
         email={profile.primaryContactEmail}
         phone={profile.primaryContactPhone}
-        backHref="/admin/lucid-os/clients"
+        backHref={`${base}/lucid-os/clients`}
         actions={(
-          <Link href={`/admin/lucid-os/clients/${profile.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition hover:bg-zinc-800">
+          <Link href={`${base}/lucid-os/clients/${profile.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition hover:bg-zinc-800">
             <Edit3 className="size-4" />
             Modifier
           </Link>
@@ -1191,6 +1194,7 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
     listLucidIntegrationsForClient(client.id, 25),
   ]);
   const defaultPricingModel = opportunities[0]?.monthlyValueEur ? 'monthly' : 'one_shot';
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-7">
@@ -1201,9 +1205,9 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
         websiteUrl={client.websiteUrl ?? vaultProfile?.websiteUrl ?? null}
         email={client.primaryContactEmail ?? vaultProfile?.primaryContactEmail ?? null}
         phone={client.primaryContactPhone ?? vaultProfile?.primaryContactPhone ?? null}
-        backHref="/admin/lucid-os/clients"
+        backHref={`${base}/lucid-os/clients`}
         actions={(
-          <Link href={`/admin/lucid-os/clients/${client.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition hover:bg-zinc-800">
+          <Link href={`${base}/lucid-os/clients/${client.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition hover:bg-zinc-800">
             <Edit3 className="size-4" />
             Modifier
           </Link>
@@ -1273,7 +1277,7 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
                 />
               </div>
               <div className="grid gap-2 border-t border-zinc-200 pt-4">
-                <Link href={`/admin/lucid-os/clients/${client.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100">
+                <Link href={`${base}/lucid-os/clients/${client.slug}/edit`} className="inline-flex h-9 items-center justify-center gap-2 rounded border border-zinc-200 bg-zinc-50 px-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-100">
                   <Edit3 className="size-4" />
                   Modifier toute la fiche
                 </Link>

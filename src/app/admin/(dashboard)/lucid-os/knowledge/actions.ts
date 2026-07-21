@@ -1,8 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { isAdminAuthenticated } from '@/lib/admin/auth';
+import { adminRedirect, isAdminAuthenticated } from '@/lib/admin/auth';
 import { upsertLucidKnowledgeDocument, type UpsertKnowledgeDocumentInput } from '@/lib/admin/lucid-os';
 
 const sourceSystems = new Set<UpsertKnowledgeDocumentInput['sourceSystem']>([
@@ -16,7 +15,7 @@ const sourceSystems = new Set<UpsertKnowledgeDocumentInput['sourceSystem']>([
 
 async function requireAdminAction(): Promise<void> {
   if (!(await isAdminAuthenticated())) {
-    redirect('/admin/login');
+    return adminRedirect('/admin/login');
   }
 }
 

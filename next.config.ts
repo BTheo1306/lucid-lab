@@ -2,6 +2,7 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: [
+    "admin.localhost",
     "client.localhost",
     "*.loca.lt",
     "*.ngrok-free.app",

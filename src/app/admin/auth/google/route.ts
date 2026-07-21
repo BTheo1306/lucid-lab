@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto';
 import { NextResponse } from 'next/server';
-import { isGoogleSsoConfigured } from '@/lib/admin/auth';
+import { adminRedirectUrl, isGoogleSsoConfigured } from '@/lib/admin/auth';
 import { GOOGLE_OAUTH_STATE_COOKIE, buildGoogleAuthorizeUrl, googleRedirectUri } from '@/lib/admin/google-sso';
 import { config } from '@/lib/bot/config';
 
@@ -15,7 +15,7 @@ export const dynamic = 'force-dynamic';
  */
 export async function GET(request: Request) {
   if (!isGoogleSsoConfigured()) {
-    return NextResponse.redirect(new URL('/admin/login?error=config', request.url));
+    return NextResponse.redirect(adminRedirectUrl(request, '/login?error=config'));
   }
 
   const state = randomBytes(16).toString('hex');
@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     httpOnly: true,
     secure: config.nodeEnv === 'production',
     sameSite: 'lax',
-    path: '/admin',
+    path: '/',
     maxAge: 600,
   });
   return response;

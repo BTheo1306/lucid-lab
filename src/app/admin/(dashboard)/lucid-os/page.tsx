@@ -6,6 +6,7 @@ import {
   Globe2,
   Users,
 } from 'lucide-react';
+import { adminBasePath } from '@/lib/admin/auth';
 import { getLucidOsDashboardData } from '@/lib/admin/lucid-os';
 import { getAllClientTasksForDashboard } from '@/lib/admin/client-tasks';
 import { getAgencyMetrics } from '@/lib/admin/metrics';
@@ -20,10 +21,11 @@ function eur(value: number): string {
 }
 
 export default async function LucidOsPage() {
-  const [data, taskData, metrics] = await Promise.all([
+  const [data, taskData, metrics, base] = await Promise.all([
     getLucidOsDashboardData(),
     getAllClientTasksForDashboard(),
     getAgencyMetrics(),
+    adminBasePath(),
   ]);
 
   const { tasks, clients } = taskData;
@@ -70,7 +72,7 @@ export default async function LucidOsPage() {
           value={eur(metrics.kpis.mrrEurHt)}
           hint="revenu récurrent mensuel HT"
           icon={BarChart3}
-          href="/admin/lucid-os/metrics"
+          href={`${base}/lucid-os/metrics`}
         />
       </div>
 
@@ -78,7 +80,7 @@ export default async function LucidOsPage() {
         title="Actions clients"
         action={<NewTaskButton clients={clients} />}
       >
-        <AllClientsTaskBoard initialTasks={tasks} />
+        <AllClientsTaskBoard initialTasks={tasks} base={base} />
       </Section>
     </div>
   );

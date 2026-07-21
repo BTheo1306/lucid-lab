@@ -110,7 +110,7 @@ export async function createClientRequest(
       requestType,
       title,
       body: body || null,
-      adminUrl: `https://lucid-lab.fr/admin/lucid-os/clients/${session.clientSlug}`,
+      adminUrl: `${config.adminBaseUrl}/lucid-os/clients/${session.clientSlug}`,
     });
   } catch (emailError) {
     console.error('[portal] team notification failed:', emailError instanceof Error ? emailError.message : emailError);
@@ -174,7 +174,7 @@ export async function respondToAgencyRequest(
       title: String(updated.title),
       status,
       note: note || null,
-      adminUrl: `https://lucid-lab.fr/admin/lucid-os/clients/${session.clientSlug}`,
+      adminUrl: `${config.adminBaseUrl}/lucid-os/clients/${session.clientSlug}`,
     });
   } catch (emailError) {
     console.error('[portal] team notification failed:', emailError instanceof Error ? emailError.message : emailError);

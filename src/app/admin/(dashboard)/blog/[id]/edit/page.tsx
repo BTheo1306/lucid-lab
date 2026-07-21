@@ -1,5 +1,6 @@
 import { notFound } from 'next/navigation';
 
+import { adminBasePath } from '@/lib/admin/auth';
 import { getAdminPostById } from '@/lib/admin/blog';
 import { PostForm } from '../../PostForm';
 
@@ -16,6 +17,7 @@ export default async function EditPostPage({ params, searchParams }: RouteParams
   const { saved } = await searchParams;
   const post = await getAdminPostById(id);
   if (!post) notFound();
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-6">
@@ -32,7 +34,7 @@ export default async function EditPostPage({ params, searchParams }: RouteParams
           ✓ Enregistré. {post.status === 'draft' && post.content ? 'Contenu généré par l\'IA — relisez et publiez.' : null}
         </div>
       ) : null}
-      <PostForm post={post} />
+      <PostForm post={post} base={base} />
     </div>
   );
 }

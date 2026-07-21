@@ -175,6 +175,11 @@ export const config = {
   portalSessionSecret: process.env['PORTAL_SESSION_SECRET'] ?? '',
   portalBaseUrl: optionalEnv('PORTAL_BASE_URL', 'https://client.lucid-lab.fr'),
 
+  // Admin (admin.lucid-lab.fr). Used for links that leave the app: emails,
+  // Telegram notifications. Kept in sync with `adminBaseUrl()` in
+  // src/lib/admin/urls.ts, which the edge proxy uses (it cannot import config).
+  adminBaseUrl: optionalEnv('ADMIN_BASE_URL', 'https://admin.lucid-lab.fr'),
+
   // Billing
   billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '0.20')),
 

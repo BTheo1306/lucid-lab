@@ -1,8 +1,7 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
-import { requireAdmin } from '@/lib/admin/auth';
+import { adminRedirect, requireAdmin } from '@/lib/admin/auth';
 import { extractClientIntake } from '@/lib/admin/agents/client-intake-agent';
 import { createBonDeCommandeDraft, createNdaDraft, refreshDocuSealDocumentStatus, sendBonDeCommandeForSignature, sendNdaForSignature } from '@/lib/admin/documents/workflow';
 import {
@@ -276,7 +275,7 @@ export async function recordClientIntakeAction(formData: FormData): Promise<void
   try {
     parsedContext = rawContext ? await extractClientIntake(rawContext) : null;
   } catch (error) {
-    redirect(clientEditErrorHref(submittedSlug, error));
+    return await adminRedirect(clientEditErrorHref(submittedSlug, error));
   }
   const resolvedContactName = firstText(primaryContactName, parsedContext?.primaryContactName);
   const resolvedContactEmail = firstText(primaryContactEmail, parsedContext?.primaryContactEmail);
@@ -294,7 +293,7 @@ export async function recordClientIntakeAction(formData: FormData): Promise<void
   const meetingNotes = firstText(formString(formData, 'meeting_notes'), parsedContext?.meetingNotes);
   const healthScore = optionalNumber(formData, 'health_score');
 
-  if (!name) redirect(clientEditErrorHref(submittedSlug, new Error('Ajoute un nom, un email, un téléphone ou une note à analyser pour identifier le client.')));
+  if (!name) return await adminRedirect(clientEditErrorHref(submittedSlug, new Error('Ajoute un nom, un email, un téléphone ou une note à analyser pour identifier le client.')));
 
   let result: Awaited<ReturnType<typeof upsertLucidClientIntake>>;
   try {
@@ -340,14 +339,14 @@ export async function recordClientIntakeAction(formData: FormData): Promise<void
     const companyLookupText = [formString(formData, 'siren'), formString(formData, 'siret'), rawContext].filter(Boolean).join('\n');
     if (companyLookupText) await updateClientCompanyProfileFromText(result.id, companyLookupText);
   } catch (error) {
-    redirect(clientEditErrorHref(submittedSlug, error));
+    return await adminRedirect(clientEditErrorHref(submittedSlug, error));
   }
 
   revalidatePath('/admin/lucid-os');
   revalidatePath('/admin/lucid-os/clients');
   revalidatePath(`/admin/lucid-os/clients/${result.slug}`);
   revalidatePath('/admin/lucid-os/knowledge');
-  redirect(`/admin/lucid-os/clients/${result.slug}`);
+  return await adminRedirect(`/admin/lucid-os/clients/${result.slug}`);
 }
 
 export async function updateClientStatusAndLifecycleAction(formData: FormData): Promise<void> {
@@ -364,7 +363,7 @@ export async function updateClientStatusAndLifecycleAction(formData: FormData): 
 
   revalidatePath('/admin/lucid-os/clients');
   revalidatePath(`/admin/lucid-os/clients/${clientSlug}`);
-  redirect(`/admin/lucid-os/clients/${clientSlug}`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}`);
 }
 
 export async function deleteClientAction(formData: FormData): Promise<void> {
@@ -377,7 +376,7 @@ export async function deleteClientAction(formData: FormData): Promise<void> {
   revalidatePath('/admin/lucid-os/clients');
   revalidatePath(`/admin/lucid-os/clients/${clientSlug}`);
   revalidatePath('/admin/lucid-os/knowledge');
-  redirect('/admin/lucid-os/clients');
+  return await adminRedirect('/admin/lucid-os/clients');
 }
 
 export async function syncClientObsidianAction(formData: FormData): Promise<void> {
@@ -388,7 +387,7 @@ export async function syncClientObsidianAction(formData: FormData): Promise<void
 
   revalidateClientWorkspace(clientSlug);
   revalidatePath('/admin/lucid-os/knowledge');
-  redirect(`/admin/lucid-os/clients/${clientSlug}`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}`);
 }
 
 export async function updateClientCompanyInfoAction(formData: FormData): Promise<void> {
@@ -411,11 +410,11 @@ export async function updateClientCompanyInfoAction(formData: FormData): Promise
     source: 'admin',
     });
   } catch (error) {
-    redirect(clientActionErrorHref(clientSlug, 'company', error));
+    return await adminRedirect(clientActionErrorHref(clientSlug, 'company', error));
   }
 
   revalidateClientWorkspace(clientSlug);
-  redirect(`/admin/lucid-os/clients/${clientSlug}#company`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#company`);
 }
 
 export async function fetchClientCompanyInfoAction(formData: FormData): Promise<void> {
@@ -432,18 +431,18 @@ export async function fetchClientCompanyInfoAction(formData: FormData): Promise<
     fetchedAt: new Date().toISOString(),
     });
   } catch (error) {
-    redirect(clientActionErrorHref(clientSlug, 'company', error));
+    return await adminRedirect(clientActionErrorHref(clientSlug, 'company', error));
   }
 
   revalidateClientWorkspace(clientSlug);
-  redirect(`/admin/lucid-os/clients/${clientSlug}#company`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#company`);
 }
 
 export async function recordClientSmartNoteAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const { clientId, clientSlug } = requireClientActionContext(formData);
   const rawContent = formString(formData, 'raw_content');
-  if (!rawContent) redirect(clientActionErrorHref(clientSlug, 'notes', new Error('Ajoute une note à traiter.')));
+  if (!rawContent) return await adminRedirect(clientActionErrorHref(clientSlug, 'notes', new Error('Ajoute une note à traiter.')));
 
   const title = firstText(formString(formData, 'title'), 'Note de call');
   const sourceTypeRaw = formString(formData, 'source_type') as LucidClientImportSourceType;
@@ -498,12 +497,12 @@ export async function recordClientSmartNoteAction(formData: FormData): Promise<v
     await updateClientCompanyProfileFromText(clientId, rawContent);
     await applyTaskHintsFromNote(clientId, rawContent);
   } catch (error) {
-    redirect(clientActionErrorHref(clientSlug, 'notes', error));
+    return await adminRedirect(clientActionErrorHref(clientSlug, 'notes', error));
   }
 
   revalidateClientWorkspace(clientSlug);
   revalidatePath('/admin/lucid-os/knowledge');
-  redirect(`/admin/lucid-os/clients/${clientSlug}#notes`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#notes`);
 }
 
 export async function updateClientTaskStatusAction(formData: FormData): Promise<void> {
@@ -541,7 +540,7 @@ export async function recordClientContactAction(formData: FormData): Promise<voi
   });
 
   revalidateClientWorkspace(clientSlug);
-  redirect(`/admin/lucid-os/clients/${clientSlug}#contacts`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#contacts`);
 }
 
 export async function recordClientOpportunityAction(formData: FormData): Promise<void> {
@@ -572,7 +571,7 @@ export async function recordClientOpportunityAction(formData: FormData): Promise
   });
 
   revalidateClientWorkspace(clientSlug);
-  redirect(`/admin/lucid-os/clients/${clientSlug}#opportunities`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#opportunities`);
 }
 
 export async function createBonDeCommandeDraftAction(formData: FormData): Promise<void> {
@@ -597,7 +596,7 @@ export async function createBonDeCommandeDraftAction(formData: FormData): Promis
   });
 
   revalidateClientWorkspace(clientSlug);
-  redirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
 }
 
 export async function sendBonDeCommandeForSignatureAction(formData: FormData): Promise<void> {
@@ -612,11 +611,11 @@ export async function sendBonDeCommandeForSignatureAction(formData: FormData): P
     const message = actionErrorMessage(error);
     console.error('[send-bdc-action]', message, error);
     revalidateClientWorkspace(clientSlug);
-    redirect(clientDocumentsHref(clientSlug, { document_error: message }));
+    return await adminRedirect(clientDocumentsHref(clientSlug, { document_error: message }));
   }
 
   revalidateClientWorkspace(clientSlug);
-  redirect(clientDocumentsHref(clientSlug));
+  return await adminRedirect(clientDocumentsHref(clientSlug));
 }
 
 export async function createNdaDraftAction(formData: FormData): Promise<void> {
@@ -635,7 +634,7 @@ export async function createNdaDraftAction(formData: FormData): Promise<void> {
   });
 
   revalidateClientWorkspace(clientSlug);
-  redirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
 }
 
 export async function sendNdaForSignatureAction(formData: FormData): Promise<void> {
@@ -650,11 +649,11 @@ export async function sendNdaForSignatureAction(formData: FormData): Promise<voi
     const message = actionErrorMessage(error);
     console.error('[send-nda-action]', message, error);
     revalidateClientWorkspace(clientSlug);
-    redirect(clientDocumentsHref(clientSlug, { document_error: message }));
+    return await adminRedirect(clientDocumentsHref(clientSlug, { document_error: message }));
   }
 
   revalidateClientWorkspace(clientSlug);
-  redirect(clientDocumentsHref(clientSlug));
+  return await adminRedirect(clientDocumentsHref(clientSlug));
 }
 
 export async function refreshDocuSealDocumentStatusAction(formData: FormData): Promise<void> {
@@ -666,7 +665,7 @@ export async function refreshDocuSealDocumentStatusAction(formData: FormData): P
   await refreshDocuSealDocumentStatus(documentId);
 
   revalidateClientWorkspace(clientSlug);
-  redirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
 }
 
 export async function recordClientInteractionAction(formData: FormData): Promise<void> {
@@ -696,14 +695,14 @@ export async function recordClientInteractionAction(formData: FormData): Promise
   });
 
   revalidateClientWorkspace(clientSlug);
-  redirect(`/admin/lucid-os/clients/${clientSlug}#timeline`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#timeline`);
 }
 
 export async function recordClientTaskAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const { clientId, clientSlug } = requireClientActionContext(formData);
   const title = formString(formData, 'title');
-  if (!title) redirect(clientActionErrorHref(clientSlug, 'tasks', new Error('Ajoute un titre de tâche.')));
+  if (!title) return await adminRedirect(clientActionErrorHref(clientSlug, 'tasks', new Error('Ajoute un titre de tâche.')));
   const statusRaw = formString(formData, 'task_status') as LucidClientTaskStatus;
   const priorityRaw = formString(formData, 'priority') as LucidClientTaskPriority;
 
@@ -721,11 +720,11 @@ export async function recordClientTaskAction(formData: FormData): Promise<void> 
     createdBy: 'admin',
     });
   } catch (error) {
-    redirect(clientActionErrorHref(clientSlug, 'tasks', error));
+    return await adminRedirect(clientActionErrorHref(clientSlug, 'tasks', error));
   }
 
   revalidateClientWorkspace(clientSlug);
-  redirect(`/admin/lucid-os/clients/${clientSlug}#tasks`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#tasks`);
 }
 
 export async function recordClientImportAction(formData: FormData): Promise<void> {
@@ -750,5 +749,5 @@ export async function recordClientImportAction(formData: FormData): Promise<void
 
   revalidateClientWorkspace(clientSlug);
   revalidatePath('/admin/lucid-os/knowledge');
-  redirect(`/admin/lucid-os/clients/${clientSlug}#imports`);
+  return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#imports`);
 }

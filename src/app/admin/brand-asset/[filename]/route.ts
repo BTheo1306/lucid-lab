@@ -2,7 +2,7 @@ import 'server-only';
 import path from 'node:path';
 import { readFile } from 'node:fs/promises';
 import { NextResponse } from 'next/server';
-import { isAdminAuthenticated } from '@/lib/admin/auth';
+import { adminRedirectUrl, isAdminAuthenticated } from '@/lib/admin/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,8 +23,7 @@ export async function GET(
   { params }: { params: Promise<{ filename: string }> }
 ): Promise<NextResponse> {
   if (!(await isAdminAuthenticated())) {
-    const loginUrl = new URL('/admin/login', request.url);
-    return NextResponse.redirect(loginUrl);
+    return NextResponse.redirect(adminRedirectUrl(request, '/login'));
   }
 
   const { filename } = await params;

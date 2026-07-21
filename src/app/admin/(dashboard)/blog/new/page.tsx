@@ -1,8 +1,11 @@
+import { adminBasePath } from '@/lib/admin/auth';
 import { PostForm } from '../PostForm';
 
 export const dynamic = 'force-dynamic';
 
-export default function NewPostPage() {
+export default async function NewPostPage() {
+  const base = await adminBasePath();
+
   return (
     <div className="grid gap-6">
       <header>
@@ -16,7 +19,7 @@ export default function NewPostPage() {
           Commence par un titre — tu peux laisser le reste vide et revenir plus tard.
         </p>
       </header>
-      <PostForm post={null} />
+      <PostForm post={null} base={base} />
     </div>
   );
 }

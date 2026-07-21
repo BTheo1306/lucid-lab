@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto';
 import { NextResponse } from 'next/server';
 
-import { isAdminAuthenticated } from '@/lib/admin/auth';
+import { adminRedirectUrl, isAdminAuthenticated } from '@/lib/admin/auth';
 import { config } from '@/lib/bot/config';
 import { LINKEDIN_ORG_OAUTH_STATE_COOKIE, buildOrgAuthorizeUrl } from '@/lib/admin/linkedin/client';
 
@@ -16,11 +16,11 @@ export const runtime = 'nodejs';
  */
 export async function GET(request: Request) {
   if (!(await isAdminAuthenticated())) {
-    return NextResponse.redirect(new URL('/admin/login', request.url));
+    return NextResponse.redirect(adminRedirectUrl(request, '/login'));
   }
   if (!config.linkedinOrgClientId || !config.linkedinOrgClientSecret) {
     return NextResponse.redirect(
-      new URL('/admin/lucid-os/social?linkedin_org_error=App+LinkedIn+page+non+configur%C3%A9e', request.url),
+      adminRedirectUrl(request, '/lucid-os/social?linkedin_org_error=App+LinkedIn+page+non+configur%C3%A9e'),
     );
   }
 
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     httpOnly: true,
     secure: config.nodeEnv === 'production',
     sameSite: 'lax',
-    path: '/admin',
+    path: '/',
     maxAge: 600,
   });
   return response;
