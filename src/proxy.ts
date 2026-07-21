@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
-import { isAdminHost } from '@/lib/admin/urls';
+import { adminBaseUrl, isAdminHost } from '@/lib/admin/urls';
 
 const PORTAL_HOSTNAMES = new Set(['client.lucid-lab.fr', 'client.localhost']);
 const APEX_HOSTNAMES = new Set(['lucid-lab.fr', 'www.lucid-lab.fr']);
@@ -107,6 +107,22 @@ export function proxy(request: NextRequest) {
   // apex only, so Vercel previews (*.vercel.app) keep serving /portal directly.
   if (APEX_HOSTNAMES.has(hostname) && (pathname === '/portal' || pathname.startsWith('/portal/'))) {
     const target = new URL(pathname.replace(/^\/portal/, '') || '/', portalBaseUrl());
+    target.search = request.nextUrl.search;
+    return NextResponse.redirect(target, 308);
+  }
+
+  // Symmetric to the portal, for the admin. Once the subdomain is live, bounce
+  // direct /admin hits on the apex to admin.lucid-lab.fr so there is a single
+  // canonical admin origin. Gated by ADMIN_SUBDOMAIN_ENFORCED so it stays dormant
+  // until DNS + the Vercel domain exist: enabling it before they resolve would
+  // 308 admins to a host that does not answer and lock them out. Restricted to
+  // APEX_HOSTNAMES so Vercel previews (*.vercel.app) keep serving /admin directly.
+  if (
+    process.env.ADMIN_SUBDOMAIN_ENFORCED === '1' &&
+    APEX_HOSTNAMES.has(hostname) &&
+    (pathname === '/admin' || pathname.startsWith('/admin/'))
+  ) {
+    const target = new URL(pathname.replace(/^\/admin/, '') || '/', adminBaseUrl());
     target.search = request.nextUrl.search;
     return NextResponse.redirect(target, 308);
   }
