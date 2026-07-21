@@ -31,7 +31,15 @@ function shortDate(value: string | null): string | null {
   return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short' }).format(new Date(value));
 }
 
-export function AllClientsTaskBoard({ initialTasks }: { initialTasks: DashboardTask[] }) {
+export function AllClientsTaskBoard({
+  initialTasks,
+  base,
+}: {
+  initialTasks: DashboardTask[];
+  // Link prefix resolved by the server parent: '' on the admin subdomain,
+  // '/admin' when reached directly.
+  base: string;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
@@ -133,7 +141,7 @@ export function AllClientsTaskBoard({ initialTasks }: { initialTasks: DashboardT
                     <div className="flex items-start justify-between gap-2">
                       {task.clientSlug ? (
                         <Link
-                          href={`/admin/lucid-os/clients/${task.clientSlug}`}
+                          href={`${base}/lucid-os/clients/${task.clientSlug}`}
                           className="text-[11px] font-semibold uppercase tracking-[0.1em] text-blue-600 transition-colors hover:text-blue-800"
                           onClick={(e) => e.stopPropagation()}
                         >

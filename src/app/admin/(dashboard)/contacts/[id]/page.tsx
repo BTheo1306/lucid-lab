@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { ArrowLeft, Bot, CalendarClock, Check, Mail, MessageSquare, User } from 'lucide-react';
+import { adminBasePath } from '@/lib/admin/auth';
 import { getAdminContactDetail, type AdminConversationSummary, type AdminLeadSummary } from '@/lib/admin/dashboard';
 import { updateConversationStatusAction, updateLeadNotesAction, updateLeadStatusAction } from '../../../actions';
 import { cn } from '@/lib/utils';
@@ -184,10 +185,11 @@ export default async function AdminContactPage({ params }: { params: Promise<{ i
   if (!detail) notFound();
 
   const { contact } = detail;
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-6">
-      <Link href="/admin" className="inline-flex w-fit items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-950">
+      <Link href={base || '/'} className="inline-flex w-fit items-center gap-2 text-sm font-medium text-zinc-600 hover:text-zinc-950">
         <ArrowLeft className="size-4" /> Back to dashboard
       </Link>
 

@@ -60,7 +60,7 @@ export async function GET(req: Request) {
   }
 
   await sendLinkedInWeeklyDigest({
-    adminUrl: 'https://lucid-lab.fr/admin/lucid-os/social?vue=a-valider',
+    adminUrl: `${config.adminBaseUrl}/lucid-os/social?vue=a-valider`,
     upcoming: upcoming.map((post) => ({
       dateLabel: dateLabel(post.scheduledFor),
       pillar: post.pillar,

@@ -2,7 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import { clearAdminSessionCookie, isAdminAuthenticated } from '@/lib/admin/auth';
+import { adminBasePath, clearAdminSessionCookie, isAdminAuthenticated } from '@/lib/admin/auth';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
 import { updateConversation, type Conversation } from '@/lib/bot/db/queries/conversations';
 import { updateLead, type Lead } from '@/lib/bot/db/queries/leads';
@@ -12,7 +12,7 @@ const conversationStatuses = new Set<Conversation['status']>(['active', 'escalat
 
 async function requireAdminAction(): Promise<void> {
   if (!(await isAdminAuthenticated())) {
-    redirect('/admin/login');
+    redirect(`${await adminBasePath()}/login`);
   }
 }
 
@@ -23,8 +23,9 @@ function formString(formData: FormData, key: string): string {
 }
 
 export async function logoutAdmin(): Promise<void> {
+  const base = await adminBasePath();
   await clearAdminSessionCookie();
-  redirect('/admin/login');
+  redirect(`${base}/login`);
 }
 
 export async function updateLeadStatusAction(formData: FormData): Promise<void> {

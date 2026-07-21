@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { ArrowLeft } from 'lucide-react';
 import { LucidOsHeader, Section } from '../../components';
+import { adminBasePath } from '@/lib/admin/auth';
 import { ClientIntakeForm } from '../ClientIntakeForm';
 
 export const dynamic = 'force-dynamic';
@@ -27,13 +28,14 @@ function ActionErrorBanner({ message }: { message: string | null }) {
 export default async function NewLucidClientPage({ searchParams }: { searchParams?: Promise<NewClientSearchParams> }) {
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const clientError = firstSearchParam(resolvedSearchParams.client_error);
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-6">
       <LucidOsHeader
         title="Ajouter un client"
         action={(
-          <Link href="/admin/lucid-os/clients" className="inline-flex h-9 items-center gap-2 rounded border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.07]">
+          <Link href={`${base}/lucid-os/clients`} className="inline-flex h-9 items-center gap-2 rounded border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.07]">
             <ArrowLeft className="size-4" />
             Retour
           </Link>

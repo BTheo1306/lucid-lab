@@ -1,7 +1,6 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
-import { redirect } from 'next/navigation';
-import { isAdminAuthenticated, isGoogleSsoConfigured } from '@/lib/admin/auth';
+import { adminBasePath, adminRedirect, isAdminAuthenticated, isGoogleSsoConfigured } from '@/lib/admin/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,13 +25,14 @@ export default async function AdminLoginPage({
   searchParams: Promise<{ error?: string | string[] | undefined }>;
 }) {
   if (await isAdminAuthenticated()) {
-    redirect('/admin');
+    return adminRedirect('/admin/lucid-os');
   }
 
   const params = await searchParams;
   const errorCode = Array.isArray(params.error) ? params.error[0] : params.error;
   const errorMessage = errorCode ? ERROR_MESSAGES[errorCode] ?? ERROR_MESSAGES.oauth_failed : null;
   const ssoReady = isGoogleSsoConfigured();
+  const base = await adminBasePath();
 
   return (
     <main className="relative z-10 grid min-h-[100dvh] place-items-center bg-[#f5f6f2] px-4 py-10 text-zinc-950">
@@ -53,7 +53,7 @@ export default async function AdminLoginPage({
 
         {ssoReady ? (
           <a
-            href="/admin/auth/google"
+            href={`${base}/auth/google`}
             className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2.5 rounded-lg border border-zinc-300 bg-white px-4 text-sm font-semibold text-zinc-800 transition hover:bg-zinc-50"
           >
             <svg viewBox="0 0 24 24" className="size-5" aria-hidden="true">

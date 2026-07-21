@@ -1,7 +1,7 @@
 import { cookies } from 'next/headers';
 import { NextResponse } from 'next/server';
 
-import { isAdminAuthenticated } from '@/lib/admin/auth';
+import { adminRedirectUrl, isAdminAuthenticated } from '@/lib/admin/auth';
 import {
   LINKEDIN_OAUTH_STATE_COOKIE,
   exchangeCodeForToken,
@@ -20,11 +20,11 @@ export const runtime = 'nodejs';
 export async function GET(request: Request) {
   const url = new URL(request.url);
   const socialUrl = (params: string) =>
-    NextResponse.redirect(new URL(`/admin/lucid-os/social?${params}`, request.url));
+    NextResponse.redirect(adminRedirectUrl(request, `/lucid-os/social?${params}`));
   const fail = (message: string) => socialUrl(`linkedin_error=${encodeURIComponent(message)}`);
 
   if (!(await isAdminAuthenticated())) {
-    return NextResponse.redirect(new URL('/admin/login', request.url));
+    return NextResponse.redirect(adminRedirectUrl(request, '/login'));
   }
 
   const oauthError = url.searchParams.get('error');
@@ -50,6 +50,6 @@ export async function GET(request: Request) {
   }
 
   const response = socialUrl('linkedin_connected=1');
-  response.cookies.set({ name: LINKEDIN_OAUTH_STATE_COOKIE, value: '', path: '/admin', maxAge: 0 });
+  response.cookies.set({ name: LINKEDIN_OAUTH_STATE_COOKIE, value: '', path: '/', maxAge: 0 });
   return response;
 }

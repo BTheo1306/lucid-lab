@@ -1,8 +1,24 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+import { adminBaseUrl, isAdminHost } from '@/lib/admin/urls';
+
 const PORTAL_HOSTNAMES = new Set(['client.lucid-lab.fr', 'client.localhost']);
 const APEX_HOSTNAMES = new Set(['lucid-lab.fr', 'www.lucid-lab.fr']);
+
+/**
+ * Root-level static files that keep being served from /public on the admin
+ * subdomain. Deliberately an allowlist rather than the portal's extension regex
+ * (/\.[a-zA-Z0-9]+$/): the brand guide injects `/brand-asset/<file>.png` URLs,
+ * which an extension test would wrongly pass through to a route that only
+ * exists under /admin, 404-ing every image of the guide.
+ */
+const ADMIN_STATIC_PATHS = new Set([
+  '/favicon.ico',
+  '/icon.png',
+  '/logo.png',
+  '/robots.txt',
+]);
 
 function portalBaseUrl(): string {
   return process.env.PORTAL_BASE_URL || 'https://client.lucid-lab.fr';
@@ -50,10 +66,63 @@ export function proxy(request: NextRequest) {
     return response;
   }
 
+  // Admin subdomain: rewrite /x to /admin/x, mirroring the portal above.
+  // isAdminHost consults ADMIN_HOSTNAMES *and* ADMIN_BASE_URL, so a staging host
+  // (admin-staging.lucid-lab.fr) is recognized via the Preview env var without
+  // hardcoding it here.
+  if (isAdminHost(hostname)) {
+    // A leftover /admin path lands here (a redirect or href we missed). 308 to
+    // the clean URL rather than passing it through: it keeps a single canonical
+    // URL, self-corrects in the address bar, and the miss stays observable as a
+    // 308 on /admin/* in the logs instead of silently working forever.
+    if (pathname === '/admin' || pathname.startsWith('/admin/')) {
+      const target = request.nextUrl.clone();
+      target.pathname = pathname.replace(/^\/admin/, '') || '/';
+      return NextResponse.redirect(target, 308);
+    }
+
+    const isPassthrough =
+      pathname.startsWith('/_next') ||
+      pathname.startsWith('/api') ||
+      ADMIN_STATIC_PATHS.has(pathname);
+
+    const requestHeaders = new Headers(request.headers);
+    let response: NextResponse;
+
+    if (isPassthrough) {
+      requestHeaders.set('x-pathname', pathname);
+      response = NextResponse.next({ request: { headers: requestHeaders } });
+    } else {
+      const proxiedUrl = request.nextUrl.clone();
+      proxiedUrl.pathname = pathname === '/' ? '/admin' : `/admin${pathname}`;
+      requestHeaders.set('x-pathname', proxiedUrl.pathname);
+      response = NextResponse.rewrite(proxiedUrl, { request: { headers: requestHeaders } });
+    }
+
+    response.headers.set('X-Robots-Tag', 'noindex, nofollow');
+    return response;
+  }
+
   // The portal lives on its own subdomain: redirect direct /portal hits on the
   // apex only, so Vercel previews (*.vercel.app) keep serving /portal directly.
   if (APEX_HOSTNAMES.has(hostname) && (pathname === '/portal' || pathname.startsWith('/portal/'))) {
     const target = new URL(pathname.replace(/^\/portal/, '') || '/', portalBaseUrl());
+    target.search = request.nextUrl.search;
+    return NextResponse.redirect(target, 308);
+  }
+
+  // Symmetric to the portal, for the admin. Once the subdomain is live, bounce
+  // direct /admin hits on the apex to admin.lucid-lab.fr so there is a single
+  // canonical admin origin. Gated by ADMIN_SUBDOMAIN_ENFORCED so it stays dormant
+  // until DNS + the Vercel domain exist: enabling it before they resolve would
+  // 308 admins to a host that does not answer and lock them out. Restricted to
+  // APEX_HOSTNAMES so Vercel previews (*.vercel.app) keep serving /admin directly.
+  if (
+    process.env.ADMIN_SUBDOMAIN_ENFORCED === '1' &&
+    APEX_HOSTNAMES.has(hostname) &&
+    (pathname === '/admin' || pathname.startsWith('/admin/'))
+  ) {
+    const target = new URL(pathname.replace(/^\/admin/, '') || '/', adminBaseUrl());
     target.search = request.nextUrl.search;
     return NextResponse.redirect(target, 308);
   }

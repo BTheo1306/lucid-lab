@@ -1,5 +1,6 @@
 import Link from 'next/link';
 
+import { adminBasePath } from '@/lib/admin/auth';
 import { blogPublicUrl, listAllAdminPosts, type BlogPostRow, type BlogStatus } from '@/lib/admin/blog';
 import { cn } from '@/lib/utils';
 import { EmptyState, LucidOsHeader, StatusBadge, formatAdminDate, formatAdminDateTime } from '../lucid-os/components';
@@ -66,9 +67,10 @@ function HiddenContext({ activeView, postId }: { activeView: ViewKey; postId: st
   );
 }
 
-function EditLink({ id }: { id: string }) {
+async function EditLink({ id }: { id: string }) {
+  const base = await adminBasePath();
   return (
-    <Link href={`/admin/blog/${id}/edit`} className={BTN_NEUTRAL}>
+    <Link href={`${base}/blog/${id}/edit`} className={BTN_NEUTRAL}>
       Éditer en détail
     </Link>
   );
@@ -122,7 +124,8 @@ function PostActions({ post, activeView }: { post: BlogPostRow; activeView: View
   );
 }
 
-function PostCard({ post, activeView }: { post: BlogPostRow; activeView: ViewKey }) {
+async function PostCard({ post, activeView }: { post: BlogPostRow; activeView: ViewKey }) {
+  const base = await adminBasePath();
   return (
     <article className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
@@ -143,7 +146,7 @@ function PostCard({ post, activeView }: { post: BlogPostRow; activeView: ViewKey
       {post.social_post_id ? (
         <p className="mt-3 text-xs text-zinc-500">
           ↔ Version longue d’un{' '}
-          <Link href="/admin/lucid-os/social" className="text-zinc-300 underline-offset-2 hover:underline">
+          <Link href={`${base}/lucid-os/social`} className="text-zinc-300 underline-offset-2 hover:underline">
             post LinkedIn
           </Link>
         </p>
@@ -176,6 +179,7 @@ export default async function AdminBlogPage({
   const visiblePosts = posts
     .filter((p) => active.statuses.includes(p.status))
     .sort((a, b) => sortKey(a) - sortKey(b));
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-6">
@@ -183,7 +187,7 @@ export default async function AdminBlogPage({
         title="Blog"
         action={
           <Link
-            href="/admin/blog/new"
+            href={`${base}/blog/new`}
             className="inline-flex h-9 items-center gap-2 rounded-md bg-white/[0.06] px-3 text-sm font-medium text-zinc-100 ring-1 ring-white/10 transition-colors hover:bg-white/[0.1]"
           >
             + Nouvel article
@@ -201,7 +205,7 @@ export default async function AdminBlogPage({
           return (
             <Link
               key={view.key}
-              href={`/admin/blog?vue=${view.key}`}
+              href={`${base}/blog?vue=${view.key}`}
               className={cn(
                 'inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors',
                 isActive ? 'bg-[#17171a] text-zinc-50 ring-1 ring-white/10' : 'text-zinc-400 hover:bg-[#121215] hover:text-zinc-100',

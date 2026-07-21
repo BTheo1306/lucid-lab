@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { Activity, ArrowLeft } from 'lucide-react';
+import { adminBasePath } from '@/lib/admin/auth';
 import { getAgencyMetrics } from '@/lib/admin/metrics';
 import { EmptyState, LucidOsHeader, formatAdminDate } from '../../components';
 
@@ -11,10 +12,11 @@ function eur(value: number): string {
 
 export default async function CollectedDetailPage() {
   const { collectedDetail, kpis } = await getAgencyMetrics();
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-6">
-      <Link href="/admin/lucid-os/metrics" className="inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-200">
+      <Link href={`${base}/lucid-os/metrics`} className="inline-flex items-center gap-1.5 text-sm text-zinc-500 transition-colors hover:text-zinc-200">
         <ArrowLeft className="size-3.5" />
         Métriques
       </Link>

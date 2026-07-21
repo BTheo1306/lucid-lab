@@ -14,6 +14,8 @@ import {
 
 interface PostFormProps {
   post: BlogPostRow | null;
+  /** Link prefix from the server parent: '' on the admin subdomain, '/admin' otherwise. */
+  base: string;
 }
 
 function toLocalInputValue(iso: string | null): string {
@@ -53,7 +55,7 @@ const AUTHOR_OPTIONS = [
   { value: 'jules', label: 'Jules' },
 ];
 
-export function PostForm({ post }: PostFormProps) {
+export function PostForm({ post, base }: PostFormProps) {
   const isEdit = post !== null;
   const action = isEdit ? updatePostAction : createPostAction;
 
@@ -69,7 +71,7 @@ export function PostForm({ post }: PostFormProps) {
       {post?.social_post_id ? (
         <p className="rounded-lg border border-sky-200 bg-sky-50 px-4 py-2.5 text-sm text-sky-800">
           Version longue d’un{' '}
-          <Link href="/admin/lucid-os/social" className="font-medium underline underline-offset-2">
+          <Link href={`${base}/lucid-os/social`} className="font-medium underline underline-offset-2">
             post LinkedIn
           </Link>
           . À la publication, le post LinkedIn pointera automatiquement vers cet article.
@@ -300,7 +302,7 @@ export function PostForm({ post }: PostFormProps) {
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-xl border border-zinc-200 bg-white p-4 shadow-sm">
         <Link
-          href="/admin/blog"
+          href={`${base}/blog`}
           className="inline-flex h-10 items-center rounded-lg border border-zinc-200 px-4 text-sm font-medium text-zinc-700 hover:bg-zinc-50"
         >
           ← Retour
