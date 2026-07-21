@@ -1,4 +1,5 @@
 import { Activity, BarChart3, FolderKanban, Users } from 'lucide-react';
+import { adminBasePath } from '@/lib/admin/auth';
 import { getAgencyMetrics } from '@/lib/admin/metrics';
 import { LucidOsHeader, Section, StatCard } from '../components';
 import { ClientsByStatusChart, PipelineByStageChart, RevenueByMonthChart } from './MetricsCharts';
@@ -12,6 +13,7 @@ function eur(value: number): string {
 export default async function LucidOsMetricsPage() {
   const metrics = await getAgencyMetrics();
   const { kpis } = metrics;
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-6">
@@ -23,10 +25,10 @@ export default async function LucidOsMetricsPage() {
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="MRR (HT)" value={eur(kpis.mrrEurHt)} hint="Récurrent mensuel signé" icon={BarChart3} href="/admin/lucid-os/metrics/mrr" />
+        <StatCard label="MRR (HT)" value={eur(kpis.mrrEurHt)} hint="Récurrent mensuel signé" icon={BarChart3} href={`${base}/lucid-os/metrics/mrr`} />
         <StatCard label="Clients actifs" value={kpis.activeClients} hint="En cours de mission" icon={Users} />
-        <StatCard label="Pipeline ouvert" value={eur(kpis.openPipelineEur)} hint="Opportunités en cours" icon={FolderKanban} href="/admin/lucid-os/metrics/pipeline" />
-        <StatCard label="Encaissé" value={eur(kpis.revenueCollectedEur)} hint="Factures payées (Dougs)" icon={Activity} href="/admin/lucid-os/metrics/collected" />
+        <StatCard label="Pipeline ouvert" value={eur(kpis.openPipelineEur)} hint="Opportunités en cours" icon={FolderKanban} href={`${base}/lucid-os/metrics/pipeline`} />
+        <StatCard label="Encaissé" value={eur(kpis.revenueCollectedEur)} hint="Factures payées (Dougs)" icon={Activity} href={`${base}/lucid-os/metrics/collected`} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(300px,0.6fr)]">
