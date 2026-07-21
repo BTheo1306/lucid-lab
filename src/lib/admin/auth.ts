@@ -125,6 +125,18 @@ export async function adminBasePath(): Promise<string> {
 }
 
 /**
+ * Browser-facing redirect for server components and actions. Callers build the
+ * internal path (starting with /admin, what the route tree uses); on the
+ * subdomain the browser sees it without that prefix, so strip /admin and prepend
+ * adminBasePath(). Use `return adminRedirect(...)` so TypeScript sees the call as
+ * terminating (redirect() returns `never`). revalidatePath keeps the internal
+ * path and must not go through here.
+ */
+export async function adminRedirect(internalPath: string): Promise<never> {
+  return redirect(`${await adminBasePath()}${internalPath.replace(/^\/admin/, '')}`);
+}
+
+/**
  * Browser-facing absolute URL for admin route handlers.
  *
  * `request.url` carries the *internal* origin after a proxy rewrite, so building

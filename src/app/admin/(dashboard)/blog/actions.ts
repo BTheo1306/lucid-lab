@@ -1,9 +1,8 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
-import { redirect } from 'next/navigation';
 
-import { isAdminAuthenticated } from '@/lib/admin/auth';
+import { adminRedirect, isAdminAuthenticated } from '@/lib/admin/auth';
 import { supabase } from '@/lib/bot/db/supabase';
 import type { BlogLocale, BlogStatus } from '@/lib/admin/blog';
 import { blogPublicUrl, setBlogPostStatus } from '@/lib/admin/blog';
@@ -41,7 +40,7 @@ const FUNNEL = ['TOFU', 'MOFU', 'BOFU'];
 const AUTHORS: readonly BlogAuthorSlug[] = ['theo', 'anthony', 'jules'];
 
 async function requireAdminAction(): Promise<void> {
-  if (!(await isAdminAuthenticated())) redirect('/admin/login');
+  if (!(await isAdminAuthenticated())) return adminRedirect('/admin/login');
 }
 
 function str(fd: FormData, key: string): string {
@@ -170,7 +169,7 @@ export async function createPostAction(formData: FormData): Promise<void> {
 
   revalidatePath('/admin/blog');
   revalidatePublicBlog(input.locale, input.slug);
-  redirect(`/admin/blog/${data.id}/edit`);
+  return adminRedirect(`/admin/blog/${data.id}/edit`);
 }
 
 export async function updatePostAction(formData: FormData): Promise<void> {
@@ -224,7 +223,7 @@ export async function updatePostAction(formData: FormData): Promise<void> {
   revalidatePath('/admin/blog');
   revalidatePath(`/admin/blog/${id}/edit`);
   revalidatePublicBlog(input.locale, input.slug);
-  redirect(`/admin/blog/${id}/edit?saved=1`);
+  return adminRedirect(`/admin/blog/${id}/edit?saved=1`);
 }
 
 export async function deletePostAction(formData: FormData): Promise<void> {
@@ -243,7 +242,7 @@ export async function deletePostAction(formData: FormData): Promise<void> {
 
   revalidatePath('/admin/blog');
   if (existing) revalidatePublicBlog(existing.locale as BlogLocale, existing.slug as string | null);
-  redirect('/admin/blog');
+  return adminRedirect('/admin/blog');
 }
 
 export async function publishNowAction(formData: FormData): Promise<void> {
@@ -312,14 +311,14 @@ export async function approveBlogPostAction(formData: FormData): Promise<void> {
   await requireAdminAction();
   await setBlogPostStatus(requireId(formData), 'approved', null);
   revalidatePath(BLOG_PATH);
-  redirect(blogReturnTo(formData));
+  return adminRedirect(blogReturnTo(formData));
 }
 
 export async function rejectBlogPostAction(formData: FormData): Promise<void> {
   await requireAdminAction();
   await setBlogPostStatus(requireId(formData), 'rejected', strOrNull(formData, 'review_note'));
   revalidatePath(BLOG_PATH);
-  redirect(blogReturnTo(formData));
+  return adminRedirect(blogReturnTo(formData));
 }
 
 export async function queueBlogPostAction(formData: FormData): Promise<void> {
@@ -342,5 +341,5 @@ export async function queueBlogPostAction(formData: FormData): Promise<void> {
   if (error) throw new Error(`queueBlogPost: ${error.message}`);
 
   revalidatePath(BLOG_PATH);
-  redirect(blogReturnTo(formData));
+  return adminRedirect(blogReturnTo(formData));
 }
