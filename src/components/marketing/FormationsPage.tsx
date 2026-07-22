@@ -498,16 +498,9 @@ export function FormationsPage({ lang }: { lang: Locale }) {
           lang={lang}
           copy={heroCopy}
           visual={
-            <div
-              className="relative h-full w-full"
-              style={{
-                background: '#F7F0E6',
-                WebkitMaskImage: 'radial-gradient(132% 128% at 53% 45%, #000 60%, transparent 100%)',
-                maskImage: 'radial-gradient(132% 128% at 53% 45%, #000 60%, transparent 100%)',
-              }}
-            >
+            <div className="relative h-full w-full">
               <Image
-                src="/hero-image.jpeg"
+                src="/hero-image.png"
                 alt={
                   lang === 'en'
                     ? 'The four Lucid-Lab training modules: Claude setup, autonomous AI agents, AI productivity, no-code automation'
