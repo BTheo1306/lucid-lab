@@ -205,24 +205,41 @@ const content = {
     cases: {
       title: 'Cas clients livrés.',
       subtitle:
-        'Trois formats de systèmes déjà cadrés ou livrés : back-office simple, CRM automatisé, roadmap IA grand compte.',
+        'Des systèmes qui absorbent le travail répétitif, sans étoffer l\'équipe. Ce que vous arrêtez de payer : un salaire de plus, tous les mois.',
       items: [
         {
           title: 'Back-office automatisé pour une petite structure',
-          metric: 'Administration centralisée dans une feuille maître',
-          body: 'Récupération des données clients depuis email, Drive et formulaires, contrôle des pièces, relances automatiques et synchronisation dans un master Excel/Google Sheets exploitable par l\'admin.',
+          metricLabel: 'Poste évité',
+          metric: '≈ 35 000 €/an',
+          body: 'La dirigeante gérait seule devis, relances, classement et compta. L\'assistant tourne sur ses propres outils : il lit, prépare, range et relance. Environ 9 h par semaine lui sont rendues, sans embaucher d\'assistant(e) et sans devoir être au bureau pour que ça avance.',
         },
         {
           title: 'CRM complet pour un opérateur de mobilité premium',
-          metric: 'Vente, support et opérations dans le même système',
-          body: 'Structuration du CRM, automatisation des processus internes, chatbot commercial, support client et roadmap IA pour faire évoluer les outils sur plusieurs années.',
+          metricLabel: 'Sans renfort',
+          metric: 'Ventes, support et ops absorbés',
+          body: 'Structuration du CRM, automatisation des processus internes, chatbot commercial et support client dans un seul système, avec une roadmap IA pour le faire évoluer sur plusieurs années.',
         },
         {
           title: 'Roadmap IA pour un groupe assurantiel et financier belge',
-          metric: '90+ cas d\'usage qualifiés et priorisés',
+          metricLabel: 'Cadrage',
+          metric: '90+ cas chiffrés valeur, effort, risque',
           body: 'Cartographie Finance, Compliance, Crédit, Legal et Risk, scoring valeur/effort/risque, inventaire data, gouvernance IA, formation des ambassadeurs et déploiement par vagues.',
         },
       ],
+      comparison: {
+        title: 'Recruter, ou automatiser.',
+        hire: {
+          label: 'Recruter',
+          cost: '~2 500 à 3 300 €/mois',
+          points: ['Chaque mois, sans fin', 'Charges, congés, arrêts, turnover', 'Recrutement et formation à refaire'],
+        },
+        automate: {
+          label: 'Automatiser avec Lucid-Lab',
+          cost: 'Un système, payé une fois',
+          points: ['Rentabilisé en quelques semaines', 'Zéro charge sociale, tourne 24/7', 'Le système et le code vous restent'],
+        },
+        note: 'Base de comparaison : un poste d\'assistant(e) administratif(ve) en France, ~2 000 à 2 450 € brut/mois, chargé (sources : HelloWork, INSEE).',
+      },
     },
     enterprise: {
       title: 'Standards industriels pour la production.',
@@ -452,24 +469,41 @@ const content = {
     cases: {
       title: 'Delivered client cases.',
       subtitle:
-        'Three system formats already scoped or delivered: simple back office, automated CRM, enterprise AI roadmap.',
+        'Systems that absorb the repetitive work, without growing the team. What you stop paying: one more salary, every month.',
       items: [
         {
           title: 'Automated back office for a small operator',
-          metric: 'Admin work centralized in one master sheet',
-          body: 'Client data collected from email, Drive and forms, document checks, automated reminders and synchronization into a master Excel/Google Sheets file that the admin team can run from.',
+          metricLabel: 'Hire avoided',
+          metric: '≈ €35k/year',
+          body: 'The owner ran quotes, reminders, filing and bookkeeping single-handed. The assistant now runs on her own tools: it reads, drafts, files and follows up. Around 9 hours a week come back, with no assistant to hire and no need to sit at the office for the work to move.',
         },
         {
           title: 'Full CRM for a premium mobility operator',
-          metric: 'Sales, support and operations in one system',
-          body: 'CRM structuring, internal process automation, commercial chatbot, customer support and a multi-year AI roadmap to evolve the operating stack.',
+          metricLabel: 'No extra hire',
+          metric: 'Sales, support and ops absorbed',
+          body: 'CRM structuring, internal process automation, a sales chatbot and customer support in one system, with a multi-year AI roadmap to keep it evolving.',
         },
         {
           title: 'AI roadmap for a Belgian insurance and financial group',
-          metric: '90+ use cases qualified and prioritized',
+          metricLabel: 'Scope',
+          metric: '90+ use cases scored value, effort, risk',
           body: 'Mapping Finance, Compliance, Credit, Legal and Risk, scoring value/effort/risk, inventorying data, framing AI governance, training ambassadors and sequencing deployment waves.',
         },
       ],
+      comparison: {
+        title: 'Hire, or automate.',
+        hire: {
+          label: 'Hiring',
+          cost: '~€2,500 to €3,300/month',
+          points: ['Every month, with no end', 'Payroll charges, leave, sick days, turnover', 'Recruiting and training, over and over'],
+        },
+        automate: {
+          label: 'Automating with Lucid-Lab',
+          cost: 'One build, paid once',
+          points: ['Pays for itself in weeks', 'No payroll charges, runs 24/7', 'The system and the code stay yours'],
+        },
+        note: 'Baseline: a French admin assistant role, ~€2,000 to €2,450 gross/month, fully loaded (sources: HelloWork, INSEE).',
+      },
     },
     enterprise: {
       title: 'Enterprise standards for production.',
@@ -1113,13 +1147,44 @@ function Cases({ lang }: { lang: Locale }) {
             </div>
             
             <div className="md:w-1/3 flex flex-col md:items-end md:text-right">
-              <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276] mb-1.5">{'// Impact'}</div>
+              <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276] mb-1.5">{item.metricLabel}</div>
               <p className="text-[22px] font-extrabold tracking-tight text-stone-900">
                 {item.metric}
               </p>
             </div>
           </motion.div>
         ))}
+      </div>
+
+      <div className="mt-12 border-t pt-10" style={{ borderColor: GRAY_200 }}>
+        <h3 className="text-[22px] md:text-[26px] font-bold tracking-tight text-stone-900">{t.comparison.title}</h3>
+        <div className="mt-6 grid gap-4 md:grid-cols-2">
+          <div className="rounded-[8px] border bg-white p-6" style={{ borderColor: GRAY_200 }}>
+            <div className="text-[10px] font-mono uppercase tracking-[0.14em] text-[#8a8276]">{t.comparison.hire.label}</div>
+            <p className="mt-2 text-[20px] font-extrabold tracking-tight text-stone-900">{t.comparison.hire.cost}</p>
+            <ul className="mt-4 space-y-2">
+              {t.comparison.hire.points.map((point) => (
+                <li key={point} className="flex gap-2 text-[14px] text-stone-500">
+                  <span className="text-stone-400" aria-hidden>•</span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+          <div className="rounded-[8px] border bg-white p-6" style={{ borderColor: EMBER }}>
+            <div className="text-[10px] font-mono uppercase tracking-[0.14em]" style={{ color: EMBER }}>{t.comparison.automate.label}</div>
+            <p className="mt-2 text-[20px] font-extrabold tracking-tight text-stone-900">{t.comparison.automate.cost}</p>
+            <ul className="mt-4 space-y-2">
+              {t.comparison.automate.points.map((point) => (
+                <li key={point} className="flex gap-2 text-[14px] text-stone-700">
+                  <span style={{ color: EMBER }} aria-hidden>•</span>
+                  <span>{point}</span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </div>
+        <p className="mt-5 text-[11px] font-mono leading-relaxed text-[#8a8276]">{t.comparison.note}</p>
       </div>
     </Section>
   )
@@ -1333,6 +1398,8 @@ export function MarketingFooter({ lang }: { lang: Locale }) {
             <ul className="mt-4 space-y-3">
               <li><Link href={routes.blog} className="text-[14px]" style={{ color: GRAY_600 }}>Blog</Link></li>
               <li><Link href={routes.audit} className="text-[14px]" style={{ color: GRAY_600 }}>Audit Flash</Link></li>
+              <li><Link href={lang === 'en' ? '/en/second-brain' : '/second-brain'} className="text-[14px]" style={{ color: GRAY_600 }}>Second Brain</Link></li>
+              <li><Link href={lang === 'en' ? '/en/ai-training' : '/formations-ia'} className="text-[14px]" style={{ color: GRAY_600 }}>{lang === 'en' ? 'AI training' : 'Formations IA'}</Link></li>
               <li><Link href={lang === 'en' ? '/en/#offres' : '/#offres'} className="text-[14px]" style={{ color: GRAY_600 }}>Build & Run</Link></li>
             </ul>
           </div>

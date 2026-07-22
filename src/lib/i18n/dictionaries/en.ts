@@ -8,6 +8,8 @@ export const en: typeof fr = {
     nav: {
       expertise: 'Expertise',
       offers: 'Offers',
+      secondBrain: 'Second Brain',
+      training: 'Training',
       delivery: 'Method',
       cases: 'Client cases',
       team: 'Team',

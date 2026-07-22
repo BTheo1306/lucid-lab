@@ -25,9 +25,35 @@ const OVERRIDE_DURATION = 6000
 // so the ~100 KB JS is fetched in parallel with React hydration.
 const runtimePromise = import('@splinetool/runtime')
 
-export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
-  const t = getDictionary(lang).hero
+export type HeroCopy = {
+  titleLine1: string
+  titleLine2: string
+  subtitle: string
+  subtitleLine2: string
+  ctaPrimary: string
+  ctaPrimaryHref: string
+  ctaSecondary: string
+  ctaSecondaryHref: string
+}
+
+export function HeroSection({
+  lang = 'fr',
+  copy,
+  visual,
+}: { lang?: Locale; copy?: HeroCopy; visual?: React.ReactNode } = {}) {
+  const dict = getDictionary(lang).hero
   const homePrefix = lang === 'en' ? '/en' : ''
+  const hasVisual = visual != null
+  const t: HeroCopy = copy ?? {
+    titleLine1: dict.titleLine1,
+    titleLine2: dict.titleLine2,
+    subtitle: dict.subtitle,
+    subtitleLine2: dict.subtitleLine2,
+    ctaPrimary: dict.ctaPrimary,
+    ctaPrimaryHref: `${homePrefix}/#booking`,
+    ctaSecondary: dict.ctaSecondary,
+    ctaSecondaryHref: `${homePrefix}/#acquis-livres`,
+  }
   const sectionRef = useRef<HTMLElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -39,6 +65,7 @@ export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
 
   // ─── Load Spline scene with full lifecycle control ───────────────────────
   useEffect(() => {
+    if (hasVisual) return
     const canvas = canvasRef.current
     if (!canvas) return
 
@@ -129,10 +156,11 @@ export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
       try { app?.dispose() } catch {}
       appRef.current = null
     }
-  }, [])
+  }, [hasVisual])
 
   // ─── Responsive canvas sizing ────────────────────────────────────────────
   useEffect(() => {
+    if (hasVisual) return
     const canvas = canvasRef.current
     if (!canvas) return
     const parent = canvas.parentElement
@@ -146,10 +174,11 @@ export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
     })
     ro.observe(parent)
     return () => ro.disconnect()
-  }, [])
+  }, [hasVisual])
 
   // ─── Forward mouse → Spline (full-page mouse follow) ────────────────────
   useEffect(() => {
+    if (hasVisual) return
     const forward = (e: MouseEvent) => {
       const section = sectionRef.current
       if (!section) return
@@ -173,7 +202,7 @@ export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
     }
     window.addEventListener('mousemove', forward, { passive: true })
     return () => window.removeEventListener('mousemove', forward)
-  }, [])
+  }, [hasVisual])
 
   return (
     <section
@@ -220,13 +249,13 @@ export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
           {/* CTAs */}
           <div className="flex flex-wrap items-center gap-3">
             <a
-              href={`${homePrefix}/#booking`}
+              href={t.ctaPrimaryHref}
               className="flex h-[40px] items-center rounded-[10px] bg-black px-6 text-[14px] font-medium text-white transition-colors hover:bg-[#222]"
             >
               {t.ctaPrimary}
             </a>
             <a
-              href={`${homePrefix}/#acquis-livres`}
+              href={t.ctaSecondaryHref}
               className="flex h-[40px] items-center rounded-[10px] border border-[#d4d4d4] bg-[#F7F5F1] px-6 text-[14px] font-medium text-[#333] transition-colors hover:bg-[#edeae4]"
             >
               {t.ctaSecondary}
@@ -234,9 +263,12 @@ export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
           </div>
         </div>
 
-        {/* Robot — custom runtime integration, no dezoom.
-            Canvas is always mounted (prevents any replay).
-            contain:layout paint isolates the WebGL repaints from the rest of the page. */}
+        {visual ? (
+          /* Page-specific hero visual in place of the robot. */
+          <div className="relative h-[260px] w-full overflow-hidden sm:absolute sm:inset-y-0 sm:right-0 sm:h-auto sm:w-[55%]">
+            {visual}
+          </div>
+        ) : (
         <div
           className="relative h-[260px] w-full overflow-hidden sm:absolute sm:inset-y-0 sm:right-0 sm:h-auto sm:w-[55%]"
           style={{ contain: 'layout paint' }}
@@ -267,6 +299,7 @@ export function HeroSection({ lang = 'fr' }: { lang?: Locale } = {}) {
             }}
           />
         </div>
+        )}
       </div>
     </section>
   )

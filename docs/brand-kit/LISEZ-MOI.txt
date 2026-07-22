@@ -16,6 +16,9 @@ templates/  (documents commerciaux et administratifs)
   bon-pour-accord     Bon pour accord
   contrat             Contrat de prestation
   guide-rustdesk      Guide d'installation RustDesk, client (FR + EN, 4 pages)
+  compte-rendu        Compte rendu de livraison client (5 pages : realisations,
+                      fonctionnement, besoins client, suite). Les exemplaires
+                      remplis par client sont classes sur le Drive (dossier client).
 
 pitch-deck/  (presentations)
 ---------------------------

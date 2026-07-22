@@ -46,3 +46,7 @@ next-env.d.ts
 
 # Local Lead Engine sandbox data
 .lead-engine-sandbox/
+
+# Scratch / MCP session artifacts
+.playwright-mcp/
+/aura-*.png

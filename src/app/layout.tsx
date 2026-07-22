@@ -156,6 +156,9 @@ export default async function RootLayout({
 }>) {
   const lang = await getRequestLocale();
   const isEn = lang === "en";
+  const pathname = (await headers()).get("x-pathname") ?? "/";
+  // The dark immersive page carries no side grid lines.
+  const hideGridLines = pathname === "/second-brain" || pathname === "/en/second-brain";
 
   return (
     <html
@@ -257,6 +260,8 @@ export default async function RootLayout({
                         "AI monitoring",
                         "Documentation and runbooks",
                         "AI governance, GDPR and EU AI Act",
+                        "Second brain installs (Claude and company knowledge base)",
+                        "Enterprise AI training",
                       ]
                     : [
                         "Audit Flash",
@@ -267,6 +272,8 @@ export default async function RootLayout({
                         "Monitoring IA",
                         "Documentation et runbooks",
                         "Gouvernance IA, RGPD et EU AI Act",
+                        "Installation second brain (Claude et base de connaissance)",
+                        "Formations IA entreprises",
                       ],
                   hasOfferCatalog: {
                     "@type": "OfferCatalog",
@@ -302,6 +309,20 @@ export default async function RootLayout({
                           ? "Sources, access, risks, EU hosting and target architecture before the build."
                           : "Sources, accès, risques, hébergement EU et architecture cible avant build.",
                       },
+                      {
+                        "@type": "Offer",
+                        name: isEn ? "Second Brain install" : "Installation Second Brain",
+                        description: isEn
+                          ? "Claude installed and connected to company knowledge: structured context, connectors, two proof automations, training. In 14 days."
+                          : "Claude installé et branché sur la connaissance de l’entreprise : contexte structuré, connecteurs, deux automatisations de preuve, formation. En 14 jours.",
+                      },
+                      {
+                        "@type": "Offer",
+                        name: isEn ? "Enterprise AI training" : "Formations IA entreprises",
+                        description: isEn
+                          ? "AI literacy for leadership, Claude day to day, second brain, agents and automations, governance. On real company cases."
+                          : "Acculturation dirigeants, Claude au quotidien, second brain, agents et automatisations, gouvernance. Sur les cas réels de l’entreprise.",
+                      },
                     ],
                   },
                 },
@@ -310,9 +331,11 @@ export default async function RootLayout({
           }}
         />
         {/* Full-page vertical grid lines — spans the entire scroll height */}
-        <div className="pointer-events-none fixed inset-0 z-[5] hidden md:block" aria-hidden="true">
-          <div className="mx-auto h-full max-w-[1264px] border-x border-[#e5e5e5]" />
-        </div>
+        {!hideGridLines && (
+          <div className="pointer-events-none fixed inset-0 z-[5] hidden md:block" aria-hidden="true">
+            <div className="mx-auto h-full max-w-[1264px] border-x border-[#e5e5e5]" />
+          </div>
+        )}
         {children}
         <AdminAwareChatWidget lang={lang} />
         <Analytics />

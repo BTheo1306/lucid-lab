@@ -28,11 +28,13 @@ export function localizeHref(pathname: string, target: Locale): string {
     '/confidentialite': '/privacy',
     '/mentions-legales': '/legal-notice',
     '/cgv': '/terms',
+    '/formations-ia': '/ai-training',
   };
   const EN_TO_FR: Record<string, string> = {
     '/privacy': '/confidentialite',
     '/legal-notice': '/mentions-legales',
     '/terms': '/cgv',
+    '/ai-training': '/formations-ia',
   };
 
   if (target === 'en') {
