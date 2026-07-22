@@ -7,7 +7,6 @@ import { BookOpen, GraduationCap, Presentation, Users } from 'lucide-react'
 
 import { Header } from '@/components/ui/header'
 import { HeroSection, type HeroCopy } from '@/components/ui/hero-section'
-import FormationScene from '@/components/marketing/FormationScene'
 import { AuditFlashBookingSection } from '@/components/marketing/AuditFlashBookingSection'
 import { MarketingFooter } from '@/components/marketing/HomePage'
 import type { Locale } from '@/lib/i18n/client'
@@ -495,7 +494,33 @@ export function FormationsPage({ lang }: { lang: Locale }) {
       ))}
       <Header />
       <main className="grow">
-        <HeroSection lang={lang} copy={heroCopy} visual={<FormationScene />} />
+        <HeroSection
+          lang={lang}
+          copy={heroCopy}
+          visual={
+            <div
+              className="relative h-full w-full"
+              style={{
+                background: '#F7F0E6',
+                WebkitMaskImage: 'radial-gradient(132% 128% at 53% 45%, #000 60%, transparent 100%)',
+                maskImage: 'radial-gradient(132% 128% at 53% 45%, #000 60%, transparent 100%)',
+              }}
+            >
+              <Image
+                src="/hero-image.jpeg"
+                alt={
+                  lang === 'en'
+                    ? 'The four Lucid-Lab training modules: Claude setup, autonomous AI agents, AI productivity, no-code automation'
+                    : 'Les quatre modules de formation Lucid-Lab : Setup Claude, agents IA autonomes, IA productivité, automatisation no-code'
+                }
+                fill
+                priority
+                sizes="(min-width: 640px) 55vw, 100vw"
+                className="object-contain object-center"
+              />
+            </div>
+          }
+        />
         <CatalogBento lang={lang} />
         <Approach lang={lang} />
         <FAQ lang={lang} />
