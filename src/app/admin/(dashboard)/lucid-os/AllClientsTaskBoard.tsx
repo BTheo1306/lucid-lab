@@ -3,9 +3,10 @@
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import { Eye, EyeOff } from 'lucide-react';
 import type { DashboardTask } from '@/lib/admin/client-tasks';
 import { cn } from '@/lib/utils';
-import { updateAnyClientTaskStatus } from './task-actions';
+import { setClientTaskVisibilityAction, updateAnyClientTaskStatus } from './task-actions';
 
 type ColStatus = 'todo' | 'in_progress' | 'done';
 
@@ -30,7 +31,15 @@ function shortDate(value: string | null): string | null {
   return new Intl.DateTimeFormat('fr-FR', { day: '2-digit', month: 'short' }).format(new Date(value));
 }
 
-export function AllClientsTaskBoard({ initialTasks }: { initialTasks: DashboardTask[] }) {
+export function AllClientsTaskBoard({
+  initialTasks,
+  base,
+}: {
+  initialTasks: DashboardTask[];
+  // Link prefix resolved by the server parent: '' on the admin subdomain,
+  // '/admin' when reached directly.
+  base: string;
+}) {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [draggedTaskId, setDraggedTaskId] = useState<string | null>(null);
@@ -57,6 +66,21 @@ export function AllClientsTaskBoard({ initialTasks }: { initialTasks: DashboardT
     startTransition(async () => {
       try {
         await updateAnyClientTaskStatus(taskId, status);
+        router.refresh();
+      } catch (err) {
+        setTasks(prev);
+        setError(err instanceof Error ? err.message : String(err));
+      }
+    });
+  }
+
+  function toggleVisibility(taskId: string, visible: boolean) {
+    const prev = tasks;
+    setError(null);
+    setTasks((curr) => curr.map((t) => (t.id === taskId ? { ...t, clientVisible: visible } : t)));
+    startTransition(async () => {
+      try {
+        await setClientTaskVisibilityAction(taskId, visible);
         router.refresh();
       } catch (err) {
         setTasks(prev);
@@ -114,17 +138,33 @@ export function AllClientsTaskBoard({ initialTasks }: { initialTasks: DashboardT
                     onDragEnd={() => setDraggedTaskId(null)}
                     className="cursor-grab border border-zinc-200 bg-white p-3 active:cursor-grabbing"
                   >
-                    {task.clientSlug ? (
-                      <Link
-                        href={`/admin/lucid-os/clients/${task.clientSlug}`}
-                        className="text-[11px] font-semibold uppercase tracking-[0.1em] text-blue-600 transition-colors hover:text-blue-800"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        {task.clientName}
-                      </Link>
-                    ) : (
-                      <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600">Interne</span>
-                    )}
+                    <div className="flex items-start justify-between gap-2">
+                      {task.clientSlug ? (
+                        <Link
+                          href={`${base}/lucid-os/clients/${task.clientSlug}`}
+                          className="text-[11px] font-semibold uppercase tracking-[0.1em] text-blue-600 transition-colors hover:text-blue-800"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          {task.clientName}
+                        </Link>
+                      ) : (
+                        <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600">Interne</span>
+                      )}
+                      {task.clientId ? (
+                        <button
+                          type="button"
+                          disabled={isPending}
+                          onClick={() => toggleVisibility(task.id, !task.clientVisible)}
+                          title={task.clientVisible ? 'Visible sur le portail client. Cliquer pour masquer.' : 'Masquée du portail client. Cliquer pour publier.'}
+                          className={cn(
+                            'shrink-0 rounded p-1 transition',
+                            task.clientVisible ? 'text-blue-600 hover:bg-blue-50' : 'text-zinc-300 hover:bg-zinc-100 hover:text-zinc-600',
+                          )}
+                        >
+                          {task.clientVisible ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+                        </button>
+                      ) : null}
+                    </div>
                     <p className="mt-1 text-sm font-semibold leading-5 text-zinc-950">{task.title}</p>
                     {task.description ? (
                       <p className="mt-2 line-clamp-2 text-xs leading-5 text-zinc-500">{task.description}</p>

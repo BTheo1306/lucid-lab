@@ -44,9 +44,11 @@ type NavSection = {
 };
 
 const primaryItems: NavItem[] = [
-  { href: '/admin/lucid-os', label: 'Tableau de bord', icon: BarChart3, exact: true, activePaths: ['/admin'] },
-  { href: '/admin/lucid-os/metrics', label: 'Métriques', icon: Activity },
-  { href: '/admin/lucid-os/inbox', label: 'Actions', icon: Inbox },
+  // activePaths [''] is the admin root: '' on the subdomain, '/admin' when
+  // reached directly. pathIsActive resolves it against the base.
+  { href: '/lucid-os', label: 'Tableau de bord', icon: BarChart3, exact: true, activePaths: [''] },
+  { href: '/lucid-os/metrics', label: 'Métriques', icon: Activity },
+  { href: '/lucid-os/inbox', label: 'Actions', icon: Inbox },
 ];
 
 const navSections: NavSection[] = [
@@ -56,8 +58,8 @@ const navSections: NavSection[] = [
     icon: Users,
     defaultOpen: true,
     items: [
-      { href: '/admin/lucid-os/clients', label: 'Fiches clients', icon: Building2 },
-      { href: '/admin/lucid-os/clients#prospects', label: 'Prospects', icon: Users },
+      { href: '/lucid-os/clients', label: 'Fiches clients', icon: Building2 },
+      { href: '/lucid-os/clients#prospects', label: 'Prospects', icon: Users },
     ],
   },
   {
@@ -65,8 +67,7 @@ const navSections: NavSection[] = [
     label: 'Croissance',
     icon: Search,
     items: [
-      { href: '/admin/lead-engine', label: 'Moteur de leads', icon: Search, exact: true },
-      { href: '/admin/leads', label: 'Anciens leads', icon: Users },
+      { href: '/lead-engine', label: 'Moteur de leads', icon: Search, exact: true },
     ],
   },
   {
@@ -74,9 +75,9 @@ const navSections: NavSection[] = [
     label: 'Production',
     icon: FolderKanban,
     items: [
-      { href: '/admin/lucid-os/delivery/projects', label: 'Projets', icon: FolderKanban },
-      { href: '/admin/lucid-os/delivery/websites', label: 'Sites web', icon: Globe2 },
-      { href: '/admin/lucid-os/delivery/monitoring', label: 'Monitoring', icon: MonitorCheck },
+      { href: '/lucid-os/delivery/projects', label: 'Projets', icon: FolderKanban },
+      { href: '/lucid-os/delivery/websites', label: 'Sites web', icon: Globe2 },
+      { href: '/lucid-os/delivery/monitoring', label: 'Monitoring', icon: MonitorCheck },
     ],
   },
   {
@@ -84,8 +85,8 @@ const navSections: NavSection[] = [
     label: 'Opérations',
     icon: Compass,
     items: [
-      { href: '/admin/conversations', label: 'Conversations bot', icon: MessageSquare, activePaths: ['/admin/contacts'] },
-      { href: '/admin/bookings', label: 'Rendez-vous', icon: CalendarClock },
+      { href: '/conversations', label: 'Conversations bot', icon: MessageSquare, activePaths: ['/contacts'] },
+      { href: '/bookings', label: 'Rendez-vous', icon: CalendarClock },
     ],
   },
   {
@@ -93,8 +94,8 @@ const navSections: NavSection[] = [
     label: 'Agents',
     icon: Bot,
     items: [
-      { href: '/admin/lucid-os/agents', label: 'Agents', icon: Bot },
-      { href: '/admin/lucid-os/inbox', label: 'Validations', icon: Inbox },
+      { href: '/lucid-os/agents', label: 'Agents', icon: Bot },
+      { href: '/lucid-os/inbox', label: 'Validations', icon: Inbox },
     ],
   },
   {
@@ -102,7 +103,7 @@ const navSections: NavSection[] = [
     label: 'Connaissance',
     icon: Brain,
     items: [
-      { href: '/admin/lucid-os/knowledge', label: 'Base de connaissance', icon: Brain },
+      { href: '/lucid-os/knowledge', label: 'Base de connaissance', icon: Brain },
     ],
   },
   {
@@ -110,9 +111,9 @@ const navSections: NavSection[] = [
     label: 'Contenu',
     icon: FileText,
     items: [
-      { href: '/admin/blog', label: 'Blog', icon: FileText },
-      { href: '/admin/lucid-os/social', label: 'LinkedIn', icon: Megaphone },
-      { href: '/admin/brand', label: 'Charte graphique', icon: Palette },
+      { href: '/blog', label: 'Blog', icon: FileText },
+      { href: '/lucid-os/social', label: 'LinkedIn', icon: Megaphone },
+      { href: '/brand', label: 'Charte graphique', icon: Palette },
     ],
   },
   {
@@ -120,26 +121,33 @@ const navSections: NavSection[] = [
     label: 'Système',
     icon: History,
     items: [
-      { href: '/admin/lucid-os/system/audit', label: 'Journal d’audit', icon: History },
+      { href: '/lucid-os/system/audit', label: 'Journal d’audit', icon: History },
     ],
   },
 ];
 
-function pathIsActive(pathname: string, item: NavItem): boolean {
+// `base` is '' on the admin subdomain and '/admin' when the routes are reached
+// directly (localhost, Vercel previews). Nav hrefs are stored without it, so
+// both the link and the active check resolve against the same space as
+// `usePathname()`, which always reports the browser-visible path.
+function pathIsActive(pathname: string, item: NavItem, base: string): boolean {
   const candidates = [item.href.split('#')[0], ...(item.activePaths ?? [])];
 
   return candidates.some((candidate) => {
-    if (item.exact) return pathname === candidate;
-    return pathname === candidate || pathname.startsWith(`${candidate}/`);
+    // `|| '/'` covers the admin root: base '' + candidate '' is an empty string,
+    // but the browser reports '/'.
+    const target = `${base}${candidate}` || '/';
+    if (item.exact) return pathname === target;
+    return pathname === target || pathname.startsWith(`${target}/`);
   });
 }
 
-function NavLink({ item, active }: { item: NavItem; active: boolean }) {
+function NavLink({ item, active, base }: { item: NavItem; active: boolean; base: string }) {
   const Icon = item.icon;
 
   return (
     <Link
-      href={item.href}
+      href={`${base}${item.href}`}
       className={cn(
         'group flex h-8 items-center gap-2 rounded-md px-2.5 text-[13px] font-medium transition-colors',
         active
@@ -153,7 +161,7 @@ function NavLink({ item, active }: { item: NavItem; active: boolean }) {
   );
 }
 
-export function AdminNav() {
+export function AdminNav({ base }: { base: string }) {
   const pathname = usePathname();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
@@ -168,14 +176,14 @@ export function AdminNav() {
     <nav className="mt-7 grid gap-6 text-sm">
       <div className="grid gap-1">
         {primaryItems.map((item) => (
-          <NavLink key={item.href} item={item} active={pathIsActive(pathname, item)} />
+          <NavLink key={item.href} item={item} base={base} active={pathIsActive(pathname, item, base)} />
         ))}
       </div>
 
       <div className="grid gap-4">
         {navSections.map((section) => {
           const SectionIcon = section.icon;
-          const sectionIsActive = section.items.some((item) => pathIsActive(pathname, item));
+          const sectionIsActive = section.items.some((item) => pathIsActive(pathname, item, base));
           const sectionIsOpen = sectionIsActive || (openGroups[section.id] ?? section.defaultOpen ?? false);
 
           return (
@@ -199,7 +207,7 @@ export function AdminNav() {
               {sectionIsOpen ? (
                 <div className="grid gap-1">
                   {section.items.map((item) => (
-                    <NavLink key={item.href} item={item} active={pathIsActive(pathname, item)} />
+                    <NavLink key={item.href} item={item} base={base} active={pathIsActive(pathname, item, base)} />
                   ))}
                 </div>
               ) : null}

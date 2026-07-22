@@ -81,6 +81,28 @@ export const config = {
   adminApiKey: process.env['ADMIN_API_KEY'] ?? '',
   cronSecret: process.env['CRON_SECRET'] ?? '',
 
+  // Admin human login via Google SSO (restricted to an email allowlist).
+  // The shared ADMIN_API_KEY stays a machine-only credential (contact-delete,
+  // debug routes); it can no longer mint a browser session.
+  googleOAuthClientId: process.env['GOOGLE_OAUTH_CLIENT_ID'] ?? '',
+  googleOAuthClientSecret: process.env['GOOGLE_OAUTH_CLIENT_SECRET'] ?? '',
+  /** Optional hard override; otherwise derived from the request origin. */
+  googleOAuthRedirectUri: process.env['GOOGLE_OAUTH_REDIRECT_URI'] ?? '',
+  /** Signs the admin session cookie. Falls back to ADMIN_API_KEY so a value is
+   *  always present; set it explicitly so rotating ADMIN_API_KEY does not log
+   *  everyone out. */
+  get adminSessionSecret() {
+    return process.env['ADMIN_SESSION_SECRET'] || (process.env['ADMIN_API_KEY'] ?? '');
+  },
+  /** Comma-separated allowlist of Google emails permitted into the dashboard.
+   *  Empty = deny all (fail closed). Kept in env, never hardcoded. */
+  get adminAllowedEmails(): string[] {
+    return (process.env['ADMIN_ALLOWED_EMAILS'] ?? '')
+      .split(',')
+      .map((email) => email.trim().toLowerCase())
+      .filter((email) => email.length > 0);
+  },
+
   // Budget + rate limit
   dailyAiBudgetEur: parseFloat(optionalEnv('DAILY_AI_BUDGET_EUR', '5')),
   rateLimitMax: parseInt(optionalEnv('RATE_LIMIT_MAX', '60'), 10),
@@ -91,8 +113,17 @@ export const config = {
   retentionLeadsLostDays: parseInt(optionalEnv('RETENTION_LEADS_LOST_DAYS', '365'), 10),
   retentionAuditLogDays: parseInt(optionalEnv('RETENTION_AUDIT_LOG_DAYS', '730'), 10),
 
-  // IP hashing salt — rotate periodically in production
-  ipHashSalt: optionalEnv('IP_HASH_SALT', 'lucid-lab-default-salt-change-me'),
+  // IP hashing salt — required in production so hashed visitor IPs cannot be
+  // de-anonymized against the known default salt. Resolved lazily at request
+  // time (like the Supabase keys) so the build does not need it present.
+  get ipHashSalt() {
+    const value = process.env['IP_HASH_SALT'];
+    if (value && value.length > 0) return value;
+    if ((process.env['NODE_ENV'] ?? 'development') === 'production') {
+      throw new Error('IP_HASH_SALT must be set in production (e.g. `openssl rand -hex 32`).');
+    }
+    return 'lucid-lab-default-salt-change-me';
+  },
 
   // DocuSeal
   docusealApiKey: process.env['DOCUSEAL_API_KEY'] ?? '',
@@ -139,6 +170,15 @@ export const config = {
     'LINKEDIN_ORG_REDIRECT_URI',
     'https://lucid-lab.fr/admin/integrations/linkedin-org/callback',
   ),
+
+  // Client portal (client.lucid-lab.fr)
+  portalSessionSecret: process.env['PORTAL_SESSION_SECRET'] ?? '',
+  portalBaseUrl: optionalEnv('PORTAL_BASE_URL', 'https://client.lucid-lab.fr'),
+
+  // Admin (admin.lucid-lab.fr). Used for links that leave the app: emails,
+  // Telegram notifications. Kept in sync with `adminBaseUrl()` in
+  // src/lib/admin/urls.ts, which the edge proxy uses (it cannot import config).
+  adminBaseUrl: optionalEnv('ADMIN_BASE_URL', 'https://admin.lucid-lab.fr'),
 
   // Billing
   billingDefaultVatRate: parseFloat(optionalEnv('BILLING_DEFAULT_VAT_RATE', '0.20')),

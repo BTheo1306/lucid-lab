@@ -8,6 +8,7 @@ import {
   type LucidClientStatus,
   type LucidClientSummary,
 } from '@/lib/admin/lucid-os';
+import { adminBasePath } from '@/lib/admin/auth';
 import { EmptyState, LucidOsHeader, StatusBadge } from '../components';
 
 export const dynamic = 'force-dynamic';
@@ -89,6 +90,10 @@ function recordIsTerminated(record: ClientRecordListItem): boolean {
   return status === 'offboarded' || status === 'archived';
 }
 
+function recordIsNew(record: ClientRecordListItem): boolean {
+  return record.source === 'lucid_os' && record.client.status === 'lead' && !record.client.openedAt;
+}
+
 function normalizeListSearch(value: string): string {
   return value.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase();
 }
@@ -119,8 +124,9 @@ function prospectTone(record: ClientRecordListItem): 'neutral' | 'good' | 'warni
   return intakeTone(recordIntakeStage(record));
 }
 
-function RecordRow({ record, acquired }: { record: ClientRecordListItem; acquired: boolean }) {
-  const href = `/admin/lucid-os/clients/${recordSlug(record)}`;
+async function RecordRow({ record, acquired }: { record: ClientRecordListItem; acquired: boolean }) {
+  const base = await adminBasePath();
+  const href = `${base}/lucid-os/clients/${recordSlug(record)}`;
   const label = acquired ? 'actif' : prospectLabel(record);
   const tone = acquired ? 'good' : prospectTone(record);
 
@@ -132,7 +138,14 @@ function RecordRow({ record, acquired }: { record: ClientRecordListItem; acquire
       <span className="truncate text-base font-semibold tracking-[-0.01em] text-zinc-950 group-hover:text-zinc-900">
         {recordName(record)}
       </span>
-      <StatusBadge tone={tone}>{label}</StatusBadge>
+      <span className="flex items-center justify-end gap-2">
+        {recordIsNew(record) ? (
+          <span className="inline-flex items-center rounded-full bg-blue-600 px-2 py-0.5 text-[10px] font-bold uppercase tracking-[0.08em] text-white">
+            New
+          </span>
+        ) : null}
+        <StatusBadge tone={tone}>{label}</StatusBadge>
+      </span>
     </Link>
   );
 }
@@ -161,6 +174,7 @@ function RecordListSection({
           <EmptyState>{emptyLabel}</EmptyState>
         ) : (
           records.map((record) => <RecordRow key={`${record.source}-${recordSlug(record)}`} record={record} acquired={acquired} />)
+          /* RecordRow is async (reads adminBasePath); RSC awaits each element. */
         )}
       </div>
     </section>
@@ -184,13 +198,14 @@ export default async function LucidOsClientsPage({ searchParams }: { searchParam
   const clientRecords = filteredRecords.filter(recordIsAcquired);
   const terminatedRecords = filteredRecords.filter(recordIsTerminated);
   const prospectRecords = filteredRecords.filter((record) => !recordIsAcquired(record) && !recordIsTerminated(record));
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-7">
       <LucidOsHeader
         title="Fiches clients"
         action={(
-          <Link href="/admin/lucid-os/clients/new" className="inline-flex h-9 items-center justify-center gap-2 rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition hover:bg-zinc-800">
+          <Link href={`${base}/lucid-os/clients/new`} className="inline-flex h-9 items-center justify-center gap-2 rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition hover:bg-zinc-800">
             <Plus className="size-4" />
             Ajouter un client
           </Link>

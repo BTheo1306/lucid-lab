@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { handleCooTelegramUpdate, sendTelegramCooMessage, type TelegramUpdate } from '@/lib/admin/agents/coo-agent';
 import { config } from '@/lib/bot/config';
+import { safeEqual } from '@/lib/security/constant-time';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -8,7 +9,7 @@ export const maxDuration = 30;
 
 function verifyTelegramSecret(request: NextRequest): boolean {
   if (!config.telegramCooWebhookSecret) return false;
-  return request.headers.get('x-telegram-bot-api-secret-token') === config.telegramCooWebhookSecret;
+  return safeEqual(request.headers.get('x-telegram-bot-api-secret-token'), config.telegramCooWebhookSecret);
 }
 
 export async function POST(request: NextRequest): Promise<NextResponse> {

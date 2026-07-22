@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "seed-kb": "tsx scripts/seed-kb.ts",
-    "sync-obsidian-kb": "tsx scripts/sync-obsidian-knowledge.ts"
+    "sync-obsidian-kb": "tsx scripts/sync-obsidian-knowledge.ts",
+    "check:auth": "tsx scripts/check-admin-action-auth.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.87.0",

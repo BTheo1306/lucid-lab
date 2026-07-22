@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 
 import { config } from '@/lib/bot/config';
+import { bearerMatches } from '@/lib/security/constant-time';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
 import { listRecentlyPosted, listUpcomingPosts, updateEngagement, type SocialPost } from '@/lib/admin/social';
 import { getPostingCredentials } from '@/lib/admin/linkedin/account';
@@ -15,7 +16,7 @@ const dateFormatter = new Intl.DateTimeFormat('fr-FR', { dateStyle: 'medium', ti
 
 function isAuthorized(req: Request): boolean {
   if (!config.cronSecret) return false;
-  return req.headers.get('authorization') === `Bearer ${config.cronSecret}`;
+  return bearerMatches(req.headers.get('authorization'), config.cronSecret);
 }
 
 function postTitle(post: SocialPost): string {
@@ -59,7 +60,7 @@ export async function GET(req: Request) {
   }
 
   await sendLinkedInWeeklyDigest({
-    adminUrl: 'https://lucid-lab.fr/admin/lucid-os/social?vue=a-valider',
+    adminUrl: `${config.adminBaseUrl}/lucid-os/social?vue=a-valider`,
     upcoming: upcoming.map((post) => ({
       dateLabel: dateLabel(post.scheduledFor),
       pillar: post.pillar,

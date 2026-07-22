@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Bot, LogOut } from 'lucide-react';
-import { requireAdmin } from '@/lib/admin/auth';
+import { adminBasePath, requireAdmin } from '@/lib/admin/auth';
 import { logoutAdmin } from '../actions';
 import { AdminNav } from './AdminNav';
 import { AdminThemeToggle } from './AdminThemeToggle';
@@ -16,6 +16,9 @@ export const metadata: Metadata = {
 
 export default async function AdminDashboardLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin();
+  // Client components cannot read headers(), so the link prefix is resolved
+  // here and passed down. See `adminBasePath`.
+  const base = await adminBasePath();
 
   return (
     <div data-admin-root className="relative z-10 min-h-[100dvh] bg-[#f5f6f2] text-zinc-950">
@@ -27,7 +30,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
             <span className="text-[16px] font-bold tracking-tight text-zinc-950" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Lucid-Lab</span>
           </div>
 
-          <AdminNav />
+          <AdminNav base={base} />
         </aside>
 
         <div className="min-w-0">

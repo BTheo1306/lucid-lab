@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, CalendarClock, Mail } from 'lucide-react';
+import { adminBasePath } from '@/lib/admin/auth';
 import { getAdminBookingsPageData } from '@/lib/admin/dashboard';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +30,7 @@ function statusClass(status: string): string {
 
 export default async function AdminBookingsPage() {
   const { bookings } = await getAdminBookingsPageData();
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-6">
@@ -68,7 +70,7 @@ export default async function AdminBookingsPage() {
                 </p>
               </div>
               {booking.contactId ? (
-                <Link href={`/admin/contacts/${booking.contactId}`} className="inline-flex h-9 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
+                <Link href={`${base}/contacts/${booking.contactId}`} className="inline-flex h-9 items-center gap-2 rounded-lg border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 hover:bg-zinc-50">
                   Open contact <ArrowRight className="size-4" />
                 </Link>
               ) : null}

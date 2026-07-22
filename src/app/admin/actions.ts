@@ -2,13 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
-import {
-  clearAdminSessionCookie,
-  isAdminAuthenticated,
-  isValidAdminKey,
-  setAdminSessionCookie,
-} from '@/lib/admin/auth';
-import { config } from '@/lib/bot/config';
+import { adminBasePath, clearAdminSessionCookie, isAdminAuthenticated } from '@/lib/admin/auth';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
 import { updateConversation, type Conversation } from '@/lib/bot/db/queries/conversations';
 import { updateLead, type Lead } from '@/lib/bot/db/queries/leads';
@@ -18,7 +12,7 @@ const conversationStatuses = new Set<Conversation['status']>(['active', 'escalat
 
 async function requireAdminAction(): Promise<void> {
   if (!(await isAdminAuthenticated())) {
-    redirect('/admin/login');
+    redirect(`${await adminBasePath()}/login`);
   }
 }
 
@@ -28,33 +22,10 @@ function formString(formData: FormData, key: string): string {
   return typeof value === 'string' ? value.trim() : '';
 }
 
-export async function loginAdmin(formData: FormData): Promise<void> {
-  const adminKey = formString(formData, 'admin_key');
-
-  if (!config.adminApiKey) {
-    redirect('/admin/login?error=missing');
-  }
-
-  if (!isValidAdminKey(adminKey)) {
-    await logSecurityEvent({
-      event_type: 'admin_unauthorized',
-      details: { route: 'admin/login' },
-    });
-    redirect('/admin/login?error=invalid');
-  }
-
-  await setAdminSessionCookie();
-  await logSecurityEvent({
-    event_type: 'admin_access',
-    details: { route: 'admin/login' },
-  });
-
-  redirect('/admin/lucid-os');
-}
-
 export async function logoutAdmin(): Promise<void> {
+  const base = await adminBasePath();
   await clearAdminSessionCookie();
-  redirect('/admin/login');
+  redirect(`${base}/login`);
 }
 
 export async function updateLeadStatusAction(formData: FormData): Promise<void> {

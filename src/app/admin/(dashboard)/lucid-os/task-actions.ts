@@ -1,11 +1,25 @@
 'use server';
 
 import { revalidatePath } from 'next/cache';
+import { requireAdmin } from '@/lib/admin/auth';
+import { setTaskClientVisibility } from '@/lib/admin/portal';
 import { supabase } from '@/lib/bot/db/supabase';
 
 const ORG_SLUG = 'lucid-lab';
 
+const TASK_STATUSES = new Set(['todo', 'in_progress', 'waiting', 'done', 'cancelled']);
+
+/** Eye toggle on the task boards: publish or hide a task on the client portal. */
+export async function setClientTaskVisibilityAction(taskId: string, visible: boolean): Promise<void> {
+  await requireAdmin();
+  await setTaskClientVisibility(taskId, visible);
+  revalidatePath('/admin/lucid-os');
+}
+
 export async function updateAnyClientTaskStatus(taskId: string, status: string): Promise<void> {
+  await requireAdmin();
+  if (!TASK_STATUSES.has(status)) throw new Error('Task status is invalid.');
+
   const { error } = await supabase
     .from('client_tasks')
     .update({ status })
@@ -16,6 +30,7 @@ export async function updateAnyClientTaskStatus(taskId: string, status: string):
 }
 
 export async function createClientTaskAction(formData: FormData): Promise<void> {
+  await requireAdmin();
   const title = (formData.get('title') as string | null)?.trim();
   const description = (formData.get('description') as string | null)?.trim() || null;
   const clientId = (formData.get('client_id') as string | null) || null;

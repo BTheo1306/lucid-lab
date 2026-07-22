@@ -6,6 +6,7 @@ import { getLucidClientBySlug, type LucidClientSummary } from '@/lib/admin/lucid
 import { LucidOsHeader, Section } from '../../../components';
 import { ClientIntakeForm } from '../../ClientIntakeForm';
 import { DeleteClientForm } from '../../DeleteClientForm';
+import { adminBasePath } from '@/lib/admin/auth';
 
 export const dynamic = 'force-dynamic';
 
@@ -44,6 +45,7 @@ function clientFromVaultProfile(profile: VaultClientProfile): LucidClientSummary
     nextAction: profile.nextStep,
     nextActionDueAt: null,
     lastContactedAt: null,
+    openedAt: null,
     industry: profile.industry,
     websiteUrl: profile.websiteUrl,
     legalName: profile.name,
@@ -94,13 +96,14 @@ export default async function EditLucidClientPage({ params, searchParams }: { pa
   const editableClient = client ?? clientFromVaultProfile(vaultProfile as VaultClientProfile);
   const resolvedSearchParams = searchParams ? await searchParams : {};
   const clientError = firstSearchParam(resolvedSearchParams.client_error);
+  const base = await adminBasePath();
 
   return (
     <div className="grid gap-6">
       <LucidOsHeader
         title={`Modifier ${editableClient.name}`}
         action={(
-          <Link href={`/admin/lucid-os/clients/${editableClient.slug}`} className="inline-flex h-9 items-center gap-2 rounded border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.07]">
+          <Link href={`${base}/lucid-os/clients/${editableClient.slug}`} className="inline-flex h-9 items-center gap-2 rounded border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.07]">
             <ArrowLeft className="size-4" />
             Retour
           </Link>
