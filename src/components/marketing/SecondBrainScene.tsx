@@ -160,14 +160,35 @@ function networkLayout(rand: () => number) {
   return { nodes, lines, dust }
 }
 
-// Soft round sprite for glow points.
+// Crisp round sprite: solid to ~75% of the radius, then a 1-2px feather just
+// for anti-aliasing. This keeps each particle a sharp dot instead of the fuzzy
+// blob a wide gradient produces. Used for the core points and the nodes.
 function dotTexture(): THREE.Texture {
+  const c = document.createElement('canvas')
+  c.width = c.height = 128
+  const ctx = c.getContext('2d')!
+  const g = ctx.createRadialGradient(64, 64, 0, 64, 64, 64)
+  g.addColorStop(0, 'rgba(255,255,255,1)')
+  g.addColorStop(0.74, 'rgba(255,255,255,1)')
+  g.addColorStop(0.88, 'rgba(255,255,255,0.55)')
+  g.addColorStop(1, 'rgba(255,255,255,0)')
+  ctx.fillStyle = g
+  ctx.fillRect(0, 0, 128, 128)
+  const tex = new THREE.CanvasTexture(c)
+  tex.colorSpace = THREE.SRGBColorSpace
+  tex.anisotropy = 4
+  return tex
+}
+
+// Soft sprite for the faint bloom layer only (kept subtle so it adds warmth
+// without blurring the dots).
+function glowTexture(): THREE.Texture {
   const c = document.createElement('canvas')
   c.width = c.height = 64
   const ctx = c.getContext('2d')!
   const g = ctx.createRadialGradient(32, 32, 0, 32, 32, 32)
-  g.addColorStop(0, 'rgba(255,255,255,1)')
-  g.addColorStop(0.35, 'rgba(255,255,255,0.55)')
+  g.addColorStop(0, 'rgba(255,255,255,0.9)')
+  g.addColorStop(0.4, 'rgba(255,255,255,0.32)')
   g.addColorStop(1, 'rgba(255,255,255,0)')
   ctx.fillStyle = g
   ctx.fillRect(0, 0, 64, 64)
@@ -235,23 +256,25 @@ export default function SecondBrainScene({
     const geo = new THREE.BufferGeometry()
     geo.setAttribute('position', new THREE.BufferAttribute(positions, 3))
     geo.setAttribute('color', new THREE.BufferAttribute(colors, 3))
-    // Two layers over the same geometry: a crisp core and a soft halo bloom.
+    // Two layers over the same geometry: a crisp core (sharp dots) and a very
+    // faint soft bloom for warmth. The bloom is kept low so it never fuzzes
+    // the dots.
     const coreMat = new THREE.PointsMaterial({
-      size: 0.030,
+      size: 0.028,
       map: dotTexture(),
       vertexColors: true,
       transparent: true,
-      opacity: 0.95,
+      opacity: 1,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
       sizeAttenuation: true,
     })
     const haloMat = new THREE.PointsMaterial({
-      size: 0.07,
-      map: dotTexture(),
+      size: 0.05,
+      map: glowTexture(),
       vertexColors: true,
       transparent: true,
-      opacity: 0.16,
+      opacity: 0.06,
       depthWrite: false,
       blending: THREE.AdditiveBlending,
       sizeAttenuation: true,
@@ -424,8 +447,8 @@ export default function SecondBrainScene({
       geo.attributes.position.needsUpdate = true
 
       // Dust settles quieter once the network is formed, so content stays readable.
-      coreMat.opacity = 0.95 - 0.45 * shapeFrac
-      haloMat.opacity = 0.16 - 0.07 * shapeFrac
+      coreMat.opacity = 1 - 0.5 * shapeFrac
+      haloMat.opacity = 0.06 - 0.03 * shapeFrac
 
       // Nodes and lines materialize as the explosion settles.
       const netReveal = smootherstep((shapeFrac - 0.45) / 0.55)
@@ -440,8 +463,8 @@ export default function SecondBrainScene({
       const brainHold = 1 - shapeFrac
       const fit = baseScale + (1 - baseScale) * shapeFrac
       group.scale.setScalar(fit * (1 + brainHold * 0.06 * Math.sin(time * 0.8)))
-      coreMat.size = 0.030 * fit
-      haloMat.size = 0.07 * fit
+      coreMat.size = 0.028 * fit
+      haloMat.size = 0.05 * fit
       // Scrolling tips the brain forward: by the time it sits behind the
       // statement you are looking at the top of both hemispheres. The tilt
       // waits out the first third of the glide so the profile stays readable
