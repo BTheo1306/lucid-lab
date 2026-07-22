@@ -2,7 +2,33 @@
 
 Objectif : servir l'admin de Lucid OS sur `admin.lucid-lab.fr` avec des URLs propres (`admin.lucid-lab.fr/lucid-os`), en validant d'abord sur un staging sans toucher à la prod ni au CRM que Jules utilise.
 
-État au 2026-07-20 :
+## ✅ CUTOVER RÉALISÉ EN PRODUCTION (2026-07-22)
+
+L'admin est **live sur `admin.lucid-lab.fr`**. `lucid-lab.fr/admin/*` renvoie en 308 vers le sous-domaine. Migration terminée, staging démonté.
+
+**Ce qui a été fait :**
+- Merge chirurgical `feat/admin-subdomain` vers `main` (uniquement la migration). Le travail home "cas clients ROI" de `feat/cas-clients-roi` et le durcissement CSP/HSTS de `audit/seo-security-perf` n'ont **pas** été embarqués : ils restent à livrer séparément.
+- `admin.lucid-lab.fr` rattaché à Production, certificat Let's Encrypt (`*.lucid-lab.fr`) valide.
+- Google SSO : ajout de `https://admin.lucid-lab.fr/auth/google/callback` aux redirect URIs du client OAuth **"Admin CRM Oauth"**. Aucune variable d'env nécessaire : `googleRedirectUri()` retombe sur `adminRedirectUrl(request)` quand `GOOGLE_OAUTH_REDIRECT_URI` est absent (flux dynamique par host, donc seul l'enregistrement console a suffi).
+- `ADMIN_SUBDOMAIN_ENFORCED=1` posé en Production (scope Production only) + redéploiement : la garde apex s'active.
+- Staging retiré : domaine `admin-staging.lucid-lab.fr` détaché, vars Preview (`ADMIN_BASE_URL`, `ADMIN_SESSION_SECRET` jetable) supprimées.
+
+**Vérifié en prod :** `lucid-lab.fr/admin/lucid-os/clients?tab=prospects` renvoie 308 vers `admin.lucid-lab.fr/lucid-os/clients?tab=prospects` (chemin ET query préservés) ; `/api/admin/*` **non** redirigé (surface machine CRM intacte) ; homepage 200 inchangée ; sous-domaine sert l'admin et le login Google aboutit au sélecteur de compte.
+
+**Skills CRM non impactés** (`/maj`, `dougs-sync`, `fireflies-sync`, `facturation`) : ils écrivent le CRM via le **MCP Supabase (`execute_sql`)** ou pilotent Dougs/Gmail/Drive, jamais via l'admin navigateur qui a bougé. Chemin d'écriture Supabase vérifié live (12 clients, 31 `maj_crm_sync`).
+
+**Rollback :** retirer `ADMIN_SUBDOMAIN_ENFORCED` de Production + redéployer. `lucid-lab.fr/admin` re-sert alors en direct (cookie `path:'/'` rétro-compatible, pas de casse d'auth).
+
+### Learnings (pièges rencontrés, absents du plan initial)
+- **Vercel Deployment Protection** gate les déploiements Preview derrière le SSO Vercel. Pour valider le staging en curl il a fallu générer un secret **Protection Bypass for Automation** (en-tête `x-vercel-protection-bypass`, retiré après recette).
+- Les creds **Supabase** (`SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY`) étaient **Production only**. Sur Preview le client service-role retombe sur `http://localhost` (`createClient(url || 'http://localhost', ...)`), d'où `ECONNREFUSED 127.0.0.1:80` et pages à données vides. Ajoutés temporairement en Preview (scope branche) pour prouver le rendu réel, puis retirés.
+- Le client OAuth Google de l'admin ("Admin CRM Oauth", `130314452707-...`) vit dans le projet GCP **"Lucid Lab" (`lucid-lab-496617`), compte `info@lucid-lab.fr`**, pas `gouronjules@gmail.com` (qui n'y a pas accès).
+- **LinkedIn** (posting, redirect fixe par env) : inactif pour l'instant, mis de côté (à retravailler). Marche de toute façon post-cutover via le rebond 308.
+- CSP/HSTS non embarqués : le **piège HSTS `includeSubDomains` est resté désarmé**, ce qui a dé-risqué l'ordre certificat/DNS.
+
+---
+
+État au 2026-07-20 (historique, phase de préparation) :
 - Code sur la branche `feat/admin-subdomain` (repo `BTheo1306/lucid-lab`), poussée, 12 commits, non mergée. Cible d'intégration prévue : `feat/cas-clients-roi`, jamais `main` sans feu vert.
 - **Étape 0 faite** : le proxy pointe sur `isAdminHost(hostname)` (reconnaît le host de staging par env).
 - **Phase C faite** (le balayage des URLs, décrit plus bas comme « non bloquant ») : plus aucun `/admin/...` browser-facing en dur hors `proxy.ts` / `urls.ts` / `auth.ts`. Toutes les server actions passent par `adminRedirect()`, les route handlers par `adminRedirectUrl()`, les pages (y compris les liens dans des sous-composants serveur rendus `async`) par `adminBasePath()`.
