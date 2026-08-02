@@ -5,6 +5,7 @@ import { redirect } from 'next/navigation';
 import { requireAdmin } from '@/lib/admin/auth';
 import {
   answerClientRequest,
+  applyClientRequestLegalUpdate,
   createAgencyRequest,
   sendPortalInviteForContact,
   setContactPortalAccess,
@@ -102,6 +103,27 @@ export async function answerClientRequestAction(formData: FormData): Promise<voi
       status,
       responseNote: String(formData.get('response_note') ?? '') || null,
     });
+  } catch (error) {
+    errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
+  }
+
+  if (errorMessage) {
+    redirect(`${clientPath(slug)}?client_error=${encodeURIComponent(errorMessage)}`);
+  }
+  revalidatePath(clientPath(slug));
+  revalidatePath('/admin/lucid-os/inbox');
+}
+
+/** Applique à la fiche les informations que le client a proposées depuis le portail. */
+export async function applyClientRequestLegalAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const requestId = String(formData.get('request_id') ?? '');
+  const slug = String(formData.get('client_slug') ?? '');
+
+  let errorMessage: string | null = null;
+  try {
+    await applyClientRequestLegalUpdate(requestId);
   } catch (error) {
     errorMessage = error instanceof Error ? error.message : 'Erreur inconnue';
   }

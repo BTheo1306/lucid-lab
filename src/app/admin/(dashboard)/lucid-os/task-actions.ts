@@ -37,6 +37,7 @@ export async function createClientTaskAction(formData: FormData): Promise<void> 
   const ownerLabel = (formData.get('owner_label') as string | null)?.trim() || null;
   const priority = (formData.get('priority') as string | null) || 'normal';
   const dueAt = (formData.get('due_at') as string | null) || null;
+  const clientVisible = formData.get('client_visible') === '1';
 
   if (!title) throw new Error('Le titre est requis.');
 
@@ -57,6 +58,7 @@ export async function createClientTaskAction(formData: FormData): Promise<void> 
     priority,
     due_at: dueAt || null,
     status: 'todo',
+    client_visible: clientVisible,
   });
 
   if (error) throw new Error(error.message);

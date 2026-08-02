@@ -1,6 +1,6 @@
 import { ArrowDownLeft, ArrowUpRight, Send } from 'lucide-react';
 import { listClientRequestsForClient } from '@/lib/admin/portal';
-import { answerClientRequestAction, createAgencyRequestAction } from './portal-actions';
+import { answerClientRequestAction, applyClientRequestLegalAction, createAgencyRequestAction } from './portal-actions';
 
 const STATUS_LABELS: Record<string, string> = {
   open: 'Ouverte',
@@ -125,6 +125,40 @@ export async function RequestsPanel({ clientId, clientSlug }: { clientId: string
                     <p className="rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm leading-6 whitespace-pre-line text-zinc-700">
                       {request.responseNote}
                     </p>
+                  ) : null}
+
+                  {request.proposedLegal && openIncoming ? (
+                    <div className="grid gap-2 rounded border border-blue-200 bg-blue-50 px-3 py-2.5">
+                      <p className="text-[11px] font-semibold uppercase tracking-[0.08em] text-blue-700">
+                        Informations proposées par le client
+                      </p>
+                      <dl className="grid gap-1 text-sm text-zinc-800">
+                        {[
+                          ['Raison sociale', request.proposedLegal.legalName],
+                          ['SIREN', request.proposedLegal.siren],
+                          ['SIRET', request.proposedLegal.siret],
+                          ['Adresse de facturation', request.proposedLegal.billingAddress],
+                          ['Site web', request.proposedLegal.websiteUrl],
+                        ].map(([label, value]) =>
+                          value ? (
+                            <div key={label} className="flex flex-wrap gap-x-2">
+                              <dt className="text-zinc-500">{label} :</dt>
+                              <dd className="font-medium">{value}</dd>
+                            </div>
+                          ) : null,
+                        )}
+                      </dl>
+                      <form action={applyClientRequestLegalAction}>
+                        <input type="hidden" name="request_id" value={request.id} />
+                        <input type="hidden" name="client_slug" value={clientSlug} />
+                        <button
+                          type="submit"
+                          className="inline-flex h-8 items-center rounded border border-blue-200 bg-white px-2.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
+                        >
+                          Appliquer à la fiche
+                        </button>
+                      </form>
+                    </div>
                   ) : null}
 
                   {openIncoming ? (

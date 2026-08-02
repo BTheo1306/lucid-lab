@@ -11,11 +11,17 @@ templates/  (documents commerciaux et administratifs)
 ---------------------------------------------------
   document            Proposition commerciale (6 pages)
   one-pager           Fiche de presentation (1 page)
+  one-pager-avocats   Fiche de presentation, cabinets d'avocats (1 page :
+                      second cerveau, secret professionnel, audit flash).
   devis               Devis
   bon-de-commande     Bon de commande
   bon-pour-accord     Bon pour accord
   contrat             Contrat de prestation
   guide-rustdesk      Guide d'installation RustDesk, client (FR + EN, 4 pages)
+  guide-wiki-claude-obsidian  Guide client wiki Claude + Obsidian (7 pages :
+                      deroule de la mise en place, questionnaire avant seance,
+                      questions d'interview, sources et garde-fous, quotidien).
+                      A envoyer au client AVANT la seance d'installation.
   compte-rendu        Compte rendu de livraison client (5 pages : realisations,
                       fonctionnement, besoins client, suite). Les exemplaires
                       remplis par client sont classes sur le Drive (dossier client).
@@ -29,6 +35,11 @@ pitch-deck/  (presentations)
   export-pdf.sh       Regenere un PDF depuis un .html
                         ./export-pdf.sh                          -> deck.pdf depuis index.html
                         ./export-pdf.sh timeline.pdf timeline.html -> timeline.pdf
+  deck-court/         Deck court, 3 slides, cabinets d'expertise comptable.
+                      A montrer ou envoyer APRES un appel telephonique.
+                      Support de rendez-vous : il nomme CMB, donc il ne va
+                      jamais sur le site public ni dans un mail a froid.
+                      Voir deck-court/README.md pour l'export PDF.
   assets/team/        Photos de l'equipe (Theo, Anthony, Jules)
 
 

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { Copy, Check } from 'lucide-react';
 
 /** Small client-side copy-to-clipboard button for the drafted outreach note. */
-export function CopyButton({ text }: { text: string }) {
+export function CopyButton({ text, label = 'Copier le message' }: { text: string; label?: string }) {
   const [copied, setCopied] = useState(false);
 
   async function copy(): Promise<void> {
@@ -24,7 +24,7 @@ export function CopyButton({ text }: { text: string }) {
       className="inline-flex items-center gap-1 text-xs font-medium text-zinc-600 transition-colors hover:text-zinc-900"
     >
       {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
-      {copied ? 'Copié' : 'Copier le message'}
+      {copied ? 'Copié' : label}
     </button>
   );
 }

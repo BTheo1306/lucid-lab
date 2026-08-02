@@ -1,0 +1,543 @@
+{
+  "name": "Eden A - Envoi du pack d'inscription",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## MODE STAGING ACTIF\nLe node \"Paramètres\" a staging=true : TOUS les emails partent vers info@lucid-lab.fr\nau lieu des parents et d'Eden. Basculer staging=false apres les tests de bout en bout.\n\nA l'import : 1) mapper les credentials, 2) choisir les dossiers Outlook dans les nodes [DOSSIER].",
+        "width": 460,
+        "height": 240
+      },
+      "id": "5e509e28-bdad-47f1-ad9c-0ed670a848e7",
+      "name": "Note 4ece71",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "output": "raw",
+        "filters": {}
+      },
+      "id": "b9f2bc76-a7e0-4abd-bc9a-fbc16a811190",
+      "name": "[DOSSIER] Nouveau mail \"1 - Nouvelle inscription\"",
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "name": "Outlook Eden (uccle@jardindeden.be)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\"staging\": true, \"email_eden\": \"uccle@jardindeden.be\", \"email_lucid\": \"info@lucid-lab.fr\", \"sheet_url\": \"https://docs.google.com/spreadsheets/d/1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU\"}",
+        "options": {}
+      },
+      "id": "0313027a-2598-43bc-9a3d-37ffc5952dc7",
+      "name": "Paramètres",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\n// Mail deplace par Eden dans \"1 - Nouvelle inscription\" : l'expediteur est le parent.\nconst m = $input.item.json;\nconst from = m.from?.emailAddress || m.sender?.emailAddress || {};\nconst email = (from.address || '').toLowerCase().trim();\nconst nom = from.name || '';\nconst interne = ['uccle@jardindeden.be', 'info@lucid-lab.fr'];\nif (!email || interne.includes(email)) return [];\nreturn [{ json: { email_parent: email, nom_expediteur: nom, sujet_origine: m.subject || '', message_id: m.id || '', recu_le: m.receivedDateTime || '' }}];\n"
+      },
+      "id": "6fe9c35f-aef7-43a6-b2ed-3aa79b035822",
+      "name": "Extraire le contact",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscriptions",
+          "mode": "name"
+        },
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email parent",
+              "lookupValue": "={{ $json.email_parent }}"
+            }
+          ]
+        }
+      },
+      "id": "74d7cf72-2e32-437c-b7f4-a52d57cb00df",
+      "name": "Chercher dans Inscriptions",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.row_number }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ]
+        }
+      },
+      "id": "b8d0e26a-591b-49f8-ad74-77d812d490ab",
+      "name": "Déjà dans le pipeline ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Journal",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Horodatage": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy HH:mm') }}",
+            "Workflow": "A - Envoi pack",
+            "Action": "Pack NON renvoyé (déjà dans le pipeline)",
+            "Famille / Enfant": "={{ $('Extraire le contact').item.json.email_parent }}",
+            "Détail": "={{ 'Mail: ' + $('Extraire le contact').item.json.sujet_origine }}",
+            "Résultat": "Ignoré",
+            "Validé par": "automatique"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "eb58702e-63b1-4e06-acc0-3b171562f636",
+      "name": "Journal : doublon ignoré",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1200,
+        -220
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const files = [{\"fileId\": \"1i_Valeghu7a8Ko6f7nUTVrMRq3xpPPtW\", \"filename\": \"Fiche d'inscription.docx\"}, {\"fileId\": \"1KTf4SxUXV87MhMMr1WVVMSerl1ZOQP_l\", \"filename\": \"Accords financiers.pdf\"}, {\"fileId\": \"1NsHMtQWMd6naRry1RiaHw4NNK3ME7Ifl\", \"filename\": \"Autorisation de quitter avec un tiers.docx\"}, {\"fileId\": \"1WabzzI7Nu_TtqjaSqTYeVLhRQbD051su\", \"filename\": \"Documents et materiel a fournir.pdf\"}, {\"fileId\": \"1iWPfMyRQrFozl38EeA8ylyh2Bvkm_yrT\", \"filename\": \"Reglement d'ordre interieur.pdf\"}, {\"fileId\": \"1vcnv6RvEH5pKK8QqjHxATu2EzNSvjLiu\", \"filename\": \"Familiarisation.pdf\"}, {\"fileId\": \"1CJLCFcs8_LDL-of_tt3RjyT1I-VzfxyY\", \"filename\": \"Familiarisation en douceur.pdf\"}, {\"fileId\": \"1RdohIzwiOZHQ7y4q5otDcd_pLfR1Q6IE\", \"filename\": \"Programme conges 2026.pdf\"}, {\"fileId\": \"1Duriclsis8cNj_Rz-sbPoc7wF0aHybIf\", \"filename\": \"Projet pedagogique.pdf\"}];\nreturn files.map(f => ({ json: { ...f, email_parent: $('Extraire le contact').item.json.email_parent } }));"
+      },
+      "id": "70a96a1e-0534-420b-9d30-c49a3e084054",
+      "name": "Préparer la liste des 9 documents",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "={{ $json.fileId }}",
+          "mode": "id"
+        },
+        "options": {
+          "fileName": "={{ $json.filename }}"
+        }
+      },
+      "id": "ad01f7e8-728a-4260-a224-c8ad32c0786d",
+      "name": "Télécharger le document",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1440,
+        220
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "name": "Google Drive Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst items = $input.all(); const binary = {};\nitems.forEach((it, i) => { const k = Object.keys(it.binary || {})[0]; if (k) binary[`attachment_${i}`] = it.binary[k]; });\nreturn [{ json: { count: items.length }, binary }];\n"
+      },
+      "id": "95e7de82-b640-4913-be97-131f697ab1cd",
+      "name": "Assembler les pièces jointes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "toRecipients": "={{ $('Paramètres').item.json.staging ? $('Paramètres').item.json.email_lucid : $('Extraire le contact').item.json.email_parent }}",
+        "subject": "Le Jardin d'Eden : dossier d'inscription",
+        "bodyContent": "<p>Madame, Monsieur,</p><p>Nous vous remercions pour votre visite et pour l'int&eacute;r&ecirc;t que vous portez &agrave; notre cr&egrave;che.</p><p>Vous trouverez en pi&egrave;ces jointes le dossier d'inscription complet : fiche d'inscription, accords financiers, autorisation de sortie, r&egrave;glement d'ordre int&eacute;rieur, projet p&eacute;dagogique, protocole de familiarisation et programme des cong&eacute;s.</p><p>Merci de nous renvoyer par retour de mail : la fiche d'inscription compl&eacute;t&eacute;e, les accords financiers sign&eacute;s, l'autorisation de sortie, ainsi que la copie de la carte d'identit&eacute; des deux parents, de la carte d'assurance sant&eacute;, du carnet de vaccination et une composition de m&eacute;nage.</p><p>Pour rappel, les entr&eacute;es se font uniquement le 1er du mois et l'inscription est valid&eacute;e &agrave; la r&eacute;ception des documents sign&eacute;s ainsi que du versement des frais de r&eacute;servation.</p><p>Bien cordialement,<br>Eden Missioui<br>Le Jardin d'Eden<br>Avenue Winston Churchill 157, 1180 Bruxelles</p>",
+        "additionalFields": {
+          "bodyContentType": "html",
+          "attachments": {
+            "attachments": [
+              {
+                "binaryPropertyName": "attachment_0"
+              },
+              {
+                "binaryPropertyName": "attachment_1"
+              },
+              {
+                "binaryPropertyName": "attachment_2"
+              },
+              {
+                "binaryPropertyName": "attachment_3"
+              },
+              {
+                "binaryPropertyName": "attachment_4"
+              },
+              {
+                "binaryPropertyName": "attachment_5"
+              },
+              {
+                "binaryPropertyName": "attachment_6"
+              },
+              {
+                "binaryPropertyName": "attachment_7"
+              },
+              {
+                "binaryPropertyName": "attachment_8"
+              }
+            ]
+          }
+        }
+      },
+      "id": "7e7520d3-1ebf-418d-925e-2b8eb97d43e8",
+      "name": "Envoyer le pack (boîte Eden)",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        1920,
+        220
+      ],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "name": "Outlook Eden (uccle@jardindeden.be)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscriptions",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date demande": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy') }}",
+            "Email parent": "={{ $('Extraire le contact').item.json.email_parent }}",
+            "Nom famille": "={{ $('Extraire le contact').item.json.nom_expediteur }}",
+            "Statut": "Pack envoyé",
+            "Pack envoyé le": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy') }}",
+            "Relances envoyées": 0,
+            "Message ID": "={{ $('Extraire le contact').item.json.message_id }}"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "598380f5-dd55-464a-99bf-722e4486d5e9",
+      "name": "Consigner dans Inscriptions",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2160,
+        220
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "move",
+        "messageId": "={{ $('Extraire le contact').item.json.message_id }}"
+      },
+      "id": "2c404225-0907-4b3a-ab27-da42ade3db4c",
+      "name": "[DOSSIER] Déplacer vers \"2 - Pack envoyé\"",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        220
+      ],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "name": "Outlook Eden (uccle@jardindeden.be)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Journal",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Horodatage": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy HH:mm') }}",
+            "Workflow": "A - Envoi pack",
+            "Action": "Pack d'inscription envoyé",
+            "Famille / Enfant": "={{ $('Extraire le contact').item.json.email_parent }}",
+            "Détail": "9 documents joints, depuis la boîte de la crèche",
+            "Résultat": "OK",
+            "Validé par": "automatique"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "d8d34824-1db5-4030-8dbb-ae7b15f13115",
+      "name": "Journal : pack envoyé",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2640,
+        220
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "[DOSSIER] Nouveau mail \"1 - Nouvelle inscription\"": {
+      "main": [
+        [
+          {
+            "node": "Paramètres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Paramètres": {
+      "main": [
+        [
+          {
+            "node": "Extraire le contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraire le contact": {
+      "main": [
+        [
+          {
+            "node": "Chercher dans Inscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chercher dans Inscriptions": {
+      "main": [
+        [
+          {
+            "node": "Déjà dans le pipeline ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Déjà dans le pipeline ?": {
+      "main": [
+        [
+          {
+            "node": "Journal : doublon ignoré",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Préparer la liste des 9 documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la liste des 9 documents": {
+      "main": [
+        [
+          {
+            "node": "Télécharger le document",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Télécharger le document": {
+      "main": [
+        [
+          {
+            "node": "Assembler les pièces jointes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assembler les pièces jointes": {
+      "main": [
+        [
+          {
+            "node": "Envoyer le pack (boîte Eden)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envoyer le pack (boîte Eden)": {
+      "main": [
+        [
+          {
+            "node": "Consigner dans Inscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consigner dans Inscriptions": {
+      "main": [
+        [
+          {
+            "node": "[DOSSIER] Déplacer vers \"2 - Pack envoyé\"",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[DOSSIER] Déplacer vers \"2 - Pack envoyé\"": {
+      "main": [
+        [
+          {
+            "node": "Journal : pack envoyé",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Brussels"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

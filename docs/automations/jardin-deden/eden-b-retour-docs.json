@@ -1,0 +1,1177 @@
+{
+  "name": "Eden B - Retour de documents et validation",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## MODE STAGING ACTIF\nLe node \"Paramètres\" a staging=true : TOUS les emails partent vers info@lucid-lab.fr\nau lieu des parents et d'Eden. Basculer staging=false apres les tests de bout en bout.\n\nA l'import : 1) mapper les credentials, 2) choisir les dossiers Outlook dans les nodes [DOSSIER].",
+        "width": 460,
+        "height": 240
+      },
+      "id": "5c85f885-2449-49f4-82f2-c66e62a7382f",
+      "name": "Note 8e8722",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## Validation d'Eden\nLe node \"Validation Eden\" utilise Send and Wait d'Outlook (boutons Approuver/Refuser dans l'email, reponse via webhook n8n). Delai max 7 jours.",
+        "width": 460,
+        "height": 240
+      },
+      "id": "02252a34-0cd9-41be-b2ee-29177c5935e8",
+      "name": "Note 773063",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1920,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 5,
+              "unit": "minutes"
+            }
+          ]
+        },
+        "output": "raw",
+        "filters": {}
+      },
+      "id": "f9248176-17d6-4805-886d-f49c119b6a7a",
+      "name": "Nouveau mail avec pièces jointes",
+      "type": "n8n-nodes-base.microsoftOutlookTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "name": "Outlook Eden (uccle@jardindeden.be)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\"staging\": true, \"email_eden\": \"uccle@jardindeden.be\", \"email_lucid\": \"info@lucid-lab.fr\", \"sheet_url\": \"https://docs.google.com/spreadsheets/d/1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU\", \"claude_prompt\": \"Tu extrais les informations d'un dossier d'inscription en creche (documents remplis par des parents, souvent scannes ou photographies). Reponds UNIQUEMENT avec un objet JSON valide, sans texte autour, au schema suivant :\\n{\\\"enfant\\\": {\\\"nom\\\": string|null, \\\"prenom\\\": string|null, \\\"naissance\\\": \\\"YYYY-MM-DD\\\"|null, \\\"entree\\\": \\\"YYYY-MM-DD\\\"|null, \\\"sortie_prevue\\\": \\\"YYYY-MM-DD\\\"|null}, \\\"mere\\\": {\\\"nom_prenom\\\": string|null, \\\"email\\\": string|null, \\\"tel\\\": string|null, \\\"profession\\\": string|null}, \\\"pere\\\": {\\\"nom_prenom\\\": string|null, \\\"email\\\": string|null, \\\"tel\\\": string|null, \\\"profession\\\": string|null}, \\\"adresse\\\": string|null, \\\"code_postal_ville\\\": string|null, \\\"pieces\\\": {\\\"fiche_inscription\\\": bool, \\\"accords_financiers_signes\\\": bool, \\\"autorisation_tiers\\\": bool, \\\"ci_parent_1\\\": bool, \\\"ci_parent_2\\\": bool, \\\"carte_assurance_sante\\\": bool, \\\"carnet_vaccination\\\": bool, \\\"composition_menage\\\": bool}, \\\"anomalies\\\": [string]}\\nRegles : une piece est true seulement si clairement presente. accords_financiers_signes true seulement si une signature est visible. Mets dans anomalies tout ce qui semble incoherent, illisible ou incomplet. N'invente aucune valeur.\"}",
+        "options": {}
+      },
+      "id": "b2793855-4eb7-420d-8ca6-58be4ad0340c",
+      "name": "Paramètres",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const m = $input.item.json; const from = (m.from?.emailAddress?.address || '').toLowerCase().trim();\nconst interne = ['uccle@jardindeden.be','info@lucid-lab.fr'];\nif (!m.hasAttachments || !from || interne.includes(from)) return [];\nreturn [{ json: { email_parent: from, message_id: m.id, sujet: m.subject || '' } }];"
+      },
+      "id": "dbc1926d-e028-454c-b635-8013b2f330db",
+      "name": "Filtrer : PJ + expéditeur externe",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscriptions",
+          "mode": "name"
+        },
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupColumn": "Email parent",
+              "lookupValue": "={{ $json.email_parent }}"
+            }
+          ]
+        }
+      },
+      "id": "e27108d9-3dc3-4ce3-bb5c-3e59d6097d58",
+      "name": "Chercher dans le pipeline",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        720,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.row_number }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "leftValue": "={{ ['Pack envoyé','Docs incomplets','Demande reçue','En validation'].includes($json['Statut']) }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        }
+      },
+      "id": "6cffb05f-37c9-459f-865f-f485953332cd",
+      "name": "Dossier en cours ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        960,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "messageAttachment",
+        "operation": "getAll",
+        "messageId": "={{ $('Filtrer : PJ + expéditeur externe').item.json.message_id }}",
+        "returnAll": true,
+        "options": {
+          "downloadAttachments": true
+        }
+      },
+      "id": "937e0918-7bfa-4631-9ef2-8fda3e570699",
+      "name": "Télécharger les pièces jointes",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        1200,
+        0
+      ],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "name": "Outlook Eden (uccle@jardindeden.be)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const items = $input.all(); const binary = {};\nitems.forEach((it, i) => { for (const k of Object.keys(it.binary || {})) binary[`piece_${i}_${k}`] = it.binary[k]; });\nreturn [{ json: {}, binary }];"
+      },
+      "id": "e80e2584-f7f3-424a-b5c4-5cee569866c8",
+      "name": "Regrouper les binaires",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst item = $input.item; const bins = item.binary || {};\nconst content = []; let skipped = []; let totalBytes = 0;\nfor (const key of Object.keys(bins)) {\n  const b = bins[key]; const mime = (b.mimeType || '').toLowerCase();\n  const size = b.fileSize ? parseInt(b.fileSize) : (b.data ? b.data.length * 0.75 : 0);\n  totalBytes += size;\n  if (totalBytes > 25 * 1024 * 1024) { skipped.push(`${b.fileName} (limite de taille)`); continue; }\n  const data = b.data;\n  if (mime === 'application/pdf') content.push({ type: 'document', source: { type: 'base64', media_type: 'application/pdf', data } });\n  else if (['image/jpeg','image/png','image/webp','image/gif'].includes(mime)) content.push({ type: 'image', source: { type: 'base64', media_type: mime, data } });\n  else skipped.push(`${b.fileName || key} (format ${mime || 'inconnu'} non analysable)`);\n}\ncontent.push({ type: 'text', text: $('Paramètres').item.json.claude_prompt });\nreturn [{ json: { skipped, claude_request: { model: 'claude-sonnet-5', max_tokens: 2000, messages: [{ role: 'user', content }] },\n  email_parent: $('Chercher dans le pipeline').item.json['Email parent'],\n  row_number: $('Chercher dans le pipeline').item.json.row_number }, binary: bins }];\n"
+      },
+      "id": "36d44fff-b25e-4741-887a-898b0ec78e80",
+      "name": "Préparer la requête Claude",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1680,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.anthropic.com/v1/messages",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "anthropicApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ JSON.stringify($json.claude_request) }}",
+        "options": {
+          "timeout": 120000
+        }
+      },
+      "id": "9c1c312d-fdb0-4be4-bb01-3d7bf36c0f99",
+      "name": "Claude : extraction du dossier",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1920,
+        0
+      ],
+      "credentials": {
+        "anthropicApi": {
+          "name": "Anthropic Lucid-Lab"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst resp = $input.item.json; let data;\ntry { const txt = (resp.content || []).map(c => c.text || '').join(''); data = JSON.parse(txt.replace(/^```json?\\s*|\\s*```$/g, '')); }\ncatch (e) { data = { enfant: {}, mere: {}, pere: {}, pieces: {}, anomalies: ['Extraction impossible : ' + e.message] }; }\nconst prev = $('Préparer la requête Claude').item.json;\nconst pieces = data.pieces || {};\nconst LIBELLES = { fiche_inscription: \"fiche d'inscription completee\", accords_financiers_signes: 'accords financiers signes',\n  autorisation_tiers: 'autorisation de sortie avec un tiers', ci_parent_1: \"carte d'identite du parent 1\",\n  ci_parent_2: \"carte d'identite du parent 2\", carte_assurance_sante: \"carte d'assurance sante\",\n  carnet_vaccination: 'carnet de vaccination', composition_menage: 'composition de menage' };\nconst manquantes = Object.keys(LIBELLES).filter(k => !pieces[k]).map(k => LIBELLES[k]);\nconst problemes = [...(data.anomalies || []), ...(prev.skipped || [])];\nconst e = data.enfant || {};\nif (!e.nom) problemes.push(\"Nom de l'enfant manquant\");\nif (!e.naissance) problemes.push('Date de naissance manquante');\nif (!e.entree) problemes.push(\"Date d'entree manquante\");\nlet entreeOK = false, section = '', ageEntreeMois = null;\nif (e.entree) {\n  const d = new Date(e.entree + 'T00:00:00'); entreeOK = d.getDate() === 1;\n  if (!entreeOK) problemes.push(`Date d'entree ${e.entree} : les entrees se font uniquement le 1er du mois`);\n  if (e.naissance) {\n    const n = new Date(e.naissance + 'T00:00:00');\n    ageEntreeMois = (d.getFullYear()-n.getFullYear())*12 + (d.getMonth()-n.getMonth()) - (d.getDate()<n.getDate()?1:0);\n    section = ageEntreeMois < 18 ? 'ET (etage)' : (ageEntreeMois <= 36 ? 'RE (rez)' : \"Trop age a l'entree !\");\n    if (ageEntreeMois > 36) problemes.push(\"Enfant de plus de 36 mois a la date d'entree\");\n  }\n}\nconst complet = manquantes.length === 0 && problemes.length === 0;\nconst nomFamille = [data.pere?.nom_prenom, data.mere?.nom_prenom].filter(Boolean).join(' / ');\nconst ligne = (l, v) => `<tr><td style=\"padding:2px 12px 2px 0;color:#666\">${l}</td><td><b>${v ?? '?'}</b></td></tr>`;\nconst recap = `<table style=\"border-collapse:collapse\">\n${ligne('Enfant', `${e.nom || '?'} ${e.prenom || ''}`)}\n${ligne('Naissance', e.naissance)}\n${ligne('Entree souhaitee', e.entree)}\n${ligne(\"Section a l'entree\", section || '?')}\n${ligne(\"Age a l'entree\", ageEntreeMois !== null ? ageEntreeMois + ' mois' : '?')}\n${ligne('Mere', `${data.mere?.nom_prenom || '?'} (${data.mere?.email || '?'})`)}\n${ligne('Pere', `${data.pere?.nom_prenom || '?'} (${data.pere?.email || '?'})`)}\n${ligne('Adresse', `${data.adresse || '?'} ${data.code_postal_ville || ''}`)}</table>`;\nconst listeHtml = arr => arr.length ? '<ul>' + arr.map(x => `<li>${x}</li>`).join('') + '</ul>' : '<p>aucun</p>';\nreturn [{ json: { extraction: data, complet, manquantes, problemes, section, ageEntreeMois,\n  nom_famille: nomFamille, recap_html: recap, manquantes_html: listeHtml(manquantes), problemes_html: listeHtml(problemes),\n  email_parent: prev.email_parent, row_number: prev.row_number }, binary: $input.item.binary }];\n"
+      },
+      "id": "fb343669-00ea-4eac-a6b9-e79367f24022",
+      "name": "Valider le dossier",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2160,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.complet }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        }
+      },
+      "id": "8e3b6bc9-2e4d-4024-8cbc-caef048302d8",
+      "name": "Dossier complet ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2400,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "toRecipients": "={{ $('Paramètres').item.json.staging ? $('Paramètres').item.json.email_lucid : $json.email_parent }}",
+        "subject": "Le Jardin d'Eden : votre dossier d'inscription est incomplet",
+        "bodyContent": "=<p>Madame, Monsieur,</p><p>Nous avons bien re&ccedil;u votre envoi, merci. Apr&egrave;s v&eacute;rification, il manque encore :</p>{{ $json.manquantes_html }}{{ $json.problemes.length ? '<p>Points a corriger :</p>' + $json.problemes_html : '' }}<p>Merci de nous renvoyer ces &eacute;l&eacute;ments par retour de mail.</p><p>Bien cordialement,<br>Eden Missioui<br>Le Jardin d'Eden</p>",
+        "additionalFields": {
+          "bodyContentType": "html",
+          "ccRecipients": "={{ $('Paramètres').item.json.staging ? $('Paramètres').item.json.email_lucid : $('Paramètres').item.json.email_eden }}"
+        }
+      },
+      "id": "5c342e7f-a830-462b-8d41-00b3e5b86061",
+      "name": "Relance au parent (pièces manquantes)",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        440
+      ],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "name": "Outlook Eden (uccle@jardindeden.be)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscriptions",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Statut": "Docs incomplets",
+            "Pièces manquantes": "={{ $(\"Valider le dossier\").item.json.manquantes.join(\", \") }}",
+            "Docs reçus le": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy') }}",
+            "Dernière relance": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy') }}",
+            "row_number": "={{ $json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "21e46fd2-5938-4195-915d-1941d6429cc2",
+      "name": "MAJ Inscriptions : incomplet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2880,
+        440
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Journal",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Horodatage": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy HH:mm') }}",
+            "Workflow": "B - Retour docs",
+            "Action": "Relance pièces manquantes envoyée",
+            "Famille / Enfant": "={{ $(\"Valider le dossier\").item.json.nom_famille || $(\"Valider le dossier\").item.json.email_parent }}",
+            "Détail": "={{ \"Manquantes : \" + $(\"Valider le dossier\").item.json.manquantes.join(\", \") }}",
+            "Résultat": "Relance",
+            "Validé par": "automatique"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "e1c01ddd-a025-4fc6-9158-f95789c5b487",
+      "name": "Journal : dossier incomplet",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3120,
+        440
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscriptions",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Statut": "En validation",
+            "Docs reçus le": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy') }}",
+            "Pièces manquantes": "",
+            "row_number": "={{ $json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "fa157f45-76b1-4459-a31d-ebba0bc67878",
+      "name": "MAJ Inscriptions : en validation",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        2640,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendAndWait",
+        "toRecipients": "={{ $('Paramètres').item.json.staging ? $('Paramètres').item.json.email_lucid : $('Paramètres').item.json.email_eden }}",
+        "subject": "=Validation : inscription {{ $('Valider le dossier').item.json.extraction.enfant.prenom }} {{ $('Valider le dossier').item.json.extraction.enfant.nom }}",
+        "message": "=<p>Bonjour Eden,</p><p>Un dossier d'inscription complet vient d'&ecirc;tre re&ccedil;u et v&eacute;rifi&eacute;. Voici le r&eacute;capitulatif :</p>{{ $('Valider le dossier').item.json.recap_html }}<p><b>Pi&egrave;ces re&ccedil;ues :</b> toutes les pi&egrave;ces obligatoires sont pr&eacute;sentes.</p><p><b>Points d'attention :</b></p>{{ $('Valider le dossier').item.json.problemes_html }}<p>Si vous approuvez : l'enfant sera ajout&eacute; au fichier, le dossier famille cr&eacute;&eacute; dans le Drive, et la famille recevra la confirmation avec sa communication structur&eacute;e. Si vous refusez : rien ne sera modifi&eacute;.</p>",
+        "responseType": "approval",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double"
+          }
+        },
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "resumeUnit": "days",
+              "resumeAmount": 7
+            }
+          }
+        }
+      },
+      "id": "6af4684f-7e82-440b-832b-4520c582754b",
+      "name": "Validation Eden (Approuver / Refuser)",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        2880,
+        0
+      ],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "name": "Outlook Eden (uccle@jardindeden.be)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "leftValue": "={{ $json.data && $json.data.approved }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        }
+      },
+      "id": "6d989ce8-eaf1-47ef-b314-e495dc21de15",
+      "name": "Approuvé ?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3120,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Journal",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Horodatage": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy HH:mm') }}",
+            "Workflow": "B - Retour docs",
+            "Action": "Inscription REFUSÉE (aucune modification)",
+            "Famille / Enfant": "={{ $(\"Valider le dossier\").item.json.nom_famille }}",
+            "Détail": "Voir email de validation",
+            "Résultat": "Refusé",
+            "Validé par": "Eden"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "1c7ee95c-eceb-4346-96bc-b375b022c29a",
+      "name": "Journal : refusé par Eden",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3360,
+        440
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "toRecipients": "={{ $('Paramètres').item.json.staging ? $('Paramètres').item.json.email_lucid : $('Paramètres').item.json.email_lucid }}",
+        "subject": "=Jardin d'Eden : inscription refusée ({{ $(\"Valider le dossier\").item.json.nom_famille }})",
+        "bodyContent": "<p>Eden a refusé la validation. Aucune modification appliquée. Voir le Journal.</p>",
+        "additionalFields": {
+          "bodyContentType": "html"
+        }
+      },
+      "id": "3892181d-b079-4042-9c0d-bb4c2a9a7675",
+      "name": "Notifier Lucid du refus",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        3600,
+        440
+      ],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "name": "Outlook Eden (uccle@jardindeden.be)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Enfants",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "4018e5c6-f228-4092-9e98-e4d362a37535",
+      "name": "Lire Enfants (numérotation)",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3360,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst rows = $input.all().map(i => i.json); let maxNum = 2200;\nfor (const r of rows) { const m = String(r['ID'] || '').match(/^C\\d{2}-(\\d{3,4})$/); if (m) maxNum = Math.max(maxNum, parseInt(m[1])); }\nconst num = maxNum + 1; const annee = String(new Date().getFullYear()).slice(-2); const numStr = String(num).padStart(4, '0');\nconst cs = (serie) => { const base = `${serie}${annee}${numStr}200`;\n  const dg = String(BigInt(base) % 97n === 0n ? 97 : BigInt(base) % 97n).padStart(2, '0');\n  const full = base + dg; return `+++${full.slice(0,3)}/${full.slice(3,7)}/${full.slice(7,12)}+++`; };\nconst v = $('Valider le dossier').item.json; const ex = v.extraction;\nconst nom1 = (ex.pere?.nom_prenom || '').split(' ')[0].toUpperCase();\nconst nom2 = (ex.mere?.nom_prenom || '').split(' ')[0].toUpperCase();\nconst nomDossier = [nom1, nom2].filter(Boolean).join(' - ') || (ex.enfant.nom || '').toUpperCase();\nreturn [{ json: { id_enfant: `C${annee}-${numStr}`, cs_mensualite: cs('5'), cs_reservation: cs('9'), nom_dossier: nomDossier, ...v },\n  binary: $('Valider le dossier').item.binary }];\n"
+      },
+      "id": "99623b78-69a2-4e83-9749-2c29fe1104cf",
+      "name": "Numérotation et communications structurées",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3600,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Enfants",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "ID": "={{ $json.id_enfant }}",
+            "Nom dossier": "={{ $json.nom_dossier }}",
+            "Nom père": "={{ ($json.extraction.pere?.nom_prenom || '').split(' ')[0].toUpperCase() }}",
+            "Nom mère": "={{ ($json.extraction.mere?.nom_prenom || '').split(' ')[0].toUpperCase() }}",
+            "Prénom": "={{ $json.extraction.enfant.prenom }}",
+            "Naissance": "={{ $json.extraction.enfant.naissance ? $json.extraction.enfant.naissance.split('-').reverse().join('/') : '' }}",
+            "Entrée": "={{ $json.extraction.enfant.entree ? $json.extraction.enfant.entree.split('-').reverse().join('/') : '' }}",
+            "Sortie attestation": "={{ $json.extraction.enfant.sortie_prevue ? $json.extraction.enfant.sortie_prevue.split('-').reverse().join('/') : '' }}",
+            "Groupe": "",
+            "Mensualité contrat": 1199,
+            "CS mensualité": "={{ $json.cs_mensualite }}",
+            "CS réservation": "={{ $json.cs_reservation }}",
+            "Mail parent 1": "={{ $json.extraction.mere?.email }}",
+            "Mail parent 2": "={{ $json.extraction.pere?.email }}",
+            "Adresse": "={{ $json.extraction.adresse }}",
+            "Code postal": "={{ $json.extraction.code_postal_ville }}",
+            "Tel parent 1": "={{ $json.extraction.mere?.tel }}",
+            "Tel parent 2": "={{ $json.extraction.pere?.tel }}",
+            "Statut données": "Nouveau (n8n)"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "afc818c9-29e9-4f2e-b99f-6700565b3396",
+      "name": "Ajouter l'enfant au fichier",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3840,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "operation": "create",
+        "name": "={{ $('Numérotation et communications structurées').item.json.nom_dossier }} {{ $('Numérotation et communications structurées').item.json.extraction.enfant.prenom }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1UmSu8VBxAoQoB78esAkVx9yaShX2S8JF",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "18f21756-7e9e-407b-8a8b-dfaf65f21ce9",
+      "name": "Créer le dossier famille",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4080,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "name": "Google Drive Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst src = $('Numérotation et communications structurées').item; const bins = src.binary || {};\nconst folderId = $('Créer le dossier famille').item.json.id; const nom = src.json.nom_dossier;\nreturn Object.keys(bins).map((key, i) => ({ json: { folderId, filename: `${src.json.id_enfant} - ${bins[key].fileName || 'document_' + i}` }, binary: { data: bins[key] } }));\n"
+      },
+      "id": "43f869de-c3c4-46da-9934-cc48c8ff8c6f",
+      "name": "Préparer les pièces à classer",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        4320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "operation": "upload",
+        "inputDataFieldName": "data",
+        "name": "={{ $json.filename }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "={{ $json.folderId }}",
+          "mode": "id"
+        },
+        "options": {}
+      },
+      "id": "a378d16a-b3e2-4e71-a06a-ec299b8a92dd",
+      "name": "Classer la pièce dans le Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        4560,
+        0
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "name": "Google Drive Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "toRecipients": "={{ $('Paramètres').item.json.staging ? $('Paramètres').item.json.email_lucid : $('Valider le dossier').item.json.email_parent }}",
+        "subject": "Le Jardin d'Eden : dossier validé, réservation de la place",
+        "bodyContent": "=<p>Madame, Monsieur,</p><p>Nous avons bien re&ccedil;u votre dossier complet et confirmons la pr&eacute;-inscription de votre enfant.</p><p>Pour finaliser, il reste &agrave; verser les frais de r&eacute;servation (trois mois de garde, au plus tard 4 mois pleins avant l'entr&eacute;e), sur le compte <b>KBC BE81 7410 1110 3324</b> avec la communication structur&eacute;e : <b>{{ $('Numérotation et communications structurées').item.json.cs_reservation }}</b></p><p>Bien cordialement,<br>Eden Missioui<br>Le Jardin d'Eden</p>",
+        "additionalFields": {
+          "bodyContentType": "html",
+          "ccRecipients": "={{ $('Paramètres').item.json.staging ? $('Paramètres').item.json.email_lucid : $('Paramètres').item.json.email_eden }}"
+        }
+      },
+      "id": "fa750751-dda5-48ad-a4c5-ba82c29463a7",
+      "name": "Confirmation au parent (CS réservation)",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        4800,
+        0
+      ],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "name": "Outlook Eden (uccle@jardindeden.be)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscriptions",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Statut": "Inscrit",
+            "Validé par Eden le": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy') }}",
+            "ID Enfants": "={{ $('Numérotation et communications structurées').item.json.id_enfant }}",
+            "row_number": "={{ $json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "5a3cb905-3f05-4980-9667-b6d6b28c907c",
+      "name": "MAJ Inscriptions : inscrit",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        5040,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Journal",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Horodatage": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy HH:mm') }}",
+            "Workflow": "B - Retour docs",
+            "Action": "Enfant ajouté + dossier Drive créé + confirmation envoyée",
+            "Famille / Enfant": "={{ $('Numérotation et communications structurées').item.json.nom_dossier }}",
+            "Détail": "={{ 'ID ' + $('Numérotation et communications structurées').item.json.id_enfant + ' | CS réservation ' + $('Numérotation et communications structurées').item.json.cs_reservation }}",
+            "Résultat": "OK",
+            "Validé par": "Eden (email)"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "c05143de-841e-4152-a6c1-39777a6302d9",
+      "name": "Journal : inscription validée",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        5280,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Nouveau mail avec pièces jointes": {
+      "main": [
+        [
+          {
+            "node": "Paramètres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Paramètres": {
+      "main": [
+        [
+          {
+            "node": "Filtrer : PJ + expéditeur externe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filtrer : PJ + expéditeur externe": {
+      "main": [
+        [
+          {
+            "node": "Chercher dans le pipeline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chercher dans le pipeline": {
+      "main": [
+        [
+          {
+            "node": "Dossier en cours ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dossier en cours ?": {
+      "main": [
+        [
+          {
+            "node": "Télécharger les pièces jointes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Télécharger les pièces jointes": {
+      "main": [
+        [
+          {
+            "node": "Regrouper les binaires",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Regrouper les binaires": {
+      "main": [
+        [
+          {
+            "node": "Préparer la requête Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer la requête Claude": {
+      "main": [
+        [
+          {
+            "node": "Claude : extraction du dossier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude : extraction du dossier": {
+      "main": [
+        [
+          {
+            "node": "Valider le dossier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valider le dossier": {
+      "main": [
+        [
+          {
+            "node": "Dossier complet ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dossier complet ?": {
+      "main": [
+        [
+          {
+            "node": "MAJ Inscriptions : en validation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Relance au parent (pièces manquantes)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Relance au parent (pièces manquantes)": {
+      "main": [
+        [
+          {
+            "node": "MAJ Inscriptions : incomplet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MAJ Inscriptions : incomplet": {
+      "main": [
+        [
+          {
+            "node": "Journal : dossier incomplet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MAJ Inscriptions : en validation": {
+      "main": [
+        [
+          {
+            "node": "Validation Eden (Approuver / Refuser)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation Eden (Approuver / Refuser)": {
+      "main": [
+        [
+          {
+            "node": "Approuvé ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approuvé ?": {
+      "main": [
+        [
+          {
+            "node": "Lire Enfants (numérotation)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Journal : refusé par Eden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Journal : refusé par Eden": {
+      "main": [
+        [
+          {
+            "node": "Notifier Lucid du refus",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire Enfants (numérotation)": {
+      "main": [
+        [
+          {
+            "node": "Numérotation et communications structurées",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Numérotation et communications structurées": {
+      "main": [
+        [
+          {
+            "node": "Ajouter l'enfant au fichier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ajouter l'enfant au fichier": {
+      "main": [
+        [
+          {
+            "node": "Créer le dossier famille",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Créer le dossier famille": {
+      "main": [
+        [
+          {
+            "node": "Préparer les pièces à classer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Préparer les pièces à classer": {
+      "main": [
+        [
+          {
+            "node": "Classer la pièce dans le Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classer la pièce dans le Drive": {
+      "main": [
+        [
+          {
+            "node": "Confirmation au parent (CS réservation)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmation au parent (CS réservation)": {
+      "main": [
+        [
+          {
+            "node": "MAJ Inscriptions : inscrit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MAJ Inscriptions : inscrit": {
+      "main": [
+        [
+          {
+            "node": "Journal : inscription validée",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Brussels"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}

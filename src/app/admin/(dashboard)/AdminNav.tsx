@@ -22,6 +22,7 @@ import {
   MessageSquare,
   MonitorCheck,
   Palette,
+  PhoneCall,
   Search,
   Users,
 } from 'lucide-react';
@@ -67,6 +68,7 @@ const navSections: NavSection[] = [
     label: 'Croissance',
     icon: Search,
     items: [
+      { href: '/lucid-os/prospection', label: 'Prospection', icon: PhoneCall },
       { href: '/lead-engine', label: 'Moteur de leads', icon: Search, exact: true },
     ],
   },

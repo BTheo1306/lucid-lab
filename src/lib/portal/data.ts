@@ -6,7 +6,7 @@ import { supabase } from '@/lib/bot/db/supabase';
 import { sendPortalRequestCreatedTeamNotification } from '@/lib/bot/integrations/email-client';
 import { recordPortalAuditEvent } from './audit';
 import type { PortalSession } from './auth';
-import { listPortalRequests, type PortalRequest } from './requests';
+import { createClientRequest, listPortalRequests, type PortalRequest } from './requests';
 
 /**
  * Unique read layer for the client portal. Every function takes the
@@ -61,16 +61,33 @@ export interface PortalMeeting {
   title: string;
   clientSummary: string;
   occurredAt: string;
+  kind: string;
+  nextStep: string | null;
+  nextStepDueAt: string | null;
 }
 
-/** Client-safe meeting recaps only: the internal notes column is never selected. */
+/**
+ * Échanges publiés : réunions, mais aussi appels, décisions et points de
+ * livraison. La requête ne portait que sur les réunions, ce qui masquait au
+ * client la majorité de ce que l'équipe avait pourtant marqué comme visible.
+ */
+const PORTAL_INTERACTION_TYPES = ['meeting', 'call', 'decision', 'delivery_update'];
+
+const PORTAL_INTERACTION_LABELS: Record<string, string> = {
+  meeting: 'Réunion',
+  call: 'Appel',
+  decision: 'Décision',
+  delivery_update: 'Point de livraison',
+};
+
+/** Client-safe recaps only: the internal notes column is never selected. */
 export async function listPortalMeetings(session: PortalSession, limit = 20): Promise<PortalMeeting[]> {
   const { data, error } = await supabase
     .from('client_interactions')
-    .select('id,summary,client_summary,occurred_at')
+    .select('id,summary,client_summary,occurred_at,interaction_type,next_step,next_step_due_at')
     .eq('organization_id', session.organizationId)
     .eq('client_id', session.clientId)
-    .eq('interaction_type', 'meeting')
+    .in('interaction_type', PORTAL_INTERACTION_TYPES)
     .eq('client_visible', true)
     .not('client_summary', 'is', null)
     .order('occurred_at', { ascending: false })
@@ -83,12 +100,55 @@ export async function listPortalMeetings(session: PortalSession, limit = 20): Pr
 
   return (data ?? [])
     .filter((row) => row.client_summary)
-    .map((row) => ({
-      id: String(row.id),
-      title: String(row.summary ?? 'Réunion'),
-      clientSummary: String(row.client_summary),
-      occurredAt: String(row.occurred_at ?? ''),
-    }));
+    .map((row) => {
+      const type = String(row.interaction_type ?? 'meeting');
+      return {
+        id: String(row.id),
+        title: String(row.summary ?? PORTAL_INTERACTION_LABELS[type] ?? 'Échange'),
+        clientSummary: String(row.client_summary),
+        occurredAt: String(row.occurred_at ?? ''),
+        kind: PORTAL_INTERACTION_LABELS[type] ?? 'Échange',
+        nextStep: row.next_step ? String(row.next_step) : null,
+        nextStepDueAt: row.next_step_due_at ? String(row.next_step_due_at) : null,
+      };
+    });
+}
+
+export interface PortalNextStep {
+  label: string;
+  dueAt: string | null;
+  /** D'où vient l'information, pour que la page puisse nuancer le libellé. */
+  source: 'task' | 'client';
+}
+
+/**
+ * La prochaine étape côté client.
+ *
+ * Priorité à la première tâche publiée non terminée (la liste est déjà triée par
+ * échéance), avec repli sur clients.next_action que le CRM tient à jour.
+ */
+export async function getPortalNextStep(session: PortalSession): Promise<PortalNextStep | null> {
+  const tasks = await listPortalTasks(session);
+  const upcoming = tasks.find((task) => task.status !== 'done');
+  if (upcoming) {
+    return { label: upcoming.title, dueAt: upcoming.dueAt, source: 'task' };
+  }
+
+  const { data } = await supabase
+    .from('clients')
+    .select('next_action,next_action_due_at')
+    .eq('organization_id', session.organizationId)
+    .eq('id', session.clientId)
+    .maybeSingle();
+
+  const label = data?.next_action ? String(data.next_action).trim() : '';
+  if (!label) return null;
+
+  return {
+    label,
+    dueAt: data?.next_action_due_at ? String(data.next_action_due_at) : null,
+    source: 'client',
+  };
 }
 
 /** Statuses a client may see: drafts and internal review states stay hidden. */
@@ -366,14 +426,25 @@ export async function getPortalClientInfo(session: PortalSession): Promise<Porta
   const metadata = (data?.metadata ?? {}) as { legal?: Record<string, unknown> };
   const legal = metadata.legal ?? {};
 
+  // Les clés canoniques sont celles du CRM et de la génération de documents
+  // (legal.name, legal.billing_address). Les variantes camelCase sont d'anciennes
+  // écritures du portail, lues en repli pour ne rien perdre.
+  const readLegal = (canonical: string, ...fallbacks: string[]): string | null => {
+    for (const key of [canonical, ...fallbacks]) {
+      const value = legal[key];
+      if (typeof value === 'string' && value.trim()) return value.trim();
+    }
+    return null;
+  };
+
   return {
     name: String(data?.name ?? session.clientName),
     industry: data?.industry ? String(data.industry) : null,
     websiteUrl: data?.website_url ? String(data.website_url) : null,
-    legalName: legal.legalName ? String(legal.legalName) : null,
-    siren: legal.siren ? String(legal.siren) : null,
-    siret: legal.siret ? String(legal.siret) : null,
-    billingAddress: legal.billingAddress ? String(legal.billingAddress) : null,
+    legalName: readLegal('name', 'legalName'),
+    siren: readLegal('siren'),
+    siret: readLegal('siret'),
+    billingAddress: readLegal('billing_address', 'billingAddress', 'address'),
   };
 }
 
@@ -383,61 +454,52 @@ function cleanField(value: string, maxLength: number): string | null {
 }
 
 /**
- * Client-editable company info: only the whitelisted legal keys are merged
- * into clients.metadata.legal, the rest of the metadata stays untouched.
+ * Modification des informations entreprise par le client.
+ *
+ * Rien n'est écrit directement sur la fiche : la saisie crée une demande de
+ * changement que l'équipe voit et applique depuis le CRM. C'est la demande
+ * explicite d'Anthony (« si le client les change, ça nous demande avant ? »),
+ * et ça évite qu'une adresse de facturation change sans que personne ne le sache.
  */
-export async function updatePortalClientLegalInfo(
+export async function requestPortalClientLegalUpdate(
   session: PortalSession,
   input: { legalName: string; siren: string; siret: string; billingAddress: string; websiteUrl: string },
 ): Promise<{ ok: boolean }> {
-  const { data: current, error: readError } = await supabase
-    .from('clients')
-    .select('metadata')
-    .eq('organization_id', session.organizationId)
-    .eq('id', session.clientId)
-    .maybeSingle();
+  const current = await getPortalClientInfo(session);
 
-  if (readError || !current) return { ok: false };
-
-  const metadata = (current.metadata ?? {}) as Record<string, unknown>;
-  const legal = (metadata.legal ?? {}) as Record<string, unknown>;
-
-  const nextLegal = {
-    ...legal,
-    legalName: cleanField(input.legalName, 200),
+  const proposed = {
+    legal_name: cleanField(input.legalName, 200),
     siren: cleanField(input.siren.replace(/\s+/g, ''), 20),
     siret: cleanField(input.siret.replace(/\s+/g, ''), 20),
-    billingAddress: cleanField(input.billingAddress, 400),
-    legalUpdatedViaPortalAt: new Date().toISOString(),
+    billing_address: cleanField(input.billingAddress, 400),
+    website_url: cleanField(input.websiteUrl, 300),
   };
 
-  const websiteUrl = cleanField(input.websiteUrl, 300);
+  const changes: string[] = [];
+  const compare = (label: string, before: string | null, after: string | null): void => {
+    if ((before ?? '') !== (after ?? '')) {
+      changes.push(`${label} : ${before ?? 'vide'} devient ${after ?? 'vide'}`);
+    }
+  };
+  compare('Raison sociale', current.legalName, proposed.legal_name);
+  compare('SIREN', current.siren, proposed.siren);
+  compare('SIRET', current.siret, proposed.siret);
+  compare('Adresse de facturation', current.billingAddress, proposed.billing_address);
+  compare('Site web', current.websiteUrl, proposed.website_url);
 
-  const { error } = await supabase
-    .from('clients')
-    .update({
-      metadata: { ...metadata, legal: nextLegal },
-      website_url: websiteUrl,
-    })
-    .eq('organization_id', session.organizationId)
-    .eq('id', session.clientId);
+  if (changes.length === 0) return { ok: true };
 
-  if (error) {
-    console.error('[portal] updatePortalClientLegalInfo failed:', error.message);
-    return { ok: false };
-  }
+  const result = await createClientRequest(
+    session,
+    {
+      requestType: 'change_request',
+      title: 'Mise à jour des informations entreprise',
+      body: changes.join('\n'),
+    },
+    { proposed_legal: proposed },
+  );
 
-  await recordPortalAuditEvent({
-    organizationId: session.organizationId,
-    clientId: session.clientId,
-    eventType: 'portal_company_info_updated',
-    summary: `Informations entreprise mises à jour via le portail par ${session.contactName || session.contactEmail || 'un contact'}`,
-    actorId: session.contactId,
-    targetTable: 'clients',
-    targetId: session.clientId,
-  });
-
-  return { ok: true };
+  return { ok: result.ok };
 }
 
 /**
@@ -494,6 +556,7 @@ export async function createPortalImport(session: PortalSession, input: { conten
 }
 
 export interface PortalHomeData {
+  nextStep: PortalNextStep | null;
   openTasks: PortalTask[];
   openTaskCount: number;
   pendingAgencyRequests: PortalRequest[];
@@ -504,17 +567,19 @@ export interface PortalHomeData {
 
 /** Home aggregation: what needs the client's attention right now. */
 export async function getPortalHomeData(session: PortalSession): Promise<PortalHomeData> {
-  const [tasks, requests, documents, billingEvents, meetings] = await Promise.all([
+  const [tasks, requests, documents, billingEvents, meetings, nextStep] = await Promise.all([
     listPortalTasks(session),
     listPortalRequests(session, 20),
     listPortalDocuments(session, 20),
     listPortalBillingEvents(session, 20),
     listPortalMeetings(session, 1),
+    getPortalNextStep(session),
   ]);
 
   const openTasks = tasks.filter((task) => task.status !== 'done');
 
   return {
+    nextStep,
     openTasks: openTasks.slice(0, 4),
     openTaskCount: openTasks.length,
     pendingAgencyRequests: requests.filter(

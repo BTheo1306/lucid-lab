@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server';
 import { getPortalSession, portalRedirectUrl } from '@/lib/portal/auth';
-import { updatePortalClientLegalInfo } from '@/lib/portal/data';
+import { requestPortalClientLegalUpdate } from '@/lib/portal/data';
 
-/** POST /informations/entreprise: the client updates its company info. */
+/** POST /informations/entreprise: the client submits its company info for review. */
 export async function POST(request: Request) {
   const session = await getPortalSession();
   if (!session) {
@@ -10,7 +10,7 @@ export async function POST(request: Request) {
   }
 
   const formData = await request.formData();
-  const result = await updatePortalClientLegalInfo(session, {
+  const result = await requestPortalClientLegalUpdate(session, {
     legalName: String(formData.get('legal_name') ?? ''),
     siren: String(formData.get('siren') ?? ''),
     siret: String(formData.get('siret') ?? ''),

@@ -76,6 +76,8 @@ export async function getPortalRequest(session: PortalSession, requestId: string
 export async function createClientRequest(
   session: PortalSession,
   input: { requestType: string; title: string; body: string },
+  /** Valeurs structurées portées par la demande, par exemple des informations à valider. */
+  metadata?: Record<string, unknown>,
 ): Promise<{ ok: true; requestId: string } | { ok: false; error: string }> {
   const title = input.title.trim().slice(0, 200);
   const body = input.body.trim().slice(0, 5000);
@@ -94,6 +96,7 @@ export async function createClientRequest(
       title,
       body: body || null,
       created_by_contact_id: session.contactId,
+      metadata: metadata ?? {},
     })
     .select('id')
     .single();

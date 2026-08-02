@@ -38,7 +38,24 @@ export default async function PortalHomePage() {
       </h1>
       <p className="mt-2 max-w-2xl text-sm leading-relaxed text-zinc-600">{s.intro}</p>
 
-      {nothingOpen ? (
+      {data.nextStep ? (
+        <div className="mt-8">
+          <PortalCard>
+            <div className="flex items-center gap-2">
+              <ArrowRight className="size-4 text-zinc-600" />
+              <h2 className="text-sm font-semibold text-zinc-900">{s.nextStep}</h2>
+            </div>
+            <p className="mt-3 text-base font-medium text-zinc-950">{data.nextStep.label}</p>
+            {data.nextStep.dueAt ? (
+              <p className="mt-1 text-xs text-zinc-500">
+                {s.nextStepDue} {formatPortalDate(data.nextStep.dueAt)}
+              </p>
+            ) : null}
+          </PortalCard>
+        </div>
+      ) : null}
+
+      {nothingOpen && !data.nextStep ? (
         <div className="mt-8">
           <PortalCard>
             <p className="text-sm text-zinc-600">{s.nothingOpen}</p>
