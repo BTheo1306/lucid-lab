@@ -503,8 +503,8 @@ export function FormationsPage({ lang }: { lang: Locale }) {
                 src="/hero-image.png"
                 alt={
                   lang === 'en'
-                    ? 'The four Lucid-Lab training modules: Claude setup, autonomous AI agents, AI productivity, no-code automation'
-                    : 'Les quatre modules de formation Lucid-Lab : Setup Claude, agents IA autonomes, IA productivité, automatisation no-code'
+                    ? 'The Lucid-Lab training folder: Claude setup, autonomous AI agents, AI productivity, no-code automation'
+                    : 'Le dossier de formation Lucid-Lab : Setup Claude, agents IA autonomes, IA productivité, automatisation no-code'
                 }
                 fill
                 priority

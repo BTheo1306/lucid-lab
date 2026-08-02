@@ -1,0 +1,123 @@
+<!-- @dsCard group="Templates" viewport="900x1180" name="One-pager avocats" subtitle="Fiche de présentation, second cerveau pour cabinets d'avocats (1 page)" -->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Second cerveau pour cabinets d'avocats</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="_doc-base.css">
+<style>
+  .op-hero { margin-top: 26px; }
+  .op-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); }
+  .op-title { font-family: var(--font-display); font-weight: 700; font-size: 40px; letter-spacing: -0.025em; line-height: 1.06; margin: 14px 0 0; }
+  .op-title .em { color: var(--text-accent); }
+  .op-lead { font-size: 15px; line-height: 1.6; color: var(--text-secondary); max-width: 68ch; margin: 15px 0 0; }
+  .op-lead b { color: var(--text-primary); font-weight: 600; }
+
+  .sec-lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin: 26px 0 12px; display: block; }
+
+  /* Phrase pivot */
+  .pivot { margin-top: 24px; padding-left: 16px; border-left: 3px solid var(--color-ember-700); }
+  .pivot .k { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 8px; }
+  .pivot p { font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 1.35; letter-spacing: -0.015em; color: var(--text-primary); margin: 0; }
+
+  .pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; }
+  .pillar { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 15px 15px 17px; }
+  .pillar .pn { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-accent); letter-spacing: 0.04em; }
+  .pillar h3 { font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: -0.01em; margin: 10px 0 6px; line-height: 1.2; }
+  .pillar p { font-size: 11.5px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+
+  /* Secret professionnel */
+  .secret { border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--color-white); padding: 14px 20px 16px; }
+  .secret .row { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+  .secret .row + .row { border-top: 1px solid var(--border-subtle); }
+  .secret .row .mk { flex-shrink: 0; font-family: var(--font-mono); font-size: 13px; color: var(--text-accent); line-height: 1.5; }
+  .secret .row b { color: var(--text-primary); font-weight: 600; }
+
+  .legal { margin-top: 16px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+  .legal b { color: var(--text-primary); font-weight: 600; }
+
+  .op-cta { margin-top: auto; background-color: #0A0A0A; border-radius: var(--radius-lg); padding: 22px 30px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+  .op-cta .big { font-family: var(--font-display); font-weight: 700; font-size: 21px; letter-spacing: -0.015em; color: #ffffff; }
+  .op-cta .big span { color: #E0894E; }
+  .op-cta .big small { display: block; font-family: var(--font-mono); font-size: 11.5px; font-weight: 400; color: rgba(255,255,255,0.55); letter-spacing: 0.02em; margin-top: 7px; }
+  .op-cta .side { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.62); text-align: right; line-height: 1.8; white-space: nowrap; }
+  .op-cta .side a { color: #E0894E; text-decoration: none; }
+
+  /* Compression verticale : la fiche doit tenir sur UNE page A4. */
+  @media print {
+    .op-hero { margin-top: 14px; }
+    .op-title { font-size: 36px; }
+    .op-lead { margin-top: 12px; font-size: 14.5px; line-height: 1.52; }
+    .sec-lbl { margin: 13px 0 8px; }
+    .pivot { margin-top: 12px; }
+    .pivot p { font-size: 18px; }
+    .pillar { padding: 12px 13px 14px; }
+    .pillar p { font-size: 11px; line-height: 1.45; }
+    .secret { padding: 10px 20px 12px; }
+    .secret .row { padding: 5px 0; font-size: 12.5px; line-height: 1.45; }
+    .legal { margin-top: 9px; font-size: 11.5px; line-height: 1.5; }
+    .op-cta { padding: 12px 28px; }
+    .op-cta .big { font-size: 19px; }
+    .op-cta .big small { font-size: 11px; margin-top: 5px; }
+  }
+  @media (max-width: 680px) {
+    .pillars { grid-template-columns: 1fr 1fr; }
+    .op-cta { flex-direction: column; align-items: flex-start; } .op-cta .side { text-align: left; }
+  }
+</style>
+</head>
+<body>
+
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Cabinets d'avocats</h1>
+      <div class="meta">lucid-lab.fr<br>contact@lucid-lab.fr</div>
+    </div>
+  </header>
+
+  <div class="op-hero">
+    <span class="op-eyebrow">Second cerveau · mémoire de cabinet</span>
+    <h1 class="op-title">Une mémoire de cabinet,<br><span class="em">installée chez vous.</span></h1>
+    <p class="op-lead">Vous êtes déjà équipés, et souvent très bien. <b>Ce n'est pas un logiciel de plus.</b> On installe Claude, l'assistant IA d'Anthropic, branché sur un coffre de connaissances qui reste sur vos machines. On y verse ce que le cabinet sait déjà : modèles, notes de dossier, analyses, et si vous le décidez, les pièces des dossiers. Trois cents pages de conclusions adverses, trois ans d'échanges, ce que vous aviez plaidé sur un moyen similaire : tout redevient <b>retrouvable</b>.</p>
+  </div>
+
+  <div class="pivot">
+    <span class="k">La différence, en une phrase</span>
+    <p>« Lexis et Doctrine connaissent le droit, nous on connaît vos dossiers. »</p>
+  </div>
+
+  <span class="sec-lbl">Ce que ça change dans la semaine</span>
+  <div class="pillars">
+    <div class="pillar"><div class="pn">01</div><h3>Dépouiller</h3><p>Chronologie des faits, moyens soulevés, pièces citées, avec le renvoi vers la page.</p></div>
+    <div class="pillar"><div class="pn">02</div><h3>Retrouver</h3><p>La pièce, le mail, la note scannée. Trente secondes au lieu d'une heure.</p></div>
+    <div class="pillar"><div class="pn">03</div><h3>Réutiliser</h3><p>Vos modèles et vos analyses déjà écrits, ressortis au format du cabinet.</p></div>
+    <div class="pillar"><div class="pn">04</div><h3>Transmettre</h3><p>Un collaborateur reprend un dossier sans venir vous déranger.</p></div>
+  </div>
+
+  <span class="sec-lbl">Le secret professionnel, traité en premier</span>
+  <div class="secret">
+    <div class="row"><span class="mk">01</span><div>Le coffre est installé <b>localement</b> : des fichiers sur vos machines ou sur votre serveur. Ce n'est pas une plateforme hébergée chez nous, on ne stocke rien, et si vous nous mettez dehors, vous gardez tout.</div></div>
+    <div class="row"><span class="mk">02</span><div><b>Vous décidez de ce qu'on y verse, et à quel rythme.</b> Beaucoup de cabinets commencent par ce qui n'est pas couvert par le secret, et n'y versent des pièces que plus tard.</div></div>
+    <div class="row"><span class="mk">03</span><div>Anthropic, l'éditeur de Claude, <b>n'entraîne pas ses modèles</b> sur les données envoyées via les offres professionnelles. On vous montre les paramètres et les conditions en rendez-vous, écran partagé.</div></div>
+    <div class="row"><span class="mk">04</span><div>L'assistant cherche dans <b>votre</b> coffre et cite ses sources. S'il n'y a rien sur le sujet, il le dit. Il ne remplace ni votre vérification, ni votre signature.</div></div>
+  </div>
+
+  <p class="legal"><b>Sur la formation :</b> elle fait partie de la prestation, sur vos dossiers réels. Elle ne vaut pas validation de vos 20 heures de formation continue annuelles : cette validation obéit aux règles de la profession, et Lucid-Lab n'est pas organisme de formation certifié à ce jour. Nous préférons vous le dire avant.</p>
+
+  <div class="op-cta">
+    <div class="big">30 minutes en visio, on vous le montre <span>en direct</span><small>Installation en deux jours, formation comprise. Premier pas : un audit flash sur place, calibré sur vos besoins, trois jours au minimum, à partir de 2 000 € HT, frais de déplacement en sus.</small></div>
+    <div class="side">lucid-lab.fr<br><a href="mailto:contact@lucid-lab.fr">contact@lucid-lab.fr</a></div>
+  </div>
+
+</section>
+
+</body>
+</html>
