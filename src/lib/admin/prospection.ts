@@ -102,6 +102,30 @@ export type ProspectionTarget = {
   callbackDue: boolean;
 };
 
+/**
+ * Regroupements de statuts utilisés à la fois par les compteurs et par les
+ * filtres, pour qu'une tuile n'annonce jamais un chiffre que le filtre
+ * correspondant ne retrouve pas.
+ *
+ * Le moteur de leads a laissé des cibles en `discovered`, l'import de listes les
+ * crée en `approved` : les deux veulent dire la même chose ici, personne ne les
+ * a encore appelées.
+ */
+export const STATUTS_A_APPELER = ['discovered', 'enriched', 'validated', 'approved'];
+export const STATUTS_AU_CRM = ['replied', 'meeting_booked', 'converted'];
+
+/** Valeurs de filtre qui recouvrent plusieurs statuts. */
+export const FILTRE_A_APPELER = 'a_appeler';
+export const FILTRE_AU_CRM = 'au_crm';
+
+export function estAAppeler(status: string): boolean {
+  return STATUTS_A_APPELER.includes(status);
+}
+
+export function estAuCrm(status: string): boolean {
+  return STATUTS_AU_CRM.includes(status);
+}
+
 export type ProspectionFilters = {
   sector?: string | null;
   status?: string | null;
@@ -132,7 +156,9 @@ export async function listProspectionTargets(filters: ProspectionFilters = {}): 
     .order('name', { ascending: true });
 
   if (filters.sector) query = query.eq('industry', filters.sector);
-  if (filters.status) query = query.eq('status', filters.status);
+  if (filters.status === FILTRE_A_APPELER) query = query.in('status', STATUTS_A_APPELER);
+  else if (filters.status === FILTRE_AU_CRM) query = query.in('status', STATUTS_AU_CRM);
+  else if (filters.status) query = query.eq('status', filters.status);
   if (filters.owner) query = query.eq('owner_label', filters.owner);
 
   const { data: companies, error } = await query;

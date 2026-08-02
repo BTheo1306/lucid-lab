@@ -1,5 +1,11 @@
 import { CalendarClock, PhoneCall, MessageSquare, CalendarCheck } from 'lucide-react';
-import { listProspectionTargets } from '@/lib/admin/prospection';
+import {
+  listProspectionTargets,
+  estAAppeler,
+  estAuCrm,
+  FILTRE_A_APPELER,
+  FILTRE_AU_CRM,
+} from '@/lib/admin/prospection';
 import { adminBasePath } from '@/lib/admin/auth';
 import { LucidOsHeader, Section, StatCard } from '../components';
 import { ProspectionBoard } from './ProspectionBoard';
@@ -25,9 +31,9 @@ const SECTORS = [
 ];
 
 const STATUSES = [
-  { value: 'approved', label: 'À appeler' },
+  { value: FILTRE_A_APPELER, label: 'À appeler' },
   { value: 'contacted', label: 'Contactés' },
-  { value: 'replied', label: 'Ont répondu' },
+  { value: FILTRE_AU_CRM, label: 'Passés au CRM' },
   { value: 'meeting_booked', label: 'RDV pris' },
   { value: 'disqualified', label: 'Écartés' },
 ];
@@ -91,9 +97,13 @@ export default async function ProspectionPage({
     return query ? `${base}?${query}` : base;
   };
 
-  const toCall = allTargets.filter((target) => !target.lastTouch && target.status !== 'disqualified').length;
+  // Compteurs fondes sur le statut, donc exclusifs entre eux : compter les
+  // "jamais appeles" sur l'absence de trace faisait apparaitre deux fois les
+  // cibles heritees du moteur de leads, deja marquees contactees sans qu'aucun
+  // appel n'ait ete enregistre ici.
+  const toCall = allTargets.filter((target) => estAAppeler(target.status)).length;
   const contacted = allTargets.filter((target) => target.status === 'contacted').length;
-  const replied = allTargets.filter((target) => target.status === 'replied').length;
+  const promoted = allTargets.filter((target) => estAuCrm(target.status)).length;
   const meetings = allTargets.filter((target) => target.status === 'meeting_booked').length;
   const dueCallbacks = allTargets.filter((target) => target.callbackDue).length;
 
@@ -102,15 +112,33 @@ export default async function ProspectionPage({
       <LucidOsHeader title="Prospection" />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Jamais appelés" value={toCall} hint="Cibles sans aucune action" icon={PhoneCall} />
-        <StatCard label="Contactés" value={contacted} hint="Au moins une tentative" icon={MessageSquare} />
-        <StatCard label="Ont répondu" value={replied} hint="Passés au CRM clients" icon={CalendarCheck} />
+        <StatCard
+          label="À appeler"
+          value={toCall}
+          hint="Aucune tentative à ce jour"
+          icon={PhoneCall}
+          href={buildHref({ statut: FILTRE_A_APPELER, rappels: null })}
+        />
+        <StatCard
+          label="Contactés"
+          value={contacted}
+          hint="Au moins une tentative"
+          icon={MessageSquare}
+          href={buildHref({ statut: 'contacted', rappels: null })}
+        />
+        <StatCard
+          label="Passés au CRM"
+          value={promoted}
+          hint="Ont répondu ou pris rendez-vous"
+          icon={CalendarCheck}
+          href={buildHref({ statut: FILTRE_AU_CRM, rappels: null })}
+        />
         <StatCard
           label="Rappels dus"
           value={dueCallbacks}
-          hint={dueCallbacks > 0 ? 'Échéance atteinte, cliquer pour filtrer' : 'Aucun rappel à traiter'}
+          hint="Échéance atteinte"
           icon={CalendarClock}
-          href={dueCallbacks > 0 ? buildHref({ rappels: '1' }) : undefined}
+          href={buildHref({ rappels: '1' })}
         />
       </div>
 
