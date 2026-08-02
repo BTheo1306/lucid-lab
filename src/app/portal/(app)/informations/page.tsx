@@ -40,6 +40,7 @@ export default async function PortalInfoPage({ searchParams }: PageProps) {
         <PortalCard>
           <h2 className="text-sm font-semibold text-zinc-900">{s.companyTitle}</h2>
           <p className="mt-1 text-xs text-zinc-500">{info.name}</p>
+          <p className="mt-2 text-xs leading-5 text-zinc-500">{s.saveHint}</p>
           <form action={`${base}/informations/entreprise`} method="post" className="mt-4 grid gap-3">
             <label className="grid gap-1.5 text-sm font-medium text-zinc-800">
               {s.legalName}

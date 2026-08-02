@@ -108,6 +108,12 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
         />
       </div>
 
+      {/* Sans ça, une tâche à venir reste masquée et le client ne voit jamais la suite. */}
+      <label className="flex items-center gap-2 text-sm text-zinc-300">
+        <input name="client_visible" type="checkbox" value="1" className="size-4" />
+        Visible par le client sur son portail
+      </label>
+
       <button
         type="submit"
         disabled={isPending}

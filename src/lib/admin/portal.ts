@@ -8,7 +8,7 @@ import {
   sendPortalRequestToClient,
 } from '@/lib/bot/integrations/email-client';
 import { PORTAL_INVITE_TOKEN_TTL_MS, generatePortalToken } from '@/lib/portal/auth';
-import { ensureLucidOrganizationId, recordLucidAuditEvent } from './lucid-os';
+import { ensureLucidOrganizationId, recordLucidAuditEvent, updateLucidClientCompanyProfile } from './lucid-os';
 
 /** Agency-side management of the client portal (access, invites, visibility). */
 
@@ -106,10 +106,37 @@ export interface ClientRequestSummary {
   resolvedAt: string | null;
   createdAt: string;
   updatedAt: string;
+  /** Valeurs proposées par le client depuis « Mes informations », en attente de validation. */
+  proposedLegal: ProposedLegalInfo | null;
+}
+
+export interface ProposedLegalInfo {
+  legalName: string | null;
+  siren: string | null;
+  siret: string | null;
+  billingAddress: string | null;
+  websiteUrl: string | null;
 }
 
 const REQUEST_SELECT =
-  'id,client_id,direction,request_type,status,title,body,response_note,due_at,resolved_at,created_at,updated_at,client:clients(name,slug),created_by:client_contacts!client_requests_created_by_contact_id_fkey(full_name)';
+  'id,client_id,direction,request_type,status,title,body,response_note,due_at,resolved_at,created_at,updated_at,metadata,client:clients(name,slug),created_by:client_contacts!client_requests_created_by_contact_id_fkey(full_name)';
+
+function readProposedLegal(metadata: unknown): ProposedLegalInfo | null {
+  if (!metadata || typeof metadata !== 'object') return null;
+  const proposed = (metadata as Record<string, unknown>).proposed_legal;
+  if (!proposed || typeof proposed !== 'object') return null;
+
+  const record = proposed as Record<string, unknown>;
+  const field = (key: string): string | null => (typeof record[key] === 'string' ? String(record[key]) : null);
+
+  return {
+    legalName: field('legal_name'),
+    siren: field('siren'),
+    siret: field('siret'),
+    billingAddress: field('billing_address'),
+    websiteUrl: field('website_url'),
+  };
+}
 
 function normalizeRequest(row: Record<string, unknown>): ClientRequestSummary {
   const client = (row.client ?? null) as { name?: string; slug?: string } | null;
@@ -131,6 +158,7 @@ function normalizeRequest(row: Record<string, unknown>): ClientRequestSummary {
     resolvedAt: row.resolved_at ? String(row.resolved_at) : null,
     createdAt: String(row.created_at ?? ''),
     updatedAt: String(row.updated_at ?? ''),
+    proposedLegal: readProposedLegal(row.metadata),
   };
 }
 
@@ -282,6 +310,53 @@ export async function answerClientRequest(input: {
     targetTable: 'client_requests',
     targetId: String(data.id),
     summary: `Demande client traitée (${input.status}) : ${String(data.title)}`,
+  });
+}
+
+/**
+ * Applique les informations proposées par le client depuis « Mes informations ».
+ *
+ * L'écriture passe par le chemin canonique du CRM (clés snake_case dans
+ * metadata.legal), celui que lisent la fiche client et la génération de
+ * documents. La demande est ensuite close et le client notifié.
+ */
+export async function applyClientRequestLegalUpdate(requestId: string): Promise<void> {
+  const { data, error } = await supabase
+    .from('client_requests')
+    .select('id,client_id,metadata,status')
+    .eq('id', requestId)
+    .eq('direction', 'client_to_agency')
+    .maybeSingle();
+
+  if (error) throw new Error(`applyClientRequestLegalUpdate: ${error.message}`);
+  if (!data) throw new Error('Demande introuvable.');
+
+  const proposed = readProposedLegal(data.metadata);
+  if (!proposed) throw new Error('Cette demande ne porte aucune information à appliquer.');
+
+  await updateLucidClientCompanyProfile({
+    clientId: String(data.client_id),
+    legalName: proposed.legalName,
+    siren: proposed.siren,
+    siret: proposed.siret,
+    billingAddress: proposed.billingAddress,
+    websiteUrl: proposed.websiteUrl,
+  });
+
+  await recordLucidAuditEvent({
+    clientId: String(data.client_id),
+    actorType: 'admin',
+    eventType: 'portal_client_info_applied',
+    targetTable: 'clients',
+    targetId: String(data.client_id),
+    summary: 'Informations entreprise proposées par le client appliquées à la fiche',
+    riskLevel: 'low',
+  });
+
+  await answerClientRequest({
+    requestId,
+    status: 'done',
+    responseNote: 'Vos informations ont été vérifiées et mises à jour dans votre dossier.',
   });
 }
 
