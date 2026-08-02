@@ -73,7 +73,9 @@ export default async function ProspectionPage({
     listProspectionTargets(),
   ]);
 
-  const base = `${adminBasePath()}/lucid-os/prospection`;
+  // adminBasePath est asynchrone : sans await, le lien devient
+  // "[object Promise]/lucid-os/prospection" et chaque filtre mene a une page blanche.
+  const base = `${await adminBasePath()}/lucid-os/prospection`;
   const buildHref = (patch: Partial<Record<'secteur' | 'statut' | 'qui' | 'rappels', string | null>>): string => {
     const params = new URLSearchParams();
     const next = {
@@ -106,9 +108,9 @@ export default async function ProspectionPage({
         <StatCard
           label="Rappels dus"
           value={dueCallbacks}
-          hint="Échéance atteinte"
+          hint={dueCallbacks > 0 ? 'Échéance atteinte, cliquer pour filtrer' : 'Aucun rappel à traiter'}
           icon={CalendarClock}
-          href={buildHref({ rappels: dueCallbacks > 0 ? '1' : null })}
+          href={dueCallbacks > 0 ? buildHref({ rappels: '1' }) : undefined}
         />
       </div>
 
