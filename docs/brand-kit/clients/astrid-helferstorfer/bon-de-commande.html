@@ -3,59 +3,27 @@
   Installation second cerveau Claude + Obsidian · 300 € · décisions de la réunion du 02/08/2026.
 
   ============================================================================
-  TVA : UN POINT À TRANCHER PAR JULES AVANT ENVOI (ne pas envoyer en l'état)
+  TVA : TRANCHÉ. 300 € HORS TVA, MÊME TRAITEMENT QUE LE JARDIN D'EDEN.
   ============================================================================
 
-  CE QUI EST VÉRIFIÉ (02/08/2026)
-  Le brouillon Dougs 2026-07-FAC16 porte le numéro BE1017557219 comme numéro de
-  TVA intracommunautaire. Ce n'est pas un numéro de TVA valide :
-    - VIES (service officiel de l'UE) répond isValid = false ;
-    - la Banque-Carrefour des Entreprises confirme l'ASBL (active, Place Eugène
-      Flagey 21 Boîte 9, 1050 Ixelles) mais sa section Qualités indique
-      « Pas de données reprises dans la BCE », donc aucune qualité d'assujetti.
-  C'est le numéro d'entreprise, que toute ASBL possède : il passe la clé de
-  contrôle belge et ressemble à un numéro de TVA sans en être un.
+  Décision de Jules et Anthony le 02/08/2026 : l'ASBL est non assujettie, comme
+  Eden, et Anthony dépose la déclaration mensuelle à la douane (la DES). Le
+  document est donc à 300 € hors TVA, mention d'autoliquidation posée.
 
-  CONSÉQUENCE : la ligne « TVA 0 % » du brouillon n'est pas justifiée en l'état.
-  Deux issues possibles, à trancher :
+  Base citée : article 259, 1° du CGI, plus les articles 44 et 196 de la
+  directive 2006/112/CE. La directive est citée en plus du CGI parce que la
+  recodification de la TVA rend le renvoi au seul CGI fragile à horizon 2027.
+  NE JAMAIS écrire « article 283-2 du CGI » : cet article vise le cas inverse,
+  celui du preneur français qui autoliquide une prestation reçue de l'étranger.
+  Ne jamais écrire « TVA 0 % » non plus : une opération hors champ et un taux
+  à zéro ne sont pas la même chose. La bonne formule est « non applicable ».
 
-  CAS 1, l'ASBL se fait identifier à la TVA en Belgique (formulaire e604A) et
-  fournit un numéro BE valide, vérifié le jour même dans VIES et archivé.
-  Alors la prestation sort du champ de la TVA française. Sur la facture :
-    - colonne taux : « non applicable » (surtout PAS « 0 % ») ;
-    - total TVA 0,00 €, total 300,00 € ;
-    - bloc de mention à copier tel quel sous le total :
-        N° TVA prestataire : FR02104672050
-        N° TVA preneur : BE................
-        Autoliquidation. TVA non applicable en France, article 259, 1° du CGI.
-        TVA due par le preneur en application des articles 44 et 196 de la
-        directive 2006/112/CE.
-    - NE JAMAIS écrire « article 283-2 du CGI » : cet article vise le cas inverse.
-    - Une déclaration européenne de services (DES) devient obligatoire, au plus
-      tard le 10e jour ouvrable du mois suivant. Son oubli coûte 750 €, porté à
-      1 500 € sans dépôt sous 30 jours après mise en demeure (art. 1788 A du CGI),
-      soit 2,5 à 5 fois le prix de la prestation.
-    - Astrid devra déclarer 21 % de TVA belge, soit 63 €, à sa charge si l'ASBL
-      n'a pas de droit à déduction. Le lui dire avant, pas après.
-
-  CAS 2, l'ASBL confirme par écrit n'être ni assujettie ni identifiée.
-  Alors TVA française : 300,00 € HT + 60,00 € = 360,00 € TTC. Si Jules maintient
-  que le client ne paie pas de TVA, les 300 € deviennent du TTC, soit 250 € HT
-  et 50 € de TVA absorbés par Lucid-Lab.
-
-  Dans les deux cas, l'affirmation « le client ne paiera pas de TVA » est inexacte.
-
-  RISQUE SI ON ÉMET À 0 % SANS NUMÉRO VALIDE : le rappel de TVA porte sur
-  Lucid-Lab seule et se calcule en dedans (250 € de base, 50 € de taxe), plus
-  intérêts de retard et majoration de 40 % si le manquement est jugé délibéré.
-  L'enjeu réel n'est pas ces 50 € mais le paramétrage : s'il devient la règle
-  pour tous les clients étrangers, le cumul se reproduit sur trois ans.
-
-  À DEMANDER À ASTRID AVANT ÉMISSION
-    - Disposez-vous d'un numéro de TVA belge (BE + 10 chiffres) ? Si oui, lequel ?
-    - Si non : ASBL non assujettie, assujettie exemptée (art. 44 du Code TVA
-      belge) ou franchisée ? Réponse écrite.
-    - Accord écrit sur le fait que les 300 € s'entendent hors taxes.
+  UN POINT OPÉRATIONNEL POUR ANTHONY, PAS UN DÉSACCORD
+  La DES se dépose avec le numéro de TVA du preneur. Le numéro BE1017557219
+  saisi dans Dougs est le numéro d'entreprise de l'ASBL, pas un numéro de TVA :
+  le VIES répond invalide et la Banque-Carrefour des Entreprises n'enregistre
+  aucune qualité d'assujetti. Si la déclaration mensuelle passe déjà pour Eden,
+  c'est le même point à vérifier ici avant le dépôt du mois.
 
   Placeholders restants : date du document, date de la séance d'installation.
   ============================================================================
@@ -87,6 +55,18 @@
   .mention b { font-weight: 600; }
   .mention .hand { font-family: var(--font-mono); color: var(--text-accent); }
   .doc-foot { font-size: 9px; gap: 24px; align-items: center; white-space: nowrap; }
+  /* Page 2 : resserrée pour que le bloc de signature tienne sur la feuille.
+     Sans ça le document annonce 2 pages et en produit 3, la signature partant
+     seule sur la troisième. */
+  .sheet.compact .lead { margin-top: 8px; font-size: 12px; line-height: 1.5; }
+  .sheet.compact .sec { margin-top: 12px; }
+  .sheet.compact .sec ul { margin-top: 5px; font-size: 12px; line-height: 1.45; }
+  .sheet.compact .sec li { margin-bottom: 1px; }
+  .sheet.compact .paytable td { padding: 7px 2px; font-size: 12px; }
+  .sheet.compact .mention { margin-top: 9px; padding: 10px 13px; font-size: 12px; }
+  .sheet.compact .signs { margin-top: 13px; }
+  .sheet.compact .sign { padding-bottom: 26px; }
+  .sheet.compact .doc-head { padding-bottom: 13px; }
 </style>
 </head>
 <body>
@@ -145,14 +125,14 @@
 
   <div class="totals">
     <div class="box">
-      <div class="row"><span>Montant de la prestation HT</span><span class="v">300,00 €</span></div>
-      <div class="row"><span>TVA</span><span class="v">à déterminer</span></div>
+      <div class="row"><span>Montant de la prestation</span><span class="v">300,00 € HT</span></div>
+      <div class="row"><span>TVA</span><span class="v">Non applicable</span></div>
       <div class="row grand"><span>Total à régler</span><span class="v">300,00 €</span></div>
     </div>
   </div>
 
-  <div class="geste">
-    <b>Prix hors taxes.</b> Le prix de 300 € s'entend hors taxes. Toute TVA qui viendrait à être due sera facturée en sus au Client.
+  <div class="lead">
+    <b>TVA non applicable en France</b>, article 259, 1° du Code général des impôts. Autoliquidation par le preneur en application des articles 44 et 196 de la directive 2006/112/CE. Le prix de 300 € s'entend hors taxes : toute taxe qui viendrait à être due serait facturée en sus au Client.
   </div>
 
   <div class="geste">
@@ -167,7 +147,7 @@
 </section>
 
 <!-- PAGE 2 : Objet, conditions financières, acceptation, signatures -->
-<section class="sheet">
+<section class="sheet compact">
 
   <header class="doc-head">
     <div class="brand">
@@ -198,10 +178,7 @@
     <span class="lbl">Conditions financières</span>
     <table class="paytable">
       <tbody>
-        <tr><td>Montant de la prestation</td><td class="amt">300,00 € HT</td></tr>
-        <tr><td>TVA</td><td class="amt">à déterminer</td></tr>
-        <tr class="tot"><td>Total à régler</td><td class="amt">300,00 €</td></tr>
-        <tr><td>Modalité retenue</td><td>Forfait unique, payable en une fois.</td></tr>
+        <tr><td>Modalité retenue</td><td>Forfait unique de <b>300,00 € HT</b>, TVA non applicable, payable en une fois.</td></tr>
         <tr><td>Échéancier</td><td>Facture émise à la signature, règlement par virement SEPA avant la séance d'installation.</td></tr>
         <tr><td>Facturation</td><td>La facture est émise au nom de <b>Drive for Charity (DFC) ASBL</b>, conformément à l'accord des parties.</td></tr>
       </tbody>
@@ -211,7 +188,7 @@
 
   <div class="sec">
     <span class="lbl">Acceptation valant commande ferme</span>
-    <div class="lead" style="margin-top:0">Le présent bon de commande est régi par les Conditions Générales de Vente de Lucid-Lab, publiées et tenues à jour sur lucid-lab.fr/cgv (la version en vigueur à la date de signature faisant foi). Le Client déclare accepter sans réserve le périmètre, les livrables, le calendrier et la modalité tarifaire. La signature vaut acceptation de l'offre, formation du Contrat et commande ferme, et déclenche l'émission de la facture puis l'exécution de la prestation à compter de la réception effective du paiement.</div>
+    <div class="lead" style="margin-top:0">Le présent bon de commande est régi par les Conditions Générales de Vente de Lucid-Lab, publiées sur lucid-lab.fr/cgv (la version en vigueur à la date de signature faisant foi). La signature vaut acceptation sans réserve du périmètre, des livrables, du calendrier et de la modalité tarifaire, formation du Contrat et commande ferme. Elle déclenche l'émission de la facture, puis l'exécution de la prestation à compter de la réception effective du paiement.</div>
     <div class="mention">
       <b>Mention manuscrite obligatoire du Client :</b> <span class="hand">« Lu et approuvé, bon pour accord et commande ferme, prix : 300,00 € HT, modalité : forfait unique »</span>
     </div>
