@@ -208,6 +208,7 @@ export const portalStrings = {
     websiteUrl: 'Site web',
     save: 'Envoyer la correction',
     saveHint: "Vos corrections nous sont transmises pour vérification, puis appliquées à votre dossier. Rien n'est modifié sans notre contrôle.",
+    pendingNotice: "Votre correction est en attente de validation. C'est elle qui s'affiche ci-dessous. Elle sera appliquée à votre dossier dès que nous l'aurons vérifiée.",
     saved: 'Correction transmise. Nous la vérifions et nous appliquons la mise à jour.',
     saveFailed: "Les informations n'ont pas pu être transmises. Réessayez ou écrivez-nous.",
     contextTitle: 'Transmettre des informations',

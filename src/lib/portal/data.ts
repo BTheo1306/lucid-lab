@@ -413,15 +413,70 @@ export interface PortalClientInfo {
   siren: string | null;
   siret: string | null;
   billingAddress: string | null;
+  /**
+   * Correction envoyée par le client et pas encore tranchée par l'équipe.
+   * Tant qu'elle est en attente, c'est elle que le formulaire affiche : sinon le
+   * client voit sa saisie disparaître et croit que rien n'a été enregistré.
+   * Refusée par l'équipe, elle disparaît et la fiche reprend ses valeurs.
+   */
+  pendingUpdate: PortalLegalValues | null;
+}
+
+export interface PortalLegalValues {
+  legalName: string | null;
+  siren: string | null;
+  siret: string | null;
+  billingAddress: string | null;
+  websiteUrl: string | null;
+}
+
+const PENDING_REQUEST_STATUSES = ['open', 'in_progress', 'waiting'];
+
+async function getPendingLegalUpdate(session: PortalSession): Promise<PortalLegalValues | null> {
+  const { data, error } = await supabase
+    .from('client_requests')
+    .select('metadata')
+    .eq('organization_id', session.organizationId)
+    .eq('client_id', session.clientId)
+    .eq('direction', 'client_to_agency')
+    .eq('request_type', 'change_request')
+    .in('status', PENDING_REQUEST_STATUSES)
+    // Le client peut avoir d'autres demandes de changement en cours (une photo à
+    // remplacer par exemple). Sans ce filtre, la plus récente d'entre elles
+    // masquerait une correction d'informations en attente.
+    .not('metadata->proposed_legal', 'is', null)
+    .order('created_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (error || !data) return null;
+
+  const metadata = (data.metadata ?? {}) as Record<string, unknown>;
+  const proposed = metadata.proposed_legal;
+  if (!proposed || typeof proposed !== 'object') return null;
+
+  const record = proposed as Record<string, unknown>;
+  const field = (key: string): string | null => (typeof record[key] === 'string' ? String(record[key]) : null);
+
+  return {
+    legalName: field('legal_name'),
+    siren: field('siren'),
+    siret: field('siret'),
+    billingAddress: field('billing_address'),
+    websiteUrl: field('website_url'),
+  };
 }
 
 export async function getPortalClientInfo(session: PortalSession): Promise<PortalClientInfo> {
-  const { data } = await supabase
-    .from('clients')
-    .select('name,industry,website_url,metadata')
-    .eq('organization_id', session.organizationId)
-    .eq('id', session.clientId)
-    .maybeSingle();
+  const [{ data }, pendingUpdate] = await Promise.all([
+    supabase
+      .from('clients')
+      .select('name,industry,website_url,metadata')
+      .eq('organization_id', session.organizationId)
+      .eq('id', session.clientId)
+      .maybeSingle(),
+    getPendingLegalUpdate(session),
+  ]);
 
   const metadata = (data?.metadata ?? {}) as { legal?: Record<string, unknown> };
   const legal = metadata.legal ?? {};
@@ -445,6 +500,7 @@ export async function getPortalClientInfo(session: PortalSession): Promise<Porta
     siren: readLegal('siren'),
     siret: readLegal('siret'),
     billingAddress: readLegal('billing_address', 'billingAddress', 'address'),
+    pendingUpdate,
   };
 }
 
@@ -488,6 +544,20 @@ export async function requestPortalClientLegalUpdate(
   compare('Site web', current.websiteUrl, proposed.website_url);
 
   if (changes.length === 0) return { ok: true };
+
+  // Le client renvoie exactement ce qu'il a deja propose : inutile d'empiler une
+  // seconde demande identique dans la file de l'equipe.
+  const pending = current.pendingUpdate;
+  if (
+    pending &&
+    pending.legalName === proposed.legal_name &&
+    pending.siren === proposed.siren &&
+    pending.siret === proposed.siret &&
+    pending.billingAddress === proposed.billing_address &&
+    pending.websiteUrl === proposed.website_url
+  ) {
+    return { ok: true };
+  }
 
   const result = await createClientRequest(
     session,

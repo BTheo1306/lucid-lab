@@ -274,11 +274,18 @@ export async function answerClientRequest(input: {
     })
     .eq('id', input.requestId)
     .eq('direction', 'client_to_agency')
-    .select('id,title,client_id,created_by_contact_id')
+    .select('id,title,client_id,created_by_contact_id,metadata')
     .maybeSingle();
 
   if (error) throw new Error(`answerClientRequest: ${error.message}`);
   if (!data) throw new Error('Demande introuvable.');
+
+  // Clore une demande de changement vaut acceptation : sans ça, les valeurs
+  // proposées par le client seraient silencieusement jetées. Décliner les laisse
+  // de côté et la fiche garde ses valeurs.
+  if (input.status === 'done') {
+    await applyProposedLegal(String(data.client_id), readProposedLegal(data.metadata));
+  }
 
   if (data.created_by_contact_id) {
     const { data: contact } = await supabase
@@ -314,28 +321,17 @@ export async function answerClientRequest(input: {
 }
 
 /**
- * Applique les informations proposées par le client depuis « Mes informations ».
+ * Écrit les informations proposées par le client sur la fiche.
  *
  * L'écriture passe par le chemin canonique du CRM (clés snake_case dans
  * metadata.legal), celui que lisent la fiche client et la génération de
- * documents. La demande est ensuite close et le client notifié.
+ * documents. Sans effet si la demande ne porte aucune valeur.
  */
-export async function applyClientRequestLegalUpdate(requestId: string): Promise<void> {
-  const { data, error } = await supabase
-    .from('client_requests')
-    .select('id,client_id,metadata,status')
-    .eq('id', requestId)
-    .eq('direction', 'client_to_agency')
-    .maybeSingle();
-
-  if (error) throw new Error(`applyClientRequestLegalUpdate: ${error.message}`);
-  if (!data) throw new Error('Demande introuvable.');
-
-  const proposed = readProposedLegal(data.metadata);
-  if (!proposed) throw new Error('Cette demande ne porte aucune information à appliquer.');
+async function applyProposedLegal(clientId: string, proposed: ProposedLegalInfo | null): Promise<void> {
+  if (!proposed) return;
 
   await updateLucidClientCompanyProfile({
-    clientId: String(data.client_id),
+    clientId,
     legalName: proposed.legalName,
     siren: proposed.siren,
     siret: proposed.siret,
@@ -344,14 +340,34 @@ export async function applyClientRequestLegalUpdate(requestId: string): Promise<
   });
 
   await recordLucidAuditEvent({
-    clientId: String(data.client_id),
+    clientId,
     actorType: 'admin',
     eventType: 'portal_client_info_applied',
     targetTable: 'clients',
-    targetId: String(data.client_id),
+    targetId: clientId,
     summary: 'Informations entreprise proposées par le client appliquées à la fiche',
     riskLevel: 'low',
   });
+}
+
+/**
+ * Accepte une demande de changement d'informations : applique les valeurs et
+ * clôt la demande. C'est le raccourci du bouton dédié ; clore la demande par le
+ * formulaire de réponse produit exactement le même effet.
+ */
+export async function applyClientRequestLegalUpdate(requestId: string): Promise<void> {
+  const { data, error } = await supabase
+    .from('client_requests')
+    .select('id,metadata')
+    .eq('id', requestId)
+    .eq('direction', 'client_to_agency')
+    .maybeSingle();
+
+  if (error) throw new Error(`applyClientRequestLegalUpdate: ${error.message}`);
+  if (!data) throw new Error('Demande introuvable.');
+  if (!readProposedLegal(data.metadata)) {
+    throw new Error('Cette demande ne porte aucune information à appliquer.');
+  }
 
   await answerClientRequest({
     requestId,

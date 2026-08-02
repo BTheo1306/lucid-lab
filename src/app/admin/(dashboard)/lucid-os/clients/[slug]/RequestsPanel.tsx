@@ -148,6 +148,10 @@ export async function RequestsPanel({ clientId, clientSlug }: { clientId: string
                           ) : null,
                         )}
                       </dl>
+                      <p className="text-xs leading-5 text-zinc-600">
+                        Le client voit ces valeurs sur son portail tant que vous n&apos;avez pas tranché.
+                        Accepter les applique à la fiche. Décliner les écarte et la fiche ne change pas.
+                      </p>
                       <form action={applyClientRequestLegalAction}>
                         <input type="hidden" name="request_id" value={request.id} />
                         <input type="hidden" name="client_slug" value={clientSlug} />
@@ -155,7 +159,7 @@ export async function RequestsPanel({ clientId, clientSlug }: { clientId: string
                           type="submit"
                           className="inline-flex h-8 items-center rounded border border-blue-200 bg-white px-2.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
                         >
-                          Appliquer à la fiche
+                          Accepter et appliquer
                         </button>
                       </form>
                     </div>
