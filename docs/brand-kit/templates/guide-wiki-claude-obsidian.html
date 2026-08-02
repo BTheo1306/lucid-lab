@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Guide client Wiki Claude + Obsidian</title>
+<link rel="stylesheet" href="../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-gray-100); font-family: var(--font-body); color: var(--text-primary); -webkit-font-smoothing: antialiased; padding: 40px 20px; }
+  .page { position: relative; width: 820px; max-width: 100%; min-height: 1160px; margin: 0 auto 28px; background: var(--color-paper); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 52px 56px 64px; display: flex; flex-direction: column; overflow: hidden; }
+  .run { display: flex; align-items: center; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--border-default); }
+  .brand { display: flex; align-items: center; gap: 9px; }
+  .brand img { width: 20px; height: 20px; display: block; }
+  .wordmark { font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.08em; font-size: 14px; }
+  .run__meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .pagenum { position: absolute; bottom: 26px; right: 56px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); }
+  .foot-rule { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: center; }
+  .foot-rule .path { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
+  .foot-rule .contact { font-size: 12.5px; color: var(--text-secondary); }
+  .foot-rule .contact a { color: var(--text-accent); text-decoration: none; }
+  .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-accent); }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+  .sec-title { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; margin: 14px 0 0; }
+  .lead { font-size: 14px; line-height: 1.65; color: var(--text-secondary); max-width: 66ch; }
+  .lead b { color: var(--text-primary); font-weight: 600; }
+  .cover-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; }
+  .cover-eyebrow { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 22px; }
+  .cover-ember-rule { height: 2px; width: 52px; background: var(--accent); border-radius: 2px; margin-bottom: 28px; }
+  h1.cover-title { font-family: var(--font-display); font-weight: 700; font-size: 50px; line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 26px; }
+  .cover-lead { font-size: 17px; line-height: 1.65; color: var(--text-secondary); max-width: 60ch; margin: 0 0 38px; }
+  .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border-default); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 34px; }
+  .meta-cell { background: var(--color-white); padding: 14px 16px; }
+  .meta-cell .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+  .meta-cell .v { font-family: var(--font-display); font-weight: 600; font-size: 13.5px; margin-top: 7px; line-height: 1.3; }
+  .quote { border-left: 2px solid var(--accent); padding: 4px 0 4px 22px; max-width: 64ch; }
+  .quote p { font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 1.35; letter-spacing: -0.01em; margin: 0; }
+  .quote cite { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-style: normal; margin-top: 12px; }
+  .toc { margin-top: 40px; border-top: 1px solid var(--border-default); }
+  .toc__row { display: flex; align-items: baseline; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-default); }
+  .toc__n { font-family: var(--font-mono); font-size: 12px; color: var(--text-accent); letter-spacing: 0.1em; }
+  .toc__t { font-family: var(--font-display); font-weight: 600; font-size: 15px; }
+  .toc__dots { flex: 1; border-bottom: 1px dotted var(--border-strong); transform: translateY(-3px); }
+  .toc__p { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+  .monitor { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 18px 20px; margin-top: 14px; }
+  .monitor__label { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  .mrow { position: relative; padding-left: 18px; font-size: 13px; line-height: 1.85; color: var(--text-primary); margin: 2px 0; }
+  .mrow b { font-weight: 600; }
+  .dot { position: absolute; left: 0; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .qrow { position: relative; padding-left: 30px; font-size: 13px; line-height: 1.6; color: var(--text-primary); margin: 9px 0; }
+  .qrow b { font-weight: 600; }
+  .qrow .qn { position: absolute; left: 0; top: 1px; font-family: var(--font-mono); font-size: 11.5px; color: var(--text-accent); letter-spacing: 0.04em; }
+  .qrow .qsub { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+  /* Do / Don't */
+  .dodont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .dd { border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; background: var(--color-white); }
+  .dd__h { font-family: var(--font-display); font-weight: 700; font-size: 14px; padding: 12px 16px; color: #fff; }
+  .dd--do .dd__h { background: #1a7f4b; }
+  .dd--dont .dd__h { background: #b3402f; }
+  .dd ul { margin: 0; padding: 12px 16px 14px; list-style: none; }
+  .dd li { font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); padding-left: 18px; position: relative; margin-bottom: 10px; }
+  .dd li:last-child { margin-bottom: 0; }
+  .dd li b { color: var(--text-primary); font-weight: 600; }
+  .dd--do li:before { content: "✓"; position: absolute; left: 0; color: #1a7f4b; font-weight: 700; }
+  .dd--dont li:before { content: "✕"; position: absolute; left: 0; color: #b3402f; font-weight: 700; }
+  /* Case rows (interview, routine) */
+  .case { display: grid; grid-template-columns: 190px 1fr; gap: 22px; padding: 11px 0; border-top: 1px solid var(--border-default); }
+  .case:last-of-type { border-bottom: 1px solid var(--border-default); }
+  .case__tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ember); }
+  .case__name { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; margin-top: 4px; }
+  .case__desc { font-size: 12.5px; line-height: 1.55; color: var(--text-secondary); margin: 0; align-self: center; }
+  .case__desc b { color: var(--text-primary); }
+  /* Phases */
+  .phase { display: grid; grid-template-columns: 26px 200px 1fr; gap: 14px; padding: 9px 0; border-top: 1px solid var(--border-default); align-items: baseline; }
+  .phase:last-of-type { border-bottom: 1px solid var(--border-default); }
+  .phase__n { font-family: var(--font-mono); font-size: 12px; color: var(--text-accent); }
+  .phase__t { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; }
+  .phase__d { font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); }
+  /* Steps 2x2 */
+  .steps2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+  .cal__step { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 15px 18px; }
+  .cal__k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-accent); }
+  .cal__t { font-family: var(--font-display); font-weight: 700; font-size: 14px; margin: 7px 0 6px; }
+  .cal__d { font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+  /* Callout accent */
+  .callout { border: 1px solid var(--accent); background: #FDF0E7; border-radius: var(--radius-md); padding: 15px 18px; margin-top: 18px; }
+  .callout .ck { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 7px; }
+  .callout p { font-size: 13px; line-height: 1.6; color: var(--text-primary); margin: 0; }
+  .callout p b { font-weight: 700; }
+  /* CTA */
+  .cta { margin-top: 26px; background-color: #0A0A0A; color: rgba(255,255,255,0.92); border-radius: var(--radius-lg); padding: 26px 30px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+  .cta__k { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 9px; }
+  .cta__h { font-family: var(--font-display); font-weight: 700; font-size: 21px; line-height: 1.15; letter-spacing: -0.02em; margin: 0; color: #ffffff; }
+  .cta__sub { font-family: var(--font-mono); font-size: 11.5px; color: rgba(255,255,255,0.58); margin-top: 10px; }
+  .cta__btn { flex-shrink: 0; background: var(--accent); color: var(--accent-on); font-family: var(--font-body); font-weight: 600; font-size: 14px; padding: 13px 20px; border-radius: var(--radius-sm); white-space: nowrap; text-decoration: none; }
+  @page { size: A4; margin: 0; }
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; padding: 0; }
+    .page { border: none; border-radius: 0; margin: 0; width: 210mm; min-height: 296mm; padding: 12mm 15mm; break-after: page; break-inside: avoid; }
+    .page:last-child { break-after: auto; }
+    h1.cover-title { font-size: 44px; }
+    .case { padding: 9px 0; }
+    .phase { padding: 8px 0; }
+    .qrow { margin: 8px 0; }
+    .monitor { padding: 15px 18px; margin-top: 11px; }
+    .page--prep .monitor { padding: 11px 16px; margin-top: 8px; }
+    .page--prep .monitor__label { margin-bottom: 7px; }
+    .page--prep .qrow { margin: 5px 0; font-size: 12.5px; }
+    .page--prep .qrow .qsub { font-size: 11.5px; }
+    .page--prep .sec-title { font-size: 25px !important; }
+    .page--prep .lead { margin-top: 9px !important; font-size: 13px; }
+    .page--prep .callout { margin-top: 11px; padding: 11px 16px; }
+    .page--prep .foot-rule { padding-top: 14px; }
+  }
+  @media (max-width: 680px) {
+    .page { padding: 32px 22px 54px; }
+    h1.cover-title { font-size: 34px; }
+    .meta-grid, .dodont, .steps2 { grid-template-columns: 1fr; }
+    .case { grid-template-columns: 1fr; gap: 6px; }
+    .phase { grid-template-columns: 26px 1fr; }
+    .phase__d { grid-column: 2; }
+    .cta { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ P1 · COUVERTURE ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo-96-black-on-white.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Guide client · Wiki Claude + Obsidian · 2026</span>
+  </div>
+  <div class="cover-body">
+    <div class="cover-eyebrow">Wiki Claude + Obsidian</div>
+    <div class="cover-ember-rule"></div>
+    <h1 class="cover-title">Votre entreprise,<br>cartographiée dans<br>un wiki privé.</h1>
+    <p class="cover-lead">Ce guide vous accompagne avant, pendant et après la mise en place de votre wiki&nbsp;: ce que le système fait, comment l'installation se déroule, ce que vous préparez de votre côté, les questions auxquelles vous répondrez, et comment vivre avec votre wiki au quotidien. Aucune compétence technique requise.</p>
+    <div class="meta-grid">
+      <div class="meta-cell"><span class="k">Document</span><div class="v">Guide client</div></div>
+      <div class="meta-cell"><span class="k">Audience</span><div class="v">Dirigeant, fondateur,<br>indépendant</div></div>
+      <div class="meta-cell"><span class="k">Mise en place</span><div class="v">Une séance de 2 h,<br>accompagnée</div></div>
+      <div class="meta-cell"><span class="k">Contact</span><div class="v">info@lucid-lab.fr<br>lucid-lab.fr</div></div>
+    </div>
+    <div class="quote">
+      <p>On ne conseille pas. On construit. Votre wiki devient une mémoire structurée et interrogeable&nbsp;: vous gardez le contrôle de vos données du premier au dernier jour.</p>
+      <cite>Le principe</cite>
+    </div>
+    <div class="toc">
+      <div class="toc__row"><span class="toc__n">01</span><span class="toc__t">Ce que vous avez entre les mains</span><span class="toc__dots"></span><span class="toc__p">p. 02</span></div>
+      <div class="toc__row"><span class="toc__n">02</span><span class="toc__t">Comment se déroule la mise en place</span><span class="toc__dots"></span><span class="toc__p">p. 03</span></div>
+      <div class="toc__row"><span class="toc__n">03</span><span class="toc__t">À préparer avant la séance</span><span class="toc__dots"></span><span class="toc__p">p. 04</span></div>
+      <div class="toc__row"><span class="toc__n">04</span><span class="toc__t">L'interview&nbsp;: les questions qu'on vous posera</span><span class="toc__dots"></span><span class="toc__p">p. 05</span></div>
+      <div class="toc__row"><span class="toc__n">05</span><span class="toc__t">Vos sources et les garde-fous</span><span class="toc__dots"></span><span class="toc__p">p. 06</span></div>
+      <div class="toc__row"><span class="toc__n">06</span><span class="toc__t">Le wiki au quotidien</span><span class="toc__dots"></span><span class="toc__p">p. 07</span></div>
+    </div>
+  </div>
+  <div class="foot-rule">
+    <span class="path">le système propose → vous validez → il construit</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> · lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">01 / 07</span>
+</section>
+
+<!-- ══════════ P2 · CE QUE VOUS AVEZ ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo-96-black-on-white.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Ce que vous avez entre les mains</span>
+  </div>
+  <div style="margin-top:26px">
+    <span class="eyebrow">01 · Ce que vous avez entre les mains</span>
+    <h2 class="sec-title" style="font-size:28px">Obsidian pour lire.<br>Claude pour construire.</h2>
+    <p class="lead" style="margin-top:14px">Votre wiki est une base de connaissance <b>privée, stockée sur votre ordinateur</b>. Claude sert à l'alimenter, la ranger, la relier et l'interroger. Obsidian sert à lire, explorer et visualiser vos pages&nbsp;: clients, offres, décisions, process, opportunités.</p>
+  </div>
+
+  <div style="margin-top:20px">
+    <span class="kicker">Les quatre briques</span>
+    <div class="monitor">
+      <div class="mrow"><span class="dot"></span><b>Obsidian</b>&nbsp;: l'interface de lecture. Notes, liens, recherche, vue en graphe.</div>
+      <div class="mrow"><span class="dot"></span><b>Claude</b>&nbsp;: l'assistant qui range, relie, met à jour et répond à vos questions.</div>
+      <div class="mrow"><span class="dot"></span><b>La méthode wiki</b>&nbsp;: structure, sources citées, index, validation avant écriture.</div>
+      <div class="mrow"><span class="dot"></span><b>Le vault</b>&nbsp;: le dossier local qui contient toutes vos pages. Chez vous, pas dans un cloud.</div>
+    </div>
+  </div>
+
+  <div class="dodont">
+    <div class="dd dd--do">
+      <div class="dd__h">Ce que le système fait</div>
+      <ul>
+        <li><b>Transforme vos documents autorisés</b> en pages claires, reliées entre elles.</li>
+        <li><b>Garde la trace des sources</b> déjà analysées, pour ne jamais retraiter deux fois.</li>
+        <li><b>Retrouve en quelques secondes</b> une décision, une offre, un client, un process.</li>
+        <li><b>S'audite lui-même</b>&nbsp;: liens cassés, doublons, contradictions, pages faibles.</li>
+      </ul>
+    </div>
+    <div class="dd dd--dont">
+      <div class="dd__h">Ce qu'il ne fait pas</div>
+      <ul>
+        <li><b>Il ne lit pas votre ordinateur en continu</b>&nbsp;: vous choisissez quoi analyser, et quand.</li>
+        <li><b>Il n'invente pas les faits manquants</b>&nbsp;: ce qui est flou devient une question ouverte.</li>
+        <li><b>Il n'ingère jamais</b> mots de passe, clés, coordonnées bancaires ou secrets.</li>
+        <li><b>Il ne remplace pas votre jugement</b>&nbsp;: il prépare vos décisions, il ne les prend pas.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="quote" style="margin-top:26px">
+    <p>Le wiki ne s'alimente pas tout seul, et c'est volontaire. Vous choisissez les sources, vous validez les pages&nbsp;: vous gardez le dernier mot.</p>
+    <cite>La règle du système</cite>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Une mémoire structurée, interrogeable, actionnable.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">02 / 07</span>
+</section>
+
+<!-- ══════════ P3 · LE DÉROULÉ ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo-96-black-on-white.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Le déroulé</span>
+  </div>
+  <div style="margin-top:26px">
+    <span class="eyebrow">02 · Comment se déroule la mise en place</span>
+    <h2 class="sec-title" style="font-size:28px">Quatre temps, de la préparation<br>à la restitution.</h2>
+  </div>
+
+  <div class="steps2">
+    <div class="cal__step"><span class="cal__k">Temps 1 · Avant la séance</span><div class="cal__t">Vous préparez</div><p class="cal__d">Vous répondez aux questions de la page 04 et rassemblez vos documents dans un seul dossier. Dix minutes qui font gagner une heure.</p></div>
+    <div class="cal__step"><span class="cal__k">Temps 2 · La séance de 2 h</span><div class="cal__t">On installe et on démarre</div><p class="cal__d">Installation d'Obsidian et de Claude sur votre ordinateur, création du wiki, puis démarrage&nbsp;: l'assistant vous interviewe (page 05) et crée vos premières pages.</p></div>
+    <div class="cal__step"><span class="cal__k">Temps 3 · Les jours suivants</span><div class="cal__t">Le wiki se construit</div><p class="cal__d">L'assistant analyse vos sources par phases et propose les pages. Rien ne devient définitif sans votre validation.</p></div>
+    <div class="cal__step"><span class="cal__k">Temps 4 · La restitution</span><div class="cal__t">Vous recevez le bilan</div><p class="cal__d">Un rapport final&nbsp;: pages créées, 10 principaux insights, 10 plus grandes opportunités, questions ouvertes et plan d'action recommandé.</p></div>
+  </div>
+
+  <div style="margin-top:24px">
+    <span class="kicker">Les huit phases de construction</span>
+    <div style="margin-top:10px">
+      <div class="phase"><span class="phase__n">01</span><span class="phase__t">Interview initiale</span><span class="phase__d">Vos réponses fondent les premières pages&nbsp;: vous et votre entreprise.</span></div>
+      <div class="phase"><span class="phase__n">02</span><span class="phase__t">Inventaire des sources</span><span class="phase__d">Chaque document est classé et évalué avant toute analyse. Vous confirmez ce qui entre.</span></div>
+      <div class="phase"><span class="phase__n">03</span><span class="phase__t">Votre profil</span><span class="phase__d">Objectifs, forces, blocages, priorités, style de décision. Sans psychologie de comptoir.</span></div>
+      <div class="phase"><span class="phase__n">04</span><span class="phase__t">Votre entreprise</span><span class="phase__d">Offres, clients, positionnement, concurrents, canaux, tunnel de vente, KPIs.</span></div>
+      <div class="phase"><span class="phase__n">05</span><span class="phase__t">Vos process</span><span class="phase__d">Comment l'entreprise tourne vraiment&nbsp;: étapes, outils, frictions, tâches répétitives.</span></div>
+      <div class="phase"><span class="phase__n">06</span><span class="phase__t">IA et automatisation</span><span class="phase__d">Quick wins, projets à fort impact, risques, roadmap IA adaptée à vos données.</span></div>
+      <div class="phase"><span class="phase__n">07</span><span class="phase__t">Synthèses</span><span class="phase__d">Résumé exécutif, plan 30/60/90 jours, journal de décisions, actions recommandées.</span></div>
+      <div class="phase"><span class="phase__n">08</span><span class="phase__t">Audit qualité</span><span class="phase__d">Liens, doublons, contradictions, affirmations sans source&nbsp;: le wiki se vérifie.</span></div>
+    </div>
+    <p class="lead" style="margin-top:14px; font-size:13px">Chaque phase produit des pages reliées et sourcées. Les phases 3 à 8 se déroulent après la séance, à votre rythme&nbsp;: le wiki grandit sans bloquer vos journées.</p>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Huit phases, zéro page sans source.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">03 / 07</span>
+</section>
+
+<!-- ══════════ P4 · À PRÉPARER AVANT ══════════ -->
+<section class="page page--prep">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo-96-black-on-white.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Avant la séance</span>
+  </div>
+  <div style="margin-top:24px">
+    <span class="eyebrow">03 · À préparer avant la séance</span>
+    <h2 class="sec-title" style="font-size:27px">Onze réponses qui font<br>une installation fluide.</h2>
+    <p class="lead" style="margin-top:12px">Envoyez-nous ces réponses avant le rendez-vous (WhatsApp ou email). Elles nous permettent de préparer le déroulé exact et de ne rien découvrir en séance.</p>
+  </div>
+
+  <div class="monitor">
+    <div class="monitor__label">Votre ordinateur</div>
+    <div class="qrow"><span class="qn">01</span><b>Mac ou Windows&nbsp;?</b> Modèle et année approximative&nbsp;?</div>
+    <div class="qrow"><span class="qn">02</span><b>Personnel ou professionnel géré&nbsp;?</b><span class="qsub">Si un service informatique gère votre poste, il faut pouvoir installer des applications.</span></div>
+    <div class="qrow"><span class="qn">03</span><b>D'autres appareils, d'autres personnes&nbsp;?</b><span class="qsub">Accès depuis téléphone ou tablette, ou partage avec un collaborateur&nbsp;: on le prévoit dès le départ.</span></div>
+  </div>
+
+  <div class="monitor">
+    <div class="monitor__label">Vos comptes</div>
+    <div class="qrow"><span class="qn">04</span><b>Avez-vous déjà un compte Claude (claude.ai)&nbsp;?</b><span class="qsub">Si oui&nbsp;: quel abonnement (gratuit, Pro, Max) et quelle adresse email&nbsp;?</span></div>
+    <div class="qrow"><span class="qn">05</span><b>Si non&nbsp;: d'accord pour souscrire Claude Pro&nbsp;?</b><span class="qsub">L'assistant nécessite un abonnement payant, environ 20 €/mois, souscrit par vous.</span></div>
+  </div>
+
+  <div class="monitor">
+    <div class="monitor__label">Votre contenu</div>
+    <div class="qrow"><span class="qn">06</span><b>Votre activité en une phrase.</b> Vous travaillez seule ou en équipe&nbsp;?</div>
+    <div class="qrow"><span class="qn">07</span><b>Les 3 premiers usages attendus.</b><span class="qsub">Exemples&nbsp;: retrouver vos offres et tarifs, préparer vos rendez-vous, rédiger du contenu, centraliser vos process.</span></div>
+    <div class="qrow"><span class="qn">08</span><b>Les documents existants à intégrer, et où ils vivent.</b><span class="qsub">Offres, tarifs, process, comptes-rendus, listes clients&nbsp;: sur Google Drive, Dropbox, votre ordinateur, votre boîte mail&nbsp;?</span></div>
+    <div class="qrow"><span class="qn">09</span><b>Un outil de notes actuel&nbsp;?</b><span class="qsub">Notion, Evernote, Apple Notes, autre&nbsp;: faut-il récupérer ce contenu&nbsp;?</span></div>
+    <div class="qrow"><span class="qn">10</span><b>Ce qui ne doit JAMAIS entrer dans le wiki.</b><span class="qsub">Mots de passe, documents bancaires, données médicales, dossiers personnels.</span></div>
+  </div>
+
+  <div class="monitor">
+    <div class="monitor__label">Le jour J</div>
+    <div class="qrow"><span class="qn">11</span><b>Vos disponibilités pour un créneau de 2 h.</b><span class="qsub">En visio ou sur place, avec une bonne connexion internet.</span></div>
+  </div>
+
+  <div class="callout">
+    <div class="ck">Le geste qui change tout</div>
+    <p>Rassemblez dès maintenant vos documents utiles (offres, tarifs, process, comptes-rendus) <b>dans un seul dossier</b> sur votre ordinateur. Ce dossier deviendra la première source de votre wiki.</p>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Dix minutes de préparation, une heure gagnée en séance.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">04 / 07</span>
+</section>
+
+<!-- ══════════ P5 · L'INTERVIEW ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo-96-black-on-white.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">L'interview de démarrage</span>
+  </div>
+  <div style="margin-top:24px">
+    <span class="eyebrow">04 · L'interview&nbsp;: les questions qu'on vous posera</span>
+    <h2 class="sec-title" style="font-size:27px">Dix thèmes, posés au démarrage,<br>qui fondent tout le wiki.</h2>
+    <p class="lead" style="margin-top:12px">Au lancement, l'assistant commence par vous interviewer, avant de lire le moindre document. Les questions arrivent progressivement, pas toutes d'un coup. Voici les thèmes, pour y réfléchir tranquillement en amont&nbsp;: <b>des réponses honnêtes suffisent</b>, le wiki s'affine ensuite.</p>
+  </div>
+
+  <div style="margin-top:16px">
+    <div class="case">
+      <div><div class="case__tag">Thème 01</div><div class="case__name">Qui vous êtes</div></div>
+      <p class="case__desc">Votre parcours, votre rôle, ce qui vous occupe vraiment aujourd'hui.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Thème 02</div><div class="case__name">Ce que fait votre entreprise</div></div>
+      <p class="case__desc">L'activité en une ou deux phrases simples, comme si vous l'expliquiez à un proche.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Thème 03</div><div class="case__name">Ce que vous vendez</div></div>
+      <p class="case__desc">Vos offres et vos prix&nbsp;: ce qui se vend le mieux, ce qui se vend mal.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Thème 04</div><div class="case__name">À qui vous le vendez</div></div>
+      <p class="case__desc">Vos clients types&nbsp;: ceux avec qui tout se passe bien, ceux que vous préférez éviter.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Thème 05</div><div class="case__name">Vos objectifs actuels</div></div>
+      <p class="case__desc">Chiffre d'affaires, temps, recrutement, sérénité&nbsp;: ce qui compte pour les 12 prochains mois.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Thème 06</div><div class="case__name">Les problèmes à résoudre</div></div>
+      <p class="case__desc">Ce que le wiki doit changer concrètement&nbsp;: retrouver, décider, déléguer, automatiser&nbsp;?</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Thème 07</div><div class="case__name">Les sources autorisées</div></div>
+      <p class="case__desc">Les dossiers et documents que l'assistant peut analyser. C'est vous qui fixez le périmètre.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Thème 08</div><div class="case__name">Les sources interdites</div></div>
+      <p class="case__desc">Ce qui reste hors du wiki, sans exception. Cette liste est respectée à la lettre.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Thème 09</div><div class="case__name">Les sujets sensibles</div></div>
+      <p class="case__desc">Ce qui peut être analysé, mais avec prudence et validation&nbsp;: finances, RH, litiges.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Thème 10</div><div class="case__name">Ce que l'IA doit vous aider à faire</div></div>
+      <p class="case__desc">Votre liste de vœux&nbsp;: rédiger, préparer les rendez-vous, relancer, synthétiser, décider.</p>
+    </div>
+  </div>
+
+  <div class="quote" style="margin-top:24px">
+    <p>À la fin de l'interview, vos deux premières pages existent déjà&nbsp;: «&nbsp;Moi&nbsp;» et «&nbsp;Vue d'ensemble de l'entreprise&nbsp;». Le wiki n'est plus jamais vide.</p>
+    <cite>Après l'interview</cite>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Des réponses honnêtes valent mieux que des réponses parfaites.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">05 / 07</span>
+</section>
+
+<!-- ══════════ P6 · SOURCES ET GARDE-FOUS ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo-96-black-on-white.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Sources et garde-fous</span>
+  </div>
+  <div style="margin-top:24px">
+    <span class="eyebrow">05 · Vos sources et les garde-fous</span>
+    <h2 class="sec-title" style="font-size:27px">Le wiki vaut ce que valent<br>ses sources.</h2>
+    <p class="lead" style="margin-top:12px">Le meilleur carburant, ce sont vos documents réels. Voici ce qui nourrit bien un wiki, ce qui n'y entre jamais, et les protections intégrées au système.</p>
+  </div>
+
+  <div class="dodont">
+    <div class="dd dd--do">
+      <div class="dd__h">Les bonnes sources</div>
+      <ul>
+        <li><b>Commercial</b>&nbsp;: offres, tarifs, propositions, objections, scripts de vente.</li>
+        <li><b>Opérations</b>&nbsp;: process, checklists, comptes-rendus, supports internes.</li>
+        <li><b>Marketing</b>&nbsp;: site web, pages de vente, newsletters, posts, analytics.</li>
+        <li><b>Clients</b>&nbsp;: interviews, feedbacks, avis, questions fréquentes, exports CRM.</li>
+        <li><b>Notes et transcriptions</b>&nbsp;: décisions, idées, réunions, appels, ateliers.</li>
+      </ul>
+    </div>
+    <div class="dd dd--dont">
+      <div class="dd__h">Jamais dans le wiki</div>
+      <ul>
+        <li><b>Mots de passe</b> et coffres-forts numériques, sous aucune forme.</li>
+        <li><b>Clés API, clés privées</b>, phrases de récupération, identifiants bruts.</li>
+        <li><b>Documents bancaires bruts</b> et moyens de paiement.</li>
+        <li><b>Données personnelles</b> qui ne servent pas le business.</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="margin-top:22px">
+    <span class="kicker">Les garde-fous intégrés</span>
+    <div class="monitor">
+      <div class="mrow"><span class="dot"></span><b>Autorisation d'abord</b>&nbsp;: l'assistant demande avant de lire un dossier sensible.</div>
+      <div class="mrow"><span class="dot"></span><b>Tout est sourcé</b>&nbsp;: chaque affirmation importante est rattachée à son document d'origine.</div>
+      <div class="mrow"><span class="dot"></span><b>Rien d'inventé</b>&nbsp;: le flou devient une question ouverte, les déductions sont marquées comme telles.</div>
+      <div class="mrow"><span class="dot"></span><b>Les contradictions sont signalées</b>, jamais masquées&nbsp;: deux sources en désaccord, vous arbitrez.</div>
+      <div class="mrow"><span class="dot"></span><b>Vous validez</b>&nbsp;: les pages proposées passent par une étape de relecture avant d'être définitives.</div>
+      <div class="mrow"><span class="dot"></span><b>Vos documents sont des données</b>, jamais des instructions&nbsp;: un texte ne peut pas détourner l'assistant.</div>
+    </div>
+  </div>
+
+  <div class="quote" style="margin-top:24px">
+    <p>Avant chaque analyse sensible, demandez à l'assistant ce qu'il compte lire. Le périmètre, c'est vous qui le fixez, et vous pouvez le changer à tout moment.</p>
+    <cite>Règle de sécurité</cite>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Vos données restent chez vous, sur votre ordinateur.</span>
+    <span class="contact">lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">06 / 07</span>
+</section>
+
+<!-- ══════════ P7 · AU QUOTIDIEN + CTA ══════════ -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../assets/logo-96-black-on-white.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <span class="run__meta">Le wiki au quotidien</span>
+  </div>
+  <div style="margin-top:24px">
+    <span class="eyebrow">06 · Le wiki au quotidien</span>
+    <h2 class="sec-title" style="font-size:27px">Un bon wiki vit par petites<br>mises à jour régulières.</h2>
+  </div>
+
+  <div style="margin-top:18px">
+    <div class="case">
+      <div><div class="case__tag">Chaque jour</div><div class="case__name">Ou après une réunion</div></div>
+      <p class="case__desc">Déposez vos notes utiles dans le dossier prévu. Ajoutez les décisions importantes&nbsp;: deux lignes suffisent.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Chaque semaine</div><div class="case__name">La mise à jour</div></div>
+      <p class="case__desc">Demandez une mise à jour du wiki, puis une synthèse&nbsp;: opportunités, risques, questions ouvertes.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Chaque mois</div><div class="case__name">La revue stratégique</div></div>
+      <p class="case__desc">Offres, clients, opérations, automatisations, priorités des 30 prochains jours.</p>
+    </div>
+    <div class="case">
+      <div><div class="case__tag">Avant une décision</div><div class="case__name">Le réflexe wiki</div></div>
+      <p class="case__desc">Interrogez le wiki&nbsp;: contexte, options, risques, précédents, informations manquantes.</p>
+    </div>
+  </div>
+
+  <div style="margin-top:22px">
+    <span class="kicker">Les questions qui rapportent</span>
+    <div class="monitor">
+      <div class="mrow"><span class="dot"></span>«&nbsp;Explique mon modèle économique, mes offres et mes principaux risques.&nbsp;»</div>
+      <div class="mrow"><span class="dot"></span>«&nbsp;Quelles objections reviennent souvent, et comment y répondre&nbsp;?&nbsp;»</div>
+      <div class="mrow"><span class="dot"></span>«&nbsp;Quelles tâches répétitives ont le meilleur potentiel d'automatisation&nbsp;?&nbsp;»</div>
+      <div class="mrow"><span class="dot"></span>«&nbsp;Quelles actions auraient le plus d'impact dans les 30 prochains jours&nbsp;?&nbsp;»</div>
+      <div class="mrow"><span class="dot"></span>«&nbsp;Qu'est-ce que je devrais déléguer, documenter ou arrêter de faire&nbsp;?&nbsp;»</div>
+    </div>
+  </div>
+
+  <div class="quote" style="margin-top:22px">
+    <p>Utilisez le wiki avant les décisions&nbsp;: il sert à retrouver le contexte que l'on oublie. Et ne lui donnez que ce que vous acceptez de voir analysé.</p>
+    <cite>Les règles d'or</cite>
+  </div>
+
+  <div class="cta">
+    <div>
+      <div class="cta__k">Une question, un doute&nbsp;?</div>
+      <p class="cta__h">On reste à côté de vous, du premier jour au quotidien.</p>
+      <div class="cta__sub">Installation accompagnée, prise en main incluse. Vos données restent chez vous.</div>
+    </div>
+    <a class="cta__btn" href="mailto:info@lucid-lab.fr">Écrire à Lucid-Lab →</a>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Lucid-Lab · Clarity in strategy, precision in design</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> · lucid-lab.fr</span>
+  </div>
+  <span class="pagenum">07 / 07</span>
+</section>
+
+</body>
+</html>

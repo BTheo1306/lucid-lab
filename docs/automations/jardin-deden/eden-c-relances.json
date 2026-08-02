@@ -1,0 +1,285 @@
+{
+  "name": "Eden C - Relances quotidiennes",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## MODE STAGING ACTIF\nLe node \"Paramètres\" a staging=true : TOUS les emails partent vers info@lucid-lab.fr\nau lieu des parents et d'Eden. Basculer staging=false apres les tests de bout en bout.\n\nA l'import : 1) mapper les credentials, 2) choisir les dossiers Outlook dans les nodes [DOSSIER].",
+        "width": 460,
+        "height": 240
+      },
+      "id": "dcf87a52-4ded-42be-98bf-ece22e9ad5ed",
+      "name": "Note a6cdd3",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        -220
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 7,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "id": "36b6b108-8aa0-4317-99d7-10ee189ab343",
+      "name": "Tous les jours à 7h30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "raw",
+        "jsonOutput": "{\"staging\": true, \"email_eden\": \"uccle@jardindeden.be\", \"email_lucid\": \"info@lucid-lab.fr\", \"sheet_url\": \"https://docs.google.com/spreadsheets/d/1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU\"}",
+        "options": {}
+      },
+      "id": "44c1a6b8-0d53-495b-bcea-d49b8b21efd7",
+      "name": "Paramètres",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "read",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscriptions",
+          "mode": "name"
+        },
+        "options": {}
+      },
+      "id": "6ac67689-4681-41d6-b43d-32ca806c8764",
+      "name": "Lire les Inscriptions",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        480,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst params = $('Paramètres').item.json;\nconst rows = $input.all().map(i => i.json).filter(r => r['Email parent']);\nconst today = new Date(); today.setHours(0,0,0,0);\nconst parseFR = s => { if (!s) return null; const m = String(s).match(/(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/); return m ? new Date(+m[3], +m[2]-1, +m[1]) : null; };\nconst days = (a, b) => Math.floor((b - a) / 86400000);\nconst out = [];\nfor (const r of rows) {\n  const statut = r['Statut']; const relances = parseInt(r['Relances envoyées'] || 0);\n  const derniere = parseFR(r['Dernière relance']) || parseFR(r['Pack envoyé le']);\n  const famille = r['Nom famille'] || r['Email parent'];\n  if (statut === 'Pack envoyé' && relances < 2) {\n    const ref = parseFR(r['Pack envoyé le']);\n    if (ref && days(derniere || ref, today) >= 7) out.push({ type: 'pack', to: r['Email parent'], famille, row_number: r.row_number, relances,\n      sujet: \"Le Jardin d'Eden : votre dossier d'inscription\",\n      corps: `<p>Madame, Monsieur,</p><p>Nous vous avons transmis le dossier d'inscription il y a quelques jours et restons dans l'attente de votre retour. Souhaitez-vous toujours reserver une place ?</p><p>Bien cordialement,<br>Eden Missioui<br>Le Jardin d'Eden</p>` });\n  }\n  if (statut === 'Docs incomplets' && relances < 3) {\n    const seuil = relances === 0 ? 3 : 7;\n    if (derniere && days(derniere, today) >= seuil) out.push({ type: 'pieces', to: r['Email parent'], famille, row_number: r.row_number, relances,\n      sujet: \"Le Jardin d'Eden : pieces manquantes pour votre dossier\",\n      corps: `<p>Madame, Monsieur,</p><p>Petit rappel : il manque encore pour completer votre dossier :</p><p><b>${r['Pièces manquantes'] || 'voir notre precedent message'}</b></p><p>Merci de nous les renvoyer par retour de mail.</p><p>Bien cordialement,<br>Eden Missioui<br>Le Jardin d'Eden</p>` });\n  }\n  if ((statut === 'Pack envoyé' && relances >= 2) || (statut === 'Docs incomplets' && relances >= 3)) {\n    out.push({ type: 'escalade', to: params.email_eden, famille, row_number: r.row_number, relances,\n      sujet: `Jardin d'Eden : dossier ${famille} sans reponse apres relances`,\n      corps: `<p>Bonjour Eden,</p><p>Le dossier <b>${famille}</b> (${r['Email parent']}) est au statut \"${statut}\" apres ${relances} relances automatiques. L'automatisation ne relancera plus : a traiter manuellement.</p><p><a href=\"${params.sheet_url}\">Ouvrir le tableau</a></p>` });\n  }\n}\nreturn out.map(o => ({ json: o }));\n"
+      },
+      "id": "8450d9ff-583e-43b3-a9ad-c0e412f49d16",
+      "name": "Calculer les relances dues",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        720,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "send",
+        "toRecipients": "={{ $('Paramètres').item.json.staging ? $('Paramètres').item.json.email_lucid : $json.to }}",
+        "subject": "={{ $json.sujet }}",
+        "bodyContent": "={{ $json.corps }}",
+        "additionalFields": {
+          "bodyContentType": "html",
+          "ccRecipients": "={{ $json.type === 'escalade' ? '' : ($('Paramètres').item.json.staging ? '' : $('Paramètres').item.json.email_eden) }}"
+        }
+      },
+      "id": "bf764f0f-4287-47e1-86a6-15ea4dff7f5e",
+      "name": "Envoyer la relance (boîte Eden)",
+      "type": "n8n-nodes-base.microsoftOutlook",
+      "typeVersion": 2,
+      "position": [
+        960,
+        0
+      ],
+      "credentials": {
+        "microsoftOutlookOAuth2Api": {
+          "name": "Outlook Eden (uccle@jardindeden.be)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Inscriptions",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Dernière relance": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy') }}",
+            "Relances envoyées": "={{ $json.type === 'escalade' ? $json.relances : $json.relances + 1 }}",
+            "row_number": "={{ $json.row_number }}"
+          },
+          "matchingColumns": [
+            "row_number"
+          ],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "f3503c00-1b02-4703-82bc-b37d146cf4b8",
+      "name": "MAJ compteur de relances",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1200,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1WlXeh-pVluefxvM7tpDPVW3lIizC0VmtDECAftppMoU",
+          "mode": "id"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "Journal",
+          "mode": "name"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Horodatage": "={{ $now.setZone('Europe/Brussels').toFormat('dd/MM/yyyy HH:mm') }}",
+            "Workflow": "C - Relances",
+            "Action": "={{ 'Relance ' + $('Calculer les relances dues').item.json.type }}",
+            "Famille / Enfant": "={{ $('Calculer les relances dues').item.json.famille }}",
+            "Détail": "={{ 'Envoyée à ' + $('Calculer les relances dues').item.json.to }}",
+            "Résultat": "OK",
+            "Validé par": "automatique"
+          },
+          "matchingColumns": [],
+          "schema": []
+        },
+        "options": {}
+      },
+      "id": "a5ab539c-fa8c-425f-8665-f88a3fcc2ccb",
+      "name": "Journal : relance",
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        1440,
+        0
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "Google Lucid (info@lucid-lab.fr)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Tous les jours à 7h30": {
+      "main": [
+        [
+          {
+            "node": "Paramètres",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Paramètres": {
+      "main": [
+        [
+          {
+            "node": "Lire les Inscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lire les Inscriptions": {
+      "main": [
+        [
+          {
+            "node": "Calculer les relances dues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculer les relances dues": {
+      "main": [
+        [
+          {
+            "node": "Envoyer la relance (boîte Eden)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Envoyer la relance (boîte Eden)": {
+      "main": [
+        [
+          {
+            "node": "MAJ compteur de relances",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "MAJ compteur de relances": {
+      "main": [
+        [
+          {
+            "node": "Journal : relance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1",
+    "timezone": "Europe/Brussels"
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": false
+  }
+}
