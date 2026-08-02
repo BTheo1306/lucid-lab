@@ -1,0 +1,240 @@
+<!--
+  Lucid-Lab · Bon de commande · Drive for Charity (DFC) ASBL (Astrid Helferstorfer) · PROP-2026-014
+  Installation second cerveau Claude + Obsidian · 300 € · décisions de la réunion du 02/08/2026.
+
+  ============================================================================
+  TVA : UN POINT À TRANCHER PAR JULES AVANT ENVOI (ne pas envoyer en l'état)
+  ============================================================================
+
+  CE QUI EST VÉRIFIÉ (02/08/2026)
+  Le brouillon Dougs 2026-07-FAC16 porte le numéro BE1017557219 comme numéro de
+  TVA intracommunautaire. Ce n'est pas un numéro de TVA valide :
+    - VIES (service officiel de l'UE) répond isValid = false ;
+    - la Banque-Carrefour des Entreprises confirme l'ASBL (active, Place Eugène
+      Flagey 21 Boîte 9, 1050 Ixelles) mais sa section Qualités indique
+      « Pas de données reprises dans la BCE », donc aucune qualité d'assujetti.
+  C'est le numéro d'entreprise, que toute ASBL possède : il passe la clé de
+  contrôle belge et ressemble à un numéro de TVA sans en être un.
+
+  CONSÉQUENCE : la ligne « TVA 0 % » du brouillon n'est pas justifiée en l'état.
+  Deux issues possibles, à trancher :
+
+  CAS 1, l'ASBL se fait identifier à la TVA en Belgique (formulaire e604A) et
+  fournit un numéro BE valide, vérifié le jour même dans VIES et archivé.
+  Alors la prestation sort du champ de la TVA française. Sur la facture :
+    - colonne taux : « non applicable » (surtout PAS « 0 % ») ;
+    - total TVA 0,00 €, total 300,00 € ;
+    - bloc de mention à copier tel quel sous le total :
+        N° TVA prestataire : FR02104672050
+        N° TVA preneur : BE................
+        Autoliquidation. TVA non applicable en France, article 259, 1° du CGI.
+        TVA due par le preneur en application des articles 44 et 196 de la
+        directive 2006/112/CE.
+    - NE JAMAIS écrire « article 283-2 du CGI » : cet article vise le cas inverse.
+    - Une déclaration européenne de services (DES) devient obligatoire, au plus
+      tard le 10e jour ouvrable du mois suivant. Son oubli coûte 750 €, porté à
+      1 500 € sans dépôt sous 30 jours après mise en demeure (art. 1788 A du CGI),
+      soit 2,5 à 5 fois le prix de la prestation.
+    - Astrid devra déclarer 21 % de TVA belge, soit 63 €, à sa charge si l'ASBL
+      n'a pas de droit à déduction. Le lui dire avant, pas après.
+
+  CAS 2, l'ASBL confirme par écrit n'être ni assujettie ni identifiée.
+  Alors TVA française : 300,00 € HT + 60,00 € = 360,00 € TTC. Si Jules maintient
+  que le client ne paie pas de TVA, les 300 € deviennent du TTC, soit 250 € HT
+  et 50 € de TVA absorbés par Lucid-Lab.
+
+  Dans les deux cas, l'affirmation « le client ne paiera pas de TVA » est inexacte.
+
+  RISQUE SI ON ÉMET À 0 % SANS NUMÉRO VALIDE : le rappel de TVA porte sur
+  Lucid-Lab seule et se calcule en dedans (250 € de base, 50 € de taxe), plus
+  intérêts de retard et majoration de 40 % si le manquement est jugé délibéré.
+  L'enjeu réel n'est pas ces 50 € mais le paramétrage : s'il devient la règle
+  pour tous les clients étrangers, le cumul se reproduit sur trois ans.
+
+  À DEMANDER À ASTRID AVANT ÉMISSION
+    - Disposez-vous d'un numéro de TVA belge (BE + 10 chiffres) ? Si oui, lequel ?
+    - Si non : ASBL non assujettie, assujettie exemptée (art. 44 du Code TVA
+      belge) ou franchisée ? Réponse écrite.
+    - Accord écrit sur le fait que les 300 € s'entendent hors taxes.
+
+  Placeholders restants : date du document, date de la séance d'installation.
+  ============================================================================
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Bon de commande · Drive for Charity (DFC) ASBL</title>
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../../templates/_doc-base.css">
+<style>
+  .lead { font-size: 13.5px; line-height: 1.7; color: var(--text-secondary); margin-top: 16px; }
+  .lead b { color: var(--text-primary); font-weight: 600; }
+  .sec ul { margin: 8px 0 0 18px; padding: 0; font-size: 13px; line-height: 1.6; color: var(--text-secondary); }
+  .sec li { margin-bottom: 4px; }
+  .paytable { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: 13px; }
+  .paytable td { padding: 12px 2px; border-bottom: 1px solid var(--border-default); vertical-align: top; color: var(--text-secondary); line-height: 1.55; }
+  .paytable tr:last-child td { border-bottom: none; }
+  .paytable td:first-child { width: 38%; font-weight: 600; color: var(--text-primary); padding-right: 18px; }
+  .paytable td.amt { font-family: var(--font-mono); text-align: right; color: var(--text-accent); white-space: nowrap; }
+  .paytable tr.tot td { border-top: 1.5px solid var(--color-ink); padding-top: 13px; font-weight: 700; color: var(--text-primary); }
+  .paytable tr.tot td.amt { font-size: 15px; }
+  .geste { margin-top: 18px; border: 1px solid var(--border-default); border-left: 3px solid var(--text-accent); border-radius: var(--radius-md); background: var(--color-white); padding: 15px 18px; font-size: 13px; line-height: 1.65; color: var(--text-secondary); }
+  .geste b { color: var(--text-primary); font-weight: 600; }
+  .geste .ref { font-family: var(--font-mono); color: var(--text-accent); }
+  .mention { margin-top: 14px; border: 1px solid var(--color-ink); border-radius: var(--radius-md); padding: 14px 16px; font-size: 13px; line-height: 1.6; color: var(--text-primary); background: var(--color-white); }
+  .mention b { font-weight: 600; }
+  .mention .hand { font-family: var(--font-mono); color: var(--text-accent); }
+  .doc-foot { font-size: 9px; gap: 24px; align-items: center; white-space: nowrap; }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 : En-tête, parties, prestation, total, geste commercial -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Bon de commande</h1>
+      <div class="meta">
+        N° <b>PROP-2026-014</b><br>
+        Date : <b>[JJ/08/2026]</b> · Valable 30 jours
+      </div>
+    </div>
+  </header>
+
+  <div class="lead">Proposition commerciale valant bon de commande. La signature de la présente proposition par le Client vaut acceptation pleine et entière de l'offre, formation du Contrat et engagement ferme de payer aux conditions ci-dessous.</div>
+
+  <div class="parties">
+    <div class="party">
+      <div class="lbl">Donneur d'ordre</div>
+      <div class="name">Drive for Charity (DFC) ASBL</div>
+      <div class="lines">Astrid Helferstorfer<br>Place Eugène Flagey 21, Boîte 9<br>1050 Ixelles, Belgique<br>N° d'entreprise BE 1017.557.219<br>astrid.helferstorfer@wedriveforcharity.com</div>
+    </div>
+    <div class="party">
+      <div class="lbl">Prestataire</div>
+      <div class="name">Lucid-Lab</div>
+      <div class="lines">SAS au capital de 999 €<br>47 rue Vivienne, 75002 Paris<br>RCS Paris 104 672 050 · TVA FR 02 104 672 050<br>info@lucid-lab.fr</div>
+    </div>
+  </div>
+
+  <div class="sec">
+    <span class="lbl">Prestation commandée</span>
+    <table class="items">
+      <thead>
+        <tr><th>Désignation</th><th class="num">Qté</th><th class="num">P.U.</th><th class="num">Total</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>
+            <div class="t">Installation d'un second cerveau Claude + Obsidian</div>
+            <div class="s">Setup simple, environ deux jours de travail. Mise en place du coffre Obsidian et de Claude sur le poste du Client, structure de rangement adaptée à son activité, reprise des documents existants indiqués par le Client, règles d'écriture et garde-fous, séance de prise en main et routine quotidienne. Tout reste chez le Client et lui appartient à 100 %.</div>
+          </td>
+          <td class="num">1</td>
+          <td class="num">300,00</td>
+          <td class="num">300,00</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <div class="totals">
+    <div class="box">
+      <div class="row"><span>Montant de la prestation HT</span><span class="v">300,00 €</span></div>
+      <div class="row"><span>TVA</span><span class="v">à déterminer</span></div>
+      <div class="row grand"><span>Total à régler</span><span class="v">300,00 €</span></div>
+    </div>
+  </div>
+
+  <div class="geste">
+    <b>Prix hors taxes.</b> Le prix de 300 € s'entend hors taxes. Toute TVA qui viendrait à être due sera facturée en sus au Client.
+  </div>
+
+  <div class="geste">
+    <b>Montant appliqué et valeur de la prestation.</b> Le tarif habituel de cette installation est de <span class="ref">1 500 à 2 000 €</span>. Le montant de <b>300 €</b> retenu ici est un geste consenti à titre personnel, en une fois, pour cette prestation et cette date uniquement. Il ne constitue ni un tarif catalogue, ni un précédent, ni une base de négociation, et ne s'applique pas aux prestations ultérieures (reprise, extension, accompagnement, formation), qui seront chiffrées au tarif courant.
+  </div>
+
+  <div class="doc-foot">
+    <div>Lucid-Lab · Bon de commande PROP-2026-014 · Drive for Charity (DFC) ASBL</div>
+    <div class="right">Page 1 / 2</div>
+  </div>
+
+</section>
+
+<!-- PAGE 2 : Objet, conditions financières, acceptation, signatures -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Bon de commande</h1>
+      <div class="meta">N° <b>PROP-2026-014</b></div>
+    </div>
+  </header>
+
+  <div class="sec" style="margin-top:24px">
+    <span class="lbl">Objet et livrables</span>
+    <div class="lead" style="margin-top:0"><b>Intitulé :</b> installation d'un second cerveau Claude + Obsidian pour Astrid Helferstorfer. Séance d'installation d'environ deux heures (visio ou sur place), puis mise en forme du coffre et des règles d'usage, pour un total d'environ deux jours de travail.</div>
+    <ul>
+      <li>Coffre Obsidian créé et organisé, prêt à recevoir les documents du Client.</li>
+      <li>Claude installé et connecté au coffre, avec les règles d'écriture et les garde-fous.</li>
+      <li>Reprise des documents existants désignés par le Client au moment de la séance.</li>
+      <li>Séance de prise en main et routine quotidienne écrite.</li>
+      <li>Guide client remis avant la séance (préparation en 11 questions).</li>
+    </ul>
+    <div class="lead"><b>Ce qui n'est pas inclus :</b> abonnements tiers (Claude, Obsidian Sync le cas échéant), automatisations sur mesure, accompagnement mensuel, formation d'équipe. Ces prestations font l'objet d'un devis distinct.</div>
+    <div class="lead"><b>Calendrier :</b> séance planifiée au <b>[JJ/MM/2026]</b>, après réception des réponses au questionnaire de préparation et installation d'Obsidian par le Client.</div>
+  </div>
+
+  <div class="sec">
+    <span class="lbl">Conditions financières</span>
+    <table class="paytable">
+      <tbody>
+        <tr><td>Montant de la prestation</td><td class="amt">300,00 € HT</td></tr>
+        <tr><td>TVA</td><td class="amt">à déterminer</td></tr>
+        <tr class="tot"><td>Total à régler</td><td class="amt">300,00 €</td></tr>
+        <tr><td>Modalité retenue</td><td>Forfait unique, payable en une fois.</td></tr>
+        <tr><td>Échéancier</td><td>Facture émise à la signature, règlement par virement SEPA avant la séance d'installation.</td></tr>
+        <tr><td>Facturation</td><td>La facture est émise au nom de <b>Drive for Charity (DFC) ASBL</b>, conformément à l'accord des parties.</td></tr>
+      </tbody>
+    </table>
+    <div class="lead" style="margin-top:10px"><b>Coordonnées bancaires.</b> Virement SEPA exclusivement. Titulaire : Lucid-Lab · IBAN : FR76 2823 3000 0119 9177 3651 869 · BIC : REVOFRP2 · Banque : Revolut Bank UAB. Référence à indiquer : PROP-2026-014 / Drive for Charity (DFC) ASBL.</div>
+  </div>
+
+  <div class="sec">
+    <span class="lbl">Acceptation valant commande ferme</span>
+    <div class="lead" style="margin-top:0">Le présent bon de commande est régi par les Conditions Générales de Vente de Lucid-Lab, publiées et tenues à jour sur lucid-lab.fr/cgv (la version en vigueur à la date de signature faisant foi). Le Client déclare accepter sans réserve le périmètre, les livrables, le calendrier et la modalité tarifaire. La signature vaut acceptation de l'offre, formation du Contrat et commande ferme, et déclenche l'émission de la facture puis l'exécution de la prestation à compter de la réception effective du paiement.</div>
+    <div class="mention">
+      <b>Mention manuscrite obligatoire du Client :</b> <span class="hand">« Lu et approuvé, bon pour accord et commande ferme, prix : 300,00 € HT, modalité : forfait unique »</span>
+    </div>
+  </div>
+
+  <div class="signs">
+    <div class="sign">
+      <div class="lbl">Bon pour commande</div>
+      <div class="who">Drive for Charity (DFC) ASBL</div>
+      <div class="note">Date, lieu, nom, fonction et signature précédée de la mention manuscrite ci-dessus</div>
+    </div>
+    <div class="sign">
+      <div class="lbl">Pour Lucid-Lab</div>
+      <div class="who">Lucid-Lab</div>
+      <div class="note">Fait à Paris, le [JJ/MM/2026]. Date et signature</div>
+    </div>
+  </div>
+
+  <div class="doc-foot">
+    <div>Lucid-Lab · SAS au capital de 999 € · RCS Paris 104 672 050 · TVA FR 02 104 672 050</div>
+    <div class="right"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> · lucid-lab.fr</div>
+  </div>
+
+</section>
+</body>
+</html>
