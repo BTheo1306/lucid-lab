@@ -1,7 +1,7 @@
-import { ExternalLink, Send, ShieldCheck, ShieldOff } from 'lucide-react';
+import { Eye, ExternalLink, Send, ShieldCheck, ShieldOff } from 'lucide-react';
 import { config } from '@/lib/bot/config';
 import { listPortalContactsForClient } from '@/lib/admin/portal';
-import { sendPortalInviteAction, setContactPortalAccessAction } from './portal-actions';
+import { ouvrirApercuPortailAction, sendPortalInviteAction, setContactPortalAccessAction } from './portal-actions';
 
 function formatDate(value: string | null): string | null {
   if (!value) return null;
@@ -96,6 +96,18 @@ export async function PortalPanel({ clientId, clientSlug }: { clientId: string; 
                         </button>
                       </form>
                     ) : null}
+
+                    <form action={ouvrirApercuPortailAction} target="_blank">
+                      <input type="hidden" name="contact_id" value={contact.id} />
+                      <button
+                        type="submit"
+                        className="inline-flex h-8 items-center gap-1.5 rounded border border-zinc-200 bg-white px-2.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50"
+                        title="Ouvre le portail tel que ce contact le voit. Lecture seule."
+                      >
+                        <Eye className="size-3.5" />
+                        Voir comme le client
+                      </button>
+                    </form>
 
                     <form action={setContactPortalAccessAction}>
                       <input type="hidden" name="contact_id" value={contact.id} />

@@ -7,7 +7,11 @@ import {
   sendPortalRequestAnsweredToClient,
   sendPortalRequestToClient,
 } from '@/lib/bot/integrations/email-client';
-import { PORTAL_INVITE_TOKEN_TTL_MS, generatePortalToken } from '@/lib/portal/auth';
+import {
+  PORTAL_INVITE_TOKEN_TTL_MS,
+  PORTAL_PREVIEW_TOKEN_TTL_MS,
+  generatePortalToken,
+} from '@/lib/portal/auth';
 import { ensureLucidOrganizationId, recordLucidAuditEvent, updateLucidClientCompanyProfile } from './lucid-os';
 
 /** Agency-side management of the client portal (access, invites, visibility). */
@@ -480,6 +484,48 @@ export async function setTaskClientVisibility(taskId: string, visible: boolean):
  * Invite = enable access + 7-day magic link by email. Reusable to re-send an
  * invitation at any time.
  */
+/**
+ * Ouvre un aperçu admin du portail pour un contact et retourne le lien.
+ *
+ * L'aperçu est en LECTURE SEULE : le portail refuse toute écriture tant que la
+ * session vient d'un aperçu. Le jeton est à usage unique et vit deux minutes,
+ * le temps de la redirection : il ne sert qu'à franchir la frontière entre le
+ * domaine admin et le domaine portail, qui ne peuvent pas partager de cookie.
+ *
+ * Aucun email n'est envoyé et rien n'est modifié côté client.
+ */
+export async function createPortalPreviewLink(contactId: string): Promise<string> {
+  const contact = await getPortalContact(contactId);
+
+  if (!contact.client) throw new Error('Client introuvable pour ce contact.');
+  if (['offboarded', 'archived'].includes(contact.client.status)) {
+    throw new Error('Ce client est archivé ou terminé : le portail ne peut pas être ouvert.');
+  }
+
+  const { token, tokenHash } = generatePortalToken();
+  const { error } = await supabase.from('portal_login_tokens').insert({
+    organization_id: contact.organization_id,
+    client_id: contact.client_id,
+    contact_id: contact.id,
+    token_hash: tokenHash,
+    purpose: 'admin_preview',
+    expires_at: new Date(Date.now() + PORTAL_PREVIEW_TOKEN_TTL_MS).toISOString(),
+  });
+  if (error) throw new Error(`createPortalPreviewLink: ${error.message}`);
+
+  await recordLucidAuditEvent({
+    clientId: contact.client_id,
+    actorType: 'admin',
+    eventType: 'portal_preview_opened',
+    targetTable: 'client_contacts',
+    targetId: contact.id,
+    summary: `Aperçu admin du portail ouvert pour ${contact.full_name ?? contact.email ?? contact.id} (lecture seule)`,
+    riskLevel: 'low',
+  });
+
+  return `${config.portalBaseUrl}/apercu?jeton=${token}`;
+}
+
 export async function sendPortalInviteForContact(contactId: string): Promise<void> {
   const contact = await getPortalContact(contactId);
 

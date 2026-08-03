@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getPortalSession, portalRedirectUrl } from '@/lib/portal/auth';
+import { getPortalSession, portalRedirectUrl, isPortalReadOnly } from '@/lib/portal/auth';
 import { respondToAgencyRequest } from '@/lib/portal/requests';
 
 /** POST /echanges/[id]/repondre: approve, mark done, or request changes. */
@@ -7,6 +7,12 @@ export async function POST(request: Request, context: { params: Promise<{ reques
   const session = await getPortalSession();
   if (!session) {
     return NextResponse.redirect(portalRedirectUrl(request, '/connexion'), 303);
+  }
+
+  // Un apercu admin est en lecture seule : sans ca, la demande serait
+  // enregistree au nom du client alors qu'il n'a rien fait.
+  if (isPortalReadOnly(session)) {
+    return NextResponse.redirect(portalRedirectUrl(request, '/?apercu=lecture-seule'), 303);
   }
 
   const { requestId } = await context.params;

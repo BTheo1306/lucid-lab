@@ -21,6 +21,15 @@ export default async function PortalAppLayout({ children }: { children: React.Re
 
   return (
     <div className="flex min-h-[100dvh] flex-col">
+      {session.preview ? (
+        <div className="sticky top-0 z-30 bg-amber-400 px-5 py-2 text-center text-[13px] font-semibold text-amber-950">
+          Aperçu admin, lecture seule. Vous voyez le portail tel que {session.contactName || 'ce contact'} le voit.
+          {session.previewAccessPending ? " Son accès n'est pas encore ouvert." : ''}{' '}
+          <a href={`${base}/apercu/quitter`} className="underline underline-offset-2">
+            Quitter l&apos;aperçu
+          </a>
+        </div>
+      ) : null}
       <header className="sticky top-0 z-20 border-b border-zinc-200 bg-[#F7F5F1]/90 backdrop-blur">
         <div className="mx-auto flex h-16 w-full max-w-5xl items-center justify-between gap-4 px-5">
           <div className="flex min-w-0 items-center gap-2.5">

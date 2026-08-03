@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Guide d'utilisation · Drive for Charity</title>
+<link rel="stylesheet" href="../../styles.css">
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--color-gray-100); font-family: var(--font-body); color: var(--text-primary); -webkit-font-smoothing: antialiased; padding: 40px 20px; }
+  .page { position: relative; width: 820px; max-width: 100%; min-height: 1160px; margin: 0 auto 28px; background: var(--color-paper); border: 1px solid var(--border-default); border-radius: var(--radius-lg); padding: 52px 56px 64px; display: flex; flex-direction: column; overflow: hidden; }
+  .run { display: flex; align-items: center; justify-content: space-between; padding-bottom: 18px; border-bottom: 1px solid var(--border-default); }
+  .brand { display: flex; align-items: center; gap: 9px; }
+  .brand img { width: 20px; height: 20px; display: block; }
+  .wordmark { font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.08em; font-size: 14px; }
+  .run__meta { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); }
+  .pagenum { position: absolute; bottom: 26px; right: 56px; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; color: var(--text-muted); }
+  .foot-rule { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--border-default); display: flex; justify-content: space-between; align-items: center; }
+  .foot-rule .path { font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); letter-spacing: 0.04em; }
+  .foot-rule .contact { font-size: 12.5px; color: var(--text-secondary); }
+  .foot-rule .contact a { color: var(--text-accent); text-decoration: none; }
+  .eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-accent); }
+  .kicker { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--text-muted); }
+  .sec-title { font-family: var(--font-display); font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; margin: 14px 0 0; }
+  .lead { font-size: 14px; line-height: 1.65; color: var(--text-secondary); max-width: 66ch; }
+  .lead b { color: var(--text-primary); font-weight: 600; }
+  .cover-body { flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 8px 0; }
+  .cover-eyebrow { font-family: var(--font-mono); font-size: 13px; letter-spacing: 0.16em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 22px; }
+  .cover-ember-rule { height: 2px; width: 52px; background: var(--accent); border-radius: 2px; margin-bottom: 28px; }
+  h1.cover-title { font-family: var(--font-display); font-weight: 700; font-size: 50px; line-height: 1.05; letter-spacing: -0.03em; margin: 0 0 26px; }
+  .cover-lead { font-size: 17px; line-height: 1.65; color: var(--text-secondary); max-width: 60ch; margin: 0 0 38px; }
+  .meta-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1px; background: var(--border-default); border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; margin-bottom: 34px; }
+  .meta-cell { background: var(--color-white); padding: 14px 16px; }
+  .meta-cell .k { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); }
+  .meta-cell .v { font-family: var(--font-display); font-weight: 600; font-size: 13.5px; margin-top: 7px; line-height: 1.3; }
+  .quote { border-left: 2px solid var(--accent); padding: 4px 0 4px 22px; max-width: 64ch; }
+  .quote p { font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 1.35; letter-spacing: -0.01em; margin: 0; }
+  .quote cite { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); font-style: normal; margin-top: 12px; }
+  .toc { margin-top: 40px; border-top: 1px solid var(--border-default); }
+  .toc__row { display: flex; align-items: baseline; gap: 14px; padding: 12px 0; border-bottom: 1px solid var(--border-default); }
+  .toc__n { font-family: var(--font-mono); font-size: 12px; color: var(--text-accent); letter-spacing: 0.1em; }
+  .toc__t { font-family: var(--font-display); font-weight: 600; font-size: 15px; }
+  .toc__dots { flex: 1; border-bottom: 1px dotted var(--border-strong); transform: translateY(-3px); }
+  .toc__p { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); }
+  .monitor { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 18px 20px; margin-top: 14px; }
+  .monitor__label { font-family: var(--font-mono); font-size: 12px; color: var(--text-muted); margin-bottom: 12px; }
+  .mrow { position: relative; padding-left: 18px; font-size: 13px; line-height: 1.85; color: var(--text-primary); margin: 2px 0; }
+  .mrow b { font-weight: 600; }
+  .dot { position: absolute; left: 0; top: 9px; width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .qrow { position: relative; padding-left: 30px; font-size: 13px; line-height: 1.6; color: var(--text-primary); margin: 9px 0; }
+  .qrow b { font-weight: 600; }
+  .qrow .qn { position: absolute; left: 0; top: 1px; font-family: var(--font-mono); font-size: 11.5px; color: var(--text-accent); letter-spacing: 0.04em; }
+  .qrow .qsub { display: block; font-size: 12px; color: var(--text-secondary); margin-top: 1px; }
+  /* Do / Don't */
+  .dodont { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px; }
+  .dd { border: 1px solid var(--border-default); border-radius: var(--radius-md); overflow: hidden; background: var(--color-white); }
+  .dd__h { font-family: var(--font-display); font-weight: 700; font-size: 14px; padding: 12px 16px; color: #fff; }
+  .dd--do .dd__h { background: #1a7f4b; }
+  .dd--dont .dd__h { background: #b3402f; }
+  .dd ul { margin: 0; padding: 12px 16px 14px; list-style: none; }
+  .dd li { font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); padding-left: 18px; position: relative; margin-bottom: 10px; }
+  .dd li:last-child { margin-bottom: 0; }
+  .dd li b { color: var(--text-primary); font-weight: 600; }
+  .dd--do li:before { content: "✓"; position: absolute; left: 0; color: #1a7f4b; font-weight: 700; }
+  .dd--dont li:before { content: "✕"; position: absolute; left: 0; color: #b3402f; font-weight: 700; }
+  /* Case rows (interview, routine) */
+  .case { display: grid; grid-template-columns: 190px 1fr; gap: 22px; padding: 11px 0; border-top: 1px solid var(--border-default); }
+  .case:last-of-type { border-bottom: 1px solid var(--border-default); }
+  .case__tag { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--color-ember); }
+  .case__name { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; margin-top: 4px; }
+  .case__desc { font-size: 12.5px; line-height: 1.55; color: var(--text-secondary); margin: 0; align-self: center; }
+  .case__desc b { color: var(--text-primary); }
+  /* Phases */
+  .phase { display: grid; grid-template-columns: 26px 200px 1fr; gap: 14px; padding: 9px 0; border-top: 1px solid var(--border-default); align-items: baseline; }
+  .phase:last-of-type { border-bottom: 1px solid var(--border-default); }
+  .phase__n { font-family: var(--font-mono); font-size: 12px; color: var(--text-accent); }
+  .phase__t { font-family: var(--font-display); font-weight: 700; font-size: 13.5px; }
+  .phase__d { font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); }
+  /* Steps 2x2 */
+  .steps2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-top: 16px; }
+  .cal__step { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 15px 18px; }
+  .cal__k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-accent); }
+  .cal__t { font-family: var(--font-display); font-weight: 700; font-size: 14px; margin: 7px 0 6px; }
+  .cal__d { font-size: 12.5px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+  /* Callout accent */
+  .callout { border: 1px solid var(--accent); background: #FDF0E7; border-radius: var(--radius-md); padding: 15px 18px; margin-top: 18px; }
+  .callout .ck { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 7px; }
+  .callout p { font-size: 13px; line-height: 1.6; color: var(--text-primary); margin: 0; }
+  .callout p b { font-weight: 700; }
+  /* CTA */
+  .cta { margin-top: 26px; background-color: #0A0A0A; color: rgba(255,255,255,0.92); border-radius: var(--radius-lg); padding: 26px 30px; display: flex; align-items: center; justify-content: space-between; gap: 28px; }
+  .cta__k { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.58); margin-bottom: 9px; }
+  .cta__h { font-family: var(--font-display); font-weight: 700; font-size: 21px; line-height: 1.15; letter-spacing: -0.02em; margin: 0; color: #ffffff; }
+  .cta__sub { font-family: var(--font-mono); font-size: 11.5px; color: rgba(255,255,255,0.58); margin-top: 10px; }
+  .cta__btn { flex-shrink: 0; background: var(--accent); color: var(--accent-on); font-family: var(--font-body); font-weight: 600; font-size: 14px; padding: 13px 20px; border-radius: var(--radius-sm); white-space: nowrap; text-decoration: none; }
+  @page { size: A4; margin: 0; }
+  @media print {
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    body { background: #fff; padding: 0; }
+    .page { border: none; border-radius: 0; margin: 0; width: 210mm; min-height: 296mm; padding: 12mm 15mm; break-after: page; break-inside: avoid; }
+    .page:last-child { break-after: auto; }
+    h1.cover-title { font-size: 44px; }
+    .case { padding: 9px 0; }
+    .phase { padding: 8px 0; }
+    .qrow { margin: 8px 0; }
+    .monitor { padding: 15px 18px; margin-top: 11px; }
+    .page--prep .monitor { padding: 11px 16px; margin-top: 8px; }
+    .page--prep .monitor__label { margin-bottom: 7px; }
+    .page--prep .qrow { margin: 5px 0; font-size: 12.5px; }
+    .page--prep .qrow .qsub { font-size: 11.5px; }
+    .page--prep .sec-title { font-size: 25px !important; }
+    .page--prep .lead { margin-top: 9px !important; font-size: 13px; }
+    .page--prep .callout { margin-top: 11px; padding: 11px 16px; }
+    .page--prep .foot-rule { padding-top: 14px; }
+  }
+  @media (max-width: 680px) {
+    .page { padding: 32px 22px 54px; }
+    h1.cover-title { font-size: 34px; }
+    .meta-grid, .dodont, .steps2 { grid-template-columns: 1fr; }
+    .case { grid-template-columns: 1fr; gap: 6px; }
+    .phase { grid-template-columns: 26px 1fr; }
+    .phase__d { grid-column: 2; }
+    .cta { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<!-- PAGE 1 : Couverture -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <div class="run__meta">Guide d'utilisation</div>
+  </div>
+
+  <div class="cover-body">
+    <div class="cover-eyebrow">Drive for Charity</div>
+    <div class="cover-ember-rule"></div>
+    <h1 class="cover-title">Ton second cerveau,<br>mode d'emploi</h1>
+    <p class="cover-lead">
+      Tout ce qu'on a installé et réglé ensemble le 3 août, remis à plat pour que tu puisses
+      t'en servir seule. À garder sous la main les premières semaines, le temps que les réflexes
+      viennent.
+    </p>
+
+    <div class="meta-grid">
+      <div class="meta-cell"><div class="k">Installé le</div><div class="v">3 août 2026</div></div>
+      <div class="meta-cell"><div class="k">Outils</div><div class="v">Claude Code + Obsidian</div></div>
+      <div class="meta-cell"><div class="k">Durée séance</div><div class="v">2 h 40</div></div>
+      <div class="meta-cell"><div class="k">Prochain point</div><div class="v">11 août, 9 h</div></div>
+    </div>
+
+    <div class="quote">
+      <p>C'est comme si tu embauchais une secrétaire à plein temps, qui connaîtrait dix fois plus de choses que toi sur ton propre dossier.</p>
+      <cite>Séance d'installation du 3 août</cite>
+    </div>
+  </div>
+
+  <div class="toc">
+    <div class="toc__row"><span class="toc__n">01</span><span class="toc__t">La règle qui change tout</span><span class="toc__dots"></span><span class="toc__p">p. 2</span></div>
+    <div class="toc__row"><span class="toc__n">02</span><span class="toc__t">Choisir le bon modèle</span><span class="toc__dots"></span><span class="toc__p">p. 2</span></div>
+    <div class="toc__row"><span class="toc__n">03</span><span class="toc__t">Les deux modes de travail</span><span class="toc__dots"></span><span class="toc__p">p. 3</span></div>
+    <div class="toc__row"><span class="toc__n">04</span><span class="toc__t">Tes trois adresses email</span><span class="toc__dots"></span><span class="toc__p">p. 4</span></div>
+    <div class="toc__row"><span class="toc__n">05</span><span class="toc__t">Les connecteurs</span><span class="toc__dots"></span><span class="toc__p">p. 5</span></div>
+    <div class="toc__row"><span class="toc__n">06</span><span class="toc__t">Les routines</span><span class="toc__dots"></span><span class="toc__p">p. 5</span></div>
+    <div class="toc__row"><span class="toc__n">07</span><span class="toc__t">Fermer chaque session</span><span class="toc__dots"></span><span class="toc__p">p. 6</span></div>
+    <div class="toc__row"><span class="toc__n">08</span><span class="toc__t">Corriger ce qu'il a mal compris</span><span class="toc__dots"></span><span class="toc__p">p. 6</span></div>
+    <div class="toc__row"><span class="toc__n">09</span><span class="toc__t">Ce qu'il ne fera jamais sans toi</span><span class="toc__dots"></span><span class="toc__p">p. 7</span></div>
+  </div>
+
+  <div class="pagenum">1</div>
+</section>
+
+<!-- PAGE 2 : Les fondamentaux -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <div class="run__meta">Les fondamentaux</div>
+  </div>
+
+  <div class="kicker" style="margin-top:26px">01</div>
+  <h2 class="sec-title" style="font-size:24px">La règle qui change tout</h2>
+  <p class="lead" style="margin-top:12px">
+    Pour tout ce qui touche à ton coffre Obsidian, tu passes désormais par <b>Claude Code</b>,
+    dans le terminal. Plus par le chat, plus par Cowork. Ce n'est pas un détail de confort :
+    le chat ne voit pas tes fichiers, alors que Claude Code a accès à ton ordinateur et peut
+    lire, écrire et ranger directement dans le coffre.
+  </p>
+  <div class="callout">
+    <div class="ck">À retenir</div>
+    <p>Cowork existe toujours et reste pratique pour une tâche isolée. Mais <b>c'est un Claude Code simplifié</b> : dès qu'Obsidian est concerné, ouvre le terminal.</p>
+  </div>
+
+  <div class="kicker" style="margin-top:30px">02</div>
+  <h2 class="sec-title" style="font-size:24px">Choisir le bon modèle</h2>
+  <p class="lead" style="margin-top:12px">
+    Tu as trois modèles à disposition. Le réflexe utile : ne pas prendre le plus puissant par défaut,
+    parce que c'est lui qui consomme le plus vite tes limites.
+  </p>
+
+  <div class="case">
+    <div><div class="case__tag">Au quotidien</div><div class="case__name">Sonnet</div></div>
+    <p class="case__desc">Emails, rangement, mises à jour, questions simples. <b>À utiliser tout le temps par défaut.</b> C'est ce qui te fera tenir la journée sans toucher tes limites.</p>
+  </div>
+  <div class="case">
+    <div><div class="case__tag">Quand ça compte</div><div class="case__name">Opus</div></div>
+    <p class="case__desc">Analyse d'un contrat, stratégie, raisonnement sur plusieurs documents. C'est le modèle sur lequel tu es déjà à l'aise.</p>
+  </div>
+  <div class="case">
+    <div><div class="case__tag">Gros chantiers</div><div class="case__name">Fable</div></div>
+    <p class="case__desc">Recherche large et longue, par exemple identifier de nouveaux sponsors ou cartographier un secteur. <b>Très gourmand</b> : à réserver aux vrais projets.</p>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Guide d'utilisation · Drive for Charity</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a></span>
+  </div>
+  <div class="pagenum">2</div>
+</section>
+
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <div class="run__meta">Les fondamentaux</div>
+  </div>
+
+  <div class="kicker" style="margin-top:26px">03</div>
+  <h2 class="sec-title" style="font-size:24px">Les deux modes de travail</h2>
+
+  <div class="steps2">
+    <div class="cal__step">
+      <div class="cal__k">Mode auto</div>
+      <div class="cal__t">Pour ce qu'il sait déjà faire</div>
+      <p class="cal__d">Il prend les autorisations dont il a besoin et avance. C'est le mode à utiliser au quotidien : en mode manuel tu valides chaque commande une par une, et une tâche de trente secondes t'en prend cinq.</p>
+    </div>
+    <div class="cal__step">
+      <div class="cal__k">Mode plan</div>
+      <div class="cal__t">Pour ce qui est nouveau</div>
+      <p class="cal__d">Il réfléchit avec toi et propose un plan que tu relis et annotes avant qu'il n'exécute. À utiliser pour une recherche de sponsors, un calendrier éditorial, une automatisation à concevoir.</p>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="ck">Pourquoi Obsidian te coûte moins cher</div>
+    <p>Chaque conversation a une fenêtre de contexte limitée, et <b>plus elle se remplit, moins Claude est performant</b>. Sans Obsidian, tu dois lui réexpliquer tout l'historique à chaque fois. Avec Obsidian, il va lire le contexte directement dans tes pages : il consomme moins, il répond mieux, et tu atteins beaucoup plus rarement tes limites.</p>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Guide d'utilisation · Drive for Charity</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a></span>
+  </div>
+  <div class="pagenum">3</div>
+</section>
+
+<!-- PAGE 3 : Ta configuration -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <div class="run__meta">Ta configuration</div>
+  </div>
+
+  <div class="kicker" style="margin-top:26px">04</div>
+  <h2 class="sec-title" style="font-size:24px">Tes trois adresses email</h2>
+  <p class="lead" style="margin-top:12px">
+    C'était ta question principale, et il n'y a pas de connecteur multiple : Claude n'en relie
+    qu'une seule à la fois. La méthode qu'on a retenue, à faire une fois :
+  </p>
+
+  <div class="phase"><span class="phase__n">1</span><span class="phase__t">Connecter la première</span><span class="phase__d">Réglages, Connecteurs, Gmail. Tu l'autorises.</span></div>
+  <div class="phase"><span class="phase__n">2</span><span class="phase__t">Lui faire faire un passage</span><span class="phase__d">Il lit, extrait ce qui compte et met le coffre à jour.</span></div>
+  <div class="phase"><span class="phase__n">3</span><span class="phase__t">Déconnecter, connecter la suivante</span><span class="phase__d">Même endroit, bouton Déconnecter, puis on recommence.</span></div>
+  <div class="phase"><span class="phase__n">4</span><span class="phase__t">Garder la principale branchée</span><span class="phase__d">Celle que tu utilises le plus, ou Drive for Charity à partir de septembre.</span></div>
+
+  <p class="lead" style="margin-top:16px">
+    Une fois ce passage fait, le contexte est dans le coffre et il n'a plus besoin de rebrancher
+    quoi que ce soit pour s'en souvenir. Pour lire une boîte non connectée <b>en direct</b>,
+    il passe par Chrome et lit tes mails comme le ferait un humain : c'est plus lent, mais
+    ça marche sans toucher au connecteur.
+  </p>
+
+  <div class="foot-rule">
+    <span class="path">Guide d'utilisation · Drive for Charity</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a></span>
+  </div>
+  <div class="pagenum">4</div>
+</section>
+
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <div class="run__meta">Ta configuration</div>
+  </div>
+
+  <div class="kicker" style="margin-top:26px">05</div>
+  <h2 class="sec-title" style="font-size:24px">Les connecteurs</h2>
+  <p class="lead" style="margin-top:12px">
+    Un connecteur donne à Claude l'accès direct à un outil. On a branché ce qui sert à ton
+    quotidien, et il en existe beaucoup d'autres.
+  </p>
+
+  <div class="monitor">
+    <div class="monitor__label">Branchés pendant la séance</div>
+    <div class="mrow"><span class="dot"></span><b>Gmail et Drive</b> pour tes documents et tes échanges</div>
+    <div class="mrow"><span class="dot"></span><b>Apple Notes</b> pour récupérer ce que tu jettes en vrac dans tes notes</div>
+    <div class="mrow"><span class="dot"></span><b>Wix</b> pour les inscriptions de membres</div>
+    <div class="mrow"><span class="dot"></span><b>Claude in Chrome</b> pour tout ce qui n'a pas de connecteur</div>
+  </div>
+
+  <div class="callout">
+    <div class="ck">Quand un outil n'a pas de connecteur</div>
+    <p>Dis-le lui simplement : <b>« j'ai besoin de connecter cette application, le connecteur n'existe pas »</b>. Il cherchera un MCP, et à défaut il passera par Chrome. C'est comme ça qu'on traitera Asana, MailerLite et Instagram.</p>
+  </div>
+
+  <div class="kicker" style="margin-top:28px">06</div>
+  <h2 class="sec-title" style="font-size:24px">Les routines</h2>
+  <p class="lead" style="margin-top:12px">
+    Une routine, c'est une tâche qu'il exécute seul, à intervalle régulier. Par exemple, chaque soir,
+    relever tes emails et mettre le coffre à jour. Tu peux en créer autant que tu veux, et les faire
+    évoluer en une phrase : <b>« à partir de maintenant, regarde aussi mes notes »</b>.
+  </p>
+  <p class="lead" style="margin-top:10px">
+    Une règle simple à garder en tête : <b>il ne fait rien que tu ne lui aies demandé.</b>
+    Tant qu'une routine n'est pas posée, rien ne tourne en arrière-plan.
+  </p>
+
+  <div class="foot-rule">
+    <span class="path">Guide d'utilisation · Drive for Charity</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a></span>
+  </div>
+  <div class="pagenum">5</div>
+</section>
+
+<!-- PAGE 4 : Au quotidien -->
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <div class="run__meta">Au quotidien</div>
+  </div>
+
+  <div class="kicker" style="margin-top:26px">07</div>
+  <h2 class="sec-title" style="font-size:24px">Fermer chaque session</h2>
+  <p class="lead" style="margin-top:12px">
+    À la fin d'une session de travail, tape <b>/maj</b>. Il reprend tout ce qui s'est passé dans la
+    conversation, met le coffre à jour et va relever les nouveautés. C'est le geste qui fait que ton
+    second cerveau reste vivant au lieu de se figer au jour de l'installation.
+  </p>
+  <div class="callout">
+    <div class="ck">Le seul vrai risque</div>
+    <p>Un coffre qui n'est jamais mis à jour redevient un dossier de fichiers en trois semaines. <b>/maj en fin de session</b>, c'est l'habitude qui compte le plus dans ce guide.</p>
+  </div>
+
+  <div class="kicker" style="margin-top:28px">08</div>
+  <h2 class="sec-title" style="font-size:24px">Corriger ce qu'il a mal compris</h2>
+  <p class="lead" style="margin-top:12px">
+    Pendant l'installation, il a lu un document d'objectifs et l'a pris pour des chiffres réalisés.
+    C'est normal, et c'est facile à corriger : dis-lui simplement où est la vraie information.
+    Une fois corrigée, <b>la correction est écrite dans le coffre</b> et il ne refera pas l'erreur,
+    même si le document fautif revient dans une conversation plus tard.
+  </p>
+  <p class="lead" style="margin-top:10px">
+    Il a aussi laissé une vingtaine de <b>questions ouvertes</b> plutôt que d'inventer des réponses.
+    C'est volontaire : y répondre est le meilleur investissement des premiers jours, parce que
+    chaque réponse rend tout ce qui suit plus juste.
+  </p>
+
+  <div class="foot-rule">
+    <span class="path">Guide d'utilisation · Drive for Charity</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a></span>
+  </div>
+  <div class="pagenum">6</div>
+</section>
+
+<section class="page">
+  <div class="run">
+    <div class="brand"><img src="../../assets/logo.png" alt=""><span class="wordmark">LUCID-LAB</span></div>
+    <div class="run__meta">Au quotidien</div>
+  </div>
+
+  <div class="kicker" style="margin-top:26px">09</div>
+  <h2 class="sec-title" style="font-size:24px">Ce qu'il ne fera jamais sans toi</h2>
+
+  <div class="dodont">
+    <div class="dd dd--do">
+      <div class="dd__h">Il fait, tu valides</div>
+      <ul>
+        <li><b>Brouillons d'emails</b> préparés, jamais envoyés sans ton accord</li>
+        <li><b>Documents</b> créés et rangés où tu lui dis</li>
+        <li><b>Modifications</b> proposées et soumises avant application</li>
+      </ul>
+    </div>
+    <div class="dd dd--dont">
+      <div class="dd__h">Il ne touche pas</div>
+      <ul>
+        <li><b>Tes mots de passe</b> et tout ce qui est sensible, sauf autorisation explicite</li>
+        <li><b>L'envoi</b> d'un email ou la finalisation d'un document engageant</li>
+        <li><b>Ce que tu ne lui as pas demandé</b> : sans consigne, il n'agit pas</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="callout">
+    <div class="ck">Quand tu bloques</div>
+    <p>Fais une capture de ton écran, envoie-la lui et demande <b>« je clique où maintenant ? »</b>. Il te guide pas à pas, y compris sur un logiciel que tu n'as jamais utilisé. Dis-lui que tu ne connais rien au sujet, il adaptera son niveau.</p>
+  </div>
+
+  <div class="cta">
+    <div>
+      <div class="cta__k">Prochaine étape</div>
+      <p class="cta__h">Point d'utilisation, mardi 11 août à 9 h</p>
+      <div class="cta__sub">Questions, blocages, et les automatisations Wix et newsletter</div>
+    </div>
+    <a class="cta__btn" href="mailto:info@lucid-lab.fr">Une question avant ?</a>
+  </div>
+
+  <div class="foot-rule">
+    <span class="path">Lucid-Lab · SAS au capital de 999 € · RCS Paris 104 672 050</span>
+    <span class="contact"><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a></span>
+  </div>
+  <div class="pagenum">7</div>
+</section>
+
+</body>
+</html>

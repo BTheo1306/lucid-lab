@@ -12,6 +12,17 @@ export const PORTAL_SESSION_MAX_AGE_SECONDS = 60 * 60 * 24 * 14;
 export const PORTAL_LOGIN_TOKEN_TTL_MS = 15 * 60 * 1000;
 export const PORTAL_INVITE_TOKEN_TTL_MS = 7 * 24 * 60 * 60 * 1000;
 
+/**
+ * Aperçu admin : cookie distinct de la vraie session, durée courte, et surtout
+ * LECTURE SEULE. Un cookie séparé plutôt qu'un drapeau dans la session cliente
+ * pour qu'un aperçu ne puisse jamais être confondu avec une session légitime,
+ * ni le devenir par accident.
+ */
+export const PORTAL_PREVIEW_COOKIE = 'll_portal_preview';
+export const PORTAL_PREVIEW_MAX_AGE_SECONDS = 30 * 60;
+/** Jeton de passage admin vers portail : le temps d'une redirection, pas plus. */
+export const PORTAL_PREVIEW_TOKEN_TTL_MS = 2 * 60 * 1000;
+
 /** Client statuses that keep portal access open. */
 const BLOCKED_CLIENT_STATUSES = new Set(['offboarded', 'archived']);
 
@@ -23,6 +34,14 @@ export interface PortalSession {
   clientSlug: string;
   contactName: string;
   contactEmail: string | null;
+  /**
+   * Vrai quand un admin regarde le portail à la place du client. Dans ce cas
+   * l'affichage est identique mais toute écriture est refusée : voir
+   * requirePortalWriteAccess. Toujours false pour un vrai client.
+   */
+  preview: boolean;
+  /** Aperçu ouvert alors que le contact n'a pas encore l'accès portail. */
+  previewAccessPending?: boolean;
 }
 
 export function isPortalConfigured(): boolean {
@@ -86,6 +105,62 @@ export async function setPortalSessionCookie(contactId: string, clientId: string
   });
 }
 
+/**
+ * Signature d'aperçu : préfixe distinct de celui des sessions, donc un jeton
+ * d'aperçu ne peut pas être présenté comme une session cliente, ni l'inverse.
+ */
+function signPortalPreview(contactId: string, clientId: string, expiresAt: number): string {
+  return createHmac('sha256', config.portalSessionSecret)
+    .update(`portal-preview:${contactId}:${clientId}:${expiresAt}`)
+    .digest('hex');
+}
+
+export function createPortalPreviewCookieValue(contactId: string, clientId: string, now = new Date()): string {
+  const expiresAt = now.getTime() + PORTAL_PREVIEW_MAX_AGE_SECONDS * 1000;
+  return `p1.${contactId}.${clientId}.${expiresAt}.${signPortalPreview(contactId, clientId, expiresAt)}`;
+}
+
+export function verifyPortalPreviewCookieValue(
+  token: string | undefined,
+): { contactId: string; clientId: string } | null {
+  if (!isPortalConfigured() || !token) return null;
+
+  const [version, contactId, clientId, expiresAtValue, signature] = token.split('.');
+  const expiresAt = Number(expiresAtValue);
+
+  if (version !== 'p1' || !contactId || !clientId || !Number.isFinite(expiresAt) || !signature) return null;
+  if (Date.now() > expiresAt) return null;
+  if (!constantTimeEquals(signature, signPortalPreview(contactId, clientId, expiresAt))) return null;
+
+  return { contactId, clientId };
+}
+
+export async function setPortalPreviewCookie(contactId: string, clientId: string): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set({
+    name: PORTAL_PREVIEW_COOKIE,
+    value: createPortalPreviewCookieValue(contactId, clientId),
+    httpOnly: true,
+    secure: config.nodeEnv === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: PORTAL_PREVIEW_MAX_AGE_SECONDS,
+  });
+}
+
+export async function clearPortalPreviewCookie(): Promise<void> {
+  const cookieStore = await cookies();
+  cookieStore.set({
+    name: PORTAL_PREVIEW_COOKIE,
+    value: '',
+    httpOnly: true,
+    secure: config.nodeEnv === 'production',
+    sameSite: 'lax',
+    path: '/',
+    maxAge: 0,
+  });
+}
+
 export async function clearPortalSessionCookie(): Promise<void> {
   const cookieStore = await cookies();
   cookieStore.set({
@@ -115,7 +190,11 @@ interface PortalContactRow {
  * client statuses). Returns null when access should be denied, which makes
  * admin-side revocation effective on the next request.
  */
-export async function loadPortalContact(contactId: string, clientId: string): Promise<PortalSession | null> {
+export async function loadPortalContact(
+  contactId: string,
+  clientId: string,
+  options: { preview?: boolean } = {},
+): Promise<PortalSession | null> {
   const { data, error } = await supabase
     .from('client_contacts')
     .select('id,client_id,organization_id,full_name,email,status,portal_access,client:clients(id,name,slug,status)')
@@ -126,7 +205,11 @@ export async function loadPortalContact(contactId: string, clientId: string): Pr
   if (error || !data) return null;
 
   const row = data as unknown as PortalContactRow;
-  if (!row.portal_access || row.status !== 'active') return null;
+  // En aperçu admin, l'accès portail peut ne pas encore être ouvert : c'est
+  // justement un des usages, vérifier ce que verra le client avant de l'inviter.
+  // Le statut du contact et celui du client restent bloquants dans tous les cas.
+  if (!options.preview && !row.portal_access) return null;
+  if (row.status !== 'active') return null;
   if (!row.client || BLOCKED_CLIENT_STATUSES.has(row.client.status)) return null;
 
   return {
@@ -137,16 +220,62 @@ export async function loadPortalContact(contactId: string, clientId: string): Pr
     clientSlug: row.client.slug,
     contactName: row.full_name ?? '',
     contactEmail: row.email ?? null,
+    preview: options.preview === true,
+    previewAccessPending: options.preview === true && !row.portal_access,
   };
 }
 
 /** Per-request cached session lookup (cookie -> HMAC check -> DB re-check). */
 export const getPortalSession = cache(async (): Promise<PortalSession | null> => {
   const cookieStore = await cookies();
+
+  // Une vraie session cliente prime toujours sur un aperçu.
   const parsed = verifyPortalSessionToken(cookieStore.get(PORTAL_SESSION_COOKIE)?.value);
-  if (!parsed) return null;
-  return loadPortalContact(parsed.contactId, parsed.clientId);
+  if (parsed) return loadPortalContact(parsed.contactId, parsed.clientId);
+
+  const preview = verifyPortalPreviewCookieValue(cookieStore.get(PORTAL_PREVIEW_COOKIE)?.value);
+  if (preview) return loadPortalContact(preview.contactId, preview.clientId, { preview: true });
+
+  return null;
 });
+
+/**
+ * À appeler dans toute route du portail qui écrit. Un aperçu admin ne doit
+ * jamais produire d'action au nom du client : une demande de modification ou un
+ * message envoyés depuis un aperçu seraient attribués au client alors qu'il n'a
+ * rien fait.
+ */
+export function isPortalReadOnly(session: PortalSession): boolean {
+  return session.preview === true;
+}
+
+/**
+ * Valide et consomme un jeton de passage admin vers portail.
+ *
+ * Usage unique : le jeton est marqué utilisé avant que le cookie ne soit posé,
+ * pour qu'un lien rejoué n'ouvre pas un second aperçu.
+ */
+export async function consumePortalPreviewToken(
+  token: string,
+): Promise<{ contactId: string; clientId: string } | null> {
+  const { data, error } = await supabase
+    .from('portal_login_tokens')
+    .select('id,contact_id,client_id,expires_at,used_at')
+    .eq('token_hash', hashPortalToken(token))
+    .eq('purpose', 'admin_preview')
+    .maybeSingle();
+
+  if (error || !data) return null;
+  if (data.used_at) return null;
+  if (new Date(String(data.expires_at)).getTime() < Date.now()) return null;
+
+  await supabase
+    .from('portal_login_tokens')
+    .update({ used_at: new Date().toISOString() })
+    .eq('id', data.id);
+
+  return { contactId: String(data.contact_id), clientId: String(data.client_id) };
+}
 
 /** True when the request reaches us through the portal subdomain. */
 export function isPortalHost(host: string | null | undefined): boolean {

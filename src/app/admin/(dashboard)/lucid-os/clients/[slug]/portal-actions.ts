@@ -7,6 +7,7 @@ import {
   answerClientRequest,
   applyClientRequestLegalUpdate,
   createAgencyRequest,
+  createPortalPreviewLink,
   sendPortalInviteForContact,
   setContactPortalAccess,
   setInteractionClientVisibility,
@@ -15,6 +16,22 @@ import {
 
 function clientPath(slug: string): string {
   return `/admin/lucid-os/clients/${encodeURIComponent(slug)}`;
+}
+
+/**
+ * Ouvre le portail tel que le contact le voit, en lecture seule.
+ *
+ * Le lien de passage est à usage unique et vit deux minutes : il ne sert qu'à
+ * franchir la frontière entre le domaine admin et le domaine portail, qui ne
+ * peuvent pas partager de cookie.
+ */
+export async function ouvrirApercuPortailAction(formData: FormData): Promise<void> {
+  await requireAdmin();
+
+  const contactId = String(formData.get('contact_id') ?? '');
+  if (!contactId) throw new Error('Contact manquant.');
+
+  redirect(await createPortalPreviewLink(contactId));
 }
 
 export async function setContactPortalAccessAction(formData: FormData): Promise<void> {
