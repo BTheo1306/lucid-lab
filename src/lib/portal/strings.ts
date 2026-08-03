@@ -111,6 +111,7 @@ export const portalStrings = {
     } as Record<string, string>,
     download: 'Télécharger le PDF',
     sign: 'Signer le document',
+    signPending: 'Le lien de signature arrive, nous vous prévenons par email.',
     empty: 'Aucun document partagé pour le moment.',
     uploadTitle: 'Nous transmettre un document',
     uploadHint:

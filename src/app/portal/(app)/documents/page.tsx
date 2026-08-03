@@ -21,6 +21,11 @@ interface PageProps {
   searchParams: Promise<{ depot?: string; apercu?: string }>;
 }
 
+/** Statuts pour lesquels le client attend encore de pouvoir signer. */
+function awaitsSignature(status: string): boolean {
+  return ['sent_for_signature', 'viewed', 'in_progress'].includes(status);
+}
+
 function documentTone(status: string): PortalPillTone {
   switch (status) {
     case 'signed':
@@ -98,6 +103,9 @@ export default async function PortalDocumentsPage({ searchParams }: PageProps) {
                   </div>
                 </div>
                 <div className="flex shrink-0 flex-wrap items-center gap-2">
+                  {!doc.signingUrl && awaitsSignature(doc.status) ? (
+                    <p className="max-w-[220px] text-xs leading-5 text-zinc-500">{d.signPending}</p>
+                  ) : null}
                   {doc.signingUrl ? (
                     <a
                       href={doc.signingUrl}
