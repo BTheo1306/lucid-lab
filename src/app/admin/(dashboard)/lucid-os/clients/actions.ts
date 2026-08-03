@@ -574,11 +574,26 @@ export async function recordClientOpportunityAction(formData: FormData): Promise
   return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#opportunities`);
 }
 
+/**
+ * Messages en français pour les blocages de génération.
+ *
+ * La validation renvoie des libellés techniques en anglais, affichés tout en bas
+ * du panneau Documents : le brouillon partait en `needs_review` sans que rien ne
+ * le dise au point du clic, ce qui donnait l'impression que le bouton ne faisait
+ * rien. On remonte donc l'explication en haut de page.
+ */
+const BLOCAGES_BON_DE_COMMANDE: Record<string, string> = {
+  opportunity_missing: 'rattachez une opportunité commerciale au client',
+  amount_missing: 'renseignez un montant (setup ou prévisionnel) sur l’opportunité',
+  contact_missing: 'ajoutez un contact principal avec son email',
+  client_legal_missing: 'complétez la raison sociale et l’adresse de facturation',
+};
+
 export async function createBonDeCommandeDraftAction(formData: FormData): Promise<void> {
   await requireAdmin();
   const { clientId, clientSlug } = requireClientActionContext(formData);
 
-  await createBonDeCommandeDraft({
+  const result = await createBonDeCommandeDraft({
     clientId,
     opportunityId: optionalId(formData, 'opportunity_id'),
     contactId: optionalId(formData, 'contact_id'),
@@ -596,6 +611,20 @@ export async function createBonDeCommandeDraftAction(formData: FormData): Promis
   });
 
   revalidateClientWorkspace(clientSlug);
+
+  const blocages = result.validationIssues
+    .filter((issue) => issue.severity === 'error')
+    .map((issue) => BLOCAGES_BON_DE_COMMANDE[issue.code] ?? issue.message);
+
+  if (blocages.length > 0) {
+    const message =
+      `Brouillon créé mais non générable en l'état. Pour débloquer : ${blocages.join(', ')}. ` +
+      `Corrigez, puis relancez la génération depuis le panneau Documents.`;
+    return await adminRedirect(
+      `/admin/lucid-os/clients/${clientSlug}?client_error=${encodeURIComponent(message)}#documents`,
+    );
+  }
+
   return await adminRedirect(`/admin/lucid-os/clients/${clientSlug}#documents`);
 }
 
