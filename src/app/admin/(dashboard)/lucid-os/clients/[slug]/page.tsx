@@ -67,6 +67,7 @@ import { DeleteClientForm } from '../DeleteClientForm';
 import { InlineSelectForm } from '../InlineSelectForm';
 import { MeetingRecapsPanel } from './MeetingRecapsPanel';
 import { PortalPanel } from './PortalPanel';
+import { planifierSuiviSetupClaudeAction } from './suivi-actions';
 import { RequestsPanel } from './RequestsPanel';
 
 export const dynamic = 'force-dynamic';
@@ -906,9 +907,64 @@ function TasksPanel({ client, contacts, opportunities, tasks }: { client: LucidC
           <h3 className="mb-4 text-sm font-semibold text-zinc-950">Créer une tâche</h3>
           <AddTaskForm client={client} contacts={contacts} opportunities={opportunities} />
         </div>
+        <SuiviSetupClaudeForm client={client} />
         <ClientTaskBoard clientId={client.id} clientSlug={client.slug} tasks={tasks} />
       </div>
     </RecordPanel>
+  );
+}
+
+/**
+ * Pose les deux calls de suivi du process d'installation Claude.
+ * Planifiés à la main ils se perdent, et c'est exactement le reproche d'Anthony :
+ * pas de prochaine étape claire côté client.
+ */
+function SuiviSetupClaudeForm({ client }: { client: LucidClientSummary }) {
+  return (
+    <form
+      action={planifierSuiviSetupClaudeAction}
+      className="border border-zinc-200 bg-white p-4"
+    >
+      <input type="hidden" name="client_id" value={client.id} />
+      <input type="hidden" name="client_slug" value={client.slug} />
+      <h3 className="text-sm font-semibold text-zinc-950">Suivi installation Claude</h3>
+      <p className="mt-1 text-xs leading-5 text-zinc-600">
+        Crée les deux calls de suivi prévus par le process : un à une semaine pour vérifier que
+        l&apos;outil sert vraiment, un à un mois pour constater la valeur et ouvrir la suite. Les
+        deux tâches sont publiées sur le portail du client.
+      </p>
+      <div className="mt-3 flex flex-wrap items-end gap-3">
+        <label className="grid gap-1 text-xs font-medium text-zinc-700">
+          Date de la séance
+          <input
+            type="date"
+            name="livre_le"
+            className="h-9 rounded border border-zinc-300 bg-white px-2 text-sm text-zinc-950"
+          />
+        </label>
+        <label className="grid gap-1 text-xs font-medium text-zinc-700">
+          Qui appelle
+          <select
+            name="owner_label"
+            className="h-9 rounded border border-zinc-300 bg-white px-2 text-sm text-zinc-950"
+          >
+            <option value="">Personne</option>
+            <option value="Jules">Jules</option>
+            <option value="Anthony">Anthony</option>
+            <option value="Théo">Théo</option>
+          </select>
+        </label>
+        <button
+          type="submit"
+          className="inline-flex h-9 items-center rounded bg-zinc-950 px-3 text-xs font-semibold text-white transition hover:bg-zinc-800"
+        >
+          Planifier le suivi
+        </button>
+      </div>
+      <p className="mt-2 text-[11px] text-zinc-500">
+        Sans date, le suivi part d&apos;aujourd&apos;hui. Sans effet si le suivi est déjà planifié.
+      </p>
+    </form>
   );
 }
 

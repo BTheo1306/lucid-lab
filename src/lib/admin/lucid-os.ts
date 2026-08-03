@@ -1805,7 +1805,7 @@ export async function recordLucidAuditEvent(input: RecordAuditEventInput): Promi
   if (error) throw new Error(`recordLucidAuditEvent: ${error.message}`);
 }
 
-async function getLucidClientMutationContext(clientId: string): Promise<{ id: string; name: string; slug: string; organizationId: string }> {
+export async function getLucidClientMutationContext(clientId: string): Promise<{ id: string; name: string; slug: string; organizationId: string }> {
   const organizationId = await ensureLucidOrganizationId();
   const row = await selectMaybe<unknown>(
     supabase
