@@ -81,7 +81,8 @@ export default async function ProspectionPage({
 
   // adminBasePath est asynchrone : sans await, le lien devient
   // "[object Promise]/lucid-os/prospection" et chaque filtre mene a une page blanche.
-  const base = `${await adminBasePath()}/lucid-os/prospection`;
+  const adminBase = await adminBasePath();
+  const base = `${adminBase}/lucid-os/prospection`;
   const buildHref = (patch: Partial<Record<'secteur' | 'statut' | 'qui' | 'rappels', string | null>>): string => {
     const params = new URLSearchParams();
     const next = {
@@ -190,6 +191,12 @@ export default async function ProspectionPage({
       <p className="text-xs leading-5 text-zinc-500">
         Une cible reste ici tant qu&apos;elle n&apos;a pas répondu. La fiche client n&apos;est créée dans le CRM
         qu&apos;au moment où l&apos;on note « a répondu » ou « RDV pris » ({meetings} rendez-vous pris à ce jour).
+        Cet onglet ne montre que les cibles des listes de prospection : les prospects du moteur de leads et
+        du formulaire d&apos;audit restent dans{' '}
+        <a href={`${adminBase}/lead-engine`} className="underline underline-offset-2 hover:text-zinc-800">
+          Moteur de leads
+        </a>
+        .
       </p>
     </div>
   );

@@ -114,6 +114,12 @@ export type ProspectionTarget = {
 export const STATUTS_A_APPELER = ['discovered', 'enriched', 'validated', 'approved'];
 export const STATUTS_AU_CRM = ['replied', 'meeting_booked', 'converted'];
 
+/**
+ * Origine des cibles construites a la main pour la prospection telephonique.
+ * Sert a la fois a l'import et au filtrage de l'onglet.
+ */
+export const SOURCE_PROSPECTION = 'prospection_manuelle';
+
 /** Valeurs de filtre qui recouvrent plusieurs statuts. */
 export const FILTRE_A_APPELER = 'a_appeler';
 export const FILTRE_AU_CRM = 'au_crm';
@@ -153,6 +159,12 @@ export async function listProspectionTargets(filters: ProspectionFilters = {}): 
     .from('prospect_companies')
     .select('id,name,city,country,industry,employee_count,website_url,owner_label,status,raw_data')
     .eq('workspace_id', workspaceId)
+    // L'onglet ne montre que les cibles issues des listes de prospection.
+    // La table est partagee avec le moteur de leads (TheirStack, API gouv) et
+    // avec le formulaire d'audit : ces lignes-la n'ont jamais ete qualifiees
+    // pour du telephone, souvent sans numero, et elles noyaient les cibles
+    // reelles. Elles restent accessibles depuis Moteur de leads.
+    .eq('source', SOURCE_PROSPECTION)
     .order('name', { ascending: true });
 
   if (filters.sector) query = query.eq('industry', filters.sector);
@@ -451,7 +463,7 @@ export async function importProspectionTargets(rows: ProspectionImportRow[]): Pr
         employee_count: row.employeeCount ?? null,
         website_url: row.websiteUrl ?? null,
         owner_label: row.ownerLabel ?? null,
-        source: 'prospection_manuelle',
+        source: SOURCE_PROSPECTION,
         source_url: row.sourceUrl ?? null,
         status: 'approved',
         raw_data: row.hook ? { hook: row.hook } : {},
