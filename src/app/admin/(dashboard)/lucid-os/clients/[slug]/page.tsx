@@ -52,7 +52,6 @@ import {
 import { EmptyState, formatAdminDateTime, StatusBadge } from '../../components';
 import { ClientTaskBoard } from './TaskBoard';
 import {
-  createBonDeCommandeDraftAction,
   fetchClientCompanyInfoAction,
   recordClientContactAction,
   recordClientOpportunityAction,
@@ -739,54 +738,6 @@ function AddTaskForm({ client, contacts, opportunities }: { client: LucidClientS
   );
 }
 
-function CreateDocumentForm({ client, contacts, opportunities, defaultPricingModel }: { client: LucidClientSummary; contacts: Array<{ id: string; fullName: string; email: string | null; isPrimary: boolean }>; opportunities: Array<{ id: string; title: string }>; defaultPricingModel: string }) {
-  return (
-    <form action={createBonDeCommandeDraftAction} className="grid gap-3">
-      <HiddenClientFields client={client} />
-      <label className="grid gap-2 text-sm font-medium text-zinc-700">
-        Opportunité
-        <select name="opportunity_id" defaultValue={opportunities[0]?.id ?? ''} className={inputClassName}>
-          <option value="">Sélectionner une opportunité</option>
-          {opportunities.map((opportunity) => <option key={opportunity.id} value={opportunity.id}>{opportunity.title}</option>)}
-        </select>
-      </label>
-      <label className="grid gap-2 text-sm font-medium text-zinc-700">
-        Signataire
-        <select name="contact_id" defaultValue={contacts.find((contact) => contact.isPrimary)?.id ?? contacts[0]?.id ?? ''} className={inputClassName}>
-          <option value="">Utiliser le contact principal</option>
-          {contacts.map((contact) => <option key={contact.id} value={contact.id}>{contact.fullName}{contact.email ? ` - ${contact.email}` : ''}</option>)}
-        </select>
-      </label>
-      <label className="grid gap-2 text-sm font-medium text-zinc-700">
-        Modèle de prix
-        <select name="pricing_model" defaultValue={defaultPricingModel} className={inputClassName}>
-          <option value="one_shot">One-shot</option>
-          <option value="monthly">Mensuel 12 mois</option>
-        </select>
-      </label>
-      {textInput('ID du dossier Google Drive', 'google_drive_folder_id', 'ID de dossier optionnel')}
-      <label className="grid gap-2 text-sm font-medium text-zinc-700">
-        Raison sociale du client
-        <input name="client_legal_name" defaultValue={client.legalName ?? client.name} className={inputClassName} placeholder="Raison sociale" />
-      </label>
-      <label className="grid gap-2 text-sm font-medium text-zinc-700">
-        SIRET du client
-        <input name="client_siret" defaultValue={client.siret ?? ''} className={inputClassName} placeholder="123 456 789 00010" />
-      </label>
-      <label className="grid gap-2 text-sm font-medium text-zinc-700">
-        Adresse du client
-        <input name="client_billing_address" defaultValue={client.billingAddress ?? ''} className={inputClassName} placeholder="Adresse complete du client" />
-      </label>
-      {textareaInput('Périmètre de la prestation', 'scope_perimeter', 'Périmètre, systèmes, automatisations, intégrations...', 4)}
-      {textareaInput('Description synthétique', 'synthetic_description', 'Contexte, objectifs et fonctionnement prévu...', 4)}
-      {textareaInput('Livrables attendus', 'deliverables', 'Livrables, formation, documentation...', 3)}
-      {textareaInput('Calendrier', 'calendar_timeline', 'Semaine 1 : ...\nSemaine 2 : ...', 3)}
-      {textareaInput('Prochaines étapes', 'next_steps', 'Accès, validation, signature, premier paiement...', 3)}
-      <div className="flex justify-end"><ActionButton icon={FileText}>Créer le brouillon</ActionButton></div>
-    </form>
-  );
-}
-
 function CompanyContactPanel({ client, contacts }: { client: LucidClientSummary; contacts: Array<{ fullName: string; role: string | null; email: string | null; phone: string | null; isPrimary: boolean }> }) {
   const primaryContact = contacts.find((contact) => contact.isPrimary) ?? contacts[0] ?? null;
   const contactName = primaryContact?.fullName ?? client.primaryContactName;
@@ -1249,7 +1200,6 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
     listLucidDeploymentsForClient(client.id, 25),
     listLucidIntegrationsForClient(client.id, 25),
   ]);
-  const defaultPricingModel = opportunities[0]?.monthlyValueEur ? 'monthly' : 'one_shot';
   const base = await adminBasePath();
 
   return (
@@ -1352,7 +1302,6 @@ export default async function LucidClientDetailPage({ params, searchParams }: { 
           <RecordPanel title="Saisie rapide">
             <FoldoutForm title="Ajouter un contact" icon={Contact}><AddContactForm client={client} /></FoldoutForm>
             <FoldoutForm title="Ajouter une opportunité" icon={BriefcaseBusiness}><AddOpportunityForm client={client} contacts={contacts} /></FoldoutForm>
-            <FoldoutForm title="Générer un BDC" icon={FileText}><CreateDocumentForm client={client} contacts={contacts} opportunities={opportunities} defaultPricingModel={defaultPricingModel} /></FoldoutForm>
           </RecordPanel>
 
           <PortalPanel clientId={client.id} clientSlug={client.slug} />
