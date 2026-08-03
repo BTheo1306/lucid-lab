@@ -179,7 +179,12 @@ export interface PortalDocument {
   dueAt: string | null;
   signedAt: string | null;
   hasDownload: boolean;
+  /** Lien de signature DocuSeal, present tant que le document attend la signature. */
+  signingUrl: string | null;
 }
+
+/** Statuts pour lesquels une signature est encore attendue du client. */
+const AWAITING_SIGNATURE_STATUSES = new Set(['sent_for_signature', 'viewed', 'in_progress']);
 
 interface StorageLocationRow {
   storage_provider: string;
@@ -190,7 +195,7 @@ interface StorageLocationRow {
 export async function listPortalDocuments(session: PortalSession, limit = 50): Promise<PortalDocument[]> {
   const { data, error } = await supabase
     .from('client_documents')
-    .select('id,document_type,status,title,document_number,amount_ht_eur,amount_ttc_eur,setup_amount_eur,monthly_amount_eur,issued_at,due_at,completed_at,created_at,storage:client_document_storage_locations(storage_provider,file_kind,file_id)')
+    .select('id,document_type,status,title,document_number,amount_ht_eur,amount_ttc_eur,setup_amount_eur,monthly_amount_eur,issued_at,due_at,completed_at,created_at,docuseal_submission_url,storage:client_document_storage_locations(storage_provider,file_kind,file_id)')
     .eq('organization_id', session.organizationId)
     .eq('client_id', session.clientId)
     .in('status', PORTAL_DOCUMENT_STATUSES)
@@ -225,6 +230,10 @@ export async function listPortalDocuments(session: PortalSession, limit = 50): P
       dueAt: row.due_at ? String(row.due_at) : null,
       signedAt: row.completed_at ? String(row.completed_at) : null,
       hasDownload,
+      signingUrl:
+        AWAITING_SIGNATURE_STATUSES.has(String(row.status ?? '')) && row.docuseal_submission_url
+          ? String(row.docuseal_submission_url)
+          : null,
     };
   });
 }

@@ -110,7 +110,24 @@ export const portalStrings = {
       other: 'Document',
     } as Record<string, string>,
     download: 'Télécharger le PDF',
+    sign: 'Signer le document',
     empty: 'Aucun document partagé pour le moment.',
+    uploadTitle: 'Nous transmettre un document',
+    uploadHint:
+      "Un document signé, un justificatif, une pièce que nous vous avons demandée. Il arrive directement dans votre dossier et nous sommes prévenus. PDF, image ou document bureautique, 20 Mo maximum.",
+    uploadFile: 'Fichier',
+    uploadNote: 'Message (facultatif)',
+    uploadNotePlaceholder: 'De quoi s’agit-il ?',
+    uploadSubmit: 'Envoyer le document',
+    uploadReceivedTitle: 'Documents que vous nous avez transmis',
+    uploadOk: 'Document bien reçu. Nous avons été prévenus.',
+    uploadErrors: {
+      vide: 'Aucun fichier sélectionné.',
+      empty: 'Le fichier est vide.',
+      too_large: 'Le fichier dépasse 20 Mo.',
+      type: 'Ce format de fichier n’est pas accepté.',
+      storage: 'L’envoi a échoué. Réessayez, ou écrivez-nous depuis la page Échanges.',
+    } as Record<string, string>,
   },
 
   billing: {

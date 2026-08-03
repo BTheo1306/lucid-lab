@@ -209,6 +209,45 @@ function multipartBody(metadata: Record<string, unknown>, fileBuffer: Buffer, mi
   return { body: Buffer.concat(chunks), contentType: `multipart/related; boundary=${boundary}` };
 }
 
+/**
+ * Dépose un fichier déjà en mémoire sur Drive.
+ *
+ * uploadPdfToGoogleDrive part d'une URL à télécharger, ce qui convient au PDF
+ * signé renvoyé par DocuSeal. Une pièce déposée par le client arrive elle sous
+ * forme de tampon, d'où cette variante. Le nom de fichier est unique : deux
+ * dépôts successifs ne doivent pas s'écraser, contrairement à un document
+ * régénéré.
+ */
+export async function uploadBufferToGoogleDrive(input: {
+  folderId: string;
+  fileName: string;
+  mimeType: string;
+  content: Buffer;
+}): Promise<GoogleDriveUploadResult> {
+  const multipart = multipartBody(
+    { name: input.fileName, parents: [input.folderId] },
+    input.content,
+    input.mimeType,
+  );
+  const uploaded = await googleDriveFetch<{ id?: string }>(
+    `${googleDriveUploadUrl}?uploadType=multipart&supportsAllDrives=true`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': multipart.contentType },
+      body: new Blob([new Uint8Array(multipart.body)], { type: multipart.contentType }),
+    },
+  );
+
+  if (!uploaded.id) throw new Error('Google Drive did not return a file id.');
+
+  return {
+    fileId: uploaded.id,
+    fileName: input.fileName,
+    folderId: input.folderId,
+    url: buildGoogleDriveFileUrl(uploaded.id) ?? '',
+  };
+}
+
 export async function uploadPdfToGoogleDrive(input: {
   folderId: string;
   fileName: string;

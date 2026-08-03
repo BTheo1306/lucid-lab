@@ -426,6 +426,29 @@ export async function sendPortalInvite(input: {
   });
 }
 
+/** Portal: the client dropped a file, notify the team. */
+export async function sendPortalUploadTeamNotification(input: {
+  clientName: string;
+  contactName: string;
+  fileName: string;
+  note: string | null;
+  driveUrl: string;
+}): Promise<void> {
+  await sendEmail({
+    to: config.teamNotificationEmail,
+    subject: `[Portail] ${input.clientName} a déposé un document : ${input.fileName}`,
+    html: `
+      <h2>Document reçu via le portail client</h2>
+      <p><strong>Client :</strong> ${escapeHtml(input.clientName)}</p>
+      <p><strong>Déposé par :</strong> ${escapeHtml(input.contactName)}</p>
+      <p><strong>Fichier :</strong> ${escapeHtml(input.fileName)}</p>
+      ${input.note ? `<p><strong>Message :</strong><br>${escapeHtml(input.note)}</p>` : ''}
+      <p>Le fichier est déjà rangé dans le dossier Drive du client.</p>
+      <p><a href="${escapeHtml(input.driveUrl)}">Ouvrir le document</a></p>
+    `,
+  });
+}
+
 const PORTAL_REQUEST_TYPE_LABELS: Record<string, string> = {
   question: 'Question',
   change_request: 'Demande de modification',
