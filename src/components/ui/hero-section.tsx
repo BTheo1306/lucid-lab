@@ -321,7 +321,6 @@ export function LogosSection({ lang: _lang = 'fr' }: { lang?: Locale } = {}) {
 const _mk = (svg: string) => `data:image/svg+xml,${encodeURIComponent(svg)}`
 
 const logos = [
-  { src: '/nextra.png', alt: 'Nextra' },
   {
     // Turismo — bold italic wordmark
     src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 52"><text x="0" y="40" font-family="\'Arial Black\',Impact,sans-serif" font-size="42" fill="#000" font-weight="900" font-style="italic" letter-spacing="-1">TURISMO</text></svg>'),
