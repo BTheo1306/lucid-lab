@@ -89,7 +89,6 @@ const content = {
       logos: [
         { name: 'Turismo', logo: '/logos/logo%20Turismo.png' },
         { name: 'Kobia', logo: '/logos/logo-wordmark-kobia-black.png' },
-        { name: 'Nextra', logo: '/nextra.png' },
         { name: 'BSP37', logo: '/bsp37.png' },
         { name: 'Melting Forme', logo: '/melting-forme.png' },
         { name: 'Universal', logo: null },
@@ -353,7 +352,6 @@ const content = {
       logos: [
         { name: 'Turismo', logo: '/logos/logo%20Turismo.png' },
         { name: 'Kobia', logo: '/logos/logo-wordmark-kobia-black.png' },
-        { name: 'Nextra', logo: '/nextra.png' },
         { name: 'BSP37', logo: '/bsp37.png' },
         { name: 'Melting Forme', logo: '/melting-forme.png' },
         { name: 'Universal', logo: null },
