@@ -1,6 +1,6 @@
 # Liste d'appel : cabinets d'experts-comptables français
 
-Outil de prospection téléphonique. 62 lignes, extraction du 02/08/2026.
+Outil de prospection téléphonique. 86 lignes : extraction initiale du 02/08/2026 (blocs 1 et 2), extension du 16/08/2026 (bloc 3).
 
 ## Méthode
 
@@ -12,19 +12,20 @@ Outil de prospection téléphonique. 62 lignes, extraction du 02/08/2026.
 - Tranche d'effectif INSEE 10 à 99 salariés (millésime 2023), c'est-à-dire les tranches 11, 12 et 21.
 - Doublons de groupe limités : au plus deux entités par réseau (Orcom et VDL Conseil ont chacun plusieurs sociétés éligibles en Centre-Val de Loire), pour ne pas appeler quatre fois le même décideur.
 
-**Deux blocs**
+**Trois blocs**
 1. Centre-Val de Loire (37, 41, 45, 18, 28, 36) : 25 lignes. Ces cabinets sont implantés en région Centre-Val de Loire, donc a priori éligibles au dispositif régional CAP'TN (prise en charge d'une partie d'une mission de conseil). C'est l'argument d'ouverture. L'éligibilité définitive se confirme dossier par dossier auprès de la Région.
 2. Reste de la France, métropoles régionales (Lyon, Marseille, Toulouse, Bordeaux, Nantes, Lille, Strasbourg, Rennes, Montpellier, Nice, Grenoble, Rouen, Dijon, Angers, Nancy, Poitiers, Clermont-Ferrand) : 37 lignes.
+3. Extension du 16/08/2026, départements non couverts par les blocs 1 et 2 : 24 lignes. Villes moyennes et métropoles secondaires (Caen, Quimper, Brest, Vannes, Lorient, Auray, Metz, Pau, Le Mans, Sallanches, Amiens, Toulon, Orange, Nîmes, Royan, Besançon, Saint-Étienne, Reims, Perpignan, Colmar, Limoges). Priorité aux cabinets de 50 à 99 salariés, complétés d'un cabinet de 20 à 49 salariés par département qui n'en comptait aucun.
 
 Tri par effectif décroissant à l'intérieur de chaque bloc, puis par ordre alphabétique.
 
 **Contacts** : chaque ligne vise un expert-comptable associé, un dirigeant ou un responsable de bureau. Jamais le standard, jamais une assistante. Les noms viennent du RNE, du site du cabinet (page équipe ou mentions légales) ou de l'annuaire officiel de l'Ordre des experts-comptables. La colonne « Source contact » donne l'URL exacte.
 
-**Taux de complétion**
-- Contact nommé : 61/62 (98 %)
-- Téléphone : 60/62 (97 %)
-- Email : 30/62 (48 %), très majoritairement des adresses génériques de cabinet
-- Site web : 58/62 (94 %)
+**Taux de complétion** (les trois blocs réunis)
+- Contact nommé : 84/86 (98 %)
+- Téléphone : 84/86 (98 %)
+- Email : 45/86 (52 %), très majoritairement des adresses génériques de cabinet
+- Site web : 81/86 (94 %)
 
 **Règle appliquée** : aucune donnée inventée. Aucun email n'a été déduit d'un format type prenom.nom@domaine.fr. Les cases vides portent la mention « non trouvé ».
 
@@ -102,6 +103,35 @@ Tri par effectif décroissant à l'intérieur de chaque bloc, puis par ordre alp
 | CONSEILS ASSOCIES SOCIETE D'EXPERTISE COMPTABLE | Toulouse | 31 | 20-49 | Rémi Lavernhe | Expert-comptable associé | 05 61 17 42 38 | secretariat@coepto.fr | https://www.coepto.fr/ | 350273660 | Non | https://www.coepto.fr/ |
 | GENERATION D'EXPERTS | Toulouse | 31 | 20-49 | David Escaffre | Gérant, expert-comptable | non trouvé | non trouvé | non trouvé | 451949093 | Non | https://annuaire.experts-comptables.org/expert-comptable/23557-generation-d-experts-toulouse-31200 |
 
+## Bloc 3 : extension du 16/08/2026 (départements non couverts)
+
+| Cabinet | Ville | Dépt | Effectif | Contact à joindre | Fonction | Téléphone | Email | Site | SIREN | CAP'TN | Source contact |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| ALLIANCE CONSEIL | Sallanches | 74 | 50-99 | Denis Benand | Expert-comptable inscrit à l'Ordre depuis 1991 | 04 50 58 00 19 | non trouvé | https://www.groupealtitude.expert | 950402289 | Non | https://www.groupealtitude.expert/alliance-conseil-expert-comptable-sallanches/ |
+| ALTEXA | Le Mans | 72 | 50-99 | Guillaume Blanchard | Directeur général, expert-comptable associé | 02 43 43 62 62 | lemans@altexa.fr | https://www.altexa.fr | 333203099 | Non | https://www.altexa.fr/contact |
+| AVENIR PLUS | Nîmes | 30 | 50-99 | Nicolas Atger | Gérant, expert-comptable | 04 66 04 10 40 | non trouvé | https://www.avenirplus.net | 378727119 | Non | https://www.avenirplus.net/contact/ |
+| BHN CAEN | Saint-Contest | 14 | 50-99 | David Marti | Directeur général | 02 31 47 48 49 | non trouvé | https://www.bhn-expertise.com | 341890846 | Non | https://www.bhn-expertise.com/nos-cabinets/bhn-caen |
+| CABINET COLIN - HENRIO (OUEST CONSEILS VANNES) | Vannes | 56 | 50-99 | Gilles Le Squer | Président, expert-comptable | 02 97 26 73 00 | contactvannes@ouestconseils.fr | https://www.ouestconseils.bzh | 876680166 | Non | https://annuaire.experts-comptables.org/expert-comptable/21107-cabinet-colin-henrio-vannes-56003 |
+| CABINET GIORNAL | Orange | 84 | 50-99 | Jean-Louis Giornal | Expert-comptable, fondateur du cabinet | 04 90 51 58 03 | cabinet.giornal@wanadoo.fr | https://www.cabinet-giornal.fr | 415139096 | Non | https://www.cabinet-giornal.fr/equipe |
+| CABINET VDB ET ASSOCIES (VDB) | Dury | 80 | 50-99 | Rachid Aissaoui | Directeur général, expert-comptable | 03 22 53 45 00 | vdbassocies@vdbassocies.fr | https://www.vdbassocies.fr | 581720729 | Non | https://www.vdbassocies.fr/qui-sommes-nous/ |
+| FIDUCIAIRE DE L'OUEST (FID'OUEST) | Auray | 56 | 50-99 | Franck Hervieu | Administrateur | 02 97 24 23 90 | y.ledily@fidouest.com | https://www.fidouest.com | 305833204 | Non | https://www.fidouest.com/expert-comptable-auray/ |
+| GEIREC LORIENT | Larmor-Plage | 56 | 50-99 | Jean-Paul Jeffroy | Directeur général, expert-comptable inscrit depuis 2000 | 02 97 87 22 22 | lorient@geirec.com | https://www.geirec.com | 383873619 | Non | https://www.geirec.com/nos-equipes/lorient/ |
+| GORIOUX FARO ET ASSOCIES | Quimper | 29 | 50-99 | Pierre-Marie Gorioux | Dirigeant du cabinet | 02 98 55 27 48 | cfaro@gorioux.com | https://www.gorioux.com | 338896350 | Non | https://www.gorioux.com/gfa-quimper-france/ |
+| GROUPE FGC (STEC) | Toulon | 83 | 50-99 | Virginie Romano | Présidente, experte-comptable | 04 94 18 54 00 | non trouvé | https://www.fgc.fr | 739500700 | Non | https://www.fgc.fr/contact |
+| LORGEC | Metz | 57 | 50-99 | Arnaud Bernard | Gérant, expert-comptable associé | 03 87 66 77 33 | lorgec@l2hassocies.fr | https://lorgec.fr | 914751748 | Non | https://lorgec.fr/contact/ |
+| NEXA PAU PYRENEES | Serres-Castet | 64 | 50-99 | Gérard Hourmagnou | Expert-comptable inscrit à l'Ordre depuis 1994 | 05 59 33 54 50 | non trouvé | https://www.nexapau.fr | 523336865 | Non | https://www.nexapau.fr/contacts.html |
+| OUEST CONSEILS BREST | Gouesnou | 29 | 50-99 | Pierre-Yves Corre | Gérant, expert-comptable | 02 98 44 25 32 | non trouvé | https://www.ouestconseils.bzh | 342047552 | Non | https://www.ouestconseils.bzh/expert-comptable-brest/ |
+| SOCIETE GENERALE D'EXPERTISE COMPTABLE DU MAINE NORMANDIE (SOGEC) | Le Mans | 72 | 50-99 | Didier Rouillard | Expert-comptable inscrit à l'Ordre depuis 1998 | 02 43 40 76 00 | non trouvé | non trouvé | 775652068 | Non | https://annuaire.experts-comptables.org/expert-comptable/2968-societe-generale-d-expertise-comptable-du-maine-normandie-le-mans-72000 |
+| SOCOGEC QUIMPER | Quimper | 29 | 50-99 | Benoist Courant | Gérant, expert-comptable | 02 98 10 26 00 | infos@socogec-quimper.com | https://socogec.com | 421120510 | Non | https://socogec.com/contact/ |
+| TALENZ ALTEIS | Caen | 14 | 50-99 | Eric Batteur | Président, expert-comptable associé | 02 31 46 23 23 | non trouvé | https://www.talenz.fr | 478557671 | Non | https://www.talenz.fr/talenz-alteis/bureaux/caen/ |
+| ABC CONSEIL DE VOTRE ENTREPRISE | Royan | 17 | 20-49 | Arnaud Brouard | Expert-comptable inscrit à l'Ordre depuis 1995 | 05 46 23 42 00 | contact@abcconseil.fr | https://www.abcconseil.fr | 421313032 | Non | https://www.abcconseil.fr/coordonnees |
+| ACTIF CONSEIL | Perpignan | 66 | 20-49 | Thierry Guillard | Expert-comptable inscrit à l'Ordre depuis 1989 | 04 68 66 90 90 | contact@actif-conseil.fr | https://actif-conseil.fr | 333976785 | Non | https://actif-conseil.fr/le-cabinet/ |
+| ACTIS-AUDIT CONSEIL EXPERTISE COMPTABLE (WEMA FRANCHE-COMTE) | Besançon | 25 | 20-49 | Benoît Barthoulot | Directeur général, expert-comptable | 03 81 80 61 22 | experts@wema.fr | https://www.wema.fr | 353377328 | Non | https://www.wema.fr/en/offices/besancon/ |
+| AGC 68 (CER FRANCE ALSACE) | Sainte-Croix-en-Plaine | 68 | 20-49 | non trouvé | Cibler le responsable de l'agence de Sainte-Croix-en-Plaine | 03 89 20 94 95 | agc68@cerfrance.fr | https://alsace.cerfrance.fr | 424390417 | Non | https://alsace.cerfrance.fr/nos-agences/agence-de-sainte-croix-en-plaine |
+| ALIANTIS | Saint-Étienne | 42 | 20-49 | Thierry Chapon | Directeur général, expert-comptable | 04 77 91 23 91 | st-etienne@aliantis.net | https://www.aliantis.net | 328181581 | Non | https://www.aliantis.net/notre-histoire/saint-etienne/ |
+| AUDEFI EXPERTISE COMPTABLE | Limoges | 87 | 20-49 | Vincent Baron | Directeur général, expert-comptable | 05 55 32 50 32 | contact@audefi.fr | https://www.audefi.fr | 489319103 | Non | https://www.audefi.fr/ |
+| COGEP REIMS | Reims | 51 | 20-49 | Laurent Boule | Expert-comptable du bureau de Reims | 03 26 86 72 98 | non trouvé | https://www.cogep.fr | 328971585 | Non | https://www.cogep.fr/cogep-reims/ |
+
 ## Points de vigilance avant appel
 
 - **A.M.G. SA (Montrichard-Val-de-Cher, 41)** : aucun site, aucun téléphone, aucun dirigeant personne physique au RNE (le président est la holding ALMEHADE). Ligne à qualifier autrement ou à écarter.
@@ -113,3 +143,13 @@ Tri par effectif décroissant à l'intérieur de chaque bloc, puis par ordre alp
 - **Sorex (Angers)** : le site sorex.pro était hors ligne le 02/08/2026, téléphone confirmé par annuaire.
 - **Odiceo, Orfis, Initia, Excelis Conseil, FIC Expertise** : ces cabinets ne publient aucun nom sur leur propre site. Le contact vient du RNE ou de l'annuaire de l'Ordre, il est exact mais l'interlocuteur ne s'attendra pas à être nommé.
 - **Réseaux nationaux** (Orcom, Valoxy, SECOB, SBA Compta, VDL Conseil, In Extenso) : la décision d'achat peut remonter au groupe. Le responsable de bureau reste le bon point d'entrée mais il faudra identifier tôt qui signe.
+
+Ajouts du bloc 3 :
+
+- **Le dirigeant du RNE n'est pas toujours le bon interlocuteur.** Sur plusieurs cabinets, la personne remontée par le registre est un commissaire aux comptes qui intervient pour plusieurs structures sans rapport entre elles. Le contact a été remplacé par l'expert-comptable inscrit à l'Ordre pour ce cabinet chez **ABC Conseil (Royan)**, **SOGEC Maine Normandie (Le Mans)** et **Alliance Conseil (Sallanches)**. Si un nom de la liste étonne l'interlocuteur, c'est le seul endroit où chercher l'erreur.
+- **Actis-Audit (Besançon)** exerce sous l'enseigne **WeMa Franche-Comté** depuis avril 2025. Annoncer WeMa, pas Actis.
+- **Alliance Conseil (Sallanches)** appartient au **Groupe Altitude**, et son site propre passe par groupealtitude.expert.
+- **Ouest Conseils** : deux entités retenues (Brest et Vannes). Une troisième, Ouest Conseils Lorient, était éligible et a été volontairement laissée de côté pour tenir la règle des deux entités par réseau.
+- **Réseau COGEP** : SOGEC Maine Normandie (Le Mans) et COGEP Reims en font tous les deux partie. On est à la limite des deux entités, ne pas en ajouter une troisième au prochain passage.
+- **Talenz Alteis (Caen)** : l'entité retenue est bien dans la tranche 50-99 salariés, mais le groupe Talenz Alteis annonce environ 270 collaborateurs sur la Normandie et l'Île-de-France. Vérifier tôt qui décide.
+- **AGC 68 / Cerfrance Alsace (Sainte-Croix-en-Plaine)** : aucun nom publié, ni sur le site ni au RNE. Demander le responsable de l'agence de Sainte-Croix-en-Plaine.

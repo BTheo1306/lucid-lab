@@ -27,6 +27,7 @@ function firstParam(value: string | string[] | undefined): string | null {
 const SECTORS = [
   { value: 'experts-comptables', label: 'Experts-comptables' },
   { value: 'avocats', label: 'Avocats' },
+  { value: 'creches', label: 'Crèches' },
   { value: 'banques-privees', label: 'Banques privées' },
 ];
 

@@ -105,6 +105,111 @@ function parseMarkdownTable(path: string, headerStartsWith: string): string[][] 
   return rows;
 }
 
+/**
+ * Lignes de TOUS les tableaux dont l'en-tête est exactement celui passé en
+ * paramètre.
+ *
+ * Les listes avocats et crèches contiennent plusieurs tableaux : les blocs
+ * d'appel, mais aussi des tableaux de méthode, de cibles écartées et de pistes
+ * à qualifier. Matcher l'en-tête complet évite d'importer ces derniers, et
+ * permet de distinguer le bloc Centre-Val de Loire (colonne CAP'TN) du bloc
+ * métropoles, qui ne la porte pas.
+ */
+function parseMarkdownTablesByHeader(path: string, header: string[]): string[][] {
+  const lines = readFileSync(path, 'utf8').split('\n');
+  const rows: string[][] = [];
+  let inTable = false;
+
+  for (const line of lines) {
+    if (!line.trim().startsWith('|')) {
+      inTable = false;
+      continue;
+    }
+    const cells = line.split('|').slice(1, -1).map((cell) => cell.trim());
+    if (!inTable) {
+      if (cells.length === header.length && header.every((label, i) => cells[i] === label)) {
+        inTable = true;
+      }
+      continue;
+    }
+    if (cells.every((cell) => /^-+$/.test(cell.replace(/\s/g, '')) || cell === '')) continue;
+    rows.push(cells);
+  }
+  return rows;
+}
+
+const ENTETE_AVOCATS_CVL = [
+  'Cabinet', 'Ville', 'Dépt', 'Effectif', 'Contact à joindre', 'Fonction',
+  'Téléphone', 'Email', 'Site', 'SIREN', "CAP'TN", 'Source contact',
+];
+const ENTETE_AVOCATS_METROPOLES = [
+  'Cabinet', 'Ville', 'Dépt', 'Effectif', 'Contact à joindre', 'Fonction',
+  'Téléphone', 'Email', 'Site', 'SIREN', 'Source contact',
+];
+const ENTETE_CRECHES = [
+  'Gestionnaire', 'Ville', 'Dépt', 'Sites', 'Effectif', 'Contact à joindre', 'Fonction',
+  'Téléphone', 'Email', 'Site', 'SIREN', "CAP'TN", 'Source contact',
+];
+
+const HOOK_CAPTN = 'Éligible à la subvention régionale CAP TN (Centre-Val de Loire).';
+
+function avocatsRows(): ProspectionImportRow[] {
+  const chemin = 'docs/prospection/liste-avocats-france.md';
+  const cvl = parseMarkdownTablesByHeader(chemin, ENTETE_AVOCATS_CVL).map((cells) => ({
+    cells,
+    // Le mois d'août est le seul sans audience : c'est l'ouverture du script.
+    hook: [HOOK_CAPTN, "Appeler en août : c'est le seul mois sans audience."].join(' '),
+  }));
+  const metropoles = parseMarkdownTablesByHeader(chemin, ENTETE_AVOCATS_METROPOLES).map((cells) => ({
+    cells,
+    hook: "Appeler en août : c'est le seul mois sans audience.",
+  }));
+
+  return [...cvl, ...metropoles].map(({ cells, hook }) => ({
+    name: cells[0].replace(/\*\*/g, '').trim(),
+    sector: 'avocats',
+    city: clean(cells[1]),
+    country: 'France',
+    employeeCount: parseHeadcount(clean(cells[3])),
+    contactName: clean(cells[4]),
+    contactTitle: clean(cells[5]),
+    contactPhone: clean(cells[6]),
+    contactEmail: clean(cells[7]),
+    websiteUrl: clean(cells[8]),
+    // La colonne source est la dernière : son index dépend du bloc.
+    sourceUrl: clean(cells[cells.length - 1]),
+    hook,
+  }));
+}
+
+function crechesRows(): ProspectionImportRow[] {
+  const rows = parseMarkdownTablesByHeader('docs/prospection/liste-creches-france.md', ENTETE_CRECHES);
+  return rows.map((cells) => {
+    const sites = clean(cells[3]);
+    return {
+      name: cells[0].replace(/\*\*/g, '').trim(),
+      sector: 'creches',
+      city: clean(cells[1]),
+      country: 'France',
+      employeeCount: parseHeadcount(clean(cells[4])),
+      contactName: clean(cells[5]),
+      contactTitle: clean(cells[6]),
+      contactPhone: clean(cells[7]),
+      contactEmail: clean(cells[8]),
+      websiteUrl: clean(cells[9]),
+      sourceUrl: clean(cells[12]),
+      // Le nombre de sites est le vrai critère de qualification de cette
+      // verticale : c'est lui qui doit s'afficher sur la fiche d'appel.
+      hook: [
+        sites ? `${sites} établissements ouverts : la coordination est le sujet.` : null,
+        clean(cells[11])?.toLowerCase() === 'oui' ? HOOK_CAPTN : null,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    };
+  });
+}
+
 function franceRows(): ProspectionImportRow[] {
   const rows = parseCsv('docs/prospection/liste-experts-comptables-france.csv').slice(1);
   return rows.map((cells) => ({
@@ -170,6 +275,8 @@ async function main(): Promise<void> {
     { label: 'Experts-comptables France', rows: franceRows() },
     { label: 'Experts-comptables Belgique', rows: belgiqueRows() },
     { label: 'Banques privées', rows: banquesRows() },
+    { label: 'Avocats France', rows: avocatsRows() },
+    { label: 'Crèches France', rows: crechesRows() },
   ];
 
   for (const group of groups) {
