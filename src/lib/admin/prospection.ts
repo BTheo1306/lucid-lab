@@ -36,7 +36,9 @@ export type ProspectionOutcome =
   | 'rdv_pris'
   | 'email_envoye'
   | 'relance'
-  | 'note';
+  | 'note'
+  | 'mauvais_numero'
+  | 'pas_le_bon_interlocuteur';
 
 type OutcomeConfig = {
   label: string;
@@ -59,6 +61,11 @@ export const PROSPECTION_OUTCOMES: Record<ProspectionOutcome, OutcomeConfig> = {
   email_envoye: { label: 'Email envoyé', tone: 'neutral', companyStatus: 'contacted', promotesToCrm: false, defaultChannel: 'email' },
   relance: { label: 'Relancé', tone: 'neutral', companyStatus: 'contacted', promotesToCrm: false, defaultChannel: 'email' },
   note: { label: 'Note', tone: 'neutral', companyStatus: null, promotesToCrm: false, defaultChannel: 'other' },
+  // Ces deux issues disent que la fiche est fausse, pas que le prospect refuse.
+  // Elles laissent donc le statut inchangé : une fois le numéro ou le contact
+  // corrigé depuis le board, la cible reste dans « À appeler ».
+  mauvais_numero: { label: 'Mauvais numéro', tone: 'warning', companyStatus: null, promotesToCrm: false, defaultChannel: 'call' },
+  pas_le_bon_interlocuteur: { label: 'Pas le bon interlocuteur', tone: 'warning', companyStatus: null, promotesToCrm: false, defaultChannel: 'call' },
 };
 
 export const PROSPECTION_OUTCOME_KEYS = Object.keys(PROSPECTION_OUTCOMES) as ProspectionOutcome[];
@@ -410,6 +417,90 @@ export async function setProspectionOwner(companyId: string, ownerLabel: string 
     .update({ owner_label: ownerLabel, updated_at: new Date().toISOString() })
     .eq('id', companyId);
   if (error) throw new Error(`setProspectionOwner: ${error.message}`);
+}
+
+/**
+ * Correction d'une fiche depuis le board.
+ *
+ * Une clé absente laisse le champ tel quel, une clé présente l'écrase (chaîne
+ * vide comprise, qui vide le champ). C'est ce qui permet d'ajouter le seul
+ * téléphone manquant sans toucher au reste de la fiche.
+ */
+export type ProspectionContactPatch = {
+  companyId: string;
+  contactName?: string | null;
+  contactTitle?: string | null;
+  contactPhone?: string | null;
+  contactEmail?: string | null;
+  contactLinkedin?: string | null;
+  websiteUrl?: string | null;
+};
+
+const CHAMPS_PERSONNE: Array<[keyof ProspectionContactPatch, string]> = [
+  ['contactName', 'full_name'],
+  ['contactTitle', 'title'],
+  ['contactPhone', 'phone'],
+  ['contactEmail', 'email'],
+  ['contactLinkedin', 'linkedin_url'],
+];
+
+/**
+ * Met à jour les coordonnées d'une cible. Crée la personne à joindre si la fiche
+ * n'en avait pas : beaucoup de lignes importées n'ont qu'un standard, et le nom
+ * du décideur se découvre au premier appel.
+ */
+export async function updateProspectionContact(
+  patch: ProspectionContactPatch,
+): Promise<{ personId: string | null }> {
+  const workspaceId = await ensureWorkspaceId();
+
+  if ('websiteUrl' in patch) {
+    const { error } = await supabase
+      .from('prospect_companies')
+      .update({ website_url: asText(patch.websiteUrl), updated_at: new Date().toISOString() })
+      .eq('id', patch.companyId);
+    if (error) throw new Error(`updateProspectionContact company: ${error.message}`);
+  }
+
+  const champsPersonne: Record<string, string | null> = {};
+  for (const [cle, colonne] of CHAMPS_PERSONNE) {
+    if (cle in patch) champsPersonne[colonne] = asText(patch[cle]);
+  }
+  if (Object.keys(champsPersonne).length === 0) return { personId: null };
+
+  // On relit la personne existante plutôt que de faire confiance au client :
+  // listProspectionTargets ne remonte que la première, en créer une deuxième
+  // rendrait la fiche ambiguë.
+  const { data: existante } = await supabase
+    .from('prospect_people')
+    .select('id')
+    .eq('company_id', patch.companyId)
+    .limit(1)
+    .maybeSingle();
+
+  if (existante) {
+    const { error } = await supabase
+      .from('prospect_people')
+      .update(champsPersonne)
+      .eq('id', existante.id);
+    if (error) throw new Error(`updateProspectionContact person: ${error.message}`);
+    return { personId: String(existante.id) };
+  }
+
+  if (Object.values(champsPersonne).every((valeur) => valeur === null)) return { personId: null };
+
+  const { data: creee, error } = await supabase
+    .from('prospect_people')
+    .insert({
+      workspace_id: workspaceId,
+      company_id: patch.companyId,
+      status: 'approved',
+      ...champsPersonne,
+    })
+    .select('id')
+    .single();
+  if (error) throw new Error(`updateProspectionContact insert: ${error.message}`);
+  return { personId: String(creee.id) };
 }
 
 export type ProspectionImportRow = {

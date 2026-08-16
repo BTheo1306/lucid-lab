@@ -6,7 +6,7 @@ import { Phone, Mail, Globe, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CopyButton } from '../../lead-engine/CopyButton';
 import { EmptyState, StatusBadge, formatAdminDate, formatAdminDateTime } from '../components';
-import { recordTouchAction, setOwnerAction } from './actions';
+import { recordTouchAction, setOwnerAction, updateContactAction } from './actions';
 
 /**
  * Board de prospection : une carte par cible, les issues d'appel en un clic.
@@ -58,13 +58,32 @@ const OUTCOME_LABELS: Record<string, string> = {
   email_envoye: 'Email envoyé',
   relance: 'Relancé',
   note: 'Note',
+  mauvais_numero: 'Mauvais numéro',
+  pas_le_bon_interlocuteur: 'Pas le bon interlocuteur',
 };
+
+/**
+ * Issues qui font entrer la cible dans le CRM clients. Elles sont en tête de la
+ * barre d'actions : c'est le seul résultat d'appel qui compte vraiment, il n'a
+ * rien à faire au fond d'un menu. Elles ouvrent le formulaire plutôt que de
+ * partir en un clic, parce qu'elles créent une fiche client.
+ */
+const PROMOTING_OUTCOMES = ['interesse', 'rdv_pris'] as const;
 
 /** Issues notables en un clic : celles qui n'ont besoin ni de date ni de commentaire. */
 const QUICK_OUTCOMES = ['barrage', 'repondeur', 'injoignable', 'refus'] as const;
 
 /** Issues qui demandent un contexte, donc passées par le formulaire replié. */
-const FORM_OUTCOMES = ['a_rappeler', 'interesse', 'rdv_pris', 'email_envoye', 'relance', 'note'] as const;
+const FORM_OUTCOMES = [
+  'a_rappeler',
+  'interesse',
+  'rdv_pris',
+  'email_envoye',
+  'relance',
+  'mauvais_numero',
+  'pas_le_bon_interlocuteur',
+  'note',
+] as const;
 
 const STATUS_LABELS: Record<string, { label: string; tone: 'neutral' | 'good' | 'warning' | 'danger' }> = {
   discovered: { label: 'À appeler', tone: 'neutral' },
@@ -84,10 +103,18 @@ const OWNERS = ['Jules', 'Anthony', 'Théo'];
 const quickButtonClass =
   'inline-flex h-8 items-center rounded border border-zinc-200 bg-white px-2.5 text-xs font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-50';
 
+const promoteButtonClass =
+  'inline-flex h-8 items-center rounded border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-700 transition-colors hover:border-blue-300 hover:bg-blue-100 disabled:opacity-50';
+
+/** Formulaire ouvert sur une carte : soit une issue d'appel, soit la fiche contact. */
+type OpenPanel =
+  | { companyId: string; kind: 'touch'; outcome: string }
+  | { companyId: string; kind: 'contact' };
+
 export function ProspectionBoard({ targets }: { targets: BoardTarget[] }) {
   const router = useRouter();
   const [pending, startTransition] = useTransition();
-  const [openForm, setOpenForm] = useState<string | null>(null);
+  const [panel, setPanel] = useState<OpenPanel | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   function submit(input: Parameters<typeof recordTouchAction>[0]): void {
@@ -95,7 +122,20 @@ export function ProspectionBoard({ targets }: { targets: BoardTarget[] }) {
     startTransition(async () => {
       try {
         await recordTouchAction(input);
-        setOpenForm(null);
+        setPanel(null);
+        router.refresh();
+      } catch (cause) {
+        setError(cause instanceof Error ? cause.message : "L'enregistrement a échoué.");
+      }
+    });
+  }
+
+  function saveContact(input: Parameters<typeof updateContactAction>[0]): void {
+    setError(null);
+    startTransition(async () => {
+      try {
+        await updateContactAction(input);
+        setPanel(null);
         router.refresh();
       } catch (cause) {
         setError(cause instanceof Error ? cause.message : "L'enregistrement a échoué.");
@@ -115,7 +155,8 @@ export function ProspectionBoard({ targets }: { targets: BoardTarget[] }) {
 
       {targets.map((target) => {
         const status = STATUS_LABELS[target.status] ?? { label: target.status, tone: 'neutral' as const };
-        const isOpen = openForm === target.companyId;
+        const openTouch = panel?.companyId === target.companyId && panel.kind === 'touch' ? panel : null;
+        const contactOpen = panel?.companyId === target.companyId && panel.kind === 'contact';
         const callbackLate = target.callbackDue;
 
         return (
@@ -230,6 +271,23 @@ export function ProspectionBoard({ targets }: { targets: BoardTarget[] }) {
             ) : null}
 
             <div className="mt-3 flex flex-wrap items-center gap-2 border-t border-zinc-100 pt-3">
+              {PROMOTING_OUTCOMES.map((outcome) => (
+                <button
+                  key={outcome}
+                  type="button"
+                  disabled={pending}
+                  onClick={() =>
+                    setPanel(
+                      openTouch?.outcome === outcome
+                        ? null
+                        : { companyId: target.companyId, kind: 'touch', outcome },
+                    )
+                  }
+                  className={cn(promoteButtonClass, openTouch?.outcome === outcome && 'border-blue-400 bg-blue-100')}
+                >
+                  {OUTCOME_LABELS[outcome]}
+                </button>
+              ))}
               {QUICK_OUTCOMES.map((outcome) => (
                 <button
                   key={outcome}
@@ -250,20 +308,37 @@ export function ProspectionBoard({ targets }: { targets: BoardTarget[] }) {
               ))}
               <button
                 type="button"
-                onClick={() => setOpenForm(isOpen ? null : target.companyId)}
-                className={cn(quickButtonClass, isOpen && 'border-blue-300 bg-blue-50 text-blue-700')}
+                onClick={() =>
+                  setPanel(
+                    openTouch && !PROMOTING_OUTCOMES.includes(openTouch.outcome as (typeof PROMOTING_OUTCOMES)[number])
+                      ? null
+                      : { companyId: target.companyId, kind: 'touch', outcome: 'a_rappeler' },
+                  )
+                }
+                className={quickButtonClass}
               >
-                {isOpen ? 'Fermer' : 'Noter autre chose'}
+                Noter autre chose
+              </button>
+              <button
+                type="button"
+                onClick={() => setPanel(contactOpen ? null : { companyId: target.companyId, kind: 'contact' })}
+                className={cn(quickButtonClass, contactOpen && 'border-blue-300 bg-blue-50 text-blue-700')}
+              >
+                {contactOpen ? 'Fermer' : 'Modifier la fiche'}
               </button>
               {target.touches.length > 1 ? (
                 <span className="text-xs text-zinc-400">{target.touches.length} actions</span>
               ) : null}
             </div>
 
-            {isOpen ? (
+            {openTouch ? (
               <TouchForm
+                // Remonter l'issue en clé remet le formulaire à zéro quand on
+                // passe d'un bouton à l'autre sans le refermer.
+                key={openTouch.outcome}
                 target={target}
                 pending={pending}
+                initialOutcome={openTouch.outcome}
                 onSubmit={(values) =>
                   submit({
                     companyId: target.companyId,
@@ -276,6 +351,14 @@ export function ProspectionBoard({ targets }: { targets: BoardTarget[] }) {
                 }
               />
             ) : null}
+
+            {contactOpen ? (
+              <ContactForm
+                target={target}
+                pending={pending}
+                onSubmit={(values) => saveContact({ companyId: target.companyId, ...values })}
+              />
+            ) : null}
           </article>
         );
       })}
@@ -286,13 +369,15 @@ export function ProspectionBoard({ targets }: { targets: BoardTarget[] }) {
 function TouchForm({
   target,
   pending,
+  initialOutcome,
   onSubmit,
 }: {
   target: BoardTarget;
   pending: boolean;
+  initialOutcome: string;
   onSubmit: (values: { outcome: string; notes: string | null; callbackAt: string | null }) => void;
 }) {
-  const [outcome, setOutcome] = useState<string>('a_rappeler');
+  const [outcome, setOutcome] = useState<string>(initialOutcome);
   const [notes, setNotes] = useState('');
   const [callbackAt, setCallbackAt] = useState('');
 
@@ -342,7 +427,12 @@ function TouchForm({
 
       {promotes ? (
         <p className="text-xs text-blue-700">
-          Cette issue crée la fiche de {target.name} dans le CRM clients.
+          Cette issue fait entrer {target.name} dans les prospects du CRM clients, avec une tâche de suivi.
+        </p>
+      ) : null}
+      {outcome === 'mauvais_numero' || outcome === 'pas_le_bon_interlocuteur' ? (
+        <p className="text-xs text-zinc-500">
+          La cible reste dans « À appeler ». Corrigez la fiche avec « Modifier la fiche » avant de rappeler.
         </p>
       ) : null}
 
@@ -360,6 +450,79 @@ function TouchForm({
           className="inline-flex h-9 items-center rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
         >
           Enregistrer
+        </button>
+      </div>
+    </div>
+  );
+}
+
+type ContactValues = {
+  contactName: string;
+  contactTitle: string;
+  contactPhone: string;
+  contactEmail: string;
+  contactLinkedin: string;
+  websiteUrl: string;
+};
+
+const CONTACT_FIELDS: Array<{ key: keyof ContactValues; label: string; type?: string; placeholder?: string }> = [
+  { key: 'contactName', label: 'Contact à joindre', placeholder: 'Prénom Nom' },
+  { key: 'contactTitle', label: 'Fonction', placeholder: 'Gérant, expert-comptable associé…' },
+  { key: 'contactPhone', label: 'Téléphone', type: 'tel', placeholder: '02 47 00 00 00' },
+  { key: 'contactEmail', label: 'Email', type: 'email', placeholder: 'contact@cabinet.fr' },
+  { key: 'contactLinkedin', label: 'LinkedIn', type: 'url', placeholder: 'https://www.linkedin.com/in/…' },
+  { key: 'websiteUrl', label: 'Site', type: 'url', placeholder: 'https://www.cabinet.fr' },
+];
+
+/**
+ * Correction de fiche. Les champs sont préremplis avec l'existant et renvoyés
+ * en bloc : on complète un téléphone manquant sans perdre le reste.
+ */
+function ContactForm({
+  target,
+  pending,
+  onSubmit,
+}: {
+  target: BoardTarget;
+  pending: boolean;
+  onSubmit: (values: ContactValues) => void;
+}) {
+  const [values, setValues] = useState<ContactValues>({
+    contactName: target.contactName ?? '',
+    contactTitle: target.contactTitle ?? '',
+    contactPhone: target.contactPhone ?? '',
+    contactEmail: target.contactEmail ?? '',
+    contactLinkedin: target.contactLinkedin ?? '',
+    websiteUrl: target.websiteUrl ?? '',
+  });
+
+  return (
+    <div className="mt-3 grid gap-3 rounded border border-zinc-200 bg-zinc-50 p-3">
+      <p className="text-xs text-zinc-500">
+        Ce qui est déjà rempli est repris ci-dessous. Videz un champ pour l&apos;effacer.
+      </p>
+      <div className="grid gap-3 sm:grid-cols-2">
+        {CONTACT_FIELDS.map((field) => (
+          <label key={field.key} className="grid gap-1 text-xs font-medium text-zinc-600">
+            {field.label}
+            <input
+              type={field.type ?? 'text'}
+              value={values[field.key]}
+              placeholder={field.placeholder}
+              onChange={(event) => setValues((current) => ({ ...current, [field.key]: event.target.value }))}
+              className="h-9 rounded border border-zinc-300 bg-white px-2 text-sm text-zinc-900"
+            />
+          </label>
+        ))}
+      </div>
+      <div>
+        <button
+          type="button"
+          disabled={pending}
+          onClick={() => onSubmit(values)}
+          className="inline-flex h-9 items-center rounded bg-zinc-950 px-3 text-sm font-semibold text-white transition-colors hover:bg-zinc-800 disabled:opacity-50"
+        >
+          Enregistrer la fiche
         </button>
       </div>
     </div>

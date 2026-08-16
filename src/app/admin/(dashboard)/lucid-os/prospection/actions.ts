@@ -6,6 +6,7 @@ import {
   isProspectionOutcome,
   recordProspectionTouch,
   setProspectionOwner,
+  updateProspectionContact,
   type ProspectionOutcome,
 } from '@/lib/admin/prospection';
 
@@ -41,6 +42,47 @@ export async function recordTouchAction(input: {
   revalidatePath('/admin/lucid-os/prospection');
   if (result.clientId) revalidatePath('/admin/lucid-os/clients');
   return result;
+}
+
+/**
+ * Corrige les coordonnées d'une cible depuis le board.
+ *
+ * Le formulaire renvoie toujours les six champs, préremplis avec l'existant :
+ * corriger le seul téléphone ne doit pas vider le reste de la fiche.
+ */
+export async function updateContactAction(input: {
+  companyId: string;
+  contactName: string;
+  contactTitle: string;
+  contactPhone: string;
+  contactEmail: string;
+  contactLinkedin: string;
+  websiteUrl: string;
+}): Promise<void> {
+  await requireAdmin();
+
+  const email = input.contactEmail.trim();
+  if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+    throw new Error("Cette adresse email n'est pas valide.");
+  }
+  for (const [champ, valeur] of [['Le site', input.websiteUrl], ['Le lien LinkedIn', input.contactLinkedin]] as const) {
+    const url = valeur.trim();
+    if (url && !/^https?:\/\//i.test(url)) {
+      throw new Error(`${champ} doit commencer par http:// ou https://.`);
+    }
+  }
+
+  await updateProspectionContact({
+    companyId: input.companyId,
+    contactName: input.contactName,
+    contactTitle: input.contactTitle,
+    contactPhone: input.contactPhone,
+    contactEmail: email,
+    contactLinkedin: input.contactLinkedin,
+    websiteUrl: input.websiteUrl,
+  });
+
+  revalidatePath('/admin/lucid-os/prospection');
 }
 
 export async function setOwnerAction(companyId: string, ownerLabel: string): Promise<void> {
