@@ -649,11 +649,18 @@ export async function importProspectionTargets(rows: ProspectionImportRow[]): Pr
       .single();
     if (error) throw new Error(`importProspectionTargets: ${error.message}`);
 
-    if (row.contactName) {
+    // Le nom du contact ne conditionne pas la fiche : plusieurs cibles n'ont
+    // pas de decideur nomme publiquement mais ont un numero et une adresse.
+    // Ne creer la personne que sur le nom jetait ces coordonnees en silence, et
+    // la carte annoncait « Telephone non trouve » alors que la liste en avait un.
+    const aDesCoordonnees = Boolean(
+      row.contactName || row.contactTitle || row.contactPhone || row.contactEmail || row.contactLinkedin,
+    );
+    if (aDesCoordonnees) {
       await supabase.from('prospect_people').insert({
         workspace_id: workspaceId,
         company_id: company.id,
-        full_name: row.contactName,
+        full_name: row.contactName ?? null,
         title: row.contactTitle ?? null,
         phone: row.contactPhone ?? null,
         email: row.contactEmail ?? null,
