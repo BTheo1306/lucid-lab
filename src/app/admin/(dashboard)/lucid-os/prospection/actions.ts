@@ -3,9 +3,11 @@
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/admin/auth';
 import {
+  estStatutCorrigeable,
   isProspectionOutcome,
   recordProspectionTouch,
   setProspectionOwner,
+  setProspectionStatus,
   updateProspectionContact,
   type ProspectionOutcome,
 } from '@/lib/admin/prospection';
@@ -83,6 +85,27 @@ export async function updateContactAction(input: {
   });
 
   revalidatePath('/admin/lucid-os/prospection');
+}
+
+/**
+ * Corrige le statut d'une cible. Sert à rattraper une issue cliquée par erreur,
+ * qui autrement écartait la cible sans retour possible.
+ */
+export async function setStatusAction(input: {
+  companyId: string;
+  status: string;
+  ownerLabel?: string | null;
+}): Promise<{ clientId: string | null }> {
+  await requireAdmin();
+
+  if (!estStatutCorrigeable(input.status)) throw new Error('Statut inconnu.');
+  const owner = input.ownerLabel && OWNERS.has(input.ownerLabel) ? input.ownerLabel : null;
+
+  const result = await setProspectionStatus(input.companyId, input.status, owner);
+
+  revalidatePath('/admin/lucid-os/prospection');
+  if (result.clientId) revalidatePath('/admin/lucid-os/clients');
+  return result;
 }
 
 export async function setOwnerAction(companyId: string, ownerLabel: string): Promise<void> {

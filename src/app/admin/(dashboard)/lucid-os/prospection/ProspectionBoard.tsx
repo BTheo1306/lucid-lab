@@ -6,7 +6,7 @@ import { Phone, Mail, Globe, ExternalLink } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { CopyButton } from '../../lead-engine/CopyButton';
 import { EmptyState, StatusBadge, formatAdminDate, formatAdminDateTime } from '../components';
-import { recordTouchAction, setOwnerAction, updateContactAction } from './actions';
+import { recordTouchAction, setOwnerAction, setStatusAction, updateContactAction } from './actions';
 
 /**
  * Board de prospection : une carte par cible, les issues d'appel en un clic.
@@ -100,6 +100,18 @@ const STATUS_LABELS: Record<string, { label: string; tone: 'neutral' | 'good' | 
 
 const OWNERS = ['Jules', 'Anthony', 'Théo'];
 
+/**
+ * Statuts posables à la main. Le statut n'avançait que dans un sens : un
+ * « Refus » cliqué par erreur écartait la cible sans retour possible.
+ */
+const EDITABLE_STATUSES = [
+  { value: 'approved', label: 'À appeler' },
+  { value: 'contacted', label: 'Contacté' },
+  { value: 'replied', label: 'A répondu' },
+  { value: 'meeting_booked', label: 'RDV pris' },
+  { value: 'disqualified', label: 'Écarté' },
+];
+
 const quickButtonClass =
   'inline-flex h-8 items-center rounded border border-zinc-200 bg-white px-2.5 text-xs font-medium text-zinc-700 transition-colors hover:border-zinc-300 hover:bg-zinc-50 disabled:opacity-50';
 
@@ -178,6 +190,38 @@ export function ProspectionBoard({ targets }: { targets: BoardTarget[] }) {
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <StatusBadge tone={status.tone}>{status.label}</StatusBadge>
+                <select
+                  aria-label="Statut"
+                  value={EDITABLE_STATUSES.some((item) => item.value === target.status) ? target.status : ''}
+                  disabled={pending}
+                  onChange={(event) => {
+                    const value = event.target.value;
+                    if (!value) return;
+                    setError(null);
+                    startTransition(async () => {
+                      try {
+                        await setStatusAction({
+                          companyId: target.companyId,
+                          status: value,
+                          ownerLabel: target.ownerLabel,
+                        });
+                        router.refresh();
+                      } catch (cause) {
+                        setError(cause instanceof Error ? cause.message : 'La correction du statut a échoué.');
+                      }
+                    });
+                  }}
+                  className="h-8 rounded border border-zinc-200 bg-white px-2 text-xs text-zinc-700"
+                >
+                  {EDITABLE_STATUSES.some((item) => item.value === target.status) ? null : (
+                    <option value="">{status.label}</option>
+                  )}
+                  {EDITABLE_STATUSES.map((item) => (
+                    <option key={item.value} value={item.value}>
+                      {item.label}
+                    </option>
+                  ))}
+                </select>
                 <select
                   aria-label="Propriétaire"
                   defaultValue={target.ownerLabel ?? ''}

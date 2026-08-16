@@ -236,7 +236,17 @@ export async function listProspectionTargets(filters: ProspectionFilters = {}): 
     const companyId = String(company.id);
     const person = personByCompany.get(companyId);
     const companyTouches = touchesByCompany.get(companyId) ?? [];
-    const pendingCallback = companyTouches.find((touch) => touch.outcome === 'a_rappeler' && touch.callbackAt);
+
+    // Un rappel n'est en attente que si aucune tentative n'a eu lieu depuis.
+    // Chercher simplement le dernier « à rappeler » gardait la date affichée
+    // pour toujours : une fois le rappel honoré, la cible restait comptée dans
+    // « Rappels dus », et ce compteur ne pouvait que grandir.
+    const indexRappel = companyTouches.findIndex((touch) => touch.outcome === 'a_rappeler' && touch.callbackAt);
+    const rappelHonore =
+      indexRappel >= 0 &&
+      // Les notes ne sont pas des tentatives : elles n'annulent pas le rappel.
+      companyTouches.slice(0, indexRappel).some((touch) => touch.outcome !== 'note');
+    const pendingCallback = indexRappel >= 0 && !rappelHonore ? companyTouches[indexRappel] : undefined;
 
     return {
       companyId,
@@ -409,6 +419,82 @@ async function promoteTargetToCrm(
   });
 
   return client.id;
+}
+
+/** Statuts qu'on peut poser à la main pour rattraper une erreur de saisie. */
+export const STATUTS_CORRIGEABLES = [
+  'approved',
+  'contacted',
+  'replied',
+  'meeting_booked',
+  'disqualified',
+] as const;
+
+export type StatutCorrigeable = (typeof STATUTS_CORRIGEABLES)[number];
+
+export function estStatutCorrigeable(value: string): value is StatutCorrigeable {
+  return (STATUTS_CORRIGEABLES as readonly string[]).includes(value);
+}
+
+/** Libellés français des statuts corrigeables, pour la trace laissée en note. */
+const STATUT_LABELS: Record<StatutCorrigeable, string> = {
+  approved: 'à appeler',
+  contacted: 'contacté',
+  replied: 'a répondu',
+  meeting_booked: 'rendez-vous pris',
+  disqualified: 'écarté',
+};
+
+/**
+ * Corrige le statut d'une cible sans passer par une issue d'appel.
+ *
+ * Le statut n'avançait que dans un sens : un « Refus » cliqué par erreur
+ * écartait la cible définitivement, et rien ne permettait de la remettre dans
+ * la liste à appeler. La correction laisse une trace (touche `note`) pour que
+ * l'historique reste lisible, et promeut au CRM si on passe la cible en
+ * « a répondu » ou « rendez-vous pris ».
+ */
+export async function setProspectionStatus(
+  companyId: string,
+  status: StatutCorrigeable,
+  ownerLabel: string | null,
+): Promise<{ clientId: string | null }> {
+  const workspaceId = await ensureWorkspaceId();
+
+  const { data: avant } = await supabase
+    .from('prospect_companies')
+    .select('status')
+    .eq('id', companyId)
+    .maybeSingle();
+  const ancien = avant ? String(avant.status) : null;
+  if (ancien === status) return { clientId: null };
+
+  const { error } = await supabase
+    .from('prospect_companies')
+    .update({ status, updated_at: new Date().toISOString() })
+    .eq('id', companyId);
+  if (error) throw new Error(`setProspectionStatus: ${error.message}`);
+
+  const libelle = (valeur: string | null): string =>
+    valeur && estStatutCorrigeable(valeur) ? STATUT_LABELS[valeur] : (valeur ?? 'inconnu');
+
+  await supabase.from('prospection_touches').insert({
+    workspace_id: workspaceId,
+    company_id: companyId,
+    channel: 'other',
+    outcome: 'note',
+    notes: `Statut corrigé à la main : ${libelle(ancien)} vers ${libelle(status)}.`,
+    owner_label: ownerLabel,
+  });
+
+  if (status !== 'replied' && status !== 'meeting_booked') return { clientId: null };
+  // La cible était déjà passée au CRM : sa fiche client existe, la repromouvoir
+  // ne ferait qu'y empiler un deuxième contact, une deuxième interaction et une
+  // deuxième tâche.
+  if (ancien === 'replied' || ancien === 'meeting_booked' || ancien === 'converted') return { clientId: null };
+  return {
+    clientId: await promoteTargetToCrm(companyId, status === 'meeting_booked' ? 'rdv_pris' : 'interesse', ownerLabel),
+  };
 }
 
 export async function setProspectionOwner(companyId: string, ownerLabel: string | null): Promise<void> {
