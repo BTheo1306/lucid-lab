@@ -1,3 +1,16 @@
+/* =====================================================
+   Admin dashboard: opt-in dark mode (.admin-dark scope)
+
+   SINGLE SOURCE OF TRUTH. This file used to be duplicated
+   in src/app/globals.css with divergent values; both were
+   loaded on every admin page, so which value won depended
+   on stylesheet order. The globals.css copy is gone;
+   add dark overrides here only.
+
+   Admin pages are written in light Tailwind utilities
+   (bg-white, text-zinc-950, ...); the rules below remap
+   them so components need no dark: variants.
+   ===================================================== */
 .admin-dark {
   color-scheme: dark;
   background-color: #09090b;
@@ -11,18 +24,23 @@
 .admin-dark .bg-zinc-100 { background-color: #27272a !important; }
 .admin-dark .bg-zinc-200 { background-color: #3f3f46 !important; }
 
-/* bg with opacity modifier */
+/* bg with opacity modifier, kept translucent so the sticky
+   header's backdrop-blur still reads as blur, like in light mode. */
 .admin-dark .bg-white\/90 { background-color: rgba(24, 24, 27, 0.9) !important; }
 .admin-dark .bg-\[\#f5f6f2\]\/90 { background-color: rgba(9, 9, 11, 0.9) !important; }
 
-/* text utilities */
+/* text utilities.
+   Muted greys lighten rather than darken: on #18181b/#09090b surfaces,
+   mapping zinc-500 to #71717a is 3.7:1 and zinc-400 to #52525b is 2.3:1,
+   both below WCAG AA. These values keep the 600 > 500 > 400 dimming
+   order while staying legible (6.9:1 and 3.7:1). */
 .admin-dark .text-zinc-950 { color: #fafafa !important; }
 .admin-dark .text-zinc-900 { color: #f4f4f5 !important; }
 .admin-dark .text-zinc-800 { color: #e4e4e7 !important; }
 .admin-dark .text-zinc-700 { color: #d4d4d8 !important; }
 .admin-dark .text-zinc-600 { color: #a1a1aa !important; }
-.admin-dark .text-zinc-500 { color: #71717a !important; }
-.admin-dark .text-zinc-400 { color: #52525b !important; }
+.admin-dark .text-zinc-500 { color: #a1a1aa !important; }
+.admin-dark .text-zinc-400 { color: #71717a !important; }
 
 /* border / divide / ring */
 .admin-dark .border-zinc-100 { border-color: #27272a !important; }
@@ -37,8 +55,12 @@
 .admin-dark .hover\:bg-zinc-200:hover { background-color: #52525b !important; }
 .admin-dark .hover\:text-zinc-950:hover { color: #fafafa !important; }
 
-/* Primary pills — invert */
-.admin-dark .bg-zinc-950 { background-color: #fafafa !important; }
+/* Primary pills (active tabs, primary buttons) invert to a light chip.
+   All three colour rules are needed: `color` on the element covers its own
+   text nodes, the `.text-white` compound beats the utility the pills carry,
+   and the descendant `*` catches nested nodes that set their own colour. */
+.admin-dark .bg-zinc-950 { background-color: #fafafa !important; color: #18181b !important; }
+.admin-dark .bg-zinc-950.text-white,
 .admin-dark .bg-zinc-950 * { color: #18181b !important; }
 .admin-dark .hover\:bg-zinc-800:hover { background-color: #e4e4e7 !important; }
 
@@ -47,12 +69,14 @@
 .admin-dark .text-amber-700,
 .admin-dark .text-amber-800 { color: #fde68a !important; }
 .admin-dark .border-amber-200 { border-color: rgba(217, 119, 6, 0.45) !important; }
+.admin-dark .ring-amber-200 { --tw-ring-color: rgba(217, 119, 6, 0.45) !important; }
 
 .admin-dark .bg-rose-50 { background-color: rgba(159, 18, 57, 0.3) !important; }
 .admin-dark .text-rose-700,
 .admin-dark .text-rose-800,
 .admin-dark .text-rose-950 { color: #fecaca !important; }
 .admin-dark .border-rose-200 { border-color: rgba(225, 29, 72, 0.45) !important; }
+.admin-dark .ring-rose-200 { --tw-ring-color: rgba(225, 29, 72, 0.45) !important; }
 .admin-dark .hover\:bg-rose-100:hover { background-color: rgba(159, 18, 57, 0.45) !important; }
 
 .admin-dark .bg-emerald-50 { background-color: rgba(6, 95, 70, 0.3) !important; }
