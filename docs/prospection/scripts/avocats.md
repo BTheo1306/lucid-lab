@@ -1,6 +1,8 @@
 # Script d'appel : cabinets d'avocats
 
-Document à garder ouvert pendant l'appel. Tout ce qui est en bloc `>` se dit tel quel.
+Version de référence, à lire avant de commencer une série d'appels. Pour l'appel lui-même, garder ouverte la fiche d'une page : `avocats-fiche-appel.md`.
+
+Tout ce qui est en bloc `>` se dit tel quel.
 Rédigé pour Anthony. Cible : avocat associé, ou avocat exerçant seul avec une ou deux collaboratrices. Structures de 1 à 30 avocats.
 
 **Trois règles absolues avant de décrocher**

@@ -1,6 +1,6 @@
 # Liste d'appel : cabinets d'avocats français
 
-Outil de prospection téléphonique. 38 lignes, extraction du 16/08/2026, emails nominatifs repris le 17/08/2026. Se lit avec le script d'appel `scripts/avocats.md`.
+Outil de prospection téléphonique. 38 lignes, extraction du 16/08/2026, emails nominatifs repris le 17/08/2026. Se lit avec la fiche d'appel `scripts/avocats-fiche-appel.md` (une page, pendant l'appel), adossée au script complet `scripts/avocats.md`.
 
 ## Méthode
 
