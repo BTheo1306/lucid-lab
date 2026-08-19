@@ -2,6 +2,7 @@ import Image from 'next/image';
 import { portalBasePath, requirePortalUser } from '@/lib/portal/auth';
 import { countPortalWebsites } from '@/lib/portal/data';
 import { portalStrings } from '@/lib/portal/strings';
+import { PortalAssistant } from './PortalAssistant';
 import { PortalNav, type PortalNavItem } from './PortalNav';
 
 export default async function PortalAppLayout({ children }: { children: React.ReactNode }) {
@@ -67,6 +68,8 @@ export default async function PortalAppLayout({ children }: { children: React.Re
       <footer className="border-t border-zinc-200 py-6">
         <p className="text-center text-xs text-zinc-500">{portalStrings.footer.contact}</p>
       </footer>
+
+      <PortalAssistant base={base} readOnly={session.preview} />
     </div>
   );
 }
