@@ -192,7 +192,7 @@ function TaskStatusButton({ taskId, status, label }: { taskId: string; status: L
     <form action={updateAgentTaskStatusAction}>
       <input type="hidden" name="task_id" value={taskId} />
       <input type="hidden" name="status" value={status} />
-      <button className="inline-flex h-8 items-center justify-center rounded border border-white/10 px-2.5 text-xs font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-zinc-50">
+      <button className="inline-flex h-8 items-center justify-center rounded border border-zinc-200 px-2.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 hover:text-zinc-950">
         {label}
       </button>
     </form>
@@ -204,7 +204,7 @@ function ExecuteTaskButton({ taskId, approvalId }: { taskId: string; approvalId:
     <form action={executeAgentTaskAction}>
       <input type="hidden" name="task_id" value={taskId} />
       {approvalId ? <input type="hidden" name="approval_id" value={approvalId} /> : null}
-      <button className="inline-flex h-8 items-center justify-center rounded border border-emerald-500/30 px-2.5 text-xs font-medium text-emerald-200 transition hover:bg-emerald-500/10">
+      <button className="inline-flex h-8 items-center justify-center rounded border border-emerald-200 px-2.5 text-xs font-medium text-emerald-700 transition hover:bg-emerald-100">
         Execute
       </button>
     </form>
@@ -232,12 +232,12 @@ function TaskCard({ task, approvalId }: { task: Awaited<ReturnType<typeof listLu
     <article className="grid gap-4 py-4 first:pt-0 last:pb-0 xl:grid-cols-[minmax(0,1fr)_minmax(260px,0.45fr)] xl:items-start">
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="font-medium text-zinc-50">{task.title}</p>
+          <p className="font-medium text-zinc-950">{task.title}</p>
           <StatusBadge tone={taskStatusTone(task.status)}>{labelFr(task.status)}</StatusBadge>
           <StatusBadge tone={priorityTone(task.priority)}>{labelFr(task.priority)}</StatusBadge>
         </div>
-        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-300">{task.description ?? 'Aucun détail enregistré.'}</p>
-        {approvalSummary ? <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-400">{approvalSummary}</p> : null}
+        <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-700">{task.description ?? 'Aucun détail enregistré.'}</p>
+        {approvalSummary ? <p className="mt-2 whitespace-pre-wrap text-sm leading-6 text-zinc-600">{approvalSummary}</p> : null}
         {proposedTools.length ? <p className="mt-2 text-xs text-zinc-500">Outils: {proposedTools.join(', ')}</p> : null}
         <p className="mt-2 text-xs text-zinc-500">
           #{taskReference(task.id)} · {intent ? labelFr(intent) : 'opération'} · {routedTo} · {senderName ?? 'Telegram'} · {formatAdminDateTime(task.createdAt)}
@@ -251,8 +251,8 @@ function TaskCard({ task, approvalId }: { task: Awaited<ReturnType<typeof listLu
 
 function ApprovalDecisionButton({ approvalId, decision, label }: { approvalId: string; decision: 'approve' | 'reject'; label: string }) {
   const tone = decision === 'approve'
-    ? 'border-emerald-500/30 text-emerald-200 hover:bg-emerald-500/10'
-    : 'border-red-500/30 text-red-200 hover:bg-red-500/10';
+    ? 'border-emerald-200 text-emerald-700 hover:bg-emerald-100'
+    : 'border-rose-200 text-rose-700 hover:bg-rose-100';
 
   return (
     <form action={decideAgentApprovalAction}>
@@ -268,7 +268,7 @@ function ApprovalDecisionButton({ approvalId, decision, label }: { approvalId: s
 function ProcessQueueButton() {
   return (
     <form action={processQueuedAgentWorkflowsAction}>
-      <button className="inline-flex h-8 items-center justify-center rounded border border-white/10 px-2.5 text-xs font-medium text-zinc-300 transition hover:bg-white/[0.06] hover:text-zinc-50">
+      <button className="inline-flex h-8 items-center justify-center rounded border border-zinc-200 px-2.5 text-xs font-medium text-zinc-700 transition hover:bg-zinc-50 hover:text-zinc-950">
         Traiter la file
       </button>
     </form>
@@ -353,7 +353,7 @@ export default async function LucidOsInboxPage() {
         {pendingValidationTasks.length === 0 ? (
           <EmptyState>Aucune tâche en attente de validation.</EmptyState>
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-zinc-100">
             {pendingValidationTasks.map((task) => <TaskCard key={task.id} task={task} approvalId={pendingApprovalByTaskId.get(task.id) ?? null} />)}
           </div>
         )}
@@ -363,7 +363,7 @@ export default async function LucidOsInboxPage() {
         {executableTasks.length === 0 ? (
           <EmptyState>Aucune tâche active à exécuter.</EmptyState>
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-zinc-100">
             {executableTasks.map((task) => <TaskCard key={task.id} task={task} approvalId={pendingApprovalByTaskId.get(task.id) ?? null} />)}
           </div>
         )}
@@ -373,7 +373,7 @@ export default async function LucidOsInboxPage() {
         {executedTasks.length === 0 ? (
           <EmptyState>Aucune tâche exécutée récemment.</EmptyState>
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-zinc-100">
             {executedTasks.map((task) => <TaskCard key={task.id} task={task} approvalId={null} />)}
           </div>
         )}
@@ -385,26 +385,26 @@ export default async function LucidOsInboxPage() {
           {pendingApprovals.length === 0 ? (
             <EmptyState>Aucune validation en attente.</EmptyState>
           ) : (
-            <div className="divide-y divide-white/10">
+            <div className="divide-y divide-zinc-100">
               {pendingApprovals.map((approval) => (
                 <div key={approval.id} className="py-4 first:pt-0 last:pb-0">
                   <div className="flex flex-col justify-between gap-3 sm:flex-row sm:items-start">
                     <div>
                       <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-medium text-zinc-50">{approval.actionType}</p>
+                        <p className="font-medium text-zinc-950">{approval.actionType}</p>
                         <StatusBadge tone={riskTone(approval.riskLevel)}>{labelFr(approval.riskLevel)}</StatusBadge>
                       </div>
                       <p className="mt-1 text-sm text-zinc-500">
                         {approval.agentName ?? 'Agent inconnu'} · {approval.clientName ?? approval.projectName ?? 'Lucid OS'} · {formatAdminDateTime(approval.createdAt)}
                       </p>
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-400">
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-600">
                         {contextString(approval.requestPayload, 'proposed_summary') ?? contextString(approval.requestPayload, 'requested_text') ?? 'Validation agent en attente.'}
                       </p>
                     </div>
                     <div className="flex flex-wrap gap-2 sm:justify-end">
                       <ApprovalDecisionButton approvalId={approval.id} decision="approve" label="Execute" />
                       <ApprovalDecisionButton approvalId={approval.id} decision="reject" label="Refuser" />
-                      <Link href={`${base}/lucid-os/agents`} className="inline-flex h-8 items-center gap-1 rounded border border-white/10 px-2.5 text-xs font-medium text-zinc-400 hover:bg-white/[0.06] hover:text-zinc-50">
+                      <Link href={`${base}/lucid-os/agents`} className="inline-flex h-8 items-center gap-1 rounded border border-zinc-200 px-2.5 text-xs font-medium text-zinc-600 hover:bg-zinc-50 hover:text-zinc-950">
                         Voir <ArrowRight className="size-4" />
                       </Link>
                     </div>
@@ -419,7 +419,7 @@ export default async function LucidOsInboxPage() {
           {recentTelegramRuns.length === 0 ? (
             <EmptyState>Aucun run Telegram récent.</EmptyState>
           ) : (
-            <div className="divide-y divide-white/10">
+            <div className="divide-y divide-zinc-100">
               {recentTelegramRuns.map((run) => {
                 const intent = contextString(run.input, 'intent');
                 const routedTo = contextString(run.outputSummary, 'routed_to') ?? run.agentName ?? 'COO Agent';
@@ -431,7 +431,7 @@ export default async function LucidOsInboxPage() {
                       <div className="min-w-0">
                         <div className="flex items-center gap-2">
                           <PlayCircle className="size-4 shrink-0 text-zinc-500" />
-                          <p className="truncate font-medium text-zinc-50">{intent ? labelFr(intent) : 'Commande Telegram'}</p>
+                          <p className="truncate font-medium text-zinc-950">{intent ? labelFr(intent) : 'Commande Telegram'}</p>
                         </div>
                         <p className="mt-1 truncate text-sm text-zinc-500">{routedTo} · {senderName ?? 'Telegram'} · {formatAdminDateTime(run.createdAt)}</p>
                       </div>
@@ -449,7 +449,7 @@ export default async function LucidOsInboxPage() {
         {recentAutomationRuns.length === 0 ? (
           <EmptyState>Aucune exécution durable enregistrée.</EmptyState>
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-zinc-100">
             {recentAutomationRuns.map((run) => {
               const actionType = contextString(run.input, 'action_type') ?? run.workflowKey;
               const stage = contextString(run.summary, 'stage') ?? run.runType;
@@ -463,13 +463,13 @@ export default async function LucidOsInboxPage() {
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
                         <PlayCircle className="size-4 text-zinc-500" />
-                        <p className="truncate font-medium text-zinc-50">{actionType}</p>
+                        <p className="truncate font-medium text-zinc-950">{actionType}</p>
                         <StatusBadge tone={automationRunStatusTone(run.status)}>{labelFr(run.status)}</StatusBadge>
                       </div>
                       <p className="mt-1 text-sm text-zinc-500">
                         {run.agentName ?? 'Agent'} · {run.clientName ?? run.projectName ?? 'Lucid OS'} · {formatAdminDateTime(run.createdAt)}
                       </p>
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-400">
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-zinc-600">
                         {labelFr(stage)}{pausedTools.length ? ` · en attente: ${pausedTools.join(', ')}` : ''}
                       </p>
                     </div>
@@ -486,12 +486,12 @@ export default async function LucidOsInboxPage() {
           {openIncidents.length === 0 ? (
             <EmptyState>Aucun incident ouvert.</EmptyState>
           ) : (
-            <div className="divide-y divide-white/10">
+            <div className="divide-y divide-zinc-100">
               {openIncidents.map((incident) => (
                 <div key={incident.id} className="py-4 first:pt-0 last:pb-0">
                   <div className="flex items-start justify-between gap-3">
                     <div>
-                      <p className="font-medium text-zinc-50">{incident.title}</p>
+                      <p className="font-medium text-zinc-950">{incident.title}</p>
                       <p className="mt-1 text-sm text-zinc-500">
                         {incident.clientName ?? incident.websiteName ?? 'Lucid-Lab'} · {labelFr(incident.severity)} · {formatAdminDateTime(incident.startedAt)}
                       </p>
@@ -508,16 +508,16 @@ export default async function LucidOsInboxPage() {
           {clientNextActions.length === 0 ? (
             <EmptyState>Aucune action client en attente.</EmptyState>
           ) : (
-            <div className="divide-y divide-white/10">
+            <div className="divide-y divide-zinc-100">
               {clientNextActions.map((client) => (
-                <Link key={client.id} href={`${base}/lucid-os/clients/${client.slug}`} className="block py-4 transition-colors first:pt-0 last:pb-0 hover:bg-white/[0.03]">
+                <Link key={client.id} href={`${base}/lucid-os/clients/${client.slug}`} className="block py-4 transition-colors first:pt-0 last:pb-0 hover:bg-zinc-50">
                   <div className="flex items-start justify-between gap-3">
                     <div>
                       <div className="flex items-center gap-2">
                         <Users className="size-4 text-zinc-500" />
-                        <p className="font-medium text-zinc-50">{client.name}</p>
+                        <p className="font-medium text-zinc-950">{client.name}</p>
                       </div>
-                      <p className="mt-2 text-sm text-zinc-400">{client.nextAction ?? client.healthSummary ?? 'Revoir le statut client'}</p>
+                      <p className="mt-2 text-sm text-zinc-600">{client.nextAction ?? client.healthSummary ?? 'Revoir le statut client'}</p>
                       <p className="mt-1 text-xs text-zinc-500">{client.nextActionDueAt ? formatAdminDateTime(client.nextActionDueAt) : labelFr(client.lifecycleStage)}</p>
                     </div>
                     <StatusBadge tone={healthTone(client.clientHealthStatus)}>{labelFr(client.clientHealthStatus)}</StatusBadge>
@@ -529,9 +529,9 @@ export default async function LucidOsInboxPage() {
         </Section>
       </div>
 
-      <section className="rounded-md border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-zinc-500">
+      <section className="rounded-md border border-zinc-200 bg-zinc-50 p-4 text-sm leading-6 text-zinc-500">
         <div className="flex gap-2">
-          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-blue-300" />
+          <CheckCircle2 className="mt-0.5 size-4 shrink-0 text-blue-600" />
           <p>Telegram capture les demandes. Lucid OS garde la file de tâches, les validations, les runs et l’audit comme source de vérité avant toute exécution externe.</p>
         </div>
       </section>

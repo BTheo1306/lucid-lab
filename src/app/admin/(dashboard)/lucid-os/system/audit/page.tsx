@@ -45,7 +45,7 @@ export default async function LucidOsAuditPage() {
         {events.length === 0 ? (
           <EmptyState>Aucun événement d’audit Lucid OS pour le moment.</EmptyState>
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-zinc-100">
             {events.map((event) => (
               <div key={event.id} className="py-4 first:pt-0 last:pb-0">
                 <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">
@@ -55,7 +55,7 @@ export default async function LucidOsAuditPage() {
                       <StatusBadge tone={riskTone(event.riskLevel)}>{labelFr(event.riskLevel)}</StatusBadge>
                     </div>
                     <p className="mt-1 text-sm text-zinc-500">{event.actorType} · {event.eventType}</p>
-                    {event.targetTable ? <p className="mt-1 text-xs text-zinc-400">{event.targetTable}{event.targetId ? `:${event.targetId}` : ''}</p> : null}
+                    {event.targetTable ? <p className="mt-1 text-xs text-zinc-500">{event.targetTable}{event.targetId ? `:${event.targetId}` : ''}</p> : null}
                   </div>
                   <p className="text-sm text-zinc-500 md:text-right">{formatAdminDateTime(event.createdAt)}</p>
                 </div>
