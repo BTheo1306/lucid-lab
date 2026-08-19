@@ -1,4 +1,6 @@
+import Link from 'next/link';
 import { ArrowDownLeft, ArrowUpRight, Send } from 'lucide-react';
+import { adminBasePath } from '@/lib/admin/auth';
 import { listClientRequestsForClient } from '@/lib/admin/portal';
 import { answerClientRequestAction, applyClientRequestLegalAction, createAgencyRequestAction } from './portal-actions';
 
@@ -46,7 +48,7 @@ function formatDateTime(value: string): string {
 
 /** Portal exchanges of one client: answer incoming requests, send new ones. */
 export async function RequestsPanel({ clientId, clientSlug }: { clientId: string; clientSlug: string }) {
-  const requests = await listClientRequestsForClient(clientId);
+  const [requests, base] = await Promise.all([listClientRequestsForClient(clientId), adminBasePath()]);
 
   return (
     <section className="grid gap-3">
@@ -116,9 +118,15 @@ export async function RequestsPanel({ clientId, clientSlug }: { clientId: string
                     <span className="text-[11px] text-zinc-500">{TYPE_LABELS[request.requestType] ?? request.requestType}</span>
                   </div>
                   <p className="text-xs text-zinc-500">
+                    #{request.reference}
+                    {' · '}
                     {incoming ? `Reçue de ${request.createdByContactName ?? 'contact inconnu'}` : 'Envoyée par Lucid-Lab'}
                     {' · '}
                     {formatDateTime(request.createdAt)}
+                    {' · '}
+                    <Link href={`${base}/lucid-os/tickets/${request.id}`} className="font-medium text-blue-700 hover:underline">
+                      Ouvrir le fil
+                    </Link>
                   </p>
                   {request.body ? <p className="text-sm leading-6 whitespace-pre-line text-zinc-700">{request.body}</p> : null}
                   {request.responseNote ? (

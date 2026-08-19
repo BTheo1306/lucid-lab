@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Image from 'next/image';
 import { Bot, LogOut } from 'lucide-react';
 import { adminBasePath, requireAdmin } from '@/lib/admin/auth';
+import { countOpenTickets } from '@/lib/admin/tickets';
 import { logoutAdmin } from '../actions';
 import { AdminNav } from './AdminNav';
 import { AdminThemeToggle } from './AdminThemeToggle';
@@ -18,7 +19,8 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
   await requireAdmin();
   // Client components cannot read headers(), so the link prefix is resolved
   // here and passed down. See `adminBasePath`.
-  const base = await adminBasePath();
+  // countOpenTickets ne throw jamais : un souci DB ne doit pas bloquer l'admin.
+  const [base, openTickets] = await Promise.all([adminBasePath(), countOpenTickets()]);
 
   return (
     <div data-admin-root className="relative z-10 min-h-[100dvh] bg-[#f5f6f2] text-zinc-950">
@@ -30,7 +32,7 @@ export default async function AdminDashboardLayout({ children }: { children: Rea
             <span className="text-[16px] font-bold tracking-tight text-zinc-950" style={{ fontFamily: 'var(--font-syne), sans-serif' }}>Lucid-Lab</span>
           </div>
 
-          <AdminNav base={base} />
+          <AdminNav base={base} counts={{ '/lucid-os/tickets': openTickets }} />
         </aside>
 
         <div className="min-w-0">

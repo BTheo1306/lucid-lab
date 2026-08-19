@@ -174,6 +174,12 @@ export async function sendMorningDigest(input: {
   conversationsCount: number;
   escalationsCount: number;
   recentLeads: { email: string; firstName: string | null; projectBrief: string | null }[];
+  /** Tickets clients encore ouverts (portail), toutes anciennetés confondues. */
+  openTickets?: {
+    count: number;
+    oldest: { reference: number; title: string; clientName: string | null; ageDays: number }[];
+    adminUrl: string;
+  };
 }): Promise<void> {
   const leadsHtml = input.recentLeads
     .map(
@@ -184,19 +190,34 @@ export async function sendMorningDigest(input: {
     )
     .join('');
 
+  const tickets = input.openTickets;
+  const ticketsHtml = tickets
+    ? tickets.count === 0
+      ? '<p>Aucun ticket client ouvert.</p>'
+      : `<ul>${tickets.oldest
+          .map(
+            (t) =>
+              `<li><strong>#${t.reference}</strong> ${escapeHtml(t.title)}${
+                t.clientName ? ` (${escapeHtml(t.clientName)})` : ''
+              } <em style="color:#888;">ouvert depuis ${t.ageDays} j</em></li>`,
+          )
+          .join('')}</ul><p><a href="${escapeHtml(tickets.adminUrl)}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:6px;">Voir les tickets</a></p>`
+    : '';
+
   const html = `
-    <h2>Digest bot — ${escapeHtml(input.dateLabel)}</h2>
+    <h2>Digest bot : ${escapeHtml(input.dateLabel)}</h2>
     <ul>
       <li>Conversations: <strong>${input.conversationsCount}</strong></li>
       <li>Leads capturés: <strong>${input.leadsCount}</strong></li>
       <li>Escalades: <strong>${input.escalationsCount}</strong></li>
     </ul>
     ${input.recentLeads.length ? `<h3>Leads récents</h3><ul>${leadsHtml}</ul>` : ''}
+    ${tickets ? `<h3>Tickets clients ouverts (${tickets.count})</h3>${ticketsHtml}` : ''}
   `;
 
   await sendEmail({
     to: config.teamNotificationEmail,
-    subject: `[Lucid-Lab Bot] Digest — ${input.dateLabel}`,
+    subject: `[Lucid-Lab Bot] Digest : ${input.dateLabel}`,
     html,
   });
 }
@@ -455,7 +476,20 @@ const PORTAL_REQUEST_TYPE_LABELS: Record<string, string> = {
   asset_request: 'Éléments à fournir',
   approval: 'Validation attendue',
   info_request: 'Informations à compléter',
+  incident: 'Incident',
 };
+
+const PORTAL_PRIORITY_LABELS: Record<string, string> = {
+  low: 'Basse',
+  normal: 'Normale',
+  high: 'Haute',
+  urgent: 'Urgente',
+};
+
+/** "#42 " when a ticket reference is known, empty otherwise. */
+function referencePrefix(reference?: number | null): string {
+  return reference ? `#${reference} ` : '';
+}
 
 /** Portal: a client submitted a request, notify the team. */
 export async function sendPortalRequestCreatedTeamNotification(input: {
@@ -465,19 +499,45 @@ export async function sendPortalRequestCreatedTeamNotification(input: {
   title: string;
   body: string | null;
   adminUrl: string;
+  reference?: number | null;
+  priority?: string | null;
 }): Promise<void> {
   const typeLabel = PORTAL_REQUEST_TYPE_LABELS[input.requestType] ?? 'Demande';
+  const priorityLabel = input.priority ? (PORTAL_PRIORITY_LABELS[input.priority] ?? input.priority) : null;
   await sendEmail({
     to: config.teamNotificationEmail,
-    subject: `[Portail] ${typeLabel} de ${input.clientName} : ${input.title}`,
+    subject: `[Portail] ${typeLabel} de ${input.clientName} : ${referencePrefix(input.reference)}${input.title}`,
     html: `
       <h2>Nouvelle demande client via le portail</h2>
       <p><strong>Client :</strong> ${escapeHtml(input.clientName)}</p>
       <p><strong>Contact :</strong> ${escapeHtml(input.contactName)}</p>
       <p><strong>Type :</strong> ${escapeHtml(typeLabel)}</p>
-      <p><strong>Objet :</strong> ${escapeHtml(input.title)}</p>
+      ${priorityLabel ? `<p><strong>Priorité :</strong> ${escapeHtml(priorityLabel)}</p>` : ''}
+      <p><strong>Objet :</strong> ${escapeHtml(`${referencePrefix(input.reference)}${input.title}`)}</p>
       ${input.body ? `<p><strong>Détail :</strong><br>${escapeHtml(input.body).replace(/\n/g, '<br>')}</p>` : ''}
-      <p><a href="${escapeHtml(input.adminUrl)}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:6px;">Ouvrir la fiche client</a></p>
+      <p><a href="${escapeHtml(input.adminUrl)}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:6px;">Ouvrir dans Lucid OS</a></p>
+    `,
+  });
+}
+
+/** Portal: a client replied on a ticket thread, notify the team. */
+export async function sendPortalClientMessageTeamNotification(input: {
+  clientName: string;
+  contactName: string;
+  title: string;
+  body: string;
+  adminUrl: string;
+  reference?: number | null;
+}): Promise<void> {
+  await sendEmail({
+    to: config.teamNotificationEmail,
+    subject: `[Portail] Message de ${input.clientName} : ${referencePrefix(input.reference)}${input.title}`,
+    html: `
+      <h2>Nouveau message client sur un ticket</h2>
+      <p><strong>Client :</strong> ${escapeHtml(input.clientName)} (${escapeHtml(input.contactName)})</p>
+      <p><strong>Ticket :</strong> ${escapeHtml(`${referencePrefix(input.reference)}${input.title}`)}</p>
+      <p><strong>Message :</strong><br>${escapeHtml(input.body).replace(/\n/g, '<br>')}</p>
+      <p><a href="${escapeHtml(input.adminUrl)}" style="display:inline-block;background:#111827;color:#ffffff;text-decoration:none;padding:10px 16px;border-radius:6px;">Répondre dans Lucid OS</a></p>
     `,
   });
 }
@@ -543,19 +603,32 @@ export async function sendPortalRequestAnsweredToClient(input: {
   to: string;
   contactName?: string | null;
   title: string;
-  status: 'in_progress' | 'done' | 'declined';
+  status: 'in_progress' | 'waiting' | 'done' | 'declined';
   responseNote: string | null;
   portalUrl: string;
+  reference?: number | null;
 }): Promise<void> {
   const name = input.contactName?.trim();
   const greeting = name ? `Bonjour ${name},` : 'Bonjour,';
   const statusLabel =
-    input.status === 'done' ? 'a été traitée' : input.status === 'declined' ? "n'a pas pu être retenue" : 'est en cours de traitement';
+    input.status === 'done'
+      ? 'a été traitée'
+      : input.status === 'declined'
+        ? "n'a pas pu être retenue"
+        : input.status === 'waiting'
+          ? 'a reçu une réponse'
+          : 'est en cours de traitement';
   const safeUrl = escapeHtml(input.portalUrl);
+  const subjectStatus =
+    input.status === 'done'
+      ? 'est traitée'
+      : input.status === 'in_progress'
+        ? 'est en cours'
+        : 'a reçu une réponse';
 
   await sendEmail({
     to: input.to,
-    subject: `[Lucid-Lab] Votre demande "${input.title}" ${input.status === 'done' ? 'est traitée' : input.status === 'declined' ? 'a reçu une réponse' : 'est en cours'}`,
+    subject: `[Lucid-Lab] Votre demande ${referencePrefix(input.reference)}"${input.title}" ${subjectStatus}`,
     text: `${greeting}\n\nVotre demande "${input.title}" ${statusLabel}.\n${input.responseNote ? `\nNotre réponse : ${input.responseNote}\n` : ''}\nVoir le détail : ${input.portalUrl}\n\nBien à vous,\nL'équipe Lucid-Lab`,
     html: `
       <p>${escapeHtml(greeting)}</p>

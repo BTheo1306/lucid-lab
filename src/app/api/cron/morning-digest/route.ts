@@ -5,6 +5,7 @@ import { countLeadsSince, listRecentLeads } from '@/lib/bot/db/queries/leads';
 import { supabase } from '@/lib/bot/db/supabase';
 import { sendMorningDigest } from '@/lib/bot/integrations/email-client';
 import { logSecurityEvent } from '@/lib/bot/db/queries/security-audit';
+import { countOpenTicketsForDigest, listOpenTicketsForDigest } from '@/lib/admin/tickets';
 
 export const runtime = 'nodejs';
 export const maxDuration = 30;
@@ -54,12 +55,35 @@ export async function GET(req: Request) {
     }),
   );
 
+  // Tickets clients encore ouverts (portail). Best-effort : un souci sur ces
+  // requetes ne doit pas priver l'equipe du reste du digest.
+  let openTickets: Parameters<typeof sendMorningDigest>[0]['openTickets'];
+  try {
+    const [ticketsCount, oldestTickets] = await Promise.all([
+      countOpenTicketsForDigest(),
+      listOpenTicketsForDigest(5),
+    ]);
+    openTickets = {
+      count: ticketsCount,
+      oldest: oldestTickets.map((ticket) => ({
+        reference: ticket.reference,
+        title: ticket.title,
+        clientName: ticket.clientName,
+        ageDays: Math.max(0, Math.floor((now.getTime() - new Date(ticket.createdAt).getTime()) / 86_400_000)),
+      })),
+      adminUrl: `${config.adminBaseUrl}/lucid-os/tickets`,
+    };
+  } catch (error) {
+    console.error('[morning-digest] tickets section failed:', error instanceof Error ? error.message : error);
+  }
+
   await sendMorningDigest({
     dateLabel,
     leadsCount,
     conversationsCount: conversationsCount ?? 0,
     escalationsCount: escalationsCount ?? 0,
     recentLeads: recentWithContacts,
+    openTickets,
   });
 
   return NextResponse.json({
@@ -68,5 +92,6 @@ export async function GET(req: Request) {
     leads: leadsCount,
     conversations: conversationsCount ?? 0,
     escalations: escalationsCount ?? 0,
+    openTickets: openTickets?.count ?? null,
   });
 }

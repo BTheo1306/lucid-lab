@@ -1,8 +1,12 @@
 import { NextResponse } from 'next/server';
 import { getPortalSession, portalRedirectUrl, isPortalReadOnly } from '@/lib/portal/auth';
-import { respondToAgencyRequest } from '@/lib/portal/requests';
+import { addClientMessage, resolveOwnRequest, respondToAgencyRequest } from '@/lib/portal/requests';
 
-/** POST /echanges/[id]/repondre: approve, mark done, or request changes. */
+/**
+ * POST /echanges/[id]/repondre.
+ * Actions : reply (message libre dans le fil), resolve (le client clot son
+ * ticket), et les reponses aux demandes agence (approve, done, changes).
+ */
 export async function POST(request: Request, context: { params: Promise<{ requestId: string }> }) {
   const session = await getPortalSession();
   if (!session) {
@@ -18,8 +22,20 @@ export async function POST(request: Request, context: { params: Promise<{ reques
   const { requestId } = await context.params;
   const formData = await request.formData();
   const rawAction = String(formData.get('action') ?? '');
-  const action = rawAction === 'approve' ? 'approve' : rawAction === 'done' ? 'done' : 'changes';
 
+  if (rawAction === 'reply') {
+    const result = await addClientMessage(session, requestId, String(formData.get('message') ?? ''));
+    const suffix = result.ok ? '?message=1' : '';
+    return NextResponse.redirect(portalRedirectUrl(request, `/echanges/${requestId}${suffix}`), 303);
+  }
+
+  if (rawAction === 'resolve') {
+    const result = await resolveOwnRequest(session, requestId);
+    const suffix = result.ok ? '?resolu=1' : '';
+    return NextResponse.redirect(portalRedirectUrl(request, `/echanges/${requestId}${suffix}`), 303);
+  }
+
+  const action = rawAction === 'approve' ? 'approve' : rawAction === 'done' ? 'done' : 'changes';
   const result = await respondToAgencyRequest(session, requestId, {
     action,
     note: String(formData.get('note') ?? ''),

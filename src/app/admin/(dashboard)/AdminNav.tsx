@@ -24,6 +24,7 @@ import {
   Palette,
   PhoneCall,
   Search,
+  Ticket,
   Users,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -50,6 +51,7 @@ const primaryItems: NavItem[] = [
   { href: '/lucid-os', label: 'Tableau de bord', icon: BarChart3, exact: true, activePaths: [''] },
   { href: '/lucid-os/metrics', label: 'Métriques', icon: Activity },
   { href: '/lucid-os/inbox', label: 'Actions', icon: Inbox },
+  { href: '/lucid-os/tickets', label: 'Tickets', icon: Ticket },
 ];
 
 const navSections: NavSection[] = [
@@ -144,7 +146,17 @@ function pathIsActive(pathname: string, item: NavItem, base: string): boolean {
   });
 }
 
-function NavLink({ item, active, base }: { item: NavItem; active: boolean; base: string }) {
+function NavLink({
+  item,
+  active,
+  base,
+  count,
+}: {
+  item: NavItem;
+  active: boolean;
+  base: string;
+  count?: number;
+}) {
   const Icon = item.icon;
 
   return (
@@ -159,11 +171,16 @@ function NavLink({ item, active, base }: { item: NavItem; active: boolean; base:
     >
       <Icon className={cn('size-3.5 shrink-0', active ? 'text-[#60a5fa]' : 'text-zinc-600 group-hover:text-zinc-300')} />
       <span className="truncate">{item.label}</span>
+      {count && count > 0 ? (
+        <span className="ml-auto inline-flex min-w-5 items-center justify-center rounded-full bg-blue-600 px-1.5 py-0.5 text-[10px] font-bold leading-none text-white">
+          {count > 99 ? '99+' : count}
+        </span>
+      ) : null}
     </Link>
   );
 }
 
-export function AdminNav({ base }: { base: string }) {
+export function AdminNav({ base, counts }: { base: string; counts?: Record<string, number> }) {
   const pathname = usePathname();
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
@@ -178,7 +195,13 @@ export function AdminNav({ base }: { base: string }) {
     <nav className="mt-7 grid gap-6 text-sm">
       <div className="grid gap-1">
         {primaryItems.map((item) => (
-          <NavLink key={item.href} item={item} base={base} active={pathIsActive(pathname, item, base)} />
+          <NavLink
+            key={item.href}
+            item={item}
+            base={base}
+            active={pathIsActive(pathname, item, base)}
+            count={counts?.[item.href]}
+          />
         ))}
       </div>
 

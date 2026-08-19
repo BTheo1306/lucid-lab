@@ -334,15 +334,13 @@ export default async function LucidOsInboxPage() {
                     {formatAdminDateTime(request.createdAt)}
                   </p>
                 </div>
-                {request.clientSlug ? (
-                  <Link
-                    href={`${base}/lucid-os/clients/${request.clientSlug}`}
-                    className="inline-flex h-8 items-center gap-1.5 rounded border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
-                  >
-                    Traiter
-                    <ArrowRight className="size-3.5" />
-                  </Link>
-                ) : null}
+                <Link
+                  href={`${base}/lucid-os/tickets/${request.id}`}
+                  className="inline-flex h-8 items-center gap-1.5 rounded border border-blue-200 bg-blue-50 px-2.5 text-xs font-semibold text-blue-700 transition hover:bg-blue-100"
+                >
+                  Traiter
+                  <ArrowRight className="size-3.5" />
+                </Link>
               </div>
             ))}
           </div>

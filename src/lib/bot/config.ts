@@ -139,6 +139,9 @@ export const config = {
   telegramCooWebhookSecret: process.env['TELEGRAM_COO_WEBHOOK_SECRET'] ?? '',
   telegramCooAllowedUserIds: process.env['TELEGRAM_COO_ALLOWED_USER_IDS'] ?? '',
   telegramCooAllowedChatIds: process.env['TELEGRAM_COO_ALLOWED_CHAT_IDS'] ?? '',
+  /** Chat de destination des notifications sortantes (tickets portail).
+   *  Repli : premier id de TELEGRAM_COO_ALLOWED_CHAT_IDS. Vide = pas de push. */
+  telegramCooNotifyChatId: process.env['TELEGRAM_COO_NOTIFY_CHAT_ID'] ?? '',
 
   // Google Drive
   googleDriveClientId: process.env['GOOGLE_DRIVE_CLIENT_ID'] ?? '',

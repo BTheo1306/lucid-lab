@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getPortalSession, portalRedirectUrl, isPortalReadOnly } from '@/lib/portal/auth';
 import { createClientRequest } from '@/lib/portal/requests';
 
-/** POST /echanges/creer: the client submits a request to the agency. */
+/** POST /echanges/creer: the client submits a ticket to the agency. */
 export async function POST(request: Request) {
   const session = await getPortalSession();
   if (!session) {
@@ -20,10 +20,12 @@ export async function POST(request: Request) {
     requestType: String(formData.get('request_type') ?? 'question'),
     title: String(formData.get('title') ?? ''),
     body: String(formData.get('body') ?? ''),
+    priority: String(formData.get('priority') ?? 'normal'),
   });
 
   if (!result.ok) {
     return NextResponse.redirect(portalRedirectUrl(request, '/echanges'), 303);
   }
-  return NextResponse.redirect(portalRedirectUrl(request, '/echanges?cree=1'), 303);
+  // Atterrit sur le fil du ticket cree, avec sa reference visible.
+  return NextResponse.redirect(portalRedirectUrl(request, `/echanges/${result.requestId}?cree=1`), 303);
 }

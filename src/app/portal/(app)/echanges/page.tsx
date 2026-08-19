@@ -13,7 +13,7 @@ import {
 } from '../../components';
 
 export const metadata: Metadata = {
-  title: 'Échanges',
+  title: 'Support',
 };
 
 function requestTone(status: string): PortalPillTone {
@@ -47,10 +47,15 @@ function RequestRow({ request, base }: { request: PortalRequest; base: string })
     >
       <div className="min-w-0">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-medium text-zinc-950">{request.title}</p>
+          <p className="text-sm font-medium text-zinc-950">
+            <span className="text-zinc-400">#{request.reference}</span> {request.title}
+          </p>
           <StatusPill tone={requestTone(request.status)}>
             {s.statusLabels[request.status] ?? request.status}
           </StatusPill>
+          {request.priority === 'urgent' ? (
+            <StatusPill tone="danger">{s.priorityLabels.urgent}</StatusPill>
+          ) : null}
           {needsAction ? <StatusPill tone="warning">{s.actionNeeded}</StatusPill> : null}
         </div>
         <p className="mt-1 text-xs text-zinc-500">
@@ -63,15 +68,10 @@ function RequestRow({ request, base }: { request: PortalRequest; base: string })
   );
 }
 
-interface PageProps {
-  searchParams: Promise<{ cree?: string }>;
-}
-
-export default async function PortalRequestsPage({ searchParams }: PageProps) {
+export default async function PortalRequestsPage() {
   const session = await requirePortalUser();
   const base = await portalBasePath();
   const requests = await listPortalRequests(session);
-  const params = await searchParams;
   const s = portalStrings.requests;
 
   const fromUs = requests.filter((request) => request.direction === 'agency_to_client');
@@ -81,12 +81,6 @@ export default async function PortalRequestsPage({ searchParams }: PageProps) {
     <div>
       <PortalPageHeader title={s.title} description={s.description} />
 
-      {params.cree === '1' ? (
-        <p className="mb-6 rounded-lg border border-emerald-200 bg-emerald-50 px-3.5 py-2.5 text-sm text-emerald-800">
-          {s.created}
-        </p>
-      ) : null}
-
       <PortalCard className="mb-8">
         <details className="group">
           <summary className="flex cursor-pointer list-none items-center gap-2 text-sm font-semibold text-zinc-900 [&::-webkit-details-marker]:hidden">
@@ -94,16 +88,29 @@ export default async function PortalRequestsPage({ searchParams }: PageProps) {
             {s.newRequest}
           </summary>
           <form action={`${base}/echanges/creer`} method="post" className="mt-4 grid gap-3">
-            <label className="grid gap-1.5 text-sm font-medium text-zinc-800">
-              {s.typeField}
-              <select
-                name="request_type"
-                className="h-11 rounded-lg border border-zinc-300 bg-white px-3 text-sm outline-none transition focus:border-zinc-950"
-              >
-                <option value="question">{s.typeLabels.question}</option>
-                <option value="change_request">{s.typeLabels.change_request}</option>
-              </select>
-            </label>
+            <div className="grid gap-3 sm:grid-cols-2">
+              <label className="grid gap-1.5 text-sm font-medium text-zinc-800">
+                {s.typeField}
+                <select
+                  name="request_type"
+                  className="h-11 rounded-lg border border-zinc-300 bg-white px-3 text-sm outline-none transition focus:border-zinc-950"
+                >
+                  <option value="question">{s.typeLabels.question}</option>
+                  <option value="change_request">{s.typeLabels.change_request}</option>
+                  <option value="incident">{s.typeLabels.incident}</option>
+                </select>
+              </label>
+              <label className="grid gap-1.5 text-sm font-medium text-zinc-800">
+                {s.priorityField}
+                <select
+                  name="priority"
+                  className="h-11 rounded-lg border border-zinc-300 bg-white px-3 text-sm outline-none transition focus:border-zinc-950"
+                >
+                  <option value="normal">{s.priorityLabels.normal}</option>
+                  <option value="urgent">{s.priorityLabels.urgent}</option>
+                </select>
+              </label>
+            </div>
             <label className="grid gap-1.5 text-sm font-medium text-zinc-800">
               {s.titleField}
               <input

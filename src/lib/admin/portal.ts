@@ -96,10 +96,12 @@ export async function setContactPortalAccess(contactId: string, enabled: boolean
 
 export interface ClientRequestSummary {
   id: string;
+  reference: number;
   clientId: string;
   direction: 'agency_to_client' | 'client_to_agency';
   requestType: string;
   status: string;
+  priority: string;
   title: string;
   body: string | null;
   responseNote: string | null;
@@ -122,8 +124,8 @@ export interface ProposedLegalInfo {
   websiteUrl: string | null;
 }
 
-const REQUEST_SELECT =
-  'id,client_id,direction,request_type,status,title,body,response_note,due_at,resolved_at,created_at,updated_at,metadata,client:clients(name,slug),created_by:client_contacts!client_requests_created_by_contact_id_fkey(full_name)';
+export const REQUEST_SELECT =
+  'id,reference,client_id,direction,request_type,status,priority,title,body,response_note,due_at,resolved_at,created_at,updated_at,metadata,client:clients(name,slug),created_by:client_contacts!client_requests_created_by_contact_id_fkey(full_name)';
 
 function readProposedLegal(metadata: unknown): ProposedLegalInfo | null {
   if (!metadata || typeof metadata !== 'object') return null;
@@ -142,16 +144,18 @@ function readProposedLegal(metadata: unknown): ProposedLegalInfo | null {
   };
 }
 
-function normalizeRequest(row: Record<string, unknown>): ClientRequestSummary {
+export function normalizeRequest(row: Record<string, unknown>): ClientRequestSummary {
   const client = (row.client ?? null) as { name?: string; slug?: string } | null;
   const createdBy = (row.created_by ?? null) as { full_name?: string } | null;
 
   return {
     id: String(row.id),
+    reference: Number(row.reference ?? 0),
     clientId: String(row.client_id),
     direction: row.direction === 'agency_to_client' ? 'agency_to_client' : 'client_to_agency',
     requestType: String(row.request_type ?? 'question'),
     status: String(row.status ?? 'open'),
+    priority: String(row.priority ?? 'normal'),
     title: String(row.title ?? ''),
     body: row.body ? String(row.body) : null,
     responseNote: row.response_note ? String(row.response_note) : null,
@@ -269,20 +273,37 @@ export async function answerClientRequest(input: {
   responseNote?: string | null;
 }): Promise<void> {
   const resolved = input.status === 'done' || input.status === 'declined';
+  const responseNote = input.responseNote?.trim() || null;
   const { data, error } = await supabase
     .from('client_requests')
     .update({
       status: input.status,
-      response_note: input.responseNote?.trim() || null,
+      response_note: responseNote,
       resolved_at: resolved ? new Date().toISOString() : null,
     })
     .eq('id', input.requestId)
     .eq('direction', 'client_to_agency')
-    .select('id,title,client_id,created_by_contact_id,metadata')
+    .select('id,reference,title,client_id,organization_id,created_by_contact_id,metadata')
     .maybeSingle();
 
   if (error) throw new Error(`answerClientRequest: ${error.message}`);
   if (!data) throw new Error('Demande introuvable.');
+
+  // La note rejoint le fil de discussion du ticket ; response_note reste un
+  // miroir de la derniere note pour les ecrans existants.
+  if (responseNote) {
+    const { error: messageError } = await supabase.from('client_request_messages').insert({
+      organization_id: String(data.organization_id),
+      client_id: String(data.client_id),
+      request_id: String(data.id),
+      sender: 'team',
+      author_label: 'Lucid-Lab',
+      body: responseNote,
+    });
+    if (messageError) {
+      console.error('[portal] answerClientRequest message insert failed:', messageError.message);
+    }
+  }
 
   // Clore une demande de changement vaut acceptation : sans ça, les valeurs
   // proposées par le client seraient silencieusement jetées. Décliner les laisse
@@ -305,8 +326,9 @@ export async function answerClientRequest(input: {
           contactName: contact.full_name ? String(contact.full_name) : null,
           title: String(data.title),
           status: input.status,
-          responseNote: input.responseNote?.trim() || null,
+          responseNote,
           portalUrl: `${config.portalBaseUrl}/echanges/${String(data.id)}`,
+          reference: Number(data.reference ?? 0) || null,
         });
       } catch (emailError) {
         console.error('[portal] request answer email failed:', emailError instanceof Error ? emailError.message : emailError);
