@@ -28,9 +28,9 @@ const VIEWS: { key: ViewKey; label: string; statuses: BlogStatus[]; empty: strin
 ];
 
 const BTN_BASE = 'inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors disabled:opacity-50';
-const BTN_PRIMARY = cn(BTN_BASE, 'bg-blue-500/15 text-blue-300 ring-1 ring-blue-400/20 hover:bg-blue-500/25');
-const BTN_NEUTRAL = cn(BTN_BASE, 'bg-white/[0.04] text-zinc-300 ring-1 ring-white/10 hover:bg-white/[0.08]');
-const BTN_DANGER = cn(BTN_BASE, 'bg-red-500/10 text-red-300 ring-1 ring-red-400/20 hover:bg-red-500/20');
+const BTN_PRIMARY = cn(BTN_BASE, 'bg-blue-50 text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100');
+const BTN_NEUTRAL = cn(BTN_BASE, 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50');
+const BTN_DANGER = cn(BTN_BASE, 'bg-rose-50 text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100');
 
 function statusTone(status: BlogStatus): 'neutral' | 'good' | 'warning' | 'danger' {
   switch (status) {
@@ -127,36 +127,36 @@ function PostActions({ post, activeView }: { post: BlogPostRow; activeView: View
 async function PostCard({ post, activeView }: { post: BlogPostRow; activeView: ViewKey }) {
   const base = await adminBasePath();
   return (
-    <article className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5">
+    <article className="rounded-lg border border-zinc-200 bg-white p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <p className="min-w-0 truncate text-xs text-zinc-500">
           <span className="uppercase">{post.locale}</span>
-          {post.category ? <> · <span className="text-zinc-400">{post.category}</span></> : null}
+          {post.category ? <> · <span className="text-zinc-500">{post.category}</span></> : null}
           {' · '}{dateLabel(post)}
         </p>
         <StatusBadge tone={statusTone(post.status)}>{STATUS_LABELS[post.status]}</StatusBadge>
       </div>
 
-      <h3 className="mt-2.5 text-[15px] font-semibold leading-snug tracking-[-0.01em] text-zinc-50">{post.title}</h3>
+      <h3 className="mt-2.5 text-[15px] font-semibold leading-snug tracking-[-0.01em] text-zinc-950">{post.title}</h3>
 
       {post.description ? (
-        <p className="mt-2 line-clamp-3 text-[13px] leading-6 text-zinc-400">{post.description}</p>
+        <p className="mt-2 line-clamp-3 text-[13px] leading-6 text-zinc-500">{post.description}</p>
       ) : null}
 
       {post.social_post_id ? (
         <p className="mt-3 text-xs text-zinc-500">
           ↔ Version longue d’un{' '}
-          <Link href={`${base}/lucid-os/social`} className="text-zinc-300 underline-offset-2 hover:underline">
+          <Link href={`${base}/lucid-os/social`} className="text-zinc-700 underline-offset-2 hover:underline">
             post LinkedIn
           </Link>
         </p>
       ) : null}
 
       {post.status === 'rejected' && post.review_note ? (
-        <p className="mt-3 text-xs text-red-300/80">Note : {post.review_note}</p>
+        <p className="mt-3 text-xs text-rose-700">Note : {post.review_note}</p>
       ) : null}
 
-      <div className="mt-4 border-t border-white/[0.06] pt-3">
+      <div className="mt-4 border-t border-zinc-200 pt-3">
         <PostActions post={post} activeView={activeView} />
       </div>
     </article>
@@ -188,7 +188,7 @@ export default async function AdminBlogPage({
         action={
           <Link
             href={`${base}/blog/new`}
-            className="inline-flex h-9 items-center gap-2 rounded-md bg-white/[0.06] px-3 text-sm font-medium text-zinc-100 ring-1 ring-white/10 transition-colors hover:bg-white/[0.1]"
+            className="inline-flex h-9 items-center gap-2 rounded-md bg-white px-3 text-sm font-medium text-zinc-900 ring-1 ring-zinc-200 transition-colors hover:bg-zinc-50"
           >
             + Nouvel article
           </Link>
@@ -208,11 +208,11 @@ export default async function AdminBlogPage({
               href={`${base}/blog?vue=${view.key}`}
               className={cn(
                 'inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors',
-                isActive ? 'bg-[#17171a] text-zinc-50 ring-1 ring-white/10' : 'text-zinc-400 hover:bg-[#121215] hover:text-zinc-100',
+                isActive ? 'bg-zinc-100 text-zinc-950 ring-1 ring-zinc-200' : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950',
               )}
             >
               {view.label}
-              <span className={cn('rounded-full px-1.5 text-xs tabular-nums', isActive ? 'bg-[#3b82f6]/20 text-[#93c5fd]' : 'bg-white/[0.06] text-zinc-500')}>
+              <span className={cn('rounded-full px-1.5 text-xs tabular-nums', isActive ? 'bg-blue-50 text-blue-700' : 'bg-zinc-100 text-zinc-500')}>
                 {countFor(view)}
               </span>
             </Link>

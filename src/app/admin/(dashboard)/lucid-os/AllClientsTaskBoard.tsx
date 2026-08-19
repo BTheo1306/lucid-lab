@@ -158,7 +158,7 @@ export function AllClientsTaskBoard({
                           title={task.clientVisible ? 'Visible sur le portail client. Cliquer pour masquer.' : 'Masquée du portail client. Cliquer pour publier.'}
                           className={cn(
                             'shrink-0 rounded p-1 transition',
-                            task.clientVisible ? 'text-blue-600 hover:bg-blue-50' : 'text-zinc-300 hover:bg-zinc-100 hover:text-zinc-600',
+                            task.clientVisible ? 'text-blue-600 hover:bg-blue-50' : 'text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600',
                           )}
                         >
                           {task.clientVisible ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
@@ -187,7 +187,7 @@ export function AllClientsTaskBoard({
                               'h-8 rounded border px-2 text-[11px] font-semibold transition',
                               active
                                 ? 'border-blue-200 bg-blue-50 text-blue-700'
-                                : 'border-zinc-200 bg-zinc-50 text-zinc-400 hover:bg-zinc-100 hover:text-zinc-900',
+                                : 'border-zinc-200 bg-zinc-50 text-zinc-500 hover:bg-zinc-100 hover:text-zinc-900',
                               (isPending || active) && 'cursor-default opacity-70',
                             )}
                           >

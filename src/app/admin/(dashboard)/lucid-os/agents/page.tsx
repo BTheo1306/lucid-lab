@@ -91,7 +91,7 @@ export default async function LucidOsAgentsPage() {
         {agents.length === 0 ? (
           <EmptyState>Aucun agent n’est encore enregistré.</EmptyState>
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-zinc-100">
             {agents.map((agent) => (
               <article key={agent.id} className="grid gap-4 py-5 first:pt-0 last:pb-0 xl:grid-cols-[minmax(260px,1fr)_minmax(260px,0.85fr)_minmax(220px,0.75fr)] xl:items-start">
                 <div className="flex items-start justify-between gap-3">
@@ -102,15 +102,15 @@ export default async function LucidOsAgentsPage() {
                     </div>
                     <p className="mt-2 text-sm leading-6 text-zinc-600">{agent.role}</p>
                   </div>
-                  {agent.status === 'active' ? <CheckCircle2 className="size-5 shrink-0 text-emerald-600" /> : <Bot className="size-5 shrink-0 text-zinc-400" />}
+                  {agent.status === 'active' ? <CheckCircle2 className="size-5 shrink-0 text-emerald-700" /> : <Bot className="size-5 shrink-0 text-zinc-400" />}
                 </div>
 
                 <div className="grid gap-2 text-sm text-zinc-600">
-                  <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+                  <div className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-2">
                     <span>Fournisseur</span>
                     <span className="font-medium text-zinc-900">{agent.providerPreference ?? 'au choix'}</span>
                   </div>
-                  <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2">
+                  <div className="flex items-center justify-between gap-3 border-b border-zinc-200 pb-2">
                     <span>Mémoire</span>
                     <span className="font-medium text-zinc-900">{agent.memoryScope}</span>
                   </div>
@@ -127,7 +127,7 @@ export default async function LucidOsAgentsPage() {
                   </div>
                   <div className="mt-2 flex flex-wrap gap-1.5">
                     {agent.tools.length === 0 ? (
-                      <span className="text-sm text-zinc-400">Aucun outil enregistré</span>
+                      <span className="text-sm text-zinc-500">Aucun outil enregistré</span>
                     ) : agent.tools.slice(0, 6).map((tool) => (
                       <span key={tool} className="rounded bg-zinc-100 px-2 py-1 text-xs text-zinc-600">{tool}</span>
                     ))}
@@ -207,7 +207,7 @@ export default async function LucidOsAgentsPage() {
         )}
       </Section>
 
-      <section className="rounded-md border border-white/10 bg-white/[0.03] p-4 text-sm leading-6 text-zinc-600">
+      <section className="rounded-md border border-zinc-200 bg-zinc-50 p-4 text-sm leading-6 text-zinc-600">
         <div className="flex gap-2">
           <ShieldCheck className="mt-0.5 size-4 shrink-0 text-zinc-500" />
           <p>Les publications, campagnes de prospection, modifications CRM, déploiements, changements DNS, mutations de données de production et paiements doivent créer une validation et une trace d’audit avant exécution.</p>

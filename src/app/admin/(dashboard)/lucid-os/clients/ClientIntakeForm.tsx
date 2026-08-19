@@ -12,16 +12,16 @@ function datetimeLocalValue(value: string | null): string | undefined {
 export function ClientIntakeForm({ client, submitLabel = 'Enregistrer la qualification' }: { client?: LucidClientSummary; submitLabel?: string }) {
   const firstNameFallback = client?.firstName ?? (client?.name ? client.name.split(' ')[0] : '');
   const lastNameFallback = client?.lastName ?? (client?.name && client.name.includes(' ') ? client.name.slice(client.name.indexOf(' ') + 1) : '');
-  const inputClassName = 'h-10 rounded border border-white/10 bg-[#050506] px-3 text-sm font-normal text-zinc-100 outline-none transition placeholder:text-zinc-700 focus:border-blue-400/60 focus:ring-2 focus:ring-blue-500/15';
-  const textareaClassName = 'rounded border border-white/10 bg-[#050506] px-3 py-2 text-sm font-normal leading-6 text-zinc-100 outline-none transition placeholder:text-zinc-700 focus:border-blue-400/60 focus:ring-2 focus:ring-blue-500/15';
-  const labelClassName = 'grid gap-2 text-sm font-medium text-zinc-300';
+  const inputClassName = 'h-10 rounded border border-zinc-200 bg-white px-3 text-sm font-normal text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-blue-400/60 focus:ring-2 focus:ring-blue-500/15';
+  const textareaClassName = 'rounded border border-zinc-200 bg-white px-3 py-2 text-sm font-normal leading-6 text-zinc-900 outline-none transition placeholder:text-zinc-400 focus:border-blue-400/60 focus:ring-2 focus:ring-blue-500/15';
+  const labelClassName = 'grid gap-2 text-sm font-medium text-zinc-700';
 
   return (
     <form action={recordClientIntakeAction} className="grid gap-7">
       {client ? <input type="hidden" name="slug" value={client.slug} /> : null}
       <section className="grid gap-3">
-        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">Compte</h2>
-        <div className="grid gap-4 border-t border-white/[0.08] pt-4 lg:grid-cols-[1.3fr_0.8fr_0.8fr_0.8fr]">
+        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-900">Compte</h2>
+        <div className="grid gap-4 border-t border-zinc-200 pt-4 lg:grid-cols-[1.3fr_0.8fr_0.8fr_0.8fr]">
           <label className={labelClassName}>Nom affiché<input name="name" defaultValue={client?.name ?? ''} className={inputClassName} placeholder="Entreprise ou personne" /></label>
           <label className={labelClassName}>Statut<select name="status" defaultValue={client?.status ?? 'lead'} className={inputClassName}><option value="lead">Prospect</option><option value="active">Actif</option><option value="paused">En pause</option><option value="offboarded">Terminé</option><option value="archived">Archivé</option></select></label>
           <label className={labelClassName}>Cycle<select name="lifecycle_stage" defaultValue={client?.lifecycleStage ?? ''} className={inputClassName}><option value="">Auto</option><option value="lead">Prospect</option><option value="qualified">Qualifié</option><option value="meeting_booked">Rdv planifié</option><option value="discovery_done">Découverte faite</option><option value="proposal_needed">Proposition à préparer</option><option value="proposal_sent">Proposition envoyée</option><option value="negotiation">Négociation</option><option value="won">Gagné</option><option value="lost">Perdu</option><option value="onboarding">Onboarding</option><option value="in_delivery">En production</option><option value="live_managed">En ligne / géré</option><option value="success_retention">Succès / rétention</option><option value="expansion_opportunity">Expansion</option><option value="archived">Archivé</option></select></label>
@@ -30,8 +30,8 @@ export function ClientIntakeForm({ client, submitLabel = 'Enregistrer la qualifi
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">Contact et entreprise</h2>
-        <div className="grid gap-4 border-t border-white/[0.08] pt-4 md:grid-cols-3">
+        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-900">Contact et entreprise</h2>
+        <div className="grid gap-4 border-t border-zinc-200 pt-4 md:grid-cols-3">
           <label className={labelClassName}>Prénom<input name="first_name" defaultValue={firstNameFallback} className={inputClassName} placeholder="Marie" /></label>
           <label className={labelClassName}>Nom<input name="last_name" defaultValue={lastNameFallback} className={inputClassName} placeholder="Dupont" /></label>
           <label className={labelClassName}>Contact principal<input name="primary_contact_name" defaultValue={client?.primaryContactName ?? ''} className={inputClassName} placeholder="Marie Dupont" /></label>
@@ -47,8 +47,8 @@ export function ClientIntakeForm({ client, submitLabel = 'Enregistrer la qualifi
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">Suivi</h2>
-        <div className="grid gap-4 border-t border-white/[0.08] pt-4 md:grid-cols-4">
+        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-900">Suivi</h2>
+        <div className="grid gap-4 border-t border-zinc-200 pt-4 md:grid-cols-4">
           <label className={labelClassName}>Santé<select name="client_health_status" defaultValue={client?.clientHealthStatus ?? 'unknown'} className={inputClassName}><option value="unknown">Inconnue</option><option value="healthy">Saine</option><option value="watch">À surveiller</option><option value="risk">Risque</option><option value="critical">Critique</option></select></label>
           <label className={labelClassName}>Score<input name="health_score" defaultValue={client?.healthScore ?? ''} type="number" min={0} max={100} className={inputClassName} placeholder="0-100" /></label>
           <label className={labelClassName}>Dernier contact<input name="last_contacted_at" defaultValue={datetimeLocalValue(client?.lastContactedAt ?? null)} type="datetime-local" className={inputClassName} /></label>
@@ -60,8 +60,8 @@ export function ClientIntakeForm({ client, submitLabel = 'Enregistrer la qualifi
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">Qualification</h2>
-        <div className="grid gap-4 border-t border-white/[0.08] pt-4 md:grid-cols-3">
+        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-900">Qualification</h2>
+        <div className="grid gap-4 border-t border-zinc-200 pt-4 md:grid-cols-3">
           <label className={labelClassName}>Étape<select name="intake_stage" defaultValue={client?.intake.stage ?? 'potential'} className={inputClassName}><option value="potential">Potentiel</option><option value="meeting_booked">Rdv planifié</option><option value="meeting_done">Rdv fait</option><option value="proposal_sent">Proposition envoyée</option><option value="won">Gagné</option><option value="lost">Perdu</option></select></label>
           <label className={labelClassName}>Rendez-vous<select name="meeting_status" defaultValue={client?.intake.meetingStatus ?? 'not_booked'} className={inputClassName}><option value="not_booked">Non planifié</option><option value="booked">Planifié</option><option value="done">Fait</option><option value="cancelled">Annulé</option></select></label>
           <label className={labelClassName}>Source<input name="source" defaultValue={client?.intake.source ?? ''} className={inputClassName} placeholder="LinkedIn, site, recommandation" /></label>
@@ -76,19 +76,19 @@ export function ClientIntakeForm({ client, submitLabel = 'Enregistrer la qualifi
       </section>
 
       <section className="grid gap-3">
-        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-100">Import IA</h2>
-        <div className="grid gap-4 border-t border-white/[0.08] pt-4">
+        <h2 className="text-sm font-semibold tracking-[-0.01em] text-zinc-900">Import IA</h2>
+        <div className="grid gap-4 border-t border-zinc-200 pt-4">
           <label className={labelClassName}>Notes à analyser<textarea name="raw_context" defaultValue={client?.intake.rawContextPreview ?? ''} rows={8} className={textareaClassName} placeholder="Colle un call, un email, une note LinkedIn ou du contexte brut. L’IA complète la fiche si elle trouve mieux." /></label>
-          <label className="flex items-center gap-2 text-sm font-medium text-zinc-300">
-            <input name="index_as_knowledge" type="checkbox" defaultChecked className="size-4 rounded border-white/10 bg-[#050506] text-blue-500" />
+          <label className="flex items-center gap-2 text-sm font-medium text-zinc-700">
+            <input name="index_as_knowledge" type="checkbox" defaultChecked className="size-4 rounded border-zinc-300 bg-white text-blue-600" />
             <ClipboardPaste className="size-4 text-zinc-500" />
             Analyser et indexer pour les agents
           </label>
         </div>
       </section>
 
-      <div className="flex justify-end border-t border-white/[0.08] pt-5">
-        <button type="submit" className="inline-flex h-10 items-center gap-2 rounded bg-[#3b82f6] px-4 text-sm font-semibold text-white transition hover:bg-[#60a5fa]">
+      <div className="flex justify-end border-t border-zinc-200 pt-5">
+        <button type="submit" className="inline-flex h-10 items-center gap-2 rounded bg-zinc-950 px-4 text-sm font-semibold text-white transition hover:bg-zinc-800">
           <Save className="size-4" />
           {submitLabel}
         </button>

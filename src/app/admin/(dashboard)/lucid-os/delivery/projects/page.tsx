@@ -47,7 +47,7 @@ export default async function LucidOsProjectsPage() {
         {projects.length === 0 ? (
           <EmptyState>Aucun projet n’est encore enregistré.</EmptyState>
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-zinc-100">
             {projects.map((project) => (
               <div key={project.id} className="py-4 first:pt-0 last:pb-0">
                 <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">

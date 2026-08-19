@@ -30,7 +30,7 @@ export default async function EditPostPage({ params, searchParams }: RouteParams
         </h1>
       </header>
       {saved ? (
-        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-900">
+        <div className="rounded-md border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm text-emerald-800">
           ✓ Enregistré. {post.status === 'draft' && post.content ? 'Contenu généré par l\'IA — relisez et publiez.' : null}
         </div>
       ) : null}

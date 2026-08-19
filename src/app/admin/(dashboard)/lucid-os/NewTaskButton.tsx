@@ -34,7 +34,7 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
       <button
         type="button"
         onClick={() => setOpen(true)}
-        className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-200"
+        className="inline-flex items-center gap-1.5 text-xs font-medium text-zinc-500 transition-colors hover:text-zinc-950"
       >
         <Plus className="size-3.5" />
         Nouvelle tâche
@@ -46,35 +46,35 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
     <form
       ref={formRef}
       onSubmit={handleSubmit}
-      className="grid gap-3 border border-white/[0.08] bg-white/[0.02] p-4"
+      className="grid gap-3 border border-zinc-200 bg-white p-4"
     >
       <div className="flex items-center justify-between">
-        <p className="text-sm font-semibold text-zinc-100">Nouvelle tâche</p>
+        <p className="text-sm font-semibold text-zinc-900">Nouvelle tâche</p>
         <button type="button" onClick={() => setOpen(false)}>
-          <X className="size-4 text-zinc-500 hover:text-zinc-200" />
+          <X className="size-4 text-zinc-500 hover:text-zinc-950" />
         </button>
       </div>
 
-      {error ? <p className="text-sm text-rose-300">{error}</p> : null}
+      {error ? <p className="text-sm text-rose-700">{error}</p> : null}
 
       <input
         name="title"
         required
         placeholder="Titre de la tâche *"
-        className="h-9 w-full border border-white/10 bg-[#09090b] px-3 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-white/30"
+        className="h-9 w-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-300"
       />
 
       <textarea
         name="description"
         placeholder="Description (optionnel)"
         rows={2}
-        className="w-full resize-none border border-white/10 bg-[#09090b] px-3 py-2 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-white/30"
+        className="w-full resize-none border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-300"
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <select
           name="client_id"
-          className="h-9 border border-white/10 bg-[#09090b] px-3 text-sm text-zinc-300 outline-none focus:border-white/30"
+          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-700 outline-none focus:border-zinc-300"
         >
           <option value="">Pas de client</option>
           {clients.map((c) => (
@@ -85,7 +85,7 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
         <input
           name="owner_label"
           placeholder="Responsable (ex : Jules)"
-          className="h-9 border border-white/10 bg-[#09090b] px-3 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-white/30"
+          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-300"
         />
       </div>
 
@@ -93,7 +93,7 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
         <select
           name="priority"
           defaultValue="normal"
-          className="h-9 border border-white/10 bg-[#09090b] px-3 text-sm text-zinc-300 outline-none focus:border-white/30"
+          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-700 outline-none focus:border-zinc-300"
         >
           <option value="low">Priorité basse</option>
           <option value="normal">Priorité normale</option>
@@ -104,12 +104,12 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
         <input
           name="due_at"
           type="date"
-          className="h-9 border border-white/10 bg-[#09090b] px-3 text-sm text-zinc-300 outline-none focus:border-white/30"
+          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-700 outline-none focus:border-zinc-300"
         />
       </div>
 
       {/* Sans ça, une tâche à venir reste masquée et le client ne voit jamais la suite. */}
-      <label className="flex items-center gap-2 text-sm text-zinc-300">
+      <label className="flex items-center gap-2 text-sm text-zinc-700">
         <input name="client_visible" type="checkbox" value="1" className="size-4" />
         Visible par le client sur son portail
       </label>
@@ -117,7 +117,7 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
       <button
         type="submit"
         disabled={isPending}
-        className="h-9 bg-zinc-50 px-4 text-sm font-semibold text-zinc-950 transition hover:bg-white disabled:opacity-60"
+        className="h-9 bg-zinc-950 px-4 text-sm font-semibold text-white transition hover:bg-zinc-800 disabled:opacity-60"
       >
         {isPending ? 'Création...' : 'Créer la tâche'}
       </button>

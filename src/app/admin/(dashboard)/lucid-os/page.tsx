@@ -40,7 +40,7 @@ export default async function LucidOsPage() {
       />
 
       {!data.schemaReady ? (
-        <section className="rounded-md border border-amber-400/30 bg-amber-500/10 p-4 text-sm leading-6 text-amber-200">
+        <section className="rounded-md border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-700">
           <div className="flex gap-2">
             <AlertTriangle className="mt-0.5 size-4 shrink-0" />
             <p>La migration Lucid OS n'a pas encore été appliquée au projet Supabase actif.</p>

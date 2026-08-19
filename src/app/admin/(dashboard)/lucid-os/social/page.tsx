@@ -46,10 +46,10 @@ const VIEWS: { key: ViewKey; label: string; statuses: SocialPostStatus[]; empty:
 ];
 
 const BTN_BASE = 'inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs font-medium transition-colors disabled:opacity-50';
-const BTN_PRIMARY = cn(BTN_BASE, 'bg-blue-500/15 text-blue-300 ring-1 ring-blue-400/20 hover:bg-blue-500/25');
-const BTN_NEUTRAL = cn(BTN_BASE, 'bg-white/[0.04] text-zinc-300 ring-1 ring-white/10 hover:bg-white/[0.08]');
-const BTN_DANGER = cn(BTN_BASE, 'bg-red-500/10 text-red-300 ring-1 ring-red-400/20 hover:bg-red-500/20');
-const FIELD = 'w-full rounded-md border border-white/10 bg-[#0d0d10] px-3 py-2 text-[13px] text-zinc-100 outline-none placeholder:text-zinc-600 focus:border-white/25';
+const BTN_PRIMARY = cn(BTN_BASE, 'bg-blue-50 text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100');
+const BTN_NEUTRAL = cn(BTN_BASE, 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50');
+const BTN_DANGER = cn(BTN_BASE, 'bg-rose-50 text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100');
+const FIELD = 'w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-[13px] text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-300';
 const LABEL = 'mb-1 block text-[11px] font-medium uppercase tracking-[0.1em] text-zinc-500';
 
 function statusTone(status: SocialPostStatus): 'neutral' | 'good' | 'warning' | 'danger' {
@@ -88,7 +88,7 @@ function toDateTimeLocal(iso: string | null): string {
 function Metric({ label, value }: { label: string; value: number | null }) {
   return (
     <span className="tabular-nums">
-      <span className="font-semibold text-zinc-200">{value ?? '—'}</span> <span className="text-zinc-500">{label}</span>
+      <span className="font-semibold text-zinc-900">{value ?? '—'}</span> <span className="text-zinc-500">{label}</span>
     </span>
   );
 }
@@ -142,7 +142,7 @@ function PostActions({ post, activeView }: { post: SocialPost; activeView: ViewK
 
       <details className="group">
         <summary className={cn(BTN_NEUTRAL, 'cursor-pointer list-none')}>Éditer</summary>
-        <form action={editSocialPostAction} className="mt-3 grid gap-3 rounded-lg border border-white/[0.08] bg-[#0b0b0e] p-4">
+        <form action={editSocialPostAction} className="mt-3 grid gap-3 rounded-lg border border-zinc-200 bg-zinc-50 p-4">
           <HiddenContext activeView={activeView} postId={post.id} />
           <div className="grid gap-3 sm:grid-cols-2">
             <div>
@@ -183,40 +183,40 @@ async function PostCard({ post, activeView, blogVersion }: { post: SocialPost; a
   const base = await adminBasePath();
 
   return (
-    <article className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-4 sm:p-5">
+    <article className="rounded-lg border border-zinc-200 bg-white p-4 sm:p-5">
       <div className="flex items-start justify-between gap-3">
         <p className="min-w-0 truncate text-xs text-zinc-500">
           {post.authorLabel}
-          {post.pillar ? <> · <span className="text-zinc-400">{post.pillar}</span></> : null}
+          {post.pillar ? <> · <span className="text-zinc-500">{post.pillar}</span></> : null}
           {' · '}{dateLabel}
         </p>
         <StatusBadge tone={statusTone(post.status)}>{STATUS_LABELS[post.status]}</StatusBadge>
       </div>
 
       {post.hook ? (
-        <h3 className="mt-2.5 text-[15px] font-semibold leading-snug tracking-[-0.01em] text-zinc-50">{post.hook}</h3>
+        <h3 className="mt-2.5 text-[15px] font-semibold leading-snug tracking-[-0.01em] text-zinc-950">{post.hook}</h3>
       ) : null}
 
       {body ? (
-        <p className="mt-2 whitespace-pre-line text-[13px] leading-6 text-zinc-300">{body}</p>
+        <p className="mt-2 whitespace-pre-line text-[13px] leading-6 text-zinc-700">{body}</p>
       ) : null}
 
       {post.linkInComment ? (
         <p className="mt-3 text-xs text-zinc-500">
-          Lien (1er commentaire) : <span className="text-zinc-300">{post.linkInComment}</span>
+          Lien (1er commentaire) : <span className="text-zinc-700">{post.linkInComment}</span>
         </p>
       ) : null}
 
       {blogVersion ? (
         <p className="mt-2 text-xs text-zinc-500">
           Version blog :{' '}
-          <Link href={`${base}/blog/${blogVersion.id}/edit`} className="text-zinc-300 underline-offset-2 hover:underline">
+          <Link href={`${base}/blog/${blogVersion.id}/edit`} className="text-zinc-700 underline-offset-2 hover:underline">
             {BLOG_STATUS_LABELS[blogVersion.status]}
           </Link>
           {blogVersion.status === 'published' && blogVersion.slug ? (
             <>
               {' · '}
-              <a href={blogPublicUrl(blogVersion.locale, blogVersion.slug)} target="_blank" rel="noreferrer" className="text-zinc-300 underline-offset-2 hover:underline">
+              <a href={blogPublicUrl(blogVersion.locale, blogVersion.slug)} target="_blank" rel="noreferrer" className="text-zinc-700 underline-offset-2 hover:underline">
                 voir ↗
               </a>
             </>
@@ -225,11 +225,11 @@ async function PostCard({ post, activeView, blogVersion }: { post: SocialPost; a
       ) : null}
 
       {post.status === 'rejected' && post.reviewNote ? (
-        <p className="mt-3 text-xs text-red-300/80">Note : {post.reviewNote}</p>
+        <p className="mt-3 text-xs text-rose-700">Note : {post.reviewNote}</p>
       ) : null}
 
       {post.status === 'posted' ? (
-        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 border-t border-white/[0.06] pt-3 text-xs">
+        <div className="mt-4 flex flex-wrap gap-x-5 gap-y-1 border-t border-zinc-200 pt-3 text-xs">
           <Metric label="impressions" value={post.impressions} />
           <Metric label="réactions" value={post.reactions} />
           <Metric label="commentaires" value={post.comments} />
@@ -238,7 +238,7 @@ async function PostCard({ post, activeView, blogVersion }: { post: SocialPost; a
         </div>
       ) : null}
 
-      <div className="mt-4 border-t border-white/[0.06] pt-3">
+      <div className="mt-4 border-t border-zinc-200 pt-3">
         <PostActions post={post} activeView={activeView} />
       </div>
     </article>
@@ -251,10 +251,10 @@ async function ConnectionBanner({ account }: { account: LinkedInAccountSummary |
 
   if (!configured) {
     return (
-      <div className="rounded-lg border border-amber-400/20 bg-amber-500/[0.06] p-4 text-[13px] leading-6 text-amber-200/90">
-        <strong className="font-semibold text-amber-100">App LinkedIn non configurée.</strong> Ajoutez les variables
-        d’environnement <code className="rounded bg-black/30 px-1">LINKEDIN_CLIENT_ID</code> et{' '}
-        <code className="rounded bg-black/30 px-1">LINKEDIN_CLIENT_SECRET</code> (Vercel), puis connectez le compte
+      <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-[13px] leading-6 text-amber-700">
+        <strong className="font-semibold text-amber-800">App LinkedIn non configurée.</strong> Ajoutez les variables
+        d’environnement <code className="rounded bg-zinc-100 px-1">LINKEDIN_CLIENT_ID</code> et{' '}
+        <code className="rounded bg-zinc-100 px-1">LINKEDIN_CLIENT_SECRET</code> (Vercel), puis connectez le compte
         d’Anthony pour activer la publication automatique.
       </div>
     );
@@ -266,22 +266,22 @@ async function ConnectionBanner({ account }: { account: LinkedInAccountSummary |
   return (
     <div className={cn(
       'flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-[13px]',
-      connected ? 'border-emerald-400/20 bg-emerald-500/[0.05]' : 'border-white/[0.08] bg-white/[0.02]',
+      connected ? 'border-emerald-200 bg-emerald-50' : 'border-zinc-200 bg-white',
     )}>
       <div className="min-w-0 leading-6">
         {connected ? (
-          <span className="text-emerald-200/90">
-            <strong className="font-semibold text-emerald-100">LinkedIn connecté</strong>
+          <span className="text-emerald-700">
+            <strong className="font-semibold text-emerald-800">LinkedIn connecté</strong>
             {account?.memberName ? ` · ${account.memberName}` : ''}. Les posts approuvés se publient automatiquement à l’heure prévue.
           </span>
         ) : needsReauth ? (
-          <span className="text-amber-200/90">
-            <strong className="font-semibold text-amber-100">Reconnexion LinkedIn requise.</strong>{' '}
+          <span className="text-amber-700">
+            <strong className="font-semibold text-amber-800">Reconnexion LinkedIn requise.</strong>{' '}
             {account?.lastError ?? 'Le jeton a expiré.'}
           </span>
         ) : (
-          <span className="text-zinc-300">
-            <strong className="font-semibold text-zinc-100">LinkedIn non connecté.</strong> Connectez le profil d’Anthony
+          <span className="text-zinc-700">
+            <strong className="font-semibold text-zinc-900">LinkedIn non connecté.</strong> Connectez le profil d’Anthony
             pour publier automatiquement après validation.
           </span>
         )}
@@ -299,12 +299,12 @@ async function OrgConnectionBanner({ account }: { account: LinkedInOrgAccountSum
 
   if (!configured) {
     return (
-      <div className="rounded-lg border border-white/[0.08] bg-white/[0.02] p-4 text-[13px] leading-6 text-zinc-500">
-        <strong className="font-semibold text-zinc-300">Reshare sur la page Lucid-Lab : app non configurée.</strong>{' '}
+      <div className="rounded-lg border border-zinc-200 bg-white p-4 text-[13px] leading-6 text-zinc-500">
+        <strong className="font-semibold text-zinc-700">Reshare sur la page Lucid-Lab : app non configurée.</strong>{' '}
         Nécessite une candidature LinkedIn approuvée au produit « Community Management API » sur un app développeur
         dédié (LinkedIn interdit ce produit sur le même app que « Share on LinkedIn »), puis{' '}
-        <code className="rounded bg-black/30 px-1">LINKEDIN_ORG_CLIENT_ID</code> /{' '}
-        <code className="rounded bg-black/30 px-1">LINKEDIN_ORG_CLIENT_SECRET</code> sur Vercel.
+        <code className="rounded bg-zinc-100 px-1">LINKEDIN_ORG_CLIENT_ID</code> /{' '}
+        <code className="rounded bg-zinc-100 px-1">LINKEDIN_ORG_CLIENT_SECRET</code> sur Vercel.
       </div>
     );
   }
@@ -315,22 +315,22 @@ async function OrgConnectionBanner({ account }: { account: LinkedInOrgAccountSum
   return (
     <div className={cn(
       'flex flex-wrap items-center justify-between gap-3 rounded-lg border p-4 text-[13px]',
-      connected ? 'border-emerald-400/20 bg-emerald-500/[0.05]' : 'border-white/[0.08] bg-white/[0.02]',
+      connected ? 'border-emerald-200 bg-emerald-50' : 'border-zinc-200 bg-white',
     )}>
       <div className="min-w-0 leading-6">
         {connected ? (
-          <span className="text-emerald-200/90">
-            <strong className="font-semibold text-emerald-100">Page Lucid-Lab connectée.</strong> Chaque post publié
+          <span className="text-emerald-700">
+            <strong className="font-semibold text-emerald-800">Page Lucid-Lab connectée.</strong> Chaque post publié
             est reposté sur le feed de la page.
           </span>
         ) : needsReauth ? (
-          <span className="text-amber-200/90">
-            <strong className="font-semibold text-amber-100">Reconnexion de la page requise.</strong>{' '}
+          <span className="text-amber-700">
+            <strong className="font-semibold text-amber-800">Reconnexion de la page requise.</strong>{' '}
             {account?.lastError ?? 'Le jeton a expiré.'}
           </span>
         ) : (
-          <span className="text-zinc-300">
-            <strong className="font-semibold text-zinc-100">Page Lucid-Lab non connectée.</strong> Connectez-la (en
+          <span className="text-zinc-700">
+            <strong className="font-semibold text-zinc-900">Page Lucid-Lab non connectée.</strong> Connectez-la (en
             tant qu’admin de la page) pour reposter automatiquement chaque post publié.
           </span>
         )}
@@ -344,11 +344,11 @@ async function OrgConnectionBanner({ account }: { account: LinkedInOrgAccountSum
 
 function NewPostForm({ activeView }: { activeView: ViewKey }) {
   return (
-    <details className="rounded-lg border border-white/[0.08] bg-white/[0.02]">
-      <summary className="cursor-pointer list-none px-4 py-3 text-[13px] font-medium text-zinc-200 hover:text-white">
+    <details className="rounded-lg border border-zinc-200 bg-white">
+      <summary className="cursor-pointer list-none px-4 py-3 text-[13px] font-medium text-zinc-900 hover:text-zinc-950">
         + Nouveau post
       </summary>
-      <form action={createSocialPostAction} className="grid gap-3 border-t border-white/[0.06] p-4">
+      <form action={createSocialPostAction} className="grid gap-3 border-t border-zinc-200 p-4">
         <HiddenContext activeView={activeView} />
         <div className="grid gap-3 sm:grid-cols-3">
           <div>
@@ -418,22 +418,22 @@ export default async function LucidOsSocialPage({
       <LucidOsHeader title="LinkedIn" />
 
       {resolved.linkedin_connected ? (
-        <div className="rounded-lg border border-emerald-400/20 bg-emerald-500/[0.06] p-3 text-[13px] text-emerald-200/90">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-[13px] text-emerald-700">
           Compte LinkedIn connecté.
         </div>
       ) : null}
       {resolved.linkedin_error ? (
-        <div className="rounded-lg border border-red-400/20 bg-red-500/[0.06] p-3 text-[13px] text-red-200/90">
+        <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-[13px] text-rose-700">
           Connexion LinkedIn échouée : {resolved.linkedin_error}
         </div>
       ) : null}
       {resolved.linkedin_org_connected ? (
-        <div className="rounded-lg border border-emerald-400/20 bg-emerald-500/[0.06] p-3 text-[13px] text-emerald-200/90">
+        <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-[13px] text-emerald-700">
           Page Lucid-Lab connectée.
         </div>
       ) : null}
       {resolved.linkedin_org_error ? (
-        <div className="rounded-lg border border-red-400/20 bg-red-500/[0.06] p-3 text-[13px] text-red-200/90">
+        <div className="rounded-lg border border-rose-200 bg-rose-50 p-3 text-[13px] text-rose-700">
           Connexion de la page échouée : {resolved.linkedin_org_error}
         </div>
       ) : null}
@@ -456,11 +456,11 @@ export default async function LucidOsSocialPage({
               href={`${base}/lucid-os/social?vue=${view.key}`}
               className={cn(
                 'inline-flex h-9 items-center gap-2 rounded-md px-3 text-sm font-medium transition-colors',
-                isActive ? 'bg-[#17171a] text-zinc-50 ring-1 ring-white/10' : 'text-zinc-400 hover:bg-[#121215] hover:text-zinc-100',
+                isActive ? 'bg-zinc-100 text-zinc-950 ring-1 ring-zinc-200' : 'text-zinc-500 hover:bg-zinc-100 hover:text-zinc-950',
               )}
             >
               {view.label}
-              <span className={cn('rounded-full px-1.5 text-xs tabular-nums', isActive ? 'bg-[#3b82f6]/20 text-[#93c5fd]' : 'bg-white/[0.06] text-zinc-500')}>
+              <span className={cn('rounded-full px-1.5 text-xs tabular-nums', isActive ? 'bg-blue-50 text-blue-700' : 'bg-zinc-100 text-zinc-500')}>
                 {countFor(view)}
               </span>
             </Link>

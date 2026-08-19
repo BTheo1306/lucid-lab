@@ -160,7 +160,7 @@ function MessageList({
             ) : null}
             <div className="mt-3 flex flex-wrap items-center gap-4 border-t border-zinc-100 pt-3">
               {m.priority ? (
-                <span className="text-xs text-zinc-400">
+                <span className="text-xs text-zinc-500">
                   {prio.label}{m.score != null ? ` · ${m.score}/20` : ''}
                 </span>
               ) : null}
@@ -236,7 +236,7 @@ export default async function LeadEnginePage() {
               value={sender.sessionExpired ? 'Session expirée' : sender.lastSeenAt ? 'Actif' : 'Inactif'}
               hint={sender.lastSeenAt ? formatAdminDateTime(sender.lastSeenAt) : 'Démarrer le runner local'}
               icon={sender.sessionExpired ? AlertTriangle : CheckCircle2}
-              accent={sender.sessionExpired ? 'text-rose-500' : sender.lastSeenAt ? 'text-emerald-500' : 'text-zinc-400'}
+              accent={sender.sessionExpired ? 'text-rose-700' : sender.lastSeenAt ? 'text-emerald-700' : 'text-zinc-400'}
             />
           </div>
         ) : (

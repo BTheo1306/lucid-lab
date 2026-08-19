@@ -55,7 +55,7 @@ export default async function LucidOsKnowledgePage() {
         {documents.length === 0 ? (
           <EmptyState>Aucun document de connaissance n’est encore indexé.</EmptyState>
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-zinc-100">
             {documents.map((document) => (
               <article key={document.id} className="grid gap-4 py-5 first:pt-0 last:pb-0 xl:grid-cols-[minmax(280px,0.9fr)_minmax(320px,1.1fr)_minmax(220px,0.75fr)] xl:items-start">
                 <div className="flex items-start justify-between gap-3">
@@ -165,7 +165,7 @@ export default async function LucidOsKnowledgePage() {
         {knowledgeAuditEvents.length === 0 ? (
           <EmptyState>Aucun événement d’audit connaissance pour le moment.</EmptyState>
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-zinc-100">
             {knowledgeAuditEvents.map((event) => (
               <div key={event.id} className="py-3 first:pt-0 last:pb-0">
                 <div className="flex flex-col justify-between gap-2 md:flex-row md:items-center">

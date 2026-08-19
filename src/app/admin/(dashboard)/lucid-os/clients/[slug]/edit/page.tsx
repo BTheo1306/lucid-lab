@@ -23,7 +23,7 @@ function ActionErrorBanner({ message }: { message: string | null }) {
   if (!message) return null;
 
   return (
-    <div className="border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm leading-6 text-rose-100">
+    <div className="border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-800">
       {message}
     </div>
   );
@@ -103,7 +103,7 @@ export default async function EditLucidClientPage({ params, searchParams }: { pa
       <LucidOsHeader
         title={`Modifier ${editableClient.name}`}
         action={(
-          <Link href={`${base}/lucid-os/clients/${editableClient.slug}`} className="inline-flex h-9 items-center gap-2 rounded border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.07]">
+          <Link href={`${base}/lucid-os/clients/${editableClient.slug}`} className="inline-flex h-9 items-center gap-2 rounded border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
             <ArrowLeft className="size-4" />
             Retour
           </Link>
@@ -116,10 +116,10 @@ export default async function EditLucidClientPage({ params, searchParams }: { pa
       </Section>
 
       {client ? <Section title="Zone danger">
-        <div className="flex flex-col gap-3 border border-rose-400/20 bg-rose-500/[0.04] p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 border border-rose-200 bg-rose-50 p-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <p className="text-sm font-semibold text-rose-100">Supprimer ce client</p>
-            <p className="mt-1 text-sm text-rose-200/60">Supprime la fiche CRM et les enregistrements liés dans Supabase.</p>
+            <p className="text-sm font-semibold text-rose-800">Supprimer ce client</p>
+            <p className="mt-1 text-sm text-rose-700">Supprime la fiche CRM et les enregistrements liés dans Supabase.</p>
           </div>
           <DeleteClientForm clientId={client.id} clientSlug={client.slug} clientName={client.name} />
         </div>

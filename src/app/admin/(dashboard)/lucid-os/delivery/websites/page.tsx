@@ -62,7 +62,7 @@ export default async function LucidOsWebsitesPage() {
         {websites.length === 0 ? (
           <EmptyState>Aucun site web n’est encore enregistré.</EmptyState>
         ) : (
-          <div className="divide-y divide-white/10">
+          <div className="divide-y divide-zinc-100">
             {websites.map((website) => (
               <div key={website.id} className="py-4 first:pt-0 last:pb-0">
                 <div className="flex flex-col justify-between gap-3 md:flex-row md:items-start">

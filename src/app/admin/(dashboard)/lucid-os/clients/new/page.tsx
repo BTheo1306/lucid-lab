@@ -19,7 +19,7 @@ function ActionErrorBanner({ message }: { message: string | null }) {
   if (!message) return null;
 
   return (
-    <div className="border border-rose-400/25 bg-rose-500/10 px-4 py-3 text-sm leading-6 text-rose-100">
+    <div className="border border-rose-200 bg-rose-50 px-4 py-3 text-sm leading-6 text-rose-800">
       {message}
     </div>
   );
@@ -35,7 +35,7 @@ export default async function NewLucidClientPage({ searchParams }: { searchParam
       <LucidOsHeader
         title="Ajouter un client"
         action={(
-          <Link href={`${base}/lucid-os/clients`} className="inline-flex h-9 items-center gap-2 rounded border border-white/10 bg-white/[0.04] px-3 text-sm font-medium text-zinc-200 transition hover:bg-white/[0.07]">
+          <Link href={`${base}/lucid-os/clients`} className="inline-flex h-9 items-center gap-2 rounded border border-zinc-200 bg-white px-3 text-sm font-medium text-zinc-700 transition hover:bg-zinc-50">
             <ArrowLeft className="size-4" />
             Retour
           </Link>

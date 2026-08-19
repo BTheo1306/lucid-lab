@@ -79,7 +79,7 @@ export function PostForm({ post, base }: PostFormProps) {
       ) : null}
 
       {post?.status === 'rejected' && post?.review_note ? (
-        <p className="rounded-lg border border-red-200 bg-red-50 px-4 py-2.5 text-sm text-red-700">
+        <p className="rounded-lg border border-rose-200 bg-rose-50 px-4 py-2.5 text-sm text-rose-700">
           Rejeté : {post.review_note}
         </p>
       ) : null}
@@ -336,7 +336,7 @@ export function PostForm({ post, base }: PostFormProps) {
               <input type="hidden" name="id" value={post.id} />
               <button
                 type="submit"
-                className="inline-flex h-10 items-center rounded-lg border border-red-200 bg-white px-4 text-sm font-medium text-red-600 hover:bg-red-50"
+                className="inline-flex h-10 items-center rounded-lg border border-rose-200 bg-white px-4 text-sm font-medium text-rose-700 hover:bg-rose-100"
                 onClick={(e) => {
                   if (!confirm('Supprimer définitivement ?')) e.preventDefault();
                 }}
