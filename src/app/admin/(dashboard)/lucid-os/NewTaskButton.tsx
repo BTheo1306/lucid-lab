@@ -61,20 +61,20 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
         name="title"
         required
         placeholder="Titre de la tâche *"
-        className="h-9 w-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-300"
+        className="h-9 w-full border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-400"
       />
 
       <textarea
         name="description"
         placeholder="Description (optionnel)"
         rows={2}
-        className="w-full resize-none border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-300"
+        className="w-full resize-none border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-400"
       />
 
       <div className="grid gap-3 sm:grid-cols-2">
         <select
           name="client_id"
-          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-700 outline-none focus:border-zinc-300"
+          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-700 outline-none focus:border-zinc-400"
         >
           <option value="">Pas de client</option>
           {clients.map((c) => (
@@ -85,7 +85,7 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
         <input
           name="owner_label"
           placeholder="Responsable (ex : Jules)"
-          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-300"
+          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-zinc-400"
         />
       </div>
 
@@ -93,7 +93,7 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
         <select
           name="priority"
           defaultValue="normal"
-          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-700 outline-none focus:border-zinc-300"
+          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-700 outline-none focus:border-zinc-400"
         >
           <option value="low">Priorité basse</option>
           <option value="normal">Priorité normale</option>
@@ -104,7 +104,7 @@ export function NewTaskButton({ clients }: { clients: ClientOption[] }) {
         <input
           name="due_at"
           type="date"
-          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-700 outline-none focus:border-zinc-300"
+          className="h-9 border border-zinc-200 bg-white px-3 text-sm text-zinc-700 outline-none focus:border-zinc-400"
         />
       </div>
 

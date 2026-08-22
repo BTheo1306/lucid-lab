@@ -49,7 +49,7 @@ const BTN_BASE = 'inline-flex h-8 items-center gap-1.5 rounded-md px-3 text-xs f
 const BTN_PRIMARY = cn(BTN_BASE, 'bg-blue-50 text-blue-700 ring-1 ring-blue-200 hover:bg-blue-100');
 const BTN_NEUTRAL = cn(BTN_BASE, 'bg-white text-zinc-700 ring-1 ring-zinc-200 hover:bg-zinc-50');
 const BTN_DANGER = cn(BTN_BASE, 'bg-rose-50 text-rose-700 ring-1 ring-rose-200 hover:bg-rose-100');
-const FIELD = 'w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-[13px] text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-300';
+const FIELD = 'w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-[13px] text-zinc-900 outline-none placeholder:text-zinc-400 focus:border-zinc-400';
 const LABEL = 'mb-1 block text-[11px] font-medium uppercase tracking-[0.1em] text-zinc-500';
 
 function statusTone(status: SocialPostStatus): 'neutral' | 'good' | 'warning' | 'danger' {

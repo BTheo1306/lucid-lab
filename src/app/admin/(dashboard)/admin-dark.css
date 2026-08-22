@@ -110,6 +110,17 @@
 .admin-dark input::placeholder,
 .admin-dark textarea::placeholder { color: #71717a !important; }
 
+/* Focus states.
+   The resting remaps above are !important, so the focus: utilities (which are
+   not) lose the cascade in dark: the border never moved on focus, and the ring
+   kept its light zinc-100 value, flashing a near-white halo. Remapping the
+   focus utilities themselves keeps the call sites in light classes and wins on
+   specificity (.admin-dark + utility class + :focus). */
+.admin-dark .focus\:border-zinc-400:focus { border-color: #71717a !important; }
+.admin-dark .focus\:ring-zinc-100:focus { --tw-ring-color: rgba(244, 244, 245, 0.14) !important; }
+.admin-dark .focus\:border-blue-400\/60:focus { border-color: rgba(96, 165, 250, 0.65) !important; }
+.admin-dark .focus\:ring-blue-500\/15:focus { --tw-ring-color: rgba(59, 130, 246, 0.3) !important; }
+
 /* Logo invert in dark mode */
 .admin-dark .admin-logo { filter: invert(1); }
 
