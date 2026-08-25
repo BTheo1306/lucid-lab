@@ -5,6 +5,8 @@ import {
   type Lead,
 } from '../db/queries/leads';
 import { updateContact, type Contact } from '../db/queries/contacts';
+import { upsertCrmProspectFromLead, type CrmProspectResult } from '../db/queries/crm-prospect';
+import { getConversationMessages } from '../db/queries/messages';
 import { sendTeamLeadNotification } from '../integrations/email-client';
 
 export interface CaptureLeadInput {
@@ -20,7 +22,8 @@ export interface CaptureLeadInput {
 
 /**
  * Capture a lead from the bot conversation. Upserts the lead, updates contact
- * details if provided, and notifies the Lucid-Lab team by email.
+ * details if provided, mirrors it into the CRM Prospects board, and notifies the
+ * Lucid-Lab team by email with the whole conversation attached.
  */
 export async function captureLead(input: CaptureLeadInput): Promise<Lead> {
   // Update contact with provided details
@@ -58,16 +61,57 @@ export async function captureLead(input: CaptureLeadInput): Promise<Lead> {
     });
   }
 
+  const email = input.email ?? input.contact.email ?? null;
+  const firstName = input.firstName ?? input.contact.first_name;
+  const company = input.company ?? input.contact.company;
+
+  // Mirror into the CRM Prospects board so no captured lead lives only in an inbox.
+  let crm: CrmProspectResult | null = null;
+  if (email) {
+    try {
+      crm = await upsertCrmProspectFromLead({
+        name: [firstName, input.contact.last_name].filter(Boolean).join(' ') || null,
+        email,
+        company,
+        projectBrief: input.projectBrief,
+        slugSeed: input.contact.id,
+        leadSource: 'chat_widget',
+      });
+    } catch (err) {
+      console.error('[lead] CRM prospect sync failed:', err);
+    }
+  }
+
+  // The brief is what the bot understood; the transcript is what the visitor
+  // actually wrote. Send both so nothing has to be chased down in the admin.
+  let transcript: { role: string; content: string }[] = [];
+  try {
+    const messages = await getConversationMessages(input.conversationId, 50);
+    transcript = messages.map((m) => ({
+      role: m.direction === 'inbound' ? 'Visiteur' : 'Lucid',
+      content:
+        typeof m.content === 'object' && m.content !== null && 'text' in m.content
+          ? String((m.content as { text: unknown }).text)
+          : JSON.stringify(m.content),
+    }));
+  } catch (err) {
+    console.error('[lead] transcript fetch failed:', err);
+  }
+
   // Notify team
   try {
     await sendTeamLeadNotification({
-      email: input.email ?? input.contact.email ?? 'unknown@anonymous',
-      firstName: input.firstName ?? input.contact.first_name,
-      company: input.company ?? input.contact.company,
+      email: email ?? 'unknown@anonymous',
+      firstName,
+      company,
       language: input.contact.language,
       projectBrief: input.projectBrief,
       interest: input.interest ?? null,
       conversationId: input.conversationId,
+      contactId: input.contact.id,
+      transcript,
+      crmClientSlug: crm?.slug ?? null,
+      sourceLabel: 'chat du site',
     });
   } catch (err) {
     console.error('[lead] team notification failed:', err);

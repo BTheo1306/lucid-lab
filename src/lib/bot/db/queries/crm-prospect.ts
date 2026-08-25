@@ -1,13 +1,16 @@
 import { supabase } from '../supabase';
 
 /**
- * Bridge an inbound booked call into the Lucid OS CRM `clients` board so it shows
- * up in the Prospects section. This is deliberately separate from the Lead Engine
+ * Bridge inbound demand into the Lucid OS CRM `clients` board so it shows up in
+ * the Prospects section. This is deliberately separate from the Lead Engine
  * prospect sync (`lead-engine-prospects.ts`): the Lead Engine tracks the outbound
  * sourcing funnel, while `clients` is the human-curated agency pipeline.
  *
- * Only *booked* calls flow here (not bare form submissions) to keep the CRM board
- * free of unqualified noise.
+ * Two entry points, with different weight:
+ * - `upsertCrmProspectFromBooking`: a booked call, lands at `meeting_booked`.
+ * - `upsertCrmProspectFromLead`: a captured lead (chat widget or Audit Flash
+ *   form), lands at `lead` / `potential`. Every captured lead flows here so no
+ *   inbound message can be missed; qualification happens on the board.
  */
 
 const ORG_ID = '2ee10622-ce92-454a-af4e-693b2007b42c';
@@ -26,7 +29,20 @@ export type CrmBookingProspectInput = {
   bookingSource: 'website_widget' | 'tidycal_relay' | 'manual';
 };
 
-export type CrmProspectResult = { clientId: string; isNew: boolean };
+export type CrmLeadProspectInput = {
+  name: string | null;
+  email: string;
+  company?: string | null;
+  sector?: string | null;
+  /** The captured brief, verbatim and untruncated: becomes the prospect's notes. */
+  projectBrief?: string | null;
+  /** Extra entropy for slug uniqueness (e.g. a contact or session id). */
+  slugSeed?: string | null;
+  /** Where the lead was captured, for audit + task labelling. */
+  leadSource: 'chat_widget' | 'audit_flash_form' | 'lex_teaser';
+};
+
+export type CrmProspectResult = { clientId: string; slug: string | null; isNew: boolean };
 
 function clean(value: string | null | undefined): string | null {
   const trimmed = value?.trim();
@@ -64,16 +80,47 @@ async function uniqueSlug(base: string, seed: string | null): Promise<string> {
   return `${candidate}-${extra}`.slice(0, 60);
 }
 
-async function findClientByEmail(email: string): Promise<{ id: string } | null> {
+async function findClientByEmail(email: string): Promise<{ id: string; slug: string | null } | null> {
   const { data, error } = await supabase
     .from('clients')
-    .select('id')
+    .select('id,slug')
     .eq('organization_id', ORG_ID)
     .ilike('primary_contact_email', email)
     .limit(1)
     .maybeSingle();
   if (error) throw error;
-  return data ? { id: String(data.id) } : null;
+  return data ? { id: String(data.id), slug: data.slug ? String(data.slug) : null } : null;
+}
+
+/**
+ * Replace the single task a given automated source owns, so repeat inbound
+ * touches refresh one task instead of stacking a new one every time.
+ */
+async function replaceSourcedTask(
+  clientId: string,
+  source: string,
+  task: { title: string; dueAt: string | null; metadata: Record<string, unknown> },
+): Promise<void> {
+  await supabase
+    .from('client_tasks')
+    .delete()
+    .eq('organization_id', ORG_ID)
+    .eq('client_id', clientId)
+    .eq('status', 'todo')
+    .eq('metadata->>source', source);
+
+  const { error } = await supabase.from('client_tasks').insert({
+    organization_id: ORG_ID,
+    client_id: clientId,
+    title: task.title,
+    status: 'todo',
+    priority: 'high',
+    owner_label: 'Jules',
+    due_at: task.dueAt,
+    created_by: 'agent',
+    metadata: task.metadata,
+  });
+  if (error) throw error;
 }
 
 /**
@@ -97,6 +144,7 @@ export async function upsertCrmProspectFromBooking(
 
   const existing = await findClientByEmail(email);
   let clientId: string;
+  let clientSlug: string | null;
   let isNew: boolean;
 
   if (existing) {
@@ -107,6 +155,7 @@ export async function upsertCrmProspectFromBooking(
       .eq('id', existing.id);
     if (error) throw error;
     clientId = existing.id;
+    clientSlug = existing.slug;
     isNew = false;
   } else {
     const slug = await uniqueSlug(slugify(displayName), input.slugSeed ?? email);
@@ -147,6 +196,7 @@ export async function upsertCrmProspectFromBooking(
       .single();
     if (error) throw error;
     clientId = String(data.id);
+    clientSlug = slug;
     isNew = true;
 
     const { error: contactError } = await supabase.from('client_contacts').insert({
@@ -164,26 +214,11 @@ export async function upsertCrmProspectFromBooking(
   }
 
   // Refresh the single booking-sourced prep task so repeat bookings don't stack.
-  await supabase
-    .from('client_tasks')
-    .delete()
-    .eq('organization_id', ORG_ID)
-    .eq('client_id', clientId)
-    .eq('status', 'todo')
-    .eq('metadata->>source', 'booking');
-
-  const { error: taskError } = await supabase.from('client_tasks').insert({
-    organization_id: ORG_ID,
-    client_id: clientId,
+  await replaceSourcedTask(clientId, 'booking', {
     title: `${nextAction}${startsAt ? '' : ' (heure à confirmer)'}`,
-    status: 'todo',
-    priority: 'high',
-    owner_label: 'Jules',
-    due_at: startsAt,
-    created_by: 'agent',
+    dueAt: startsAt,
     metadata: { source: 'booking', booking_source: input.bookingSource },
   });
-  if (taskError) throw taskError;
 
   await supabase.from('audit_events').insert({
     organization_id: ORG_ID,
@@ -202,5 +237,131 @@ export async function upsertCrmProspectFromBooking(
     },
   });
 
-  return { clientId, isNew };
+  return { clientId, slug: clientSlug, isNew };
+}
+
+const LEAD_SOURCE_LABELS: Record<CrmLeadProspectInput['leadSource'], string> = {
+  chat_widget: 'chat du site',
+  audit_flash_form: 'formulaire Audit Flash',
+  lex_teaser: 'teaser Lex (home)',
+};
+
+/**
+ * Idempotent by primary_contact_email, same as the booking bridge but for a bare
+ * captured lead: an unknown contact becomes a `lead` at the `lead` stage with the
+ * full brief in `notes`, a primary contact and a qualification task. An existing
+ * record only gets the fresh touch + the task, never a stage or next-action
+ * rewrite: an inbound message must not overwrite the plan for a live client.
+ * Returns null when there is no usable email.
+ */
+export async function upsertCrmProspectFromLead(
+  input: CrmLeadProspectInput,
+): Promise<CrmProspectResult | null> {
+  const email = clean(input.email)?.toLowerCase();
+  if (!email) return null;
+
+  const name = clean(input.name);
+  const company = clean(input.company);
+  const displayName = company ?? name ?? email;
+  const brief = clean(input.projectBrief);
+  const sourceLabel = LEAD_SOURCE_LABELS[input.leadSource];
+  const now = new Date().toISOString();
+  const nextAction = `Qualifier le lead entrant${name ? ` : ${name}` : ''}`;
+
+  const existing = await findClientByEmail(email);
+  let clientId: string;
+  let clientSlug: string | null;
+  let isNew: boolean;
+
+  if (existing) {
+    const { error } = await supabase
+      .from('clients')
+      .update({ last_contacted_at: now })
+      .eq('id', existing.id);
+    if (error) throw error;
+    clientId = existing.id;
+    clientSlug = existing.slug;
+    isNew = false;
+  } else {
+    const slug = await uniqueSlug(slugify(displayName), input.slugSeed ?? email);
+    const { data, error } = await supabase
+      .from('clients')
+      .insert({
+        organization_id: ORG_ID,
+        slug,
+        name: displayName,
+        status: 'lead',
+        lifecycle_stage: 'lead',
+        health_status: 'unknown',
+        health_score: null,
+        health_summary: `Lead entrant capturé via le ${sourceLabel}.`,
+        industry: clean(input.sector),
+        primary_contact_name: name,
+        primary_contact_email: email,
+        owner_label: 'Jules',
+        next_action: nextAction,
+        next_action_due_at: null,
+        last_contacted_at: now,
+        // Full brief, untruncated: the CRM record is the place where the whole
+        // message has to be readable.
+        notes: brief,
+        metadata: {
+          source: 'inbound_lead',
+          lead_source: input.leadSource,
+          // Mirror the shape the CRM clients UI reads (metadata.intake).
+          intake: {
+            stage: 'potential',
+            meeting_status: 'not_booked',
+            source: `inbound_lead_${input.leadSource}`,
+            captured_by: 'lead_bridge',
+            captured_at: now,
+            raw_context_preview: brief,
+          },
+        },
+      })
+      .select('id')
+      .single();
+    if (error) throw error;
+    clientId = String(data.id);
+    clientSlug = slug;
+    isNew = true;
+
+    const { error: contactError } = await supabase.from('client_contacts').insert({
+      organization_id: ORG_ID,
+      client_id: clientId,
+      full_name: name ?? email,
+      email,
+      is_primary: true,
+      // Decision-making power is unknown for a bare inbound lead: leave the
+      // column defaults (false / 'unknown') rather than assert it.
+      status: 'active',
+      metadata: { source: 'inbound_lead', lead_source: input.leadSource },
+    });
+    if (contactError) throw contactError;
+  }
+
+  // Refresh the single lead-sourced task so repeat captures don't stack.
+  await replaceSourcedTask(clientId, 'inbound_lead', {
+    title: `${nextAction} (${sourceLabel})`,
+    dueAt: null,
+    metadata: { source: 'inbound_lead', lead_source: input.leadSource },
+  });
+
+  await supabase.from('audit_events').insert({
+    organization_id: ORG_ID,
+    actor_type: 'automation',
+    event_type: 'inbound_lead_synced',
+    target_table: 'clients',
+    risk_level: 'low',
+    summary: `Lead entrant synchronisé au CRM : ${displayName}${isNew ? ' (nouveau prospect)' : ' (fiche existante)'}`,
+    details: {
+      source: 'lead_bridge',
+      lead_source: input.leadSource,
+      client_id: clientId,
+      email,
+      created: isNew,
+    },
+  });
+
+  return { clientId, slug: clientSlug, isNew };
 }

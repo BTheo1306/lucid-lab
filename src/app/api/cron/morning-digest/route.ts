@@ -51,6 +51,7 @@ export async function GET(req: Request) {
         email: c?.email ?? 'anonymous',
         firstName: (c?.first_name as string | null) ?? null,
         projectBrief: l.project_brief,
+        contactId: l.contact_id,
       };
     }),
   );

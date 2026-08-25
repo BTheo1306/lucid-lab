@@ -1,4 +1,5 @@
 import nodemailer, { type Transporter } from 'nodemailer';
+import { adminBaseUrl } from '@/lib/admin/urls';
 import { config } from '../config';
 
 let transporter: Transporter | null = null;
@@ -79,7 +80,29 @@ async function downloadPdfAttachment(url: string, fileName: string): Promise<Sen
   }
 }
 
-/** New lead captured by the bot — notify the team immediately. */
+const INTEREST_LABELS: Record<string, string> = {
+  source: 'Source',
+  role: 'Rôle',
+  company_registration: 'N° société',
+  headquarters_address: 'Siège',
+  team_size: 'Taille équipe',
+  sector: 'Secteur',
+  requested_call: 'Call demandé',
+  tidycal_url: 'Lien de réservation',
+  urgency: 'Urgence',
+  budget_range: 'Budget',
+  timeline: 'Échéance',
+};
+
+/** Drop empty values so the email shows real context instead of a wall of `null`. */
+function interestEntries(interest: Record<string, unknown> | null): [string, string][] {
+  if (!interest) return [];
+  return Object.entries(interest)
+    .filter(([, value]) => value !== null && value !== undefined && String(value).trim() !== '')
+    .map(([key, value]) => [INTEREST_LABELS[key] ?? key, String(value)]);
+}
+
+/** New lead captured by the bot — notify the team immediately, in full. */
 export async function sendTeamLeadNotification(input: {
   email: string;
   firstName?: string | null;
@@ -88,29 +111,78 @@ export async function sendTeamLeadNotification(input: {
   projectBrief: string;
   interest: Record<string, unknown> | null;
   conversationId: string;
+  /** Enables the deep link to the full record (brief, transcripts, bookings). */
+  contactId?: string | null;
+  /** Full conversation, when the lead came from the chat widget. */
+  transcript?: { role: string; content: string }[];
+  /** Slug of the CRM prospect this lead was mirrored into, when it succeeded. */
+  crmClientSlug?: string | null;
+  /** Human label of where the lead was captured. */
+  sourceLabel?: string | null;
 }): Promise<void> {
-  const interestLines = input.interest
-    ? Object.entries(input.interest)
-        .map(([k, v]) => `<li><strong>${escapeHtml(k)}:</strong> ${escapeHtml(String(v))}</li>`)
-        .join('')
-    : '';
+  const context = interestEntries(input.interest);
+  const contextHtml = context
+    .map(([label, value]) => `<li><strong>${escapeHtml(label)} :</strong> ${escapeHtml(value)}</li>`)
+    .join('');
+
+  const transcript = input.transcript ?? [];
+  const transcriptHtml = transcript
+    .map(
+      (m) =>
+        `<p style="margin:0 0 10px;"><strong>${escapeHtml(m.role)} :</strong><br>${escapeHtml(m.content).replace(/\n/g, '<br>')}</p>`,
+    )
+    .join('');
+
+  const contactUrl = input.contactId ? `${adminBaseUrl()}/contacts/${input.contactId}` : null;
+  const crmUrl = input.crmClientSlug ? `${adminBaseUrl()}/lucid-os/clients/${input.crmClientSlug}` : null;
+  const links = [
+    crmUrl ? `<li><a href="${escapeHtml(crmUrl)}">Fiche prospect dans le CRM</a></li>` : null,
+    contactUrl ? `<li><a href="${escapeHtml(contactUrl)}">Fiche contact (brief complet + transcript)</a></li>` : null,
+  ]
+    .filter(Boolean)
+    .join('');
 
   const html = `
-    <h2>Nouveau lead capturé par le bot</h2>
-    <p><strong>Email:</strong> ${escapeHtml(input.email)}</p>
-    ${input.firstName ? `<p><strong>Prénom:</strong> ${escapeHtml(input.firstName)}</p>` : ''}
-    ${input.company ? `<p><strong>Société:</strong> ${escapeHtml(input.company)}</p>` : ''}
-    <p><strong>Langue:</strong> ${escapeHtml(input.language)}</p>
+    <h2>Nouveau lead capturé${input.sourceLabel ? ` via le ${escapeHtml(input.sourceLabel)}` : ''}</h2>
+    <p><strong>Email :</strong> <a href="mailto:${escapeHtml(input.email)}">${escapeHtml(input.email)}</a></p>
+    ${input.firstName ? `<p><strong>Prénom :</strong> ${escapeHtml(input.firstName)}</p>` : ''}
+    ${input.company ? `<p><strong>Société :</strong> ${escapeHtml(input.company)}</p>` : ''}
+    <p><strong>Langue :</strong> ${escapeHtml(input.language)}</p>
     <h3>Brief projet</h3>
-    <p>${escapeHtml(input.projectBrief).replace(/\n/g, '<br>')}</p>
-    ${interestLines ? `<h3>Contexte</h3><ul>${interestLines}</ul>` : ''}
-    <p style="color:#666;font-size:12px;">Conversation ID: ${escapeHtml(input.conversationId)}</p>
+    <div style="white-space:pre-wrap;border-left:3px solid #ddd;padding-left:12px;">${escapeHtml(input.projectBrief)}</div>
+    ${contextHtml ? `<h3>Contexte</h3><ul>${contextHtml}</ul>` : ''}
+    ${transcriptHtml ? `<h3>Conversation complète (${transcript.length} messages)</h3><div style="border-left:3px solid #ddd;padding-left:12px;">${transcriptHtml}</div>` : ''}
+    ${links ? `<h3>Ouvrir dans Lucid OS</h3><ul>${links}</ul>` : ''}
+    <p style="color:#666;font-size:12px;">Conversation ID : ${escapeHtml(input.conversationId)}</p>
   `;
+
+  const text = [
+    `Nouveau lead capturé${input.sourceLabel ? ` via le ${input.sourceLabel}` : ''}`,
+    ``,
+    `Email : ${input.email}`,
+    input.firstName ? `Prénom : ${input.firstName}` : null,
+    input.company ? `Société : ${input.company}` : null,
+    `Langue : ${input.language}`,
+    ``,
+    `Brief projet :`,
+    input.projectBrief,
+    context.length ? `\nContexte :\n${context.map(([l, v]) => `- ${l} : ${v}`).join('\n')}` : null,
+    transcript.length
+      ? `\nConversation complète :\n${transcript.map((m) => `${m.role} : ${m.content}`).join('\n\n')}`
+      : null,
+    crmUrl ? `\nFiche prospect CRM : ${crmUrl}` : null,
+    contactUrl ? `Fiche contact : ${contactUrl}` : null,
+    ``,
+    `Conversation ID : ${input.conversationId}`,
+  ]
+    .filter((line) => line !== null)
+    .join('\n');
 
   await sendEmail({
     to: config.teamNotificationEmail,
     subject: `[Lucid-Lab Bot] Nouveau lead — ${input.email}`,
     html,
+    text,
     replyTo: input.email,
   });
 }
@@ -173,7 +245,7 @@ export async function sendMorningDigest(input: {
   leadsCount: number;
   conversationsCount: number;
   escalationsCount: number;
-  recentLeads: { email: string; firstName: string | null; projectBrief: string | null }[];
+  recentLeads: { email: string; firstName: string | null; projectBrief: string | null; contactId?: string | null }[];
   /** Tickets clients encore ouverts (portail), toutes anciennetés confondues. */
   openTickets?: {
     count: number;
@@ -181,13 +253,18 @@ export async function sendMorningDigest(input: {
     adminUrl: string;
   };
 }): Promise<void> {
+  // Full brief, never truncated: the digest is where leads are triaged.
   const leadsHtml = input.recentLeads
-    .map(
-      (l) =>
-        `<li><strong>${escapeHtml(l.email)}</strong>${
-          l.firstName ? ` (${escapeHtml(l.firstName)})` : ''
-        }${l.projectBrief ? `<br><em>${escapeHtml(l.projectBrief.slice(0, 200))}${l.projectBrief.length > 200 ? '…' : ''}</em>` : ''}</li>`,
-    )
+    .map((l) => {
+      const contactUrl = l.contactId ? `${adminBaseUrl()}/contacts/${l.contactId}` : null;
+      return `<li style="margin-bottom:12px;"><strong>${escapeHtml(l.email)}</strong>${
+        l.firstName ? ` (${escapeHtml(l.firstName)})` : ''
+      }${
+        l.projectBrief
+          ? `<div style="white-space:pre-wrap;color:#444;margin-top:4px;">${escapeHtml(l.projectBrief)}</div>`
+          : ''
+      }${contactUrl ? `<div style="margin-top:4px;"><a href="${escapeHtml(contactUrl)}">Ouvrir la fiche</a></div>` : ''}</li>`;
+    })
     .join('');
 
   const tickets = input.openTickets;

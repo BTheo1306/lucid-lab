@@ -4,6 +4,7 @@ import { NextResponse } from 'next/server'
 import { z } from 'zod'
 
 import { createContact } from '@/lib/bot/db/queries/contacts'
+import { upsertCrmProspectFromLead, type CrmProspectResult } from '@/lib/bot/db/queries/crm-prospect'
 import { syncAuditFlashProspect } from '@/lib/bot/db/queries/lead-engine-prospects'
 import { createLead } from '@/lib/bot/db/queries/leads'
 import { sendTeamLeadNotification } from '@/lib/bot/integrations/email-client'
@@ -149,6 +150,22 @@ export async function POST(req: Request) {
     console.error('[audit-flash] lead engine prospect sync failed:', error)
   }
 
+  // Mirror into the CRM Prospects board so no captured lead lives only in an inbox.
+  let crm: CrmProspectResult | null = null
+  try {
+    crm = await upsertCrmProspectFromLead({
+      name: [clean(parsed.first_name), clean(parsed.last_name)].filter(Boolean).join(' ') || null,
+      email: parsed.email,
+      company: clean(parsed.company),
+      sector: clean(parsed.sector),
+      projectBrief,
+      slugSeed: contact.id,
+      leadSource: parsed.source,
+    })
+  } catch (error) {
+    console.error('[audit-flash] CRM prospect sync failed:', error)
+  }
+
   try {
     await sendTeamLeadNotification({
       email: parsed.email.toLowerCase(),
@@ -158,6 +175,9 @@ export async function POST(req: Request) {
       projectBrief,
       interest,
       conversationId: `audit_flash:${lead.id}`,
+      contactId: contact.id,
+      crmClientSlug: crm?.slug ?? null,
+      sourceLabel: parsed.source === 'lex_teaser' ? 'teaser Lex (home)' : 'formulaire Audit Flash',
     })
   } catch (error) {
     console.error('[audit-flash] team notification failed:', error)
