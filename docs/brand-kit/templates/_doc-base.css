@@ -101,3 +101,8 @@ body { margin: 0; background: var(--color-gray-100); font-family: var(--font-bod
   .totals .box { width: 100%; }
   .amount-band { flex-direction: column; align-items: flex-start; } .amount-band .side { text-align: left; }
 }
+
+/* Bloc signature Lucid-Lab pre-signe (voir skill lucid-pdf) */
+.sign.presigned { padding-bottom: 15px; }
+.sign .sig-img { display: block; height: 64px; margin: 12px 0 3px; }
+.sign .sig-name { font-family: var(--font-mono); font-size: 11px; color: var(--text-primary); }

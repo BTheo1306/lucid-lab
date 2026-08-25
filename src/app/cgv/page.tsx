@@ -285,9 +285,9 @@ export default function CGV() {
         </p>
         <div className="my-4 rounded-lg border border-zinc-200 bg-zinc-50 px-5 py-4 text-[14px] not-prose">
           <p className="mb-1 text-zinc-700"><strong>Titulaire :</strong> Lucid-Lab</p>
-          <p className="mb-1 text-zinc-700"><strong>IBAN :</strong> FR76 1732 8844 0043 2662 8862 178</p>
-          <p className="mb-1 text-zinc-700"><strong>BIC :</strong> SWNBFR22</p>
-          <p className="text-zinc-700"><strong>Banque :</strong> Swan</p>
+          <p className="mb-1 text-zinc-700"><strong>IBAN :</strong> FR76 2823 3000 0119 9177 3651 869</p>
+          <p className="mb-1 text-zinc-700"><strong>BIC :</strong> REVOFRP2</p>
+          <p className="text-zinc-700"><strong>Banque :</strong> Revolut Bank UAB</p>
         </div>
         <p>
           Tout autre moyen de paiement (chèque, espèces, carte bancaire) est exclu, sauf accord

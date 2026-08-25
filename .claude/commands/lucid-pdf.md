@@ -52,6 +52,37 @@ rclone copy "/path/to/file.pdf" "gdrive:" --drive-root-folder-id=<FOLDER_ID> --n
 - **page-break** : `<div class="page-break"></div>` pour les sauts de page — ne jamais s'appuyer sur les sauts CSS automatiques.
 - **Vérification** : `python3 -c "from pypdf import PdfReader; r = PdfReader('...'); print(len(r.pages))"` + `pdftoppm -r 80 ...`.
 
+## Documents pré-signés côté Lucid-Lab
+
+**Règle : tout document sortant est généré déjà signé côté Lucid-Lab.** Jules ne doit jamais avoir à
+signer ou contre-signer un document après génération. Seul le client signe.
+
+Le bloc « Pour Lucid-Lab » doit donc porter la signature, la date et le nom du signataire, et non un
+cadre vide :
+
+```html
+<div class="sign presigned">
+  <div class="lbl">Pour Lucid-Lab</div>
+  <div class="who">Lucid-Lab</div>
+  <div class="note">Fait à Paris, le [JJ/MM/2026]. Signé par avance : aucune contre-signature à nous retourner.</div>
+  <img class="sig-img" src="../assets/signature-anthony.png" alt="">
+  <div class="sig-name">Anthony Poirier, Président</div>
+</div>
+```
+
+- Asset : `docs/brand-kit/assets/signature-anthony.png` (531 × 201, RGBA), hauteur de rendu 54 px.
+- Styles `.sign.presigned`, `.sig-img` et `.sig-name` : déjà dans `docs/brand-kit/templates/_doc-base.css`.
+- Depuis un dossier client (`docs/brand-kit/clients/<client>/`), le chemin devient `../../assets/`.
+- Pour les templates Jinja2 de `scripts/`, la signature s'injecte en base64 comme le logo, dans le
+  second `sig-box` de la page Signatures.
+
+**Vérifier après génération que la signature est bien rendue dans le PDF.** Une image manquante ne
+casse pas la génération : elle produit silencieusement un document non signé qui affirme l'être.
+
+**Qui signe.** Le Président statutaire de Lucid-Lab est Periscope-X SARL, représentée par Anthony
+Poirier. Jules signe en qualité de cofondateur. Pour un document où l'engagement statutaire compte
+(contrat de prestation, NDA, engagement pluriannuel), faire confirmer le signataire avant envoi.
+
 ## Coordonnées bancaires Lucid-Lab (Revolut)
 
 | Champ     | Valeur                            |
@@ -63,6 +94,13 @@ rclone copy "/path/to/file.pdf" "gdrive:" --drive-root-folder-id=<FOLDER_ID> --n
 | Adresse   | 10 avenue Kléber, 75116 Paris     |
 
 **Ne jamais utiliser l'ancien IBAN Swan** (`FR76 1732 8844 0043 2662 8862 178` / `SWNBFR22`).
+
+Les templates de `docs/brand-kit/templates/` ont porté l'IBAN Swan jusqu'au 12/08/2026, corrigés
+depuis. Reste à corriger hors de ce périmètre : `src/app/cgv/page.tsx` (page CGV publique),
+`docs/legal-templates/generated/*-docuseal-template.html`, et plusieurs scripts de génération
+one-shot (`generate_invoice.py`, `generate-proposition-sophia.py`,
+`generate-proposition-sinibaldi-pc.py`, `content_sinibaldi_pc.py`). Vérifier l'IBAN de tout document
+produit à partir d'une de ces sources avant envoi.
 
 ## Infos légales Lucid-Lab (prestataire)
 

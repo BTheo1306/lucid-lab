@@ -13,6 +13,15 @@ templates/  (documents commerciaux et administratifs)
   one-pager           Fiche de presentation (1 page)
   one-pager-avocats   Fiche de presentation, cabinets d'avocats (1 page :
                       second cerveau, secret professionnel, audit flash).
+  second-cerveau-avocats  Brochure envoi a froid, cabinets d'avocats (3 pages :
+                      reprend one-pager-avocats en page 1, puis circuit du
+                      dossier et illustration "memoire reliee"). Piece jointe
+                      des mails a froid avocats (voir docs/emails/).
+  etude-de-cas-bsp37  Etude de cas assistant IA, atelier de signaletique (6 pages :
+                      situation de depart, les 8 briques installees, ce que ca change,
+                      tableau du temps gagne, bilan). Preuve chiffree pour la
+                      prospection artisans / TPE. Document de demonstration : aucune
+                      donnee client, aucun tarif, aucune info financiere du client.
   devis               Devis
   bon-de-commande     Bon de commande
   bon-pour-accord     Bon pour accord
