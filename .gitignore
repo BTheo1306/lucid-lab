@@ -50,3 +50,10 @@ next-env.d.ts
 # Scratch / MCP session artifacts
 .playwright-mcp/
 /aura-*.png
+
+# Client-confidential and personal material — never in this PUBLIC repo.
+# AGENTS.md: "Do not store real client data in this repo." Keep these in
+# Drive / the vault, not in git.
+docs/emails/
+docs/brand-kit/clients/
+docs/brand-kit/assets/signature-*
