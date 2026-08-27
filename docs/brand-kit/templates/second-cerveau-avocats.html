@@ -1,0 +1,322 @@
+<!-- @dsCard group="Templates" viewport="900x1180" name="Second cerveau avocats" subtitle="Brochure envoi a froid, cabinets d'avocats (3 pages : fiche, circuit dossier, memoire reliee)" -->
+<!--
+  TEMPLATE · Second cerveau, cabinets d'avocats (version longue, 3 pages)
+  Usage : piece jointe des mails a froid avocats (voir docs/prospection/scripts/avocats.md
+  et docs/emails/). Page 1 = contenu identique a one-pager-avocats.html. Pages 2-3 =
+  circuit du dossier et illustration "memoire reliee", propres a cette version longue.
+  Reconstruit en HTML le 19/08/2026 a partir d'un PDF deja exporte (aucune source
+  HTML retrouvee) : wording revu au passage (anglicismes, "Dépouiller").
+  Export PDF : Chrome headless, marges aucune, graphiques d'arriere-plan.
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Second cerveau pour cabinets d'avocats</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="_doc-base.css">
+<style>
+  /* ── Sheet 1 : identique a one-pager-avocats.html ─────────────────────── */
+  .op-hero { margin-top: 26px; }
+  .op-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); }
+  .op-title { font-family: var(--font-display); font-weight: 700; font-size: 40px; letter-spacing: -0.025em; line-height: 1.06; margin: 14px 0 0; }
+  .op-title .em { color: var(--text-accent); }
+  .op-lead { font-size: 15px; line-height: 1.6; color: var(--text-secondary); max-width: 68ch; margin: 15px 0 0; }
+  .op-lead b { color: var(--text-primary); font-weight: 600; }
+  .sec-lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin: 26px 0 12px; display: block; }
+  .pivot { margin-top: 24px; padding-left: 16px; border-left: 3px solid var(--color-ember-700); }
+  .pivot .k { display: block; font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); margin-bottom: 8px; }
+  .pivot p { font-family: var(--font-display); font-weight: 600; font-size: 20px; line-height: 1.35; letter-spacing: -0.015em; color: var(--text-primary); margin: 0; }
+  .pillars { display: grid; grid-template-columns: repeat(4, 1fr); gap: 13px; }
+  .pillar { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 15px 15px 17px; }
+  .pillar .pn { font-family: var(--font-mono); font-size: 12px; font-weight: 600; color: var(--text-accent); letter-spacing: 0.04em; }
+  .pillar h3 { font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: -0.01em; margin: 10px 0 6px; line-height: 1.2; }
+  .pillar p { font-size: 11.5px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+  .secret { border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--color-white); padding: 14px 20px 16px; }
+  .secret .row { display: flex; align-items: flex-start; gap: 12px; padding: 8px 0; font-size: 13px; line-height: 1.55; color: var(--text-secondary); }
+  .secret .row + .row { border-top: 1px solid var(--border-subtle); }
+  .secret .row .mk { flex-shrink: 0; font-family: var(--font-mono); font-size: 13px; color: var(--text-accent); line-height: 1.5; }
+  .secret .row b { color: var(--text-primary); font-weight: 600; }
+  .legal { margin-top: 16px; font-size: 12px; line-height: 1.6; color: var(--text-secondary); }
+  .legal b { color: var(--text-primary); font-weight: 600; }
+  .op-cta { margin-top: auto; background-color: #0A0A0A; border-radius: var(--radius-lg); padding: 22px 30px; display: flex; justify-content: space-between; align-items: center; gap: 24px; }
+  .op-cta .big { font-family: var(--font-display); font-weight: 700; font-size: 21px; letter-spacing: -0.015em; color: #ffffff; }
+  .op-cta .big span { color: #E0894E; }
+  .op-cta .big small { display: block; font-family: var(--font-mono); font-size: 11.5px; font-weight: 400; color: rgba(255,255,255,0.55); letter-spacing: 0.02em; margin-top: 7px; }
+  .op-cta .side { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.62); text-align: right; line-height: 1.8; white-space: nowrap; }
+  .op-cta .side a { color: #E0894E; text-decoration: none; }
+
+  /* ── Header variant sheets 2-3 : titre a gauche, marque a droite ──────── */
+  .chead { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 18px; border-bottom: 2px solid var(--color-ink); }
+  .chead .titles { max-width: 56ch; }
+  .chead h1 { font-family: var(--font-display); font-weight: 700; font-size: 25px; letter-spacing: -0.015em; margin: 0; }
+  .chead .sub { font-size: 13px; color: var(--text-secondary); margin: 7px 0 0; line-height: 1.5; }
+  .chead .brand-mini { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+  .chead .brand-mini img { width: 22px; height: 22px; display: block; }
+  .chead .brand-mini b { display: block; font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.08em; font-size: 14px; }
+  .chead .brand-mini span { display: block; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.05em; color: var(--text-muted); margin-top: 3px; text-align: right; }
+
+  /* ── Sheet 2 : circuit du dossier ─────────────────────────────────────── */
+  .circ-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-top: 26px; }
+  .circ-card { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 16px 15px 15px; display: flex; flex-direction: column; }
+  .circ-ic { width: 32px; height: 32px; border-radius: 50%; background: var(--accent-wash); color: var(--text-accent); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .circ-ic svg { width: 16px; height: 16px; }
+  .circ-card h3 { font-family: var(--font-display); font-weight: 700; font-size: 14.5px; margin: 11px 0 5px; }
+  .circ-card > p.d { font-size: 11px; line-height: 1.48; color: var(--text-secondary); margin: 0; }
+  .circ-lbl { font-family: var(--font-mono); font-size: 8.5px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--text-muted); margin: 12px 0 6px; display: block; }
+  .circ-card ul { list-style: none; margin: 0; padding: 0; }
+  .circ-card li { font-size: 10.5px; line-height: 1.4; color: var(--text-secondary); padding-left: 11px; position: relative; margin-bottom: 4px; }
+  .circ-card li::before { content: ""; position: absolute; left: 0; top: 5.5px; width: 4px; height: 4px; border-radius: 50%; background: var(--accent); }
+  .circ-avocat { margin-top: auto; padding-top: 9px; border-top: 1px solid var(--border-subtle); }
+  .circ-avocat p { font-size: 11px; font-weight: 600; color: var(--text-primary); margin: 0; line-height: 1.4; }
+
+  .dark-band { margin-top: 22px; background-color: #0A0A0A; border-radius: var(--radius-lg); padding: 20px 26px; display: flex; gap: 22px; align-items: flex-start; }
+  .dark-band .lbl { flex-shrink: 0; width: 84px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.5); line-height: 1.45; }
+  .dark-band p { margin: 0; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.82); }
+  .dark-band p b { color: #ffffff; font-weight: 600; }
+
+  /* ── Sheet 3 : memoire reliee ──────────────────────────────────────────── */
+  .legend { display: flex; flex-wrap: wrap; gap: 22px; margin-top: 16px; padding-bottom: 15px; border-bottom: 1px solid var(--border-default); }
+  .legend .it { display: flex; align-items: center; gap: 7px; font-family: var(--font-mono); font-size: 10.5px; color: var(--text-secondary); }
+  .legend .sw { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .legend .sw.k { background: var(--color-ink); }
+  .legend .sw.o { background: var(--accent); }
+  .legend .sw.g { background: var(--border-strong); }
+
+  .diagram { margin-top: 18px; }
+  .diagram svg { width: 100%; height: auto; display: block; }
+  .bg-edges line { stroke: var(--border-strong); stroke-width: 0.7; opacity: 0.5; }
+  .bg-dots circle { fill: var(--border-strong); opacity: 0.6; }
+  .fg-line { stroke: var(--color-ember-700); stroke-width: 1.2; opacity: 0.85; }
+  .fg-node { fill: var(--accent); }
+  .fg-node.center { fill: var(--color-ink); }
+  .fg-label { font-family: var(--font-mono); font-size: 9px; fill: var(--text-secondary); }
+  .fg-label.center-lbl { font-weight: 600; font-size: 10px; fill: var(--text-primary); }
+  .lbl-mask { fill: var(--color-paper); }
+
+  @media print {
+    .op-hero { margin-top: 14px; }
+    .op-title { font-size: 36px; }
+    .op-lead { margin-top: 12px; font-size: 14.5px; line-height: 1.52; }
+    .sec-lbl { margin: 13px 0 8px; }
+    .pivot { margin-top: 12px; }
+    .pivot p { font-size: 18px; }
+    .pillar { padding: 12px 13px 14px; }
+    .pillar p { font-size: 11px; line-height: 1.45; }
+    .secret { padding: 10px 20px 12px; }
+    .secret .row { padding: 5px 0; font-size: 12.5px; line-height: 1.45; }
+    .legal { margin-top: 9px; font-size: 11.5px; line-height: 1.5; }
+    .op-cta { padding: 12px 28px; }
+    .op-cta .big { font-size: 19px; }
+    .op-cta .big small { font-size: 11px; margin-top: 5px; }
+    .chead { padding-bottom: 14px; }
+    .circ-grid { margin-top: 18px; }
+    .circ-card { padding: 13px 12px 12px; }
+    .dark-band { margin-top: 16px; padding: 16px 22px; }
+    .legend { margin-top: 12px; padding-bottom: 12px; }
+    .diagram { margin-top: 12px; }
+  }
+  @media (max-width: 680px) {
+    .pillars { grid-template-columns: 1fr 1fr; }
+    .op-cta { flex-direction: column; align-items: flex-start; } .op-cta .side { text-align: left; }
+    .chead { flex-direction: column; }
+    .chead .brand-mini span { text-align: left; }
+    .circ-grid { grid-template-columns: 1fr 1fr; }
+    .dark-band { flex-direction: column; }
+    .dark-band .lbl { width: auto; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ P1 · FICHE (identique one-pager-avocats.html) ══════════ -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Cabinets d'avocats</h1>
+      <div class="meta">lucid-lab.fr<br>contact@lucid-lab.fr</div>
+    </div>
+  </header>
+
+  <div class="op-hero">
+    <span class="op-eyebrow">Second cerveau · mémoire de cabinet</span>
+    <h1 class="op-title">Une mémoire de cabinet,<br><span class="em">installée chez vous.</span></h1>
+    <p class="op-lead">Vous êtes déjà équipés, et souvent très bien. <b>Ce n'est pas un logiciel de plus.</b> On installe Claude, l'assistant IA d'Anthropic, branché sur un coffre de connaissances qui reste sur vos machines. On y verse ce que le cabinet sait déjà : modèles, notes de dossier, analyses, et si vous le décidez, les pièces des dossiers. Trois cents pages de conclusions adverses, trois ans d'échanges, ce que vous aviez plaidé sur un moyen similaire : tout redevient <b>retrouvable</b>.</p>
+  </div>
+
+  <div class="pivot">
+    <span class="k">La différence, en une phrase</span>
+    <p>« Lexis et Doctrine connaissent le droit, nous on connaît vos dossiers. »</p>
+  </div>
+
+  <span class="sec-lbl">Ce que ça change dans la semaine</span>
+  <div class="pillars">
+    <div class="pillar"><div class="pn">01</div><h3>Analyser</h3><p>Chronologie des faits, moyens soulevés, pièces citées, avec le renvoi vers la page.</p></div>
+    <div class="pillar"><div class="pn">02</div><h3>Retrouver</h3><p>La pièce, le mail, la note scannée. Trente secondes au lieu d'une heure.</p></div>
+    <div class="pillar"><div class="pn">03</div><h3>Réutiliser</h3><p>Vos modèles et vos analyses déjà écrits, ressortis au format du cabinet.</p></div>
+    <div class="pillar"><div class="pn">04</div><h3>Transmettre</h3><p>Un collaborateur reprend un dossier sans venir vous déranger.</p></div>
+  </div>
+
+  <span class="sec-lbl">Le secret professionnel, traité en premier</span>
+  <div class="secret">
+    <div class="row"><span class="mk">01</span><div>Le coffre est installé <b>localement</b> : des fichiers sur vos machines ou sur votre serveur. Ce n'est pas une plateforme hébergée chez nous, on ne stocke rien, et vous gardez tout si vous arrêtez de travailler avec nous.</div></div>
+    <div class="row"><span class="mk">02</span><div><b>Vous décidez de ce qu'on y verse, et à quel rythme.</b> Beaucoup de cabinets commencent par ce qui n'est pas couvert par le secret, et n'y versent des pièces que plus tard.</div></div>
+    <div class="row"><span class="mk">03</span><div>Anthropic, l'éditeur de Claude, <b>n'entraîne pas ses modèles</b> sur les données envoyées via les offres professionnelles. On vous montre les paramètres et les conditions en rendez-vous, écran partagé.</div></div>
+    <div class="row"><span class="mk">04</span><div>L'assistant cherche dans <b>votre</b> coffre et cite ses sources. S'il n'y a rien sur le sujet, il le dit. Il ne remplace ni votre vérification, ni votre signature.</div></div>
+  </div>
+
+  <div class="op-cta">
+    <div class="big">30 minutes en visio, on vous le montre <span>en direct</span><small>Installation en deux jours, formation comprise. Premier pas : un audit flash, calibré sur vos besoins, trois jours au minimum.</small></div>
+    <div class="side">lucid-lab.fr<br><a href="mailto:contact@lucid-lab.fr">contact@lucid-lab.fr</a></div>
+  </div>
+
+</section>
+
+<!-- ══════════ P2 · DU PREMIER ÉCHANGE À LA NOTE D'HONORAIRES ══════════ -->
+<section class="sheet">
+
+  <div class="chead">
+    <div class="titles">
+      <h1>Du premier échange à la note d'honoraires</h1>
+      <p class="sub">Vos opérations exceptionnelles et vos dossiers courants suivent le même circuit.</p>
+    </div>
+    <div class="brand-mini">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><span>Expertise IA de pointe</span></div>
+    </div>
+  </div>
+
+  <div class="circ-grid">
+    <div class="circ-card">
+      <div class="circ-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M4 7l8 6 8-6"/></svg></div>
+      <h3>Le dossier</h3>
+      <p class="d">Les messages et les pièces reçus du client ou du confrère forment un dossier constitué.</p>
+      <span class="circ-lbl">Le logiciel</span>
+      <ul>
+        <li>classe chaque échange dans le bon dossier</li>
+        <li>résume l'échange et renomme les pièces</li>
+        <li>rapproche la demande de votre base clients, pour votre contrôle des conflits</li>
+      </ul>
+      <div class="circ-avocat"><span class="circ-lbl" style="margin-top:0">L'avocat</span><p>Vous découvrez un dossier déjà constitué.</p></div>
+    </div>
+
+    <div class="circ-card">
+      <div class="circ-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5l1-4L16.5 4 20 7.5 8.5 18l-4 1z"/><path d="M14 6.5L17.5 10"/></svg></div>
+      <h3>La mission</h3>
+      <p class="d">La lettre de mission se rédige au moment où vous définissez le périmètre, et non après.</p>
+      <span class="circ-lbl">Le logiciel</span>
+      <ul>
+        <li>propose les phases, les diligences et les honoraires à partir de votre barème</li>
+        <li>rédige la lettre de mission sur vos modèles et l'enregistre dans votre logiciel métier</li>
+      </ul>
+      <div class="circ-avocat"><span class="circ-lbl" style="margin-top:0">L'avocat</span><p>Vous relisez, vous ajustez, vous signez. Rien ne part avant.</p></div>
+    </div>
+
+    <div class="circ-card">
+      <div class="circ-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3.5 2"/></svg></div>
+      <h3>Les diligences</h3>
+      <p class="d">Ce que le dossier exige est préparé, tracé et rappelé au bon moment.</p>
+      <span class="circ-lbl">Le logiciel</span>
+      <ul>
+        <li>prépare les actes et les formalités à partir de vos modèles</li>
+        <li>suit les échéances et vous alerte avant chacune</li>
+        <li>impute au dossier les temps saisis</li>
+      </ul>
+      <div class="circ-avocat"><span class="circ-lbl" style="margin-top:0">L'avocat</span><p>Vous gardez le droit, la stratégie et le client.</p></div>
+    </div>
+
+    <div class="circ-card">
+      <div class="circ-ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="1.5"/><path d="M8 8h8M8 12h8M8 16h5"/></svg></div>
+      <h3>Les honoraires</h3>
+      <p class="d">La note d'honoraires reprend ce qui a été convenu et ce qui a été fait.</p>
+      <span class="circ-lbl">Le logiciel</span>
+      <ul>
+        <li>alimente la note avec les diligences et les temps passés</li>
+        <li>impute les provisions déjà appelées</li>
+        <li>vous alerte avant que le temps engagé n'atteigne l'honoraire annoncé</li>
+      </ul>
+      <div class="circ-avocat"><span class="circ-lbl" style="margin-top:0">L'avocat</span><p>Vous relisez la note et vous l'arrêtez.</p></div>
+    </div>
+  </div>
+
+  <div class="dark-band">
+    <div class="lbl">L'espace client</div>
+    <p>Votre client, et le correspondant qui vous adresse le dossier, y déposent leurs pièces et suivent l'avancement sans avoir à vous appeler. <b>L'accès s'ouvre dossier par dossier, sur votre décision, limité aux pièces que vous désignez, et révocable à tout moment.</b> Les honoraires n'y figurent pas.</p>
+  </div>
+
+</section>
+
+<!-- ══════════ P3 · CE QUE DEVIENT UN DOSSIER QUAND LA MATIÈRE EST RELIÉE ══════════ -->
+<section class="sheet">
+
+  <div class="chead">
+    <div class="titles">
+      <h1>Ce que devient un dossier quand la matière est reliée</h1>
+      <p class="sub">Chaque point est un document, un mail, une note ou un acte. Chaque trait est un lien réel, cité et vérifiable. Vue d'un cabinet fictif, à titre d'illustration.</p>
+    </div>
+    <div class="brand-mini">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><span>Expertise IA de pointe</span></div>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="it"><span class="sw k"></span>Le dossier que vous ouvrez</div>
+    <div class="it"><span class="sw o"></span>Ce qui remonte avec lui, sans le chercher</div>
+    <div class="it"><span class="sw g"></span>Le reste de la mémoire du cabinet, disponible et silencieux</div>
+  </div>
+
+  <div class="diagram">
+    <svg viewBox="0 0 760 460" xmlns="http://www.w3.org/2000/svg">
+      <g class="bg-edges"><line x1="57.0" y1="177.9" x2="92.5" y2="201.3"/><line x1="57.0" y1="177.9" x2="10.4" y2="152.6"/><line x1="207.5" y1="292.0" x2="230.8" y2="291.1"/><line x1="345.8" y1="429.7" x2="359.8" y2="355.2"/><line x1="658.1" y1="125.9" x2="647.6" y2="119.4"/><line x1="290.1" y1="252.9" x2="334.2" y2="237.7"/><line x1="685.3" y1="393.0" x2="659.7" y2="426.7"/><line x1="425.4" y1="125.6" x2="460.6" y2="77.2"/><line x1="748.2" y1="234.2" x2="702.3" y2="261.3"/><line x1="179.5" y1="24.1" x2="168.5" y2="68.2"/><line x1="213.5" y1="108.2" x2="180.3" y2="106.9"/><line x1="166.1" y1="424.9" x2="179.4" y2="408.4"/><line x1="623.8" y1="282.1" x2="647.7" y2="264.0"/><line x1="658.5" y1="148.5" x2="658.1" y2="125.9"/><line x1="607.3" y1="331.1" x2="633.7" y2="351.4"/><line x1="742.2" y1="291.6" x2="747.1" y2="242.8"/><line x1="78.6" y1="52.6" x2="77.3" y2="30.7"/><line x1="290.1" y1="252.9" x2="260.2" y2="268.9"/><line x1="742.2" y1="291.6" x2="746.4" y2="295.9"/><line x1="718.3" y1="158.1" x2="658.5" y2="148.5"/><line x1="171.8" y1="232.4" x2="150.8" y2="207.4"/><line x1="728.6" y1="388.7" x2="660.3" y2="375.9"/><line x1="77.3" y1="30.7" x2="99.5" y2="108.9"/><line x1="207.6" y1="422.1" x2="206.1" y2="393.9"/><line x1="480.4" y1="170.5" x2="495.0" y2="184.1"/><line x1="596.1" y1="195.8" x2="586.2" y2="243.4"/><line x1="718.3" y1="158.1" x2="686.8" y2="211.9"/><line x1="728.6" y1="388.7" x2="685.3" y2="393.0"/><line x1="490.9" y1="249.8" x2="514.5" y2="246.3"/><line x1="207.5" y1="292.0" x2="186.1" y2="304.4"/><line x1="660.3" y1="375.9" x2="659.7" y2="426.7"/><line x1="206.1" y1="393.9" x2="179.4" y2="408.4"/><line x1="91.1" y1="286.1" x2="62.5" y2="287.7"/><line x1="69.0" y1="112.4" x2="84.7" y2="132.3"/><line x1="84.7" y1="132.3" x2="99.5" y2="108.9"/><line x1="637.1" y1="275.6" x2="647.7" y2="264.0"/><line x1="609.0" y1="12.9" x2="576.7" y2="66.5"/><line x1="633.7" y1="351.4" x2="660.3" y2="375.9"/><line x1="425.4" y1="125.6" x2="380.4" y2="88.6"/><line x1="606.3" y1="317.2" x2="607.3" y2="331.1"/><line x1="489.5" y1="278.0" x2="422.1" y2="311.2"/><line x1="495.0" y1="184.1" x2="514.5" y2="246.3"/><line x1="213.5" y1="108.2" x2="206.0" y2="118.5"/><line x1="748.2" y1="234.2" x2="747.1" y2="242.8"/><line x1="322.2" y1="23.1" x2="261.8" y2="78.4"/><line x1="483.2" y1="21.0" x2="460.6" y2="77.2"/><line x1="73.4" y1="223.8" x2="81.7" y2="199.7"/><line x1="179.5" y1="24.1" x2="237.6" y2="35.5"/><line x1="243.4" y1="127.8" x2="206.0" y2="118.5"/><line x1="261.8" y1="78.4" x2="283.9" y2="102.2"/><line x1="606.3" y1="317.2" x2="549.5" y2="306.3"/><line x1="489.5" y1="278.0" x2="514.5" y2="246.3"/><line x1="283.9" y1="102.2" x2="305.6" y2="106.5"/><line x1="29.6" y1="97.5" x2="69.0" y2="112.4"/><line x1="230.8" y1="291.1" x2="260.2" y2="268.9"/><line x1="607.5" y1="93.8" x2="647.6" y2="119.4"/><line x1="576.7" y1="66.5" x2="607.5" y2="93.8"/><line x1="658.5" y1="148.5" x2="647.6" y2="119.4"/><line x1="283.9" y1="102.2" x2="323.1" y2="103.2"/><line x1="290.1" y1="252.9" x2="323.4" y2="215.5"/><line x1="531.4" y1="30.2" x2="576.7" y2="66.5"/><line x1="747.1" y1="242.8" x2="702.3" y2="261.3"/><line x1="442.6" y1="405.0" x2="409.1" y2="331.2"/><line x1="305.6" y1="106.5" x2="323.1" y2="103.2"/><line x1="483.2" y1="21.0" x2="531.4" y2="30.2"/><line x1="180.3" y1="106.9" x2="168.5" y2="68.2"/><line x1="136.6" y1="330.8" x2="91.1" y2="286.1"/><line x1="555.0" y1="307.7" x2="549.5" y2="306.3"/><line x1="130.9" y1="177.0" x2="158.9" y2="147.2"/><line x1="69.0" y1="112.4" x2="99.5" y2="108.9"/><line x1="178.6" y1="137.3" x2="180.3" y2="106.9"/><line x1="574.3" y1="247.3" x2="586.2" y2="243.4"/><line x1="322.2" y1="23.1" x2="323.1" y2="103.2"/><line x1="637.1" y1="275.6" x2="623.8" y2="282.1"/><line x1="670.2" y1="48.3" x2="646.1" y2="41.2"/><line x1="57.0" y1="177.9" x2="81.7" y2="199.7"/><line x1="555.0" y1="307.7" x2="606.3" y2="317.2"/><line x1="305.6" y1="106.5" x2="307.9" y2="159.3"/><line x1="422.1" y1="311.2" x2="409.1" y2="331.2"/><line x1="490.9" y1="249.8" x2="489.5" y2="278.0"/><line x1="130.9" y1="177.0" x2="150.8" y2="207.4"/><line x1="323.1" y1="103.2" x2="307.9" y2="159.3"/><line x1="92.5" y1="201.3" x2="81.7" y2="199.7"/><line x1="18.5" y1="327.1" x2="62.5" y2="287.7"/><line x1="173.1" y1="269.3" x2="186.1" y2="304.4"/><line x1="609.0" y1="12.9" x2="646.1" y2="41.2"/><line x1="334.2" y1="237.7" x2="323.4" y2="215.5"/><line x1="206.0" y1="118.5" x2="180.3" y2="106.9"/><line x1="178.6" y1="137.3" x2="158.9" y2="147.2"/><line x1="213.5" y1="108.2" x2="243.4" y2="127.8"/><line x1="406.8" y1="438.2" x2="442.6" y2="405.0"/><line x1="361.7" y1="251.9" x2="334.2" y2="237.7"/><line x1="596.1" y1="195.8" x2="574.3" y2="247.3"/><line x1="606.3" y1="317.2" x2="623.8" y2="282.1"/><line x1="742.2" y1="291.6" x2="702.3" y2="261.3"/><line x1="747.1" y1="242.8" x2="746.4" y2="295.9"/><line x1="207.6" y1="422.1" x2="179.4" y2="408.4"/><line x1="207.6" y1="422.1" x2="166.1" y2="424.9"/><line x1="409.1" y1="331.2" x2="359.8" y2="355.2"/><line x1="261.8" y1="78.4" x2="237.6" y2="35.5"/><line x1="670.2" y1="48.3" x2="738.3" y2="53.3"/><line x1="29.6" y1="97.5" x2="10.4" y2="152.6"/><line x1="61.2" y1="344.7" x2="62.5" y2="287.7"/><line x1="78.6" y1="52.6" x2="99.5" y2="108.9"/><line x1="686.8" y1="211.9" x2="702.3" y2="261.3"/><line x1="92.5" y1="201.3" x2="73.4" y2="223.8"/><line x1="480.4" y1="170.5" x2="425.4" y2="125.6"/><line x1="380.4" y1="88.6" x2="323.1" y2="103.2"/><line x1="18.5" y1="327.1" x2="61.2" y2="344.7"/><line x1="171.8" y1="232.4" x2="173.1" y2="269.3"/><line x1="406.8" y1="438.2" x2="345.8" y2="429.7"/><line x1="361.7" y1="251.9" x2="323.4" y2="215.5"/><line x1="136.6" y1="330.8" x2="186.1" y2="304.4"/><line x1="685.3" y1="393.0" x2="660.3" y2="375.9"/><line x1="24.4" y1="418.8" x2="61.2" y2="344.7"/></g><g class="bg-dots"><circle cx="483.2" cy="21.0" r="2.1"/><circle cx="213.5" cy="108.2" r="2.1"/><circle cx="555.0" cy="307.7" r="2.1"/><circle cx="670.2" cy="48.3" r="2.1"/><circle cx="322.2" cy="23.1" r="2.1"/><circle cx="171.8" cy="232.4" r="2.1"/><circle cx="29.6" cy="97.5" r="2.1"/><circle cx="490.9" cy="249.8" r="2.1"/><circle cx="173.1" cy="269.3" r="2.1"/><circle cx="609.0" cy="12.9" r="2.1"/><circle cx="606.3" cy="317.2" r="2.1"/><circle cx="261.8" cy="78.4" r="2.1"/><circle cx="718.3" cy="158.1" r="2.1"/><circle cx="78.6" cy="52.6" r="2.1"/><circle cx="637.1" cy="275.6" r="2.1"/><circle cx="607.3" cy="331.1" r="2.1"/><circle cx="406.8" cy="438.2" r="2.1"/><circle cx="290.1" cy="252.9" r="2.1"/><circle cx="623.8" cy="282.1" r="2.1"/><circle cx="647.7" cy="264.0" r="2.1"/><circle cx="531.4" cy="30.2" r="2.1"/><circle cx="178.6" cy="137.3" r="2.1"/><circle cx="69.0" cy="112.4" r="2.1"/><circle cx="84.7" cy="132.3" r="2.1"/><circle cx="480.4" cy="170.5" r="2.1"/><circle cx="283.9" cy="102.2" r="2.1"/><circle cx="207.6" cy="422.1" r="2.1"/><circle cx="489.5" cy="278.0" r="2.1"/><circle cx="136.6" cy="330.8" r="2.1"/><circle cx="130.9" cy="177.0" r="2.1"/><circle cx="742.2" cy="291.6" r="2.1"/><circle cx="422.1" cy="311.2" r="2.1"/><circle cx="633.7" cy="351.4" r="2.1"/><circle cx="179.5" cy="24.1" r="2.1"/><circle cx="243.4" cy="127.8" r="2.1"/><circle cx="166.1" cy="424.9" r="2.1"/><circle cx="658.5" cy="148.5" r="2.1"/><circle cx="495.0" cy="184.1" r="2.1"/><circle cx="686.8" cy="211.9" r="2.1"/><circle cx="206.0" cy="118.5" r="2.1"/><circle cx="425.4" cy="125.6" r="2.1"/><circle cx="442.6" cy="405.0" r="2.1"/><circle cx="305.6" cy="106.5" r="2.1"/><circle cx="748.2" cy="234.2" r="2.1"/><circle cx="77.3" cy="30.7" r="2.1"/><circle cx="91.1" cy="286.1" r="2.1"/><circle cx="596.1" cy="195.8" r="2.1"/><circle cx="57.0" cy="177.9" r="2.1"/><circle cx="747.1" cy="242.8" r="2.1"/><circle cx="728.6" cy="388.7" r="2.1"/><circle cx="18.5" cy="327.1" r="2.1"/><circle cx="514.5" cy="246.3" r="2.1"/><circle cx="207.5" cy="292.0" r="2.1"/><circle cx="92.5" cy="201.3" r="2.1"/><circle cx="345.8" cy="429.7" r="2.1"/><circle cx="658.1" cy="125.9" r="2.1"/><circle cx="380.4" cy="88.6" r="2.1"/><circle cx="685.3" cy="393.0" r="2.1"/><circle cx="230.8" cy="291.1" r="2.1"/><circle cx="460.6" cy="77.2" r="2.1"/><circle cx="574.3" cy="247.3" r="2.1"/><circle cx="586.2" cy="243.4" r="2.1"/><circle cx="10.4" cy="152.6" r="2.1"/><circle cx="24.4" cy="418.8" r="2.1"/><circle cx="660.3" cy="375.9" r="2.1"/><circle cx="237.6" cy="35.5" r="2.1"/><circle cx="659.7" cy="426.7" r="2.1"/><circle cx="73.4" cy="223.8" r="2.1"/><circle cx="61.2" cy="344.7" r="2.1"/><circle cx="576.7" cy="66.5" r="2.1"/><circle cx="361.7" cy="251.9" r="2.1"/><circle cx="206.1" cy="393.9" r="2.1"/><circle cx="323.1" cy="103.2" r="2.1"/><circle cx="409.1" cy="331.2" r="2.1"/><circle cx="158.9" cy="147.2" r="2.1"/><circle cx="746.4" cy="295.9" r="2.1"/><circle cx="334.2" cy="237.7" r="2.1"/><circle cx="99.5" cy="108.9" r="2.1"/><circle cx="260.2" cy="268.9" r="2.1"/><circle cx="180.3" cy="106.9" r="2.1"/><circle cx="62.5" cy="287.7" r="2.1"/><circle cx="179.4" cy="408.4" r="2.1"/><circle cx="646.1" cy="41.2" r="2.1"/><circle cx="186.1" cy="304.4" r="2.1"/><circle cx="168.5" cy="68.2" r="2.1"/><circle cx="702.3" cy="261.3" r="2.1"/><circle cx="359.8" cy="355.2" r="2.1"/><circle cx="607.5" cy="93.8" r="2.1"/><circle cx="81.7" cy="199.7" r="2.1"/><circle cx="323.4" cy="215.5" r="2.1"/><circle cx="549.5" cy="306.3" r="2.1"/><circle cx="738.3" cy="53.3" r="2.1"/><circle cx="307.9" cy="159.3" r="2.1"/><circle cx="647.6" cy="119.4" r="2.1"/><circle cx="150.8" cy="207.4" r="2.1"/></g>
+
+      <!-- Chemin mis en avant, depuis le dossier ouvert -->
+      <g class="fg-line">
+        <line x1="390" y1="235" x2="300" y2="90"/>
+        <line x1="390" y1="235" x2="420" y2="80"/>
+        <line x1="390" y1="235" x2="185" y2="150"/>
+        <line x1="390" y1="235" x2="545" y2="165"/>
+        <line x1="390" y1="235" x2="185" y2="235"/>
+        <line x1="390" y1="235" x2="540" y2="275"/>
+        <line x1="390" y1="235" x2="245" y2="350"/>
+        <line x1="390" y1="235" x2="455" y2="355"/>
+      </g>
+
+      <circle class="fg-node" cx="300" cy="90" r="5"/>
+      <circle class="fg-node" cx="420" cy="80" r="5"/>
+      <circle class="fg-node" cx="185" cy="150" r="5"/>
+      <circle class="fg-node" cx="545" cy="165" r="5"/>
+      <circle class="fg-node" cx="185" cy="235" r="5"/>
+      <circle class="fg-node" cx="540" cy="275" r="5"/>
+      <circle class="fg-node" cx="245" cy="350" r="5"/>
+      <circle class="fg-node" cx="455" cy="355" r="5"/>
+      <circle class="fg-node center" cx="390" cy="235" r="7"/>
+
+      <text class="fg-label" x="292" y="87" text-anchor="end">La garantie d'actif et de passif</text>
+      <text class="fg-label" x="430" y="77" text-anchor="start">La note d'honoraires du dossier</text>
+      <text class="fg-label" x="177" y="147" text-anchor="end">Le fil de mails de la cession</text>
+      <text class="fg-label" x="555" y="162" text-anchor="start">Le protocole, version signée</text>
+      <text class="fg-label" x="177" y="232" text-anchor="end">Levée de condition, 30 septembre</text>
+      <text class="fg-label" x="550" y="272" text-anchor="start">Votre modèle de cession de titres</text>
+      <text class="fg-label" x="237" y="347" text-anchor="end">L'expert-comptable qui a adressé le dossier</text>
+      <text class="fg-label" x="465" y="352" text-anchor="start">La position prise en 2023</text>
+      <rect class="lbl-mask" x="248" y="250" width="284" height="15"/>
+      <text class="fg-label center-lbl" x="390" y="259" text-anchor="middle">Cession Martin, dossier ouvert le 3 septembre</text>
+    </svg>
+  </div>
+
+  <div class="dark-band">
+    <div class="lbl">Ce que vous voyez</div>
+    <p>Un cabinet de trente personnes produit quelques milliers de pièces par an. <b>Aucune n'est perdue, et aucune ne vous encombre.</b> Vous ouvrez un dossier, ce qui le concerne remonte avec lui : la version signée du protocole, la position que le cabinet avait prise sur une clause similaire, le correspondant qui l'a adressé, l'échéance à tenir. Le reste attend, à sa place.</p>
+  </div>
+
+</section>
+
+</body>
+</html>

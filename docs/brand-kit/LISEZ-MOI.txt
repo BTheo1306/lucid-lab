@@ -34,6 +34,11 @@ templates/  (documents commerciaux et administratifs)
   compte-rendu        Compte rendu de livraison client (5 pages : realisations,
                       fonctionnement, besoins client, suite). Les exemplaires
                       remplis par client sont classes sur le Drive (dossier client).
+  circuit-donnees     Schema client : le trajet des donnees du setup Claude +
+                      Obsidian (1 page paysage). A joindre au kit de preparation
+                      ou a montrer en call quand la question des donnees arrive.
+                      Particularite : polices Google Fonts (reseau requis pour
+                      regenerer le PDF), export deja en A4 paysage via @page.
 
 pitch-deck/  (presentations)
 ---------------------------

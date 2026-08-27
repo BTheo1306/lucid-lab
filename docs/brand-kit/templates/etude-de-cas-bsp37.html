@@ -1,0 +1,410 @@
+<!-- @dsCard group="Templates" viewport="900x1180" name="Etude de cas BSP37" subtitle="Etude de cas assistant IA, atelier de signaletique (6 pages : depart, solution, quotidien, chiffres, bilan)" -->
+<!--
+  TEMPLATE · Etude de cas BSP37 (assistant IA & automatisation, 6 pages)
+  Usage : preuve chiffree pour la prospection artisans / TPE. Piece jointe des mails
+  a froid et support de rendez-vous. Document de demonstration : aucune donnee client,
+  aucun tarif, aucune information financiere du client.
+  Remis en page le 24/08/2026 dans la charte brand-kit a partir du PDF d'origine.
+  Export PDF : Chrome headless, marges aucune, graphiques d'arriere-plan.
+-->
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Étude de cas BSP37</title>
+<link rel="stylesheet" href="../styles.css">
+<link rel="stylesheet" href="_doc-base.css">
+<style>
+  /* ── Couverture ───────────────────────────────────────────────────────── */
+  .cs-hero { margin-top: 30px; }
+  .cs-eyebrow { font-family: var(--font-mono); font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); }
+  .cs-title { font-family: var(--font-display); font-weight: 700; font-size: 42px; letter-spacing: -0.025em; line-height: 1.06; margin: 16px 0 0; }
+  .cs-title .em { color: var(--text-accent); }
+  .cs-lead { font-size: 15px; line-height: 1.62; color: var(--text-secondary); max-width: 68ch; margin: 17px 0 0; }
+  .cs-lead b { color: var(--text-primary); font-weight: 600; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 34px; }
+  .stat { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 22px 20px 20px; text-align: center; }
+  .stat .v { font-family: var(--font-display); font-weight: 700; font-size: 40px; letter-spacing: -0.03em; color: var(--text-accent); line-height: 1; }
+  .stat .k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin-top: 12px; }
+
+  .cover-note { margin-top: auto; padding-top: 22px; border-top: 1px solid var(--border-default); display: flex; justify-content: space-between; gap: 20px; font-family: var(--font-mono); font-size: 11px; color: var(--text-muted); }
+  .cover-note b { color: var(--text-primary); font-weight: 500; }
+
+  /* ── En-tete des pages interieures ────────────────────────────────────── */
+  .chead { display: flex; justify-content: space-between; align-items: flex-start; gap: 24px; padding-bottom: 18px; border-bottom: 2px solid var(--color-ink); }
+  .chead .titles { max-width: 58ch; }
+  .chead .eyebrow { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-accent); display: block; margin-bottom: 8px; }
+  .chead h1 { font-family: var(--font-display); font-weight: 700; font-size: 26px; letter-spacing: -0.015em; margin: 0; }
+  .chead .brand-mini { display: flex; align-items: center; gap: 9px; flex-shrink: 0; }
+  .chead .brand-mini img { width: 22px; height: 22px; display: block; }
+  .chead .brand-mini b { display: block; font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.08em; font-size: 14px; }
+  .chead .brand-mini span { display: block; font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.05em; color: var(--text-muted); margin-top: 3px; text-align: right; }
+
+  .intro { font-size: 14px; line-height: 1.65; color: var(--text-secondary); margin: 22px 0 0; max-width: 92ch; }
+  .intro b { color: var(--text-primary); font-weight: 600; }
+  .sec-lbl { font-family: var(--font-mono); font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin: 24px 0 12px; display: block; }
+
+  /* ── P2 · douleurs de depart ──────────────────────────────────────────── */
+  .pains { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 26px; }
+  .pain { display: flex; gap: 11px; align-items: flex-start; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; }
+  .pain .mk { flex-shrink: 0; font-family: var(--font-mono); font-size: 11px; color: var(--text-accent); line-height: 1.6; }
+  .pain p { margin: 0; font-size: 12.5px; line-height: 1.55; color: var(--text-secondary); }
+
+  /* ── Bande sombre (constat / idee maitresse) ──────────────────────────── */
+  .dark-band { margin-top: 24px; background-color: #0A0A0A; border-radius: var(--radius-lg); padding: 20px 26px; display: flex; gap: 22px; align-items: flex-start; }
+  .dark-band .lbl { flex-shrink: 0; width: 92px; font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.1em; text-transform: uppercase; color: rgba(255,255,255,0.5); line-height: 1.45; }
+  .dark-band p { margin: 0; font-size: 12.5px; line-height: 1.62; color: rgba(255,255,255,0.82); }
+  .dark-band p b { color: #ffffff; font-weight: 600; }
+
+  /* ── P3 · les 8 briques ───────────────────────────────────────────────── */
+  .bricks { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 22px; }
+  .brick { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 14px 16px 13px; display: flex; gap: 13px; align-items: flex-start; }
+  .brick .n { flex-shrink: 0; width: 26px; height: 26px; border-radius: 50%; background: var(--accent-wash); color: var(--text-accent); font-family: var(--font-mono); font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  .brick h3 { font-family: var(--font-display); font-weight: 700; font-size: 14px; letter-spacing: -0.01em; margin: 3px 0 5px; line-height: 1.2; }
+  .brick p { font-size: 11.5px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+  .brick .done { display: block; margin-top: 8px; padding-top: 7px; border-top: 1px solid var(--border-subtle); font-size: 10.5px; line-height: 1.45; color: var(--text-muted); }
+  .brick .done b { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-accent); font-weight: 500; }
+
+  /* ── P4 · ce que ca change ────────────────────────────────────────────── */
+  .checks { margin-top: 20px; border: 1px solid var(--border-strong); border-radius: var(--radius-lg); background: var(--color-white); padding: 6px 22px 8px; }
+  .checks .row { display: flex; gap: 13px; align-items: flex-start; padding: 11px 0; font-size: 13.5px; line-height: 1.55; color: var(--text-secondary); }
+  .checks .row + .row { border-top: 1px solid var(--border-subtle); }
+  .checks .row b { color: var(--text-primary); font-weight: 600; }
+  .checks .ck { flex-shrink: 0; width: 17px; height: 17px; margin-top: 1px; border-radius: 50%; background: var(--accent-wash); color: var(--text-accent); display: flex; align-items: center; justify-content: center; }
+  .checks .ck svg { width: 10px; height: 10px; }
+
+  /* ── P5 · tableau du temps gagne ──────────────────────────────────────── */
+  .gain { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-top: 20px; }
+  .gain th { font-family: var(--font-mono); font-size: 9.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); text-align: left; padding: 0 10px 10px; border-bottom: 1px solid var(--border-strong); font-weight: 500; }
+  .gain td { padding: 9px 10px; border-bottom: 1px solid var(--border-default); color: var(--text-secondary); vertical-align: middle; }
+  .gain td.t { color: var(--text-primary); font-weight: 600; }
+  .gain th.n, .gain td.n { text-align: right; white-space: nowrap; font-family: var(--font-mono); }
+  .gain td.g { color: var(--text-accent); font-weight: 600; }
+  .gain td:not(.t) { white-space: nowrap; }
+  .gain th:first-child, .gain td:first-child { width: 38%; }
+  .gain tr.tot td { border-bottom: none; border-top: 2px solid var(--color-ink); padding-top: 12px; font-family: var(--font-display); font-weight: 700; font-size: 15px; color: var(--text-primary); }
+  .gain tr.tot td.g { color: var(--text-accent); font-size: 17px; font-family: var(--font-display); }
+
+  .kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 22px; }
+  .kpi { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 15px 16px; text-align: center; }
+  .kpi .v { font-family: var(--font-display); font-weight: 700; font-size: 25px; letter-spacing: -0.02em; color: var(--text-accent); line-height: 1.1; }
+  .kpi .k { font-size: 11.5px; line-height: 1.45; color: var(--text-secondary); margin-top: 6px; }
+
+  .method { margin-top: 18px; font-size: 11px; line-height: 1.6; color: var(--text-muted); }
+  .method b { color: var(--text-secondary); font-weight: 600; }
+
+  /* ── P6 · bilan ───────────────────────────────────────────────────────── */
+  .closing { margin-top: 30px; padding-left: 18px; border-left: 3px solid var(--color-ember-700); }
+  .closing p { font-family: var(--font-display); font-weight: 700; font-size: 30px; line-height: 1.18; letter-spacing: -0.02em; color: var(--text-primary); margin: 0; }
+  .closing p .em { color: var(--text-accent); }
+  .cs-cta { background-color: #0A0A0A; border-radius: var(--radius-lg); padding: 24px 30px; display: flex; justify-content: space-between; align-items: flex-end; gap: 26px; }
+  .cs-cta .k { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.5); }
+  .cs-cta .big { font-family: var(--font-wordmark); font-weight: 700; letter-spacing: 0.08em; font-size: 20px; color: #ffffff; margin-top: 9px; }
+  .cs-cta p { margin: 10px 0 0; font-size: 12px; line-height: 1.6; color: rgba(255,255,255,0.72); max-width: 62ch; }
+  .cs-cta .side { font-family: var(--font-mono); font-size: 12px; color: rgba(255,255,255,0.62); text-align: right; line-height: 1.85; white-space: nowrap; flex-shrink: 0; }
+  .cs-cta .side a { color: #E0894E; text-decoration: none; }
+
+  /* ── Pied de page commun ──────────────────────────────────────────────── */
+  .cs-foot { padding-top: 18px; border-top: 1px solid var(--border-default); display: flex; justify-content: space-between; gap: 20px; font-family: var(--font-mono); font-size: 10px; color: var(--text-muted); }
+  .bottom { margin-top: auto; }
+
+  @media print {
+    .cs-hero { margin-top: 34px; }
+    .cs-title { font-size: 44px; }
+    .cs-lead { margin-top: 18px; font-size: 16px; line-height: 1.66; }
+    .stats { margin-top: 40px; }
+    .stat { padding: 26px 20px 24px; }
+    .stat .v { font-size: 44px; }
+    .chead { padding-bottom: 20px; }
+    .chead h1 { font-size: 28px; }
+    .intro { margin-top: 26px; font-size: 15px; line-height: 1.72; }
+    .sec-lbl { margin: 30px 0 16px; }
+    .pains { gap: 14px 28px; }
+    .pain { padding-bottom: 13px; }
+    .pain p { font-size: 13.5px; line-height: 1.6; }
+    .bricks { margin-top: 26px; gap: 14px; }
+    .brick { padding: 17px 18px 16px; }
+    .brick h3 { font-size: 15px; }
+    .brick p { font-size: 12.5px; line-height: 1.55; }
+    .brick .done { font-size: 11px; margin-top: 10px; padding-top: 9px; }
+    .checks { margin-top: 26px; padding: 8px 24px 10px; }
+    .checks .row { padding: 15px 0; font-size: 14.5px; }
+    .gain { margin-top: 20px; font-size: 12.5px; }
+    .gain td { padding: 8.5px 9px; }
+    .kpis { margin-top: 20px; }
+    .kpi { padding: 16px 14px; }
+    .kpi .v { font-size: 25px; }
+    .method { margin-top: 16px; font-size: 11px; }
+    .dark-band { margin-top: 28px; padding: 24px 28px; }
+    .dark-band p { font-size: 13.5px; }
+    .closing { margin-top: 36px; }
+    .closing p { font-size: 30px; }
+    .cs-cta { padding: 26px 30px; }
+    .cs-foot { padding-top: 18px; }
+  }
+  @media (max-width: 680px) {
+    .stats, .kpis, .pains, .bricks { grid-template-columns: 1fr; }
+    .chead { flex-direction: column; }
+    .chead .brand-mini span { text-align: left; }
+    .dark-band, .cs-cta { flex-direction: column; align-items: flex-start; }
+    .dark-band .lbl { width: auto; }
+    .cs-cta .side { text-align: left; }
+    .cover-note, .cs-foot { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══════════ P1 · COUVERTURE ══════════ -->
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Étude de cas</h1>
+      <div class="meta">lucid-lab.fr<br>contact@lucid-lab.fr</div>
+    </div>
+  </header>
+
+  <div class="cs-hero">
+    <span class="cs-eyebrow">Assistant IA &amp; automatisation · Atelier de signalétique</span>
+    <h1 class="cs-title">Près d'une journée par semaine,<br><span class="em">rendue à la dirigeante.</span></h1>
+    <p class="cs-lead">Comment BSP37, atelier de signalétique, a confié ses tâches répétitives à un <b>assistant intelligent installé sur son ordinateur</b>, et repris du temps pour son métier et ses clients.</p>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="v">≈ 9 h</div><div class="k">gagnées / semaine</div></div>
+    <div class="stat"><div class="v">≈ 40 h</div><div class="k">gagnées / mois</div></div>
+    <div class="stat"><div class="v">≈ 1 j</div><div class="k">de travail / semaine</div></div>
+  </div>
+
+  <div class="cover-note">
+    <div><b>Conçu et installé par Lucid-Lab</b> · Juin 2026</div>
+    <div>Estimations réalistes, détail chiffré en page 5</div>
+  </div>
+
+</section>
+
+<!-- ══════════ P2 · LE POINT DE DÉPART ══════════ -->
+<section class="sheet">
+
+  <div class="chead">
+    <div class="titles">
+      <span class="eyebrow">Le point de départ</span>
+      <h1>La situation de départ</h1>
+    </div>
+    <div class="brand-mini">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><span>Expertise IA de pointe</span></div>
+    </div>
+  </div>
+
+  <p class="intro">BSP37 est un atelier de signalétique : panneaux, enseignes, marquage de véhicules, banderoles, stickers. À sa tête, <b>une dirigeante seule qui gère tout</b> (les devis, la fabrication, la pose, les clients et la comptabilité), avec une apprentie qui arrive bientôt en renfort. L'atelier suit environ 115 clients actifs et conserve près de 950 dossiers clients.</p>
+
+  <span class="sec-lbl">Avant, chaque journée était grignotée par l'administratif</span>
+  <div class="pains">
+    <div class="pain"><span class="mk">01</span><p>Trier la boîte mail, matin et soir, et séparer l'important de la publicité.</p></div>
+    <div class="pain"><span class="mk">02</span><p>Saisir les tickets de frais et les kilomètres pour la comptabilité.</p></div>
+    <div class="pain"><span class="mk">03</span><p>Refaire chaque devis à la main dans le logiciel de facturation.</p></div>
+    <div class="pain"><span class="mk">04</span><p>Chercher un prix ou l'historique d'un client dans les mails et les dossiers.</p></div>
+    <div class="pain"><span class="mk">05</span><p>Créer les bons à tirer, puis courir après la validation du client.</p></div>
+    <div class="pain"><span class="mk">06</span><p>Aucune liste de tâches centrale : beaucoup d'informations « dans la tête ».</p></div>
+    <div class="pain"><span class="mk">07</span><p>Ranger les fichiers clients sur le serveur, lent, et parfois des fichiers abîmés.</p></div>
+    <div class="pain"><span class="mk">08</span><p>Une charge mentale permanente : ne rien oublier, ne rien laisser passer.</p></div>
+  </div>
+
+  <div class="bottom">
+
+  <div class="dark-band">
+    <div class="lbl">Le constat</div>
+    <p>Tant que la dirigeante est seule, <b>chaque minute d'administratif récupérée, c'est une minute de plus en atelier ou avec un client.</b> C'est exactement là que l'assistant intervient.</p>
+  </div>
+
+  <div class="cs-foot">
+    <div>Document de démonstration, sans donnée client, tarif ni information financière.</div>
+    <div>BSP37 × Lucid-Lab · 2/6</div>
+  </div>
+
+  </div>
+
+</section>
+
+<!-- ══════════ P3 · LA SOLUTION ══════════ -->
+<section class="sheet">
+
+  <div class="chead">
+    <div class="titles">
+      <span class="eyebrow">La solution</span>
+      <h1>Ce qui a été mis en place</h1>
+    </div>
+    <div class="brand-mini">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><span>Expertise IA de pointe</span></div>
+    </div>
+  </div>
+
+  <p class="intro">Un assistant intelligent a été installé sur l'ordinateur de l'atelier et branché aux outils du quotidien : boîte mail, logiciel de devis, messagerie du téléphone, agenda, fichiers. <b>Il agit à la place de la dirigeante sur tout ce qui est répétitif.</b> Concrètement :</p>
+
+  <div class="bricks">
+    <div class="brick"><div class="n">1</div><div><h3>Une mémoire d'entreprise</h3><p>Un classeur numérique central, tenu à jour tout seul : fiches clients avec tout l'historique, catalogue, procédures, décisions, liste de tâches.</p><span class="done"><b>Fini</b> · chercher une info dans les mails et les dossiers.</span></div></div>
+    <div class="brick"><div class="n">2</div><div><h3>Le tri des mails, matin et soir</h3><p>Le matin, un résumé classé de la boîte (clients, fournisseurs, urgent, publicité écartée). Le soir, la liste de tâches est relue et mise à jour automatiquement.</p><span class="done"><b>Fini</b> · trier la boîte et tenir sa liste de tâches à la main.</span></div></div>
+    <div class="brick"><div class="n">3</div><div><h3>Devis et bons à tirer en minutes</h3><p>On donne le nom du client : le devis et le bon à tirer (l'aperçu à faire valider) sont préparés d'un coup, aux couleurs de l'entreprise.</p><span class="done"><b>Fini</b> · tout ressaisir et remettre en page chaque document.</span></div></div>
+    <div class="brick"><div class="n">4</div><div><h3>La validation client en un clic</h3><p>Le client reçoit son bon à tirer par un lien : il valide ou demande une correction d'un clic. La réponse est horodatée et suivie.</p><span class="done"><b>Fini</b> · les allers-retours par mail et le suivi des validations.</span></div></div>
+    <div class="brick"><div class="n">5</div><div><h3>Une télécommande de poche</h3><p>Par un simple message sur le téléphone : transformer un devis en facture, l'envoyer, ou enregistrer ses kilomètres, sans ouvrir l'ordinateur.</p><span class="done"><b>Fini</b> · se rasseoir devant le logiciel pour chaque action.</span></div></div>
+    <div class="brick"><div class="n">6</div><div><h3>Le rangement automatique</h3><p>Chaque soir, les fichiers clients sont classés au bon endroit sur le serveur, avec une copie vérifiée contre toute corruption.</p><span class="done"><b>Fini</b> · ranger les fichiers à la main, au risque de les abîmer.</span></div></div>
+    <div class="brick"><div class="n">7</div><div><h3>Le tableau de bord du jour</h3><p>Un écran unique : maquettes, production, devis, encaissements, planning. L'apprentie n'y voit que ses maquettes à réaliser.</p><span class="done"><b>Fini</b> · jongler entre plusieurs outils pour savoir où on en est.</span></div></div>
+    <div class="brick"><div class="n">8</div><div><h3>La compta sans corvée</h3><p>Tickets de frais triés, renommés et envoyés à la comptabilité tout seuls ; factures fournisseurs et Amazon récupérées et pointées.</p><span class="done"><b>Fini</b> · saisir et classer chaque ticket et chaque facture un par un.</span></div></div>
+  </div>
+
+  <div class="cs-foot bottom">
+    <div>Document de démonstration, sans donnée client, tarif ni information financière.</div>
+    <div>BSP37 × Lucid-Lab · 3/6</div>
+  </div>
+
+</section>
+
+<!-- ══════════ P4 · AU QUOTIDIEN ══════════ -->
+<section class="sheet">
+
+  <div class="chead">
+    <div class="titles">
+      <span class="eyebrow">Au quotidien</span>
+      <h1>Ce que ça change, concrètement</h1>
+    </div>
+    <div class="brand-mini">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><span>Expertise IA de pointe</span></div>
+    </div>
+  </div>
+
+  <div class="checks">
+    <div class="row"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><div>La boîte mail arrive <b>déjà triée</b>, matin et soir. Plus de tri manuel.</div></div>
+    <div class="row"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><div>Un devis part en <b>environ 5 minutes</b> au lieu d'une demi-heure.</div></div>
+    <div class="row"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><div>Le bon à tirer est validé <b>d'un clic</b> par le client, avec preuve horodatée.</div></div>
+    <div class="row"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><div>Factures et kilomètres se règlent <b>depuis le téléphone</b>, entre deux chantiers.</div></div>
+    <div class="row"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><div>Plus aucun fichier client perdu ou abîmé : tout est rangé et vérifié chaque soir.</div></div>
+    <div class="row"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><div>L'historique complet d'un client retrouvé en <b>10 secondes</b>.</div></div>
+    <div class="row"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><div>Un <b>seul écran</b> pour savoir quoi faire aujourd'hui.</div></div>
+    <div class="row"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><div>Chaque soir, la liste de tâches se met à jour toute seule. Rien ne passe à la trappe.</div></div>
+    <div class="row"><span class="ck"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg></span><div>L'arrivée de l'apprentie est préparée : procédures écrites et accès limité à ses maquettes.</div></div>
+  </div>
+
+  <div class="bottom">
+
+  <div class="dark-band">
+    <div class="lbl">L'idée maîtresse</div>
+    <p>La dirigeante ne fait plus que <b>décider et valider.</b> L'assistant exécute : il lit, prépare, range, classe et relance.</p>
+  </div>
+
+  <div class="cs-foot">
+    <div>Document de démonstration, sans donnée client, tarif ni information financière.</div>
+    <div>BSP37 × Lucid-Lab · 4/6</div>
+  </div>
+
+  </div>
+
+</section>
+
+<!-- ══════════ P5 · LE CHIFFRE CLÉ ══════════ -->
+<section class="sheet">
+
+  <div class="chead">
+    <div class="titles">
+      <span class="eyebrow">Le chiffre clé</span>
+      <h1>Le temps gagné</h1>
+    </div>
+    <div class="brand-mini">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><span>Expertise IA de pointe</span></div>
+    </div>
+  </div>
+
+  <table class="gain">
+    <thead>
+      <tr>
+        <th>Tâche</th>
+        <th>Avant (à la main)</th>
+        <th>Fréquence</th>
+        <th>Maintenant</th>
+        <th class="n">Gain / sem.</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr><td class="t">Tri de la boîte mail (matin)</td><td>~15 min</td><td>tous les jours</td><td>lit le résumé</td><td class="n g">1 h 10</td></tr>
+      <tr><td class="t">Mise à jour de la liste de tâches (soir)</td><td>~12 min</td><td>tous les jours</td><td>automatique</td><td class="n g">1 h 10</td></tr>
+      <tr><td class="t">Création d'un devis</td><td>~25 min</td><td>~6 / semaine</td><td>~5 min</td><td class="n g">2 h 00</td></tr>
+      <tr><td class="t">Bon à tirer + validation client</td><td>~25 min</td><td>~4 / semaine</td><td>~6 min</td><td class="n g">1 h 15</td></tr>
+      <tr><td class="t">Retrouver une info (prix, historique client)</td><td>~5 min</td><td>plusieurs / jour</td><td>~30 s</td><td class="n g">1 h 00</td></tr>
+      <tr><td class="t">Rangement des fichiers clients</td><td>~10 min</td><td>tous les jours</td><td>automatique</td><td class="n g">0 h 50</td></tr>
+      <tr><td class="t">Faire le point de la journée</td><td>~8 min</td><td>tous les jours</td><td>un seul écran</td><td class="n g">0 h 30</td></tr>
+      <tr><td class="t">Tri des tickets de frais</td><td>~30 min</td><td>chaque semaine</td><td>~5 min</td><td class="n g">0 h 25</td></tr>
+      <tr><td class="t">Factures fournisseurs + contrôle des paiements</td><td>~30 min</td><td>chaque semaine</td><td>~5 min</td><td class="n g">0 h 25</td></tr>
+      <tr><td class="t">Indemnités kilométriques</td><td>~3 min</td><td>par trajet</td><td>dictée au téléphone</td><td class="n g">0 h 15</td></tr>
+      <tr><td class="t">Alerte « maquette prête »</td><td>surveillance</td><td>en continu</td><td>automatique</td><td class="n g">0 h 10</td></tr>
+      <tr><td class="t">Factures Amazon vers la compta</td><td>~10 min</td><td>chaque mois</td><td>automatique</td><td class="n g">0 h 05</td></tr>
+      <tr class="tot"><td colspan="4">Total estimé</td><td class="n g">≈ 9 h 15 / sem.</td></tr>
+    </tbody>
+  </table>
+
+  <div class="kpis">
+    <div class="kpi"><div class="v">≈ 1 journée</div><div class="k">de travail rendue chaque semaine</div></div>
+    <div class="kpi"><div class="v">≈ 40 h</div><div class="k">par mois, soit environ 5 jours de travail</div></div>
+    <div class="kpi"><div class="v">¼ de poste</div><div class="k">administratif équivalent</div></div>
+  </div>
+
+  <p class="method"><b>Méthode :</b> estimations réalistes, base d'environ 6 jours travaillés par semaine. Le « avant » est le temps qu'une tâche prenait à la main, le « maintenant » ce qu'il reste à faire (souvent juste valider). Ordre de grandeur financier : environ 40 h/mois d'administratif, soit 800 à 1 200 € par mois selon les charges. Chiffres à affiner avec la dirigeante : ils ne comptent que des tâches réellement automatisées.</p>
+
+  <div class="cs-foot bottom">
+    <div>Document de démonstration, sans donnée client, tarif ni information financière.</div>
+    <div>BSP37 × Lucid-Lab · 5/6</div>
+  </div>
+
+</section>
+
+<!-- ══════════ P6 · EN RÉSUMÉ ══════════ -->
+<section class="sheet">
+
+  <div class="chead">
+    <div class="titles">
+      <span class="eyebrow">En résumé</span>
+      <h1>Le bilan</h1>
+    </div>
+    <div class="brand-mini">
+      <img src="../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><span>Expertise IA de pointe</span></div>
+    </div>
+  </div>
+
+  <p class="intro">En quelques semaines, BSP37 est passé d'un quotidien grignoté par l'administratif à un fonctionnement où <b>l'assistant lit, prépare, range, classe et relance</b>, pendant que la dirigeante se concentre sur son métier et ses clients. Le tout sur ses propres outils, sans rien changer à ses habitudes, et avec une règle stricte : aucun mot de passe ni donnée bancaire stockés, les documents sont traités comme des sources, jamais comme des ordres.</p>
+
+  <div class="closing">
+    <p>Une journée de plus, chaque semaine.<br><span class="em">Le même assistant peut être installé chez vous.</span></p>
+  </div>
+
+  <div class="bottom">
+
+  <div class="cs-cta">
+    <div>
+      <div class="k">Conçu &amp; installé par</div>
+      <div class="big">LUCID-LAB</div>
+      <p>Nous installons des assistants IA sur-mesure pour les artisans et les PME : mémoire d'entreprise, automatisation des devis et de la comptabilité, tableaux de bord. Parlons de votre cas, et de la journée que vous pourriez récupérer, vous aussi.</p>
+    </div>
+    <div class="side">lucid-lab.fr<br><a href="mailto:contact@lucid-lab.fr">contact@lucid-lab.fr</a></div>
+  </div>
+
+  <div class="cs-foot">
+    <div>Document de démonstration, sans donnée client, tarif ni information financière.</div>
+    <div>BSP37 × Lucid-Lab · 6/6</div>
+  </div>
+
+  </div>
+
+</section>
+
+</body>
+</html>

@@ -1,0 +1,346 @@
+<title>Circuit des données</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700&family=Geist+Mono:wght@500;600&display=swap" rel="stylesheet">
+
+<style>
+  /* Tokens */
+  :root {
+    --bg:            #F7F5F1;
+    --surface:       #FFFFFF;
+    --surface-quiet: #F2F2EE;
+    --ink:           #0A0A0A;
+    --muted:         #525252;
+    --faint:         #A3A3A3;
+    --border:        #E5E5E5;
+    --border-strong: #D4D4D4;
+    --accent:        #C85E1A;
+    --accent-text:   #A84B12;
+    --shadow: 0 1px 2px rgba(10,10,10,0.04), 0 8px 24px -12px rgba(10,10,10,0.10);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg:            #0A0A0A;
+      --surface:       #1C1C1C;
+      --surface-quiet: rgba(255,255,255,0.045);
+      --ink:           rgba(255,255,255,0.92);
+      --muted:         rgba(255,255,255,0.58);
+      --faint:         rgba(255,255,255,0.38);
+      --border:        rgba(255,255,255,0.12);
+      --border-strong: rgba(255,255,255,0.18);
+      --accent:        #E07B3A;
+      --accent-text:   #E07B3A;
+      --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg:            #0A0A0A;
+    --surface:       #1C1C1C;
+    --surface-quiet: rgba(255,255,255,0.045);
+    --ink:           rgba(255,255,255,0.92);
+    --muted:         rgba(255,255,255,0.58);
+    --faint:         rgba(255,255,255,0.38);
+    --border:        rgba(255,255,255,0.12);
+    --border-strong: rgba(255,255,255,0.18);
+    --accent:        #E07B3A;
+    --accent-text:   #E07B3A;
+    --shadow: 0 1px 2px rgba(0,0,0,0.3), 0 12px 28px -14px rgba(0,0,0,0.6);
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Figtree', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.5;
+  }
+  .page {
+    max-width: 1040px;
+    margin: 0 auto;
+    padding: clamp(32px, 6vw, 64px) clamp(18px, 4vw, 40px) 48px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: clamp(24px, 4vw, 38px);
+  }
+  .brand-mark { width: 22px; height: 22px; flex: none; }
+  .brand-name {
+    font-size: 12.5px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+
+  .kicker {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--accent-text);
+    margin: 0 0 12px;
+  }
+  h1 {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+    margin: 0 0 14px;
+    text-wrap: balance;
+  }
+  .lede {
+    font-size: clamp(15px, 1.8vw, 17px);
+    color: var(--muted);
+    max-width: 58ch;
+    margin: 0 0 clamp(28px, 5vw, 44px);
+  }
+  .lede strong { color: var(--ink); font-weight: 600; }
+
+  figure.diagram {
+    margin: 0 0 clamp(22px, 4vw, 32px);
+    padding: clamp(16px, 3vw, 28px);
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    box-shadow: var(--shadow);
+  }
+  .diagram-scroll { overflow-x: auto; overflow-y: hidden; }
+  .diagram-scroll svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    min-width: 680px;
+    color: var(--ink);
+    opacity: 0;
+    transform: translateY(6px);
+    animation: rise 0.7s cubic-bezier(.2,.7,.3,1) 0.05s forwards;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .diagram-scroll svg { opacity: 1; transform: none; animation: none; }
+  }
+  @keyframes rise { to { opacity: 1; transform: translateY(0); } }
+
+  figcaption {
+    font-size: 13.5px;
+    color: var(--faint);
+    padding: 6px 6px 0;
+    max-width: 74ch;
+  }
+
+  svg text { font-family: 'Figtree', system-ui, sans-serif; }
+  svg .mono-label { font-family: 'Geist Mono', monospace; }
+  .node-fill       { fill: var(--surface); }
+  .node-stroke     { stroke: var(--border-strong); fill: none; }
+  .quiet-fill      { fill: var(--surface-quiet); }
+  .quiet-stroke    { stroke: var(--border); fill: none; }
+  .boundary-stroke { stroke: var(--faint); fill: none; }
+  .gate-text       { fill: var(--accent-text); }
+  .title-text      { fill: var(--ink); }
+  .sub-text        { fill: var(--muted); }
+  .faint-text      { fill: var(--faint); }
+  .arrow-line      { stroke: var(--muted); fill: none; }
+
+  /* Les trois règles */
+  .points {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 14px;
+    margin: 0 0 18px;
+  }
+  @media (max-width: 720px) { .points { grid-template-columns: 1fr; } }
+  .point {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px 18px;
+  }
+  .point h2 {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 5px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .point h2::before {
+    content: "";
+    width: 7px; height: 7px;
+    border-radius: 50%;
+    background: var(--accent);
+    flex: none;
+  }
+  .point p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--muted);
+  }
+
+  .never {
+    font-size: 13.5px;
+    color: var(--muted);
+    margin: 0;
+  }
+  .never .label {
+    font-family: 'Geist Mono', monospace;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--faint);
+    margin-right: 10px;
+  }
+
+  footer {
+    margin-top: clamp(36px, 6vw, 52px);
+    padding-top: 16px;
+    border-top: 1px solid var(--border);
+    font-family: 'Geist Mono', monospace;
+    font-size: 11.5px;
+    color: var(--faint);
+    display: flex;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  footer a { color: var(--faint); text-decoration: none; }
+  footer a:hover { color: var(--accent-text); }
+
+  /* Export PDF */
+  @page { size: A4 landscape; margin: 0; }
+  @media print {
+    .diagram-scroll svg { animation: none; opacity: 1; transform: none; min-width: 0; max-width: 780px; margin: 0 auto; }
+    .page { padding: 18px 40px 10px; }
+    h1 { font-size: 26px; margin-bottom: 8px; }
+    .lede { margin-bottom: 16px; font-size: 13px; }
+    .brand { margin-bottom: 14px; }
+    figure.diagram { box-shadow: none; padding: 12px 18px 8px; margin-bottom: 12px; }
+    figcaption { font-size: 10.5px; padding-top: 2px; }
+    .points { gap: 10px; margin-bottom: 8px; }
+    .point { padding: 9px 14px; }
+    .point p { font-size: 11px; }
+    .never { font-size: 11px; }
+    footer { margin-top: 6px; padding-top: 6px; }
+  }
+</style>
+
+<div class="page">
+
+  <div class="brand">
+    <svg class="brand-mark" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <path d="M5 3 L5 21 L17 21" stroke="currentColor" stroke-width="2.4" stroke-linecap="square"/>
+    </svg>
+    <span class="brand-name">Lucid&#8209;Lab</span>
+  </div>
+
+  <p class="kicker">Second brain &middot; Claude + Obsidian</p>
+  <h1>Le trajet de vos données</h1>
+  <p class="lede">
+    <strong>Ce qui sort de votre ordinateur, et ce qui n'en sort jamais&nbsp;:</strong>
+    le circuit complet, en un schéma.
+  </p>
+
+  <figure class="diagram">
+    <div class="diagram-scroll">
+      <svg viewBox="0 0 1000 484" role="img" aria-label="Schéma simplifié du circuit des données : vos documents, l'assistant Claude et votre wiki restent sur votre ordinateur. Seul le texte que vous avez autorisé est envoyé au modèle Claude chez Anthropic, qui renvoie un brouillon. Le wiki n'est écrit qu'après votre validation. Lucid-Lab, en dehors du circuit, installe et accompagne sans accès aux données.">
+
+        <defs>
+          <marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <path d="M0,0 L8,4 L0,8 z" fill="var(--muted)"/>
+          </marker>
+        </defs>
+
+        <!-- Claude, le modele (chez Anthropic) -->
+        <rect x="390" y="20" width="220" height="72" rx="14" class="node-fill quiet-stroke" stroke-width="1.4"/>
+        <text x="500" y="50" text-anchor="middle" class="title-text" font-size="14.5" font-weight="700">Claude, le modèle</text>
+        <text x="500" y="72" text-anchor="middle" class="mono-label sub-text" font-size="10">CHEZ ANTHROPIC</text>
+
+        <!-- aller-retour -->
+        <line x1="470" y1="206" x2="470" y2="96" class="arrow-line" stroke-width="1.4" marker-end="url(#arrow)"/>
+        <text x="458" y="138" text-anchor="end" class="mono-label sub-text" font-size="9.5">texte autorisé,</text>
+        <text x="458" y="151" text-anchor="end" class="mono-label sub-text" font-size="9.5">rien d'autre</text>
+
+        <line x1="530" y1="96" x2="530" y2="206" class="arrow-line" stroke-width="1.4" marker-end="url(#arrow)"/>
+        <text x="542" y="138" text-anchor="start" class="mono-label sub-text" font-size="9.5">brouillon</text>
+        <text x="542" y="151" text-anchor="start" class="mono-label sub-text" font-size="9.5">rédigé</text>
+
+        <!-- frontiere : votre ordinateur -->
+        <rect x="40" y="174" width="920" height="182" rx="22" class="boundary-stroke" stroke-width="1.6" stroke-dasharray="7 6"/>
+        <rect x="738" y="160" width="204" height="28" rx="7" fill="var(--surface)"/>
+        <text x="840" y="179" text-anchor="middle" class="mono-label faint-text" font-size="11" font-weight="600" letter-spacing="0.09em">VOTRE ORDINATEUR</text>
+
+        <!-- 1. vos documents -->
+        <rect x="64" y="206" width="220" height="104" rx="14" class="node-fill node-stroke" stroke-width="1.5"/>
+        <text x="174" y="244" text-anchor="middle" class="title-text" font-size="15" font-weight="700">Vos documents</text>
+        <text x="174" y="264" text-anchor="middle" class="mono-label sub-text" font-size="10">LÀ OÙ ILS VIVENT DÉJÀ</text>
+        <text x="174" y="282" text-anchor="middle" class="mono-label faint-text" font-size="9.5">Drive, mail, notes, dossiers</text>
+
+        <!-- decision 1 -->
+        <line x1="284" y1="258" x2="386" y2="258" class="arrow-line" stroke-width="1.4" marker-end="url(#arrow)"/>
+        <text x="335" y="247" text-anchor="middle" class="mono-label gate-text" font-size="9.5" font-weight="600">AUTORISÉ PAR VOUS</text>
+
+        <!-- 2. claude local -->
+        <rect x="390" y="206" width="220" height="104" rx="14" class="node-fill node-stroke" stroke-width="1.5"/>
+        <text x="500" y="244" text-anchor="middle" class="title-text" font-size="15" font-weight="700">Claude</text>
+        <text x="500" y="264" text-anchor="middle" class="mono-label sub-text" font-size="10">SUR VOTRE ORDINATEUR</text>
+        <text x="500" y="282" text-anchor="middle" class="mono-label faint-text" font-size="9.5">lit, range, relie, rédige</text>
+
+        <!-- decision 2 -->
+        <line x1="610" y1="258" x2="712" y2="258" class="arrow-line" stroke-width="1.4" marker-end="url(#arrow)"/>
+        <text x="661" y="247" text-anchor="middle" class="mono-label gate-text" font-size="9.5" font-weight="600">VALIDÉ PAR VOUS</text>
+
+        <!-- 3. votre wiki -->
+        <rect x="716" y="206" width="220" height="104" rx="14" class="node-fill node-stroke" stroke-width="1.5"/>
+        <text x="826" y="244" text-anchor="middle" class="title-text" font-size="15" font-weight="700">Votre wiki</text>
+        <text x="826" y="264" text-anchor="middle" class="mono-label sub-text" font-size="10">VOS PAGES, CHEZ VOUS</text>
+        <text x="826" y="282" text-anchor="middle" class="mono-label faint-text" font-size="9.5">lues dans Obsidian</text>
+
+        <!-- lucid-lab, externe au circuit -->
+        <line x1="500" y1="356" x2="500" y2="392" class="boundary-stroke" stroke-width="1.4" stroke-dasharray="4 5"/>
+        <text x="512" y="378" text-anchor="start" class="mono-label faint-text" font-size="9.5">séance d'installation, points de suivi</text>
+        <rect x="390" y="392" width="220" height="84" rx="14" class="quiet-fill quiet-stroke" stroke-width="1.4" stroke-dasharray="4 4"/>
+        <text x="500" y="420" text-anchor="middle" class="title-text" font-size="14.5" font-weight="700">Lucid&#8209;Lab</text>
+        <text x="500" y="440" text-anchor="middle" class="mono-label sub-text" font-size="10">AUCUN ACCÈS À VOS DONNÉES</text>
+        <text x="500" y="458" text-anchor="middle" class="mono-label faint-text" font-size="9.5">installe le système et vous accompagne</text>
+
+      </svg>
+    </div>
+    <figcaption>
+      Une seule chose quitte votre ordinateur&nbsp;: le texte que vous avez autorisé, envoyé au modèle pour rédiger.
+      Lucid&#8209;Lab reste en dehors du circuit&nbsp;: installation et accompagnement à vos côtés, jamais d'accès à vos données.
+    </figcaption>
+  </figure>
+
+  <div class="points">
+    <div class="point">
+      <h2>Tout reste chez vous</h2>
+      <p>Le wiki est un dossier local, en fichiers ordinaires. Pas de cloud imposé.</p>
+    </div>
+    <div class="point">
+      <h2>Vous choisissez ce qui entre</h2>
+      <p>L'assistant ne lit que les dossiers que vous avez autorisés.</p>
+    </div>
+    <div class="point">
+      <h2>Vous validez avant écriture</h2>
+      <p>Aucune page ne devient définitive sans votre accord.</p>
+    </div>
+  </div>
+
+  <p class="never">
+    <span class="label">Jamais transmis</span>
+    Mots de passe, clés, documents bancaires, données personnelles hors sujet business.
+  </p>
+
+  <footer>
+    <span>Lucid&#8209;Lab</span>
+    <span><a href="mailto:info@lucid-lab.fr">info@lucid-lab.fr</a> &middot; lucid-lab.fr</span>
+  </footer>
+
+</div>
