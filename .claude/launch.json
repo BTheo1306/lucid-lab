@@ -4,8 +4,25 @@
     {
       "name": "lucid-lab",
       "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
+      "runtimeArgs": [
+        "run",
+        "dev"
+      ],
       "port": 3000
+    },
+    {
+      "name": "bsp37-dev",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": [
+        "run",
+        "dev",
+        "--prefix",
+        "/Users/julesgouron/Projects/bsp37-website",
+        "--",
+        "-p",
+        "3012"
+      ],
+      "port": 3012
     }
   ]
 }
