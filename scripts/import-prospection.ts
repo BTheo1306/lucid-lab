@@ -270,6 +270,48 @@ function banquesRows(): ProspectionImportRow[] {
   });
 }
 
+/**
+ * Liste issue du fichier Excel de Tom (Consulteis), triée dans
+ * docs/prospection/liste-dsi-industrie-sud.md : DSI, RSSI et responsables
+ * informatiques d'ETI et de PME industrielles, majoritairement PACA et Occitanie.
+ *
+ * Le board n'affiche qu'un contact par cible. Quand le fichier en donnait
+ * plusieurs, le mieux qualifié devient le contact principal et les autres
+ * partent dans le hook : sans ça, 83 interlocuteurs disparaissaient de l'écran
+ * d'appel alors qu'ils sont justement le recours en cas de barrage.
+ */
+function dsiIndustrieSudRows(): ProspectionImportRow[] {
+  const rows = parseCsv('docs/prospection/liste-dsi-industrie-sud.csv').slice(1);
+  return rows.map((cells) => {
+    const secteur = clean(cells[4]);
+    const priorite = clean(cells[5]);
+    const alerte = clean(cells[11]);
+    const autres = clean(cells[12]);
+    return {
+      name: cells[0].trim(),
+      sector: 'dsi-industrie-sud',
+      city: clean(cells[1]),
+      country: clean(cells[2]) ?? 'France',
+      employeeCount: parseHeadcount(clean(cells[3])),
+      contactName: clean(cells[6]),
+      contactTitle: clean(cells[7]),
+      contactPhone: clean(cells[8]),
+      contactEmail: clean(cells[9]),
+      // Site déduit du domaine de l'email professionnel du contact, ou d'un nom
+      // de domaine dont la page cite la société. Vérifié avant écriture.
+      websiteUrl: clean(cells[10]),
+      hook: [
+        priorite === 'B' ? 'Priorité B : effectif à confirmer avant l appel.' : null,
+        alerte,
+        secteur ? `Secteur : ${secteur}.` : null,
+        autres ? `Autres interlocuteurs : ${autres}` : null,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    };
+  });
+}
+
 async function main(): Promise<void> {
   const groups: Array<{ label: string; rows: ProspectionImportRow[] }> = [
     { label: 'Experts-comptables France', rows: franceRows() },
@@ -277,6 +319,7 @@ async function main(): Promise<void> {
     { label: 'Banques privées', rows: banquesRows() },
     { label: 'Avocats France', rows: avocatsRows() },
     { label: 'Crèches France', rows: crechesRows() },
+    { label: 'DSI industrie Sud', rows: dsiIndustrieSudRows() },
   ];
 
   for (const group of groups) {
