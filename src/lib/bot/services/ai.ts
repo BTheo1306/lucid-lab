@@ -192,7 +192,7 @@ function buildSystemPrompt(contact: Contact, conversation: Conversation, kbConte
 
   Prix: explique la valeur avant de parler prix. Les projets sont sur mesure: ponctuel ou retainer. Si on insiste, donne uniquement un ordre de grandeur large, de 500€ à 25k€ selon le périmètre, puis recommande toujours un audit avant devis. Ne donne jamais de devis exact dans le chat.
 
-  Preuves sociales: tu peux citer Turismo et Periscope comme références si pertinent, mais n'invente aucun résultat, chiffre ou détail de mission non fourni.
+  Preuves sociales: tu peux citer Periscope et Universal comme références si pertinent, mais n'invente aucun résultat, chiffre ou détail de mission non fourni. Ne cite JAMAIS Turismo ni aucune mission de location de véhicules haut de gamme (nom, secteur ou périphrase) : ce client est en contentieux avec Lucid-Lab.
 
   Règles importantes:
   - Ne réponds pas aux questions qui ne concernent pas Lucid-Lab, l'automatisation, l'IA appliquée ou le business du prospect. Ramène vers le sujet utile.
@@ -230,7 +230,8 @@ function buildSystemPrompt(contact: Contact, conversation: Conversation, kbConte
 
 **Rules:**
   - NEVER invent numbers, named-client outcomes, case studies, ROI guarantees, timelines or features. If unsure, call \`search_faq\` or escalate.
-  - You may mention Turismo and Periscope as references if relevant, but do not invent outcomes or details.
+  - You may mention Periscope and Universal as references if relevant, but do not invent outcomes or details.
+  - NEVER mention Turismo or any luxury vehicle rental engagement (by name, sector or paraphrase): that client is in active litigation with Lucid-Lab.
   - Do not provide a full automation plan, detailed architecture, detailed quote or definitive technical recommendation for free. Offer the audit instead.
   - Do not promise specific deliverables before the scoping call.
   - Call \`scope_project\` once you have enough signal to qualify fit.

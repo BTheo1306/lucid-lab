@@ -241,13 +241,13 @@ export const en: typeof fr = {
   },
   bento: {
     label: 'Proof through action',
-    headline: 'Turismo, Universal, Périscope · and 10+ more in production.',
+    headline: 'Universal, Périscope, Kobia · and 10+ more in production.',
     subtitle:
       "Full operational scaling, autonomous lead gen, real-time data monitoring, niche micro-businesses, websites & e-commerce. If a process \u201c\u202fexists\u202f\u201d in any form, we systematize it, automate it, and hand the keys to your teams.",
     chat: {
       msg1: 'We get 200 support emails / week and my LinkedIn lead gen is sluggish. Can you handle both?',
       msg2: 'Yes: AI agent to qualify/route support + autonomous LinkedIn bot that scrapes, scores and engages. Costed roadmap in 30 min.',
-      msg3: 'And what if the volume explodes like at Turismo?',
+      msg3: 'And what if the volume explodes like at Universal?',
       msg4: "We scale without growing the headcount. That's exactly our Scalability Framework.",
     },
     chartMonths: ['Jan', 'Feb', 'Mar', 'Apr'],
@@ -263,7 +263,7 @@ export const en: typeof fr = {
     statRoadmapLabel: 'Roadmap → Production',
     statRoadmapSub: 'of Execution Roadmaps shipped to production on schedule',
     chartTitle: 'Volume handled by AI agents',
-    chartSubtitle: 'Monthly executions · Turismo, Universal & other cases',
+    chartSubtitle: 'Monthly executions · Universal, Périscope & other cases',
     chartLegendShortWorkflows: 'Workflows',
     chartLegendShortAutomations: 'Automations',
   },

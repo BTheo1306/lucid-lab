@@ -236,13 +236,13 @@ export const fr = {
   },
   bento: {
     label: "Preuve par l'action",
-    headline: 'Turismo, Universal, Périscope · et 10+ autres en production.',
+    headline: 'Universal, Périscope, Kobia · et 10+ autres en production.',
     subtitle:
       "Full Scaling opérationnel, Lead Gen autonome, monitoring data temps réel, micro-business de niche, website & e-commerce. Si un début de process «\u202fexiste\u202f», on le systématise, on l'automatise et on rend les clefs du succès à vos équipes.",
     chat: {
       msg1: 'On a 200 emails support / semaine et ma Lead Gen LinkedIn tourne au ralenti. Vous prenez les deux ?',
       msg2: 'Oui : agent IA pour qualifier/router le support + bot LinkedIn autonome qui scrape, score et engage. Roadmap chiffrée en 30 min.',
-      msg3: 'Et si ça explose en volume comme chez Turismo ?',
+      msg3: 'Et si ça explose en volume comme chez Universal ?',
       msg4: "On scale sans gonfler la masse salariale. C'est exactement notre Scalability Framework.",
     },
     chartMonths: ['Jan', 'Fév', 'Mar', 'Avr'],
@@ -258,7 +258,7 @@ export const fr = {
     statRoadmapLabel: 'Roadmap → Production',
     statRoadmapSub: "des Roadmaps d'Exécution livrées en production dans les délais",
     chartTitle: 'Volume traité par les agents IA',
-    chartSubtitle: 'Exécutions mensuelles · cas Turismo, Universal & autres',
+    chartSubtitle: 'Exécutions mensuelles · cas Universal, Périscope & autres',
     chartLegendShortWorkflows: 'Workflows',
     chartLegendShortAutomations: 'Automations',
   },

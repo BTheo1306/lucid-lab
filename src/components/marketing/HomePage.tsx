@@ -87,7 +87,6 @@ const content = {
       subtitle:
         'Des équipes nous ont confié des workflows, des données et des livrables métier. Les cas publics arrivent après validation client.',
       logos: [
-        { name: 'Turismo', logo: '/logos/logo%20Turismo.png' },
         { name: 'Kobia', logo: '/logos/logo-wordmark-kobia-black.png' },
         { name: 'BSP37', logo: '/bsp37.png' },
         { name: 'Melting Forme', logo: '/melting-forme.png' },
@@ -350,7 +349,6 @@ const content = {
       subtitle:
         'Teams trusted us with workflows, data and business deliverables. Public cases follow client validation.',
       logos: [
-        { name: 'Turismo', logo: '/logos/logo%20Turismo.png' },
         { name: 'Kobia', logo: '/logos/logo-wordmark-kobia-black.png' },
         { name: 'BSP37', logo: '/bsp37.png' },
         { name: 'Melting Forme', logo: '/melting-forme.png' },
