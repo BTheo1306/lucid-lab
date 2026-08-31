@@ -322,11 +322,6 @@ const _mk = (svg: string) => `data:image/svg+xml,${encodeURIComponent(svg)}`
 
 const logos = [
   {
-    // Turismo — bold italic wordmark
-    src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 52"><text x="0" y="40" font-family="\'Arial Black\',Impact,sans-serif" font-size="42" fill="#000" font-weight="900" font-style="italic" letter-spacing="-1">TURISMO</text></svg>'),
-    alt: 'Turismo',
-  },
-  {
     src: _mk('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 290 56"><text x="0" y="36" font-family="Georgia,\'Times New Roman\',serif" font-size="26" fill="#C85E1A" letter-spacing="12">P\u00c9RISCOPE</text></svg>'),
     alt: 'P\u00e9riscope',
   },

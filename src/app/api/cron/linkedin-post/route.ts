@@ -36,6 +36,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  if (!config.linkedinAutomationEnabled) {
+    return NextResponse.json({ ok: true, posted: 0, reason: 'automation_disabled' });
+  }
+
   const due = await listPostablePosts();
   if (due.length === 0) {
     return NextResponse.json({ ok: true, posted: 0 });

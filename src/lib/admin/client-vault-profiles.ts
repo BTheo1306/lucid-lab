@@ -193,12 +193,12 @@ export const vaultClientProfiles: VaultClientProfile[] = [
     budgetRange: null,
     timeline: 'Ancien client ; mission terminée avant ou pendant mai 2026.',
     desiredOutcome: 'Ancien travail sur bot WhatsApp Business et plateforme TCO/pricing pour opérations de location de voitures de luxe au Luxembourg, en Belgique et en France.',
-    nextStep: 'Confirmer si la facture Turismo en attente a été envoyée et payée.',
-    healthSummary: 'Ancien client. À garder comme référence et suivi de facturation, pas comme production active.',
+    nextStep: 'Suivre le recouvrement en cours (injonction de payer) et le dossier assurance ; aucun contact commercial.',
+    healthSummary: 'Ancien client EN CONTENTIEUX (recouvrement). Suivi juridique et facturation uniquement : jamais une référence commerciale, jamais de production active.',
     relationshipNotes: [
       'Le bot WhatsApp Business couvrait la relance lead, le catalogue véhicules, la réservation, le support, l’urgence, l’escalade Slack et les liens documents protégés par OTP.',
       'La plateforme TCO utilisait du scraping AutoScout24, des valeurs marché quotidiennes, une formule TCO, un tableau de bord flotte et des alertes.',
-      'La collaboration s’est terminée d’un commun accord ; les repos restent des références utiles.',
+      'La collaboration est terminée et le dossier est passé en recouvrement : impayé réclamé par injonction de payer, dossier assurance ouvert en parallèle.',
     ],
     deliveryTracks: [
       'Template bot WhatsApp Business',
@@ -207,15 +207,15 @@ export const vaultClientProfiles: VaultClientProfile[] = [
     ],
     documents: [],
     warnings: [
-      'La mission est terminée ; éviter de le traiter comme client actif.',
+      'Dossier en contentieux : ne jamais le citer comme client, référence ou cas d’usage, en interne comme en externe.',
       'Ne pas exposer ni réutiliser les anciens identifiants ; le vault signale la rotation/révocation séparément.',
     ],
     openQuestions: [
-      'Confirmer si la facture a été envoyée et payée.',
+      'Suivre l’issue de l’injonction de payer et du dossier assurance.',
       'Confirmer si un revenu restant doit rester dans le prévisionnel.',
     ],
     agentHandoff: [
-      'Utiliser comme cas client/référence seulement quand c’est pertinent.',
+      'INTERDIT de l’utiliser comme cas client, référence ou preuve sociale : contentieux en cours. Ne jamais le mentionner dans du contenu public (site, blog, LinkedIn, chatbot), ni par son nom ni par son secteur.',
       'Ne jamais afficher d’identifiants bruts ou de secrets issus des anciens dossiers.',
     ],
     sourceRefs: [
@@ -223,7 +223,7 @@ export const vaultClientProfiles: VaultClientProfile[] = [
       { label: 'Bootstrap Lucid-Lab', vaultPath: 'wiki/sources/2026-05-03--lucid-lab-bootstrap.md' },
       { label: 'Suivi Gmail', vaultPath: 'wiki/sources/2026-05-18--jules-personal-gmail-lucid-lab.md' },
     ],
-    rawContext: 'Turismo : ancien client Lucid-Lab en location de voitures de luxe. Ancien bot WhatsApp Business et plateforme TCO/pricing. Mission terminée. À garder seulement comme référence et suivi de facturation ; confirmer si la facture a été envoyée et payée.',
+    rawContext: 'Turismo : ancien client Lucid-Lab en location de voitures de luxe. Ancien bot WhatsApp Business et plateforme TCO/pricing. Mission terminée et dossier EN CONTENTIEUX (recouvrement, injonction de payer, dossier assurance). Suivi juridique et facturation uniquement : ne jamais l’utiliser comme référence ni le citer dans du contenu public.',
   },
 ];
 

@@ -48,9 +48,12 @@ const RUBRIQUE_LABELS: Record<LinkedInRubrique, string> = {
  * The only client stories the generator may use, with the only facts it may
  * state. Anything beyond these facts must be framed as generic ("un client",
  * "une PME") without invented numbers: the human review catches the rest.
+ *
+ * Turismo is deliberately absent and must never be added back: the account is
+ * in active debt recovery against Lucid-Lab, so naming it as a reference is a
+ * legal and reputational risk.
  */
 const CASE_LIBRARY = `- Universal (agence de voyages) : système de génération de leads automatisé, prospection outbound pilotée par IA.
-- Turismo : accompagnement scaling des opérations, automatisation des processus internes.
 - Périscope : monitoring et observabilité d'un système en production.
 - Un groupe assurantiel et financier belge : roadmap IA, cadrage des cas d'usage et gouvernance (toujours le désigner ainsi, jamais "grand compte financier").
 - BSP37 (PME d'Indre-et-Loire, films solaires et sellerie) : refonte de la présence web et des fondations SEO d'un artisan.
@@ -73,6 +76,7 @@ Règles éditoriales (non négociables) :
 - Sur les affirmations chiffrées éducatives : cite la source réelle (institution + chiffre + année), uniquement des études largement connues et vérifiables (McKinsey, BCG, Stanford HAI, INSEE, Commission européenne, France Num). Si tu n'es pas certain d'un chiffre, N'INVENTE PAS : reformule sans chiffre.
 - Pour la rubrique terrain : utilise UNIQUEMENT les cas et les faits listés ci-dessous. N'invente jamais de chiffres de résultats client.
 - Termine par une question ouverte qui appelle une réponse en commentaire.
+- Ne cite JAMAIS Turismo, ni aucune mission de location de véhicules haut de gamme, sous quelque forme que ce soit (nom, secteur, périphrase) : ce client est en contentieux avec Lucid-Lab.
 - Interdits : émojis, tirets longs (—) et demi-tirets (–) (utilise deux-points, virgules ou parenthèses), "feuille de route" (dire "roadmap IA" ou "plan d'action IA"), jargon corporate ("synergie", "disruption"), promesses chiffrées invérifiables, listicles pompeux.
 - Longueur : 120 à 220 mots par post. Le hook seul doit donner envie de cliquer sur "voir plus".
 

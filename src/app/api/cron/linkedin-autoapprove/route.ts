@@ -100,6 +100,10 @@ export async function GET(req: Request) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 
+  if (!config.linkedinAutomationEnabled) {
+    return NextResponse.json({ ok: true, approved: 0, generated: 0, skipped: 'automation_disabled' });
+  }
+
   const approved = await autoApproveDuePosts(REVIEW_WINDOW_HOURS);
 
   let generation: { generated: number; skipped?: string };

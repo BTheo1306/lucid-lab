@@ -149,6 +149,14 @@ export const config = {
   googleDriveImpersonatedUser: process.env['GOOGLE_DRIVE_IMPERSONATED_USER'] ?? '',
   googleDriveRootFolderId: process.env['GOOGLE_DRIVE_ROOT_FOLDER_ID'] ?? '',
 
+  /**
+   * Master switch for the automated LinkedIn campaign (weekly generation,
+   * silence-equals-approval, daily publishing). Fail-safe: the campaign only
+   * runs when this is explicitly "true", so an unset or misspelled value keeps
+   * it stopped rather than publishing unreviewed posts.
+   */
+  linkedinAutomationEnabled: process.env['LINKEDIN_AUTOMATION_ENABLED'] === 'true',
+
   // LinkedIn (member posting via "Share on LinkedIn" w_member_social + OpenID Connect)
   linkedinClientId: process.env['LINKEDIN_CLIENT_ID'] ?? '',
   linkedinClientSecret: process.env['LINKEDIN_CLIENT_SECRET'] ?? '',

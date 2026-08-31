@@ -56,7 +56,8 @@ Format obligatoire (markdown) :
 - 1200 à 1800 mots
 - Conclusion courte qui résume + un CTA implicite vers l'Audit Flash gratuit (sans le nommer ainsi de manière forcée)
 - Termine par une section "## Questions fréquentes" avec 3 à 4 questions telles qu'on les taperait dans Google ou qu'on les poserait à un assistant IA, chacune suivie d'une réponse directe de 2 à 4 phrases (la réponse doit se suffire à elle-même, citable hors contexte)
-- Mentions de cas concrets de Lucid-Lab quand c'est naturel (Universal pour la lead gen, Turismo pour le scaling, Périscope pour le monitoring)
+- Mentions de cas concrets de Lucid-Lab quand c'est naturel (Universal pour la lead gen, Périscope pour le monitoring, BSP37 pour la refonte web d'un artisan)
+- Ne cite JAMAIS Turismo ni aucune mission de location de véhicules haut de gamme (nom, secteur ou périphrase) : ce client est en contentieux avec Lucid-Lab
 
 SEO :
 - Si un mot-clé cible est fourni, place-le naturellement dans les 100 premiers mots, dans au moins un H2, et dans la section Questions fréquentes ; ne le répète jamais mécaniquement
@@ -95,7 +96,8 @@ Required format (markdown):
 - 1200-1800 words
 - Short conclusion summarising + an implicit CTA towards the free Audit Flash
 - End with a "## Frequently asked questions" section: 3-4 questions phrased the way people type them into Google or ask an AI assistant, each answered directly in 2-4 self-contained sentences
-- Mention concrete Lucid-Lab cases when natural (Universal for lead gen, Turismo for scaling, Périscope for monitoring)
+- Mention concrete Lucid-Lab cases when natural (Universal for lead gen, Périscope for monitoring, BSP37 for a craftsman's web rebuild)
+- NEVER mention Turismo or any luxury vehicle rental engagement (by name, sector or paraphrase): that client is in active litigation with Lucid-Lab
 
 SEO:
 - If a target keyword is provided, place it naturally in the first 100 words, in at least one H2, and in the FAQ section; never repeat it mechanically
