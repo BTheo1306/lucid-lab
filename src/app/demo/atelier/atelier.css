@@ -1,0 +1,71 @@
+/* Scoped styles of the demo "Une journée à l'atelier". */
+[data-demo-root] {
+  --demo-ink: #0a0a0a;
+  --demo-paper: #f7f5f1;
+  --demo-ember: #c85e1a;
+}
+
+@keyframes demo-caret {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+@keyframes demo-wave {
+  0%,
+  100% {
+    transform: scaleY(0.25);
+  }
+  50% {
+    transform: scaleY(1);
+  }
+}
+
+@keyframes demo-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.demo-caret::after {
+  content: '';
+  display: inline-block;
+  width: 2px;
+  height: 1em;
+  margin-left: 1px;
+  vertical-align: -0.15em;
+  background: currentColor;
+  animation: demo-caret 1s steps(1) infinite;
+}
+
+.demo-wave-bar {
+  transform-origin: center;
+  animation: demo-wave 0.9s ease-in-out infinite;
+}
+
+.demo-pulse {
+  animation: demo-pulse 1.4s ease-in-out infinite;
+}
+
+/* The recorder captures a clean frame: no cursor anywhere. */
+[data-demo-mode='record'],
+[data-demo-mode='record'] * {
+  cursor: none !important;
+}
+
+/* Reduced motion: final states at once, except while recording. */
+@media (prefers-reduced-motion: reduce) {
+  [data-demo-root]:not([data-demo-mode='record']) * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
