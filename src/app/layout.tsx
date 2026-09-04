@@ -158,7 +158,7 @@ export default async function RootLayout({
   const isEn = lang === "en";
   const pathname = (await headers()).get("x-pathname") ?? "/";
   // The dark immersive page carries no side grid lines.
-  const hideGridLines = pathname === "/second-brain" || pathname === "/en/second-brain";
+  const hideGridLines = pathname === "/second-brain" || pathname === "/en/second-brain" || pathname.startsWith("/demo/");
 
   return (
     <html
