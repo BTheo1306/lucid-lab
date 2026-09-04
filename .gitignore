@@ -50,3 +50,6 @@ next-env.d.ts
 # Scratch / MCP session artifacts
 .playwright-mcp/
 /aura-*.png
+
+# Demo recordings (npm run demo:record)
+/recordings/

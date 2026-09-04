@@ -1,0 +1,14 @@
+{
+  "name": "lucid-demo-recorder",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Enregistre la démo /demo/atelier (mode automatique) en vidéo 1920x1080 avec Playwright, puis transcode en MP4 H.264 avec ffmpeg. Outil local, jamais installé par le build Vercel.",
+  "scripts": {
+    "record": "node record.mjs",
+    "install-browser": "playwright-core install chromium"
+  },
+  "dependencies": {
+    "playwright-core": "1.61.1"
+  }
+}

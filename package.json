@@ -9,7 +9,9 @@
     "lint": "eslint",
     "seed-kb": "tsx scripts/seed-kb.ts",
     "sync-obsidian-kb": "tsx scripts/sync-obsidian-knowledge.ts",
-    "check:auth": "tsx scripts/check-admin-action-auth.ts"
+    "check:auth": "tsx scripts/check-admin-action-auth.ts",
+    "demo:check": "node scripts/check-demo-copy.mjs",
+    "demo:record": "node tools/demo-recorder/record.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.87.0",
