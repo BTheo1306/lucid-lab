@@ -1,0 +1,104 @@
+{
+  "voice": {
+    "name": "Elena",
+    "voice_id": "ca83ca7f-c186-493d-bd69-0d765fa861b2",
+    "voice_type": "preset",
+    "engine": "text2speech_v2 / elevenlabs"
+  },
+  "delivery": null,
+  "note": "Version film (/demo/atelier-v2, 150 s). Prompt = texte français seul. speechStart = début de scène (cumul des durées + 0,3 s de coupe) + 0,9 s. Réécrire une prise trop longue, jamais l'accélérer.",
+  "takesDir": "recordings/voice/film-elena",
+  "takes": [
+    {
+      "index": 0,
+      "scene": "intro",
+      "sceneStart": 0.3,
+      "speechStart": 1.5,
+      "maxSpeech": 6.2,
+      "text": "Voici une journée dans un atelier de signalétique, avec son nouveau système.",
+      "measuredSpeech": 4.61
+    },
+    {
+      "index": 1,
+      "scene": "formulaire",
+      "sceneStart": 8.3,
+      "speechStart": 9.2,
+      "maxSpeech": 14.5,
+      "text": "Huit heures deux. Un prospect remplit le formulaire du site : le métier, la surface, l'adresse, une photo. Pas d'appel, pas de message à déchiffrer : tout arrive déjà rangé.",
+      "measuredSpeech": 11.65
+    },
+    {
+      "index": 2,
+      "scene": "reponse",
+      "sceneStart": 24.3,
+      "speechStart": 25.2,
+      "maxSpeech": 13.5,
+      "text": "Dans la seconde, il reçoit une réponse aux couleurs de l'atelier : le relevé est offert, on le rappelle sous vingt-quatre heures. Et la dirigeante reçoit le résumé sur son téléphone.",
+      "measuredSpeech": 10.61
+    },
+    {
+      "index": 3,
+      "scene": "crm",
+      "sceneStart": 39.3,
+      "speechStart": 40.2,
+      "maxSpeech": 10.5,
+      "text": "Pendant ce temps, la demande est déjà dans le suivi, à l'étape rendez-vous demandé, avec la photo et le numéro à composer.",
+      "measuredSpeech": 7.25
+    },
+    {
+      "index": 4,
+      "scene": "boite",
+      "sceneStart": 51.3,
+      "speechStart": 52.2,
+      "maxSpeech": 18.5,
+      "text": "Ensuite, la boîte du matin : les mails de la nuit ont été lus et résumés. Chaque fiche propose un poste, un client, une échéance. On accepte, on classe. Rien ne s'écrit sans un clic.",
+      "measuredSpeech": 12.45
+    },
+    {
+      "index": 5,
+      "scene": "journee",
+      "sceneStart": 71.3,
+      "speechStart": 72.2,
+      "maxSpeech": 16.5,
+      "text": "Ma journée ne garde que six choses, classées par urgence réelle : échéance, étape, état. Puis l'atelier regroupe les postes par machine et par matière, pour enchaîner les découpes sans recharger la table.",
+      "measuredSpeech": 12.85
+    },
+    {
+      "index": 6,
+      "scene": "compte-rendu",
+      "sceneStart": 89.3,
+      "speechStart": 90.2,
+      "maxSpeech": 15.5,
+      "text": "Onze heures quarante, un client appelle. On dicte. Le dossier est retrouvé parmi des centaines, le compte rendu est rangé à la date du jour, dans la fiche, avec tout l'historique.",
+      "measuredSpeech": 10.85
+    },
+    {
+      "index": 7,
+      "scene": "commande",
+      "sceneStart": 106.3,
+      "speechStart": 107.2,
+      "maxSpeech": 13.5,
+      "text": "Quatorze heures, la commande fournisseur. La liste de courses est groupée par fournisseur, le mail est rédigé dans le style de la dirigeante, en brouillon. Elle relit, elle envoie.",
+      "measuredSpeech": 11.17
+    },
+    {
+      "index": 8,
+      "scene": "facturation",
+      "sceneStart": 121.3,
+      "speechStart": 122.2,
+      "maxSpeech": 10.5,
+      "text": "En fin d'après-midi : encaissé, en attente, en retard. La facturation vit dans le même écran, et les retards ont un nom.",
+      "measuredSpeech": 8.29
+    },
+    {
+      "index": 9,
+      "scene": "bilan",
+      "sceneStart": 133.3,
+      "speechStart": 134.2,
+      "maxSpeech": 15.5,
+      "text": "Neuf heures quinze par semaine, selon le décompte de la dirigeante. Une journée rendue à l'atelier, chaque semaine. Trente minutes d'audit suffisent pour dire ce que ça donnerait chez vous.",
+      "measuredSpeech": 9.89
+    }
+  ],
+  "generated": "2026-09-05, text2speech_v2 / elevenlabs, voix Elena, prises take00 à take09 dans recordings/voice/film-elena, mots vérifiés par transcription (trois phrases reformulées : boîte du matin, fin d'après-midi, audit)"
+}

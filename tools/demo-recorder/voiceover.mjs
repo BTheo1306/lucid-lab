@@ -28,6 +28,7 @@ function parseArgs(argv) {
     else if (a === '--takes') out.takes = argv[++i]
     else if (a === '--out') out.out = argv[++i]
     else if (a === '--gain') out.gainDb = Number.parseFloat(argv[++i])
+    else if (a === '--manifest') out.manifest = argv[++i]
     else if (a === '--help' || a === '-h') {
       console.log('Usage : node voiceover.mjs [--video <mp4>] [--takes <dossier des takeNN.wav>] [--out <mp4>] [--gain <dB>]')
       process.exit(0)
@@ -37,7 +38,7 @@ function parseArgs(argv) {
 }
 
 const args = parseArgs(process.argv.slice(2))
-const manifest = JSON.parse(readFileSync(path.join(HERE, 'narration.json'), 'utf8'))
+const manifest = JSON.parse(readFileSync(path.resolve(ROOT, args.manifest ?? 'tools/demo-recorder/narration.json'), 'utf8'))
 const videoPath = path.resolve(ROOT, args.video ?? 'recordings/demo-atelier.mp4')
 const takesDir = path.resolve(ROOT, args.takes ?? manifest.takesDir ?? 'recordings/voice')
 const outPath = path.resolve(ROOT, args.out ?? 'recordings/demo-atelier-voix.mp4')

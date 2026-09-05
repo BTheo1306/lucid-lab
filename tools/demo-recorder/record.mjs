@@ -25,6 +25,8 @@ function parseArgs(argv) {
     const a = argv[i]
     if (a === '--url') out.url = argv[++i]
     else if (a === '--out') out.out = argv[++i]
+    else if (a === '--path') out.path = argv[++i]
+    else if (a === '--name') out.name = argv[++i]
     else if (a === '--keep-webm') out.keepWebm = true
     else if (a === '--no-transcode') out.transcode = false
     else if (a === '--frames') out.frames = true
@@ -37,10 +39,12 @@ function parseArgs(argv) {
 }
 
 const args = parseArgs(process.argv.slice(2))
+const PAGE_PATH = args.path ?? '/demo/atelier'
+const NAME = args.name ?? 'demo-atelier'
 const BASE = (args.url ?? process.env.DEMO_BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '')
 const OUT_DIR = path.resolve(ROOT, args.out ?? 'recordings')
 const FFMPEG = process.env.FFMPEG ?? '/opt/homebrew/bin/ffmpeg'
-const PAGE_URL = `${BASE}/demo/atelier?autoplay=1&record=1`
+const PAGE_URL = `${BASE}${PAGE_PATH}?autoplay=1&record=1`
 const WIDTH = 1920
 const HEIGHT = 1080
 
@@ -103,7 +107,7 @@ async function main() {
     process.exit(1)
   }
   const rawPath = await video.path()
-  const webmPath = path.join(OUT_DIR, 'demo-atelier.webm')
+  const webmPath = path.join(OUT_DIR, `${NAME}.webm`)
   if (existsSync(webmPath)) rmSync(webmPath)
   renameSync(rawPath, webmPath)
   console.log(`WebM : ${webmPath}`)
@@ -119,7 +123,7 @@ async function main() {
     console.error(`ffmpeg introuvable (${FFMPEG}). Le WebM est conservé.`)
     process.exit(1)
   }
-  const mp4Path = path.join(OUT_DIR, 'demo-atelier.mp4')
+  const mp4Path = path.join(OUT_DIR, `${NAME}.mp4`)
   const trim = Math.max(0, leadIn - 0.3).toFixed(2)
   run(FFMPEG, [
     '-y',

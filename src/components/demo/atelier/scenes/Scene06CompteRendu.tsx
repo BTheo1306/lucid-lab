@@ -107,7 +107,7 @@ export function Scene06CompteRendu() {
                           </li>
                         ))}
                         <li className="border-t px-3 py-1.5 font-mono text-[11px]" style={{ borderColor: GRAY_200, color: GRAY_500 }}>
-                          {LEGACY_FOLDER_COUNT} dossiers indexés sur le serveur de l&rsquo;atelier
+                          {`${LEGACY_FOLDER_COUNT} dossiers indexés sur le serveur de l’atelier`}
                         </li>
                       </motion.ul>
                     ) : null}
