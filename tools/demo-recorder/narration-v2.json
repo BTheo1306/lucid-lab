@@ -1,13 +1,13 @@
 {
   "voice": {
-    "name": "à choisir par Jules (échantillons envoyés le 05/09)",
-    "voice_id": null,
+    "name": "Andre",
+    "voice_id": "f1e8226e-2248-4d5f-b43c-0a79e9949dbf",
     "voice_type": "preset",
     "engine": "text2speech_v2 / elevenlabs"
   },
   "delivery": null,
   "note": "Version film (/demo/atelier-v2, 191 s). Narration en phrases naturelles et liées. Prompt = texte français seul. speechStart = début de scène (cumul des durées + 0,3 s de coupe) + 0,9 s. Réécrire une prise trop longue, jamais l'accélérer ; transcrire le début de chaque prise.",
-  "takesDir": "recordings/voice/film-v3",
+  "takesDir": "recordings/voice/film-andre",
   "takes": [
     {
       "index": 0,
@@ -15,7 +15,8 @@
       "sceneStart": 0.3,
       "speechStart": 1.8,
       "maxSpeech": 8.9,
-      "text": "Voici une journée dans un atelier de signalétique, depuis que son administratif tourne avec le système qu'on lui a installé."
+      "text": "Voici une journée dans un atelier de signalétique, depuis la mise en place de son nouveau système.",
+      "measuredSpeech": 5.97
     },
     {
       "index": 1,
@@ -23,7 +24,8 @@
       "sceneStart": 11.3,
       "speechStart": 12.2,
       "maxSpeech": 17.5,
-      "text": "Il est huit heures. Un prospect remplit la demande de devis du site depuis son téléphone : ce qu'il cherche, la surface, l'adresse du chantier, et une photo de ses fenêtres. Personne n'aura à ressaisir ces informations."
+      "text": "Il est huit heures. Depuis son téléphone, un futur client remplit la demande de devis sur le site de l'atelier : ce qu'il cherche, la surface, l'adresse du chantier, et une photo de ses fenêtres. Personne n'aura à ressaisir ces informations.",
+      "measuredSpeech": 13.49
     },
     {
       "index": 2,
@@ -31,7 +33,8 @@
       "sceneStart": 30.3,
       "speechStart": 31.2,
       "maxSpeech": 19.5,
-      "text": "Quelques secondes plus tard, il reçoit une réponse aux couleurs de l'atelier : le relevé sur place est offert, on le rappellera dans la journée. La dirigeante, elle, reçoit sur son téléphone un résumé clair de la demande, avec la photo."
+      "text": "Quelques secondes plus tard, il reçoit une réponse aux couleurs de l'atelier : le relevé sur place est offert, on le rappellera dans la journée. La dirigeante, elle, reçoit sur son téléphone un résumé clair de la demande, avec la photo.",
+      "measuredSpeech": 13.33
     },
     {
       "index": 3,
@@ -39,7 +42,8 @@
       "sceneStart": 51.3,
       "speechStart": 52.2,
       "maxSpeech": 14.5,
-      "text": "Pendant ce temps, la demande est déjà dans le suivi de l'atelier, à l'étape rendez-vous demandé, avec la photo et le numéro du prospect. Il n'y a rien à créer à la main."
+      "text": "Pendant ce temps, la demande est déjà dans le suivi de l'atelier, à l'étape rendez-vous demandé, avec la photo et le numéro du prospect. Il n'y a rien à créer à la main.",
+      "measuredSpeech": 10.61
     },
     {
       "index": 4,
@@ -47,7 +51,8 @@
       "sceneStart": 67.3,
       "speechStart": 68.2,
       "maxSpeech": 22.5,
-      "text": "Un peu plus tard, la dirigeante ouvre sa boîte du matin. Les mails de la nuit ont été lus et résumés : pour chacun, le système propose un poste, le client concerné et une échéance. Elle accepte, elle classe, ou elle pose une question. Rien ne s'écrit sans son accord."
+      "text": "Un peu plus tard, la dirigeante ouvre sa boîte du matin. Les mails de la nuit ont été lus et résumés : pour chacun, le système propose un poste, le client concerné et une échéance. Elle accepte, elle classe, ou elle pose une question. Rien ne s'écrit sans son accord.",
+      "measuredSpeech": 16.53
     },
     {
       "index": 5,
@@ -55,7 +60,8 @@
       "sceneStart": 91.3,
       "speechStart": 92.2,
       "maxSpeech": 19.5,
-      "text": "Sa journée ne retient que six choses, classées selon l'urgence réelle, calculée d'après les échéances et l'avancement de chaque poste. La vue atelier, elle, regroupe les travaux par machine et par matière, pour enchaîner découpes et impressions sans recharger la table."
+      "text": "Sa journée ne retient que six choses, classées selon l'urgence réelle, calculée d'après les échéances et l'avancement de chaque poste. La vue atelier, elle, regroupe les travaux par machine et par matière, pour enchaîner découpes et impressions sans recharger la table.",
+      "measuredSpeech": 15.81
     },
     {
       "index": 6,
@@ -63,7 +69,8 @@
       "sceneStart": 112.3,
       "speechStart": 113.2,
       "maxSpeech": 18.5,
-      "text": "En fin de matinée, un client appelle. La dirigeante dicte son compte rendu, le système retrouve le bon dossier parmi plusieurs centaines et range la note à la date du jour, dans la fiche du client, avec tout son historique."
+      "text": "En fin de matinée, un client appelle. La dirigeante dicte son compte rendu, le système retrouve le bon dossier parmi plusieurs centaines et range la note à la date du jour, dans la fiche du client, avec tout son historique.",
+      "measuredSpeech": 12.72
     },
     {
       "index": 7,
@@ -71,7 +78,8 @@
       "sceneStart": 132.3,
       "speechStart": 133.2,
       "maxSpeech": 20.5,
-      "text": "L'après-midi, il faut commander des plaques. La liste de courses est groupée par fournisseur, et le mail de commande est rédigé dans le style habituel de la dirigeante, en brouillon. Les lignes incertaines sont en couleur, à confirmer. Elle relit, puis elle envoie."
+      "text": "L'après-midi, il faut commander des plaques. La liste de courses est groupée par fournisseur, et le mail de commande est rédigé dans le style habituel de la dirigeante, prêt à relire. Les lignes incertaines sont en couleur, à confirmer. Elle relit, puis elle envoie.",
+      "measuredSpeech": 15.99
     },
     {
       "index": 8,
@@ -79,7 +87,8 @@
       "sceneStart": 154.3,
       "speechStart": 155.2,
       "maxSpeech": 17.5,
-      "text": "En fin de journée, la facturation se lit dans le même écran que le reste : encaissé, en attente, en retard. Les retards ont un nom, et les devis à rédiger remontent tout seuls depuis les postes."
+      "text": "En fin de journée, la facturation se lit dans le même écran que le reste : encaissé, en attente, en retard. Les retards ont un nom, et les devis à rédiger remontent tout seuls depuis les postes.",
+      "measuredSpeech": 12.45
     },
     {
       "index": 9,
@@ -87,8 +96,9 @@
       "sceneStart": 173.3,
       "speechStart": 174.2,
       "maxSpeech": 16.5,
-      "text": "Au total, la dirigeante de l'atelier de référence estime gagner environ neuf heures par semaine : une journée rendue à son métier. Une demi-heure d'audit suffit pour mesurer ce que cela donnerait chez vous."
+      "text": "Au total, la dirigeante de l'atelier de référence estime gagner environ neuf heures par semaine : une journée rendue à son métier. Une demi-heure d'audit suffit pour mesurer ce que cela donnerait chez vous.",
+      "measuredSpeech": 11.97
     }
   ],
-  "generated": null
+  "generated": "2026-09-05, text2speech_v2 / elevenlabs, voix Andre choisie par Jules, prises take00 à take09 dans recordings/voice/film-andre, mesurées et transcrites (phrases 0, 1 et 7 reformulées : « qu'on lui a installé », « prospect » et « en brouillon » à la frontière de phrase)"
 }

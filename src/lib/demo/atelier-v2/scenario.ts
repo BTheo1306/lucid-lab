@@ -14,7 +14,7 @@ export const FILM_SCENES: FilmScene[] = [
     title: "Une journée à l'atelier",
     headline: "Une journée à l'atelier.",
     sub: "Ce qu'un atelier de signalétique a mis en place pour reprendre ses journées.",
-    caption: "Voici une journée dans un atelier de signalétique, depuis que son administratif tourne avec le système qu'on lui a installé.",
+    caption: "Voici une journée dans un atelier de signalétique, depuis la mise en place de son nouveau système.",
     device: 'none',
     steps: [
       { id: 'title', at: 300 },
@@ -31,7 +31,7 @@ export const FILM_SCENES: FilmScene[] = [
     title: 'Une demande arrive',
     headline: 'Chaque demande arrive déjà rangée.',
     caption:
-      "Il est huit heures. Un prospect remplit la demande de devis du site depuis son téléphone : ce qu'il cherche, la surface, l'adresse du chantier, et une photo de ses fenêtres. Personne n'aura à ressaisir ces informations.",
+      "Il est huit heures. Depuis son téléphone, un futur client remplit la demande de devis sur le site de l'atelier : ce qu'il cherche, la surface, l'adresse du chantier, et une photo de ses fenêtres. Personne n'aura à ressaisir ces informations.",
     device: 'none',
     steps: [
       { id: 'open', at: 400, shot: 'full' },
@@ -152,7 +152,7 @@ export const FILM_SCENES: FilmScene[] = [
     title: 'La commande fournisseur',
     headline: 'La commande s\'écrit dans votre style.',
     caption:
-      "L'après-midi, il faut commander des plaques. La liste de courses est groupée par fournisseur, et le mail de commande est rédigé dans le style habituel de la dirigeante, en brouillon. Les lignes incertaines sont en couleur, à confirmer. Elle relit, puis elle envoie.",
+      "L'après-midi, il faut commander des plaques. La liste de courses est groupée par fournisseur, et le mail de commande est rédigé dans le style habituel de la dirigeante, prêt à relire. Les lignes incertaines sont en couleur, à confirmer. Elle relit, puis elle envoie.",
     device: 'none',
     steps: [
       { id: 'list', at: 400, shot: 'full' },
