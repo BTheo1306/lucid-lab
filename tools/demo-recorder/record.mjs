@@ -94,7 +94,7 @@ async function main() {
   await page.waitForFunction(() => document.documentElement.dataset.demoState === 'playing', null, { timeout: 30_000 })
   const leadIn = (Date.now() - t0) / 1000
   console.log(`Lecture démarrée après ${leadIn.toFixed(2)} s`)
-  await page.waitForFunction(() => document.documentElement.dataset.demoState === 'finished', null, { timeout: 180_000, polling: 250 })
+  await page.waitForFunction(() => document.documentElement.dataset.demoState === 'finished', null, { timeout: 600_000, polling: 250 })
   const played = (Date.now() - t0) / 1000 - leadIn
   console.log(`Démo terminée : ${played.toFixed(1)} s de lecture`)
   await page.waitForTimeout(1500)
