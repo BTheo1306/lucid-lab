@@ -1,0 +1,23 @@
+{
+  "name": "lucid-ad",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Film publicitaire Lucid-Lab (Second Brain + automatisation) rendu image par image avec Remotion. Licence Remotion gratuite pour les équipes de trois personnes ou moins.",
+  "scripts": {
+    "studio": "remotion studio src/index.ts",
+    "render": "remotion render src/index.ts LucidAd out/lucid-ad.mp4 --codec h264 --crf 17 --browser-executable \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\"",
+    "still": "remotion still src/index.ts LucidAd out/still.png --browser-executable \"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\"",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remotion/cli": "4.0.521",
+    "@remotion/fonts": "4.0.521",
+    "react": "19.2.4",
+    "react-dom": "19.2.4",
+    "remotion": "4.0.521"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.0",
+    "typescript": "^5.9.0"
+  }
+}

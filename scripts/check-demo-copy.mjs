@@ -9,7 +9,7 @@ import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..')
-const TARGETS = ['src/app/demo', 'src/components/demo', 'src/lib/demo', 'tools/demo-recorder']
+const TARGETS = ['src/app/demo', 'src/components/demo', 'src/lib/demo', 'tools/demo-recorder', 'tools/ad-lucid/src']
 
 // Expressions interdites, construites sans les écrire en clair dans ce fichier.
 const banned = [
