@@ -2,12 +2,13 @@
 
 import { useReducer } from 'react'
 
-import { SCENE_COUNT, sceneAt } from '@/lib/demo/atelier/scenario'
-import type { Mode } from '@/lib/demo/atelier/types'
+import type { Mode, Scene } from '@/lib/demo/atelier/types'
 
 export type PlayerStatus = 'idle' | 'playing' | 'paused' | 'finished'
 
 export interface PlayerState {
+  /** The scenes this player runs (v1 or v2 scenario). */
+  scenes: Scene[]
   mode: Mode
   status: PlayerStatus
   scene: number
@@ -33,20 +34,25 @@ export type PlayerAction =
   | { type: 'EXIT' }
   | { type: 'FULLSCREEN'; on: boolean }
 
-function clampScene(n: number): number {
-  return Math.min(Math.max(n, 0), SCENE_COUNT - 1)
+function clampScene(state: PlayerState, n: number): number {
+  return Math.min(Math.max(n, 0), state.scenes.length - 1)
+}
+
+function sceneAt(state: PlayerState, n: number): Scene {
+  return state.scenes[clampScene(state, n)]
 }
 
 function enter(state: PlayerState, scene: number, firedCount = 0): PlayerState {
-  return { ...state, status: 'playing', scene: clampScene(scene), firedCount, manual: [], sceneKey: state.sceneKey + 1 }
+  return { ...state, status: 'playing', scene: clampScene(state, scene), firedCount, manual: [], sceneKey: state.sceneKey + 1 }
 }
 
-export function initialPlayerState(mode: Mode, initialScene: number): PlayerState {
+export function initialPlayerState(scenes: Scene[], mode: Mode, initialScene: number): PlayerState {
   const startsPlaying = mode === 'presenter' && initialScene > 0
   return {
+    scenes,
     mode,
     status: startsPlaying ? 'playing' : 'idle',
-    scene: clampScene(initialScene),
+    scene: Math.min(Math.max(initialScene, 0), scenes.length - 1),
     firedCount: 0,
     manual: [],
     sceneKey: 0,
@@ -55,8 +61,8 @@ export function initialPlayerState(mode: Mode, initialScene: number): PlayerStat
 }
 
 export function playerReducer(state: PlayerState, action: PlayerAction): PlayerState {
-  const stepCount = sceneAt(state.scene).steps.length
-  const last = state.scene >= SCENE_COUNT - 1
+  const stepCount = sceneAt(state, state.scene).steps.length
+  const last = state.scene >= state.scenes.length - 1
 
   switch (action.type) {
     case 'START': {
@@ -76,7 +82,7 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
     case 'PREV': {
       if (state.scene <= 0) return state
       const prev = state.scene - 1
-      return enter(state, prev, sceneAt(prev).steps.length)
+      return enter(state, prev, sceneAt(state, prev).steps.length)
     }
     case 'GOTO':
       return enter(state, action.scene)
@@ -103,6 +109,6 @@ export function playerReducer(state: PlayerState, action: PlayerAction): PlayerS
   }
 }
 
-export function usePlayer(mode: Mode, initialScene: number) {
-  return useReducer(playerReducer, undefined, () => initialPlayerState(mode, initialScene))
+export function usePlayer(scenes: Scene[], mode: Mode, initialScene: number) {
+  return useReducer(playerReducer, undefined, () => initialPlayerState(scenes, mode, initialScene))
 }

@@ -19,7 +19,7 @@ function isTypingTarget(target: EventTarget | null): boolean {
 }
 
 /** Presenter shortcuts. Disabled entirely in record mode. */
-export function useKeyboard(enabled: boolean, handlers: KeyboardHandlers) {
+export function useKeyboard(enabled: boolean, handlers: KeyboardHandlers, lastScene = 9) {
   const handlersRef = useRef(handlers)
 
   useEffect(() => {
@@ -62,10 +62,10 @@ export function useKeyboard(enabled: boolean, handlers: KeyboardHandlers) {
       }
       if (/^[0-9]$/.test(event.key)) {
         // 1 to 9 open scenes 1 to 9, 0 opens the last one (bilan).
-        h.goto(event.key === '0' ? 9 : Number.parseInt(event.key, 10))
+        h.goto(event.key === '0' ? lastScene : Number.parseInt(event.key, 10))
       }
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [enabled])
+  }, [enabled, lastScene])
 }

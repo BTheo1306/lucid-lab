@@ -25,7 +25,7 @@ interface AtelierDemoProps {
 }
 
 export function AtelierDemo({ initialScene, mode, speed }: AtelierDemoProps) {
-  const [state, dispatch] = usePlayer(mode, initialScene)
+  const [state, dispatch] = usePlayer(SCENES, mode, initialScene)
   const scene = sceneAt(state.scene)
   const prefersReduced = useReducedMotion()
   const reduced = Boolean(prefersReduced) && mode !== 'record'
