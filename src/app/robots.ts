@@ -8,7 +8,7 @@ export default function robots(): MetadataRoute.Robots {
         allow: "/",
         // The admin subdomain serves its own X-Robots-Tag via the proxy; this
         // covers lucid-lab.fr/admin, which stays reachable.
-        disallow: ["/portal", "/admin"],
+        disallow: ["/portal", "/admin", "/demo"],
       },
     ],
     sitemap: "https://lucid-lab.fr/sitemap.xml",

@@ -1,0 +1,104 @@
+{
+  "voice": {
+    "name": "Elena",
+    "voice_id": "ca83ca7f-c186-493d-bd69-0d765fa861b2",
+    "voice_type": "preset",
+    "engine": "text2speech_v2 / elevenlabs"
+  },
+  "delivery": null,
+  "note": "Une prise par scène. Le prompt envoyé à la synthèse vocale est le texte français seul, sans consigne en anglais devant (elle fausse la détection de langue). sceneStart = début de la scène dans la vidéo (secondes, offset de coupe 0,3 s inclus), speechStart = début de la voix, maxSpeech = durée maximale de parole pour rester dans la scène. Les textes se réécrivent pour tenir, jamais d'accélération audio.",
+  "takes": [
+    {
+      "index": 0,
+      "scene": "intro",
+      "sceneStart": 0.3,
+      "speechStart": 1.0,
+      "maxSpeech": 3.0,
+      "text": "Une journée à l'atelier, avec l'assistant.",
+      "measuredSpeech": 2.53
+    },
+    {
+      "index": 1,
+      "scene": "formulaire",
+      "sceneStart": 4.3,
+      "speechStart": 4.9,
+      "maxSpeech": 9.0,
+      "text": "Un prospect remplit le formulaire de votre site depuis son téléphone : métier, surface, adresse, photo. Rien à ressaisir.",
+      "measuredSpeech": 8.45
+    },
+    {
+      "index": 2,
+      "scene": "reponse",
+      "sceneStart": 14.3,
+      "speechStart": 14.9,
+      "maxSpeech": 8.0,
+      "text": "La réponse part dans la seconde, avec le relevé gratuit et le rappel sous vingt-quatre heures.",
+      "measuredSpeech": 4.77
+    },
+    {
+      "index": 3,
+      "scene": "crm",
+      "sceneStart": 23.3,
+      "speechStart": 23.9,
+      "maxSpeech": 6.0,
+      "text": "La demande est déjà dans votre suivi, avec la photo et le numéro.",
+      "measuredSpeech": 3.97
+    },
+    {
+      "index": 4,
+      "scene": "boite",
+      "sceneStart": 30.3,
+      "speechStart": 30.9,
+      "maxSpeech": 12.0,
+      "text": "La boîte du matin : les mails sont devenus des fiches à décider. Vous acceptez, vous transmettez, vous classez, et le mail est marqué lu.",
+      "measuredSpeech": 9.17
+    },
+    {
+      "index": 5,
+      "scene": "journee",
+      "sceneStart": 43.3,
+      "speechStart": 43.9,
+      "maxSpeech": 10.5,
+      "text": "Ma journée calcule l'urgence à votre place. L'atelier regroupe les postes par machine et par matière. L'apprentie ne voit que ses maquettes.",
+      "measuredSpeech": 8.13
+    },
+    {
+      "index": 6,
+      "scene": "compte-rendu",
+      "sceneStart": 54.8,
+      "speechStart": 55.4,
+      "maxSpeech": 10.0,
+      "text": "Un client appelle. Vous dictez, l'assistant retrouve le dossier, range le compte rendu, et en tire les actions.",
+      "measuredSpeech": 6.93
+    },
+    {
+      "index": 7,
+      "scene": "commande",
+      "sceneStart": 65.8,
+      "speechStart": 66.4,
+      "maxSpeech": 8.0,
+      "text": "La commande fournisseur est rédigée dans votre style, sous forme de brouillon. Rien ne part sans vous.",
+      "measuredSpeech": 5.93
+    },
+    {
+      "index": 8,
+      "scene": "facturation",
+      "sceneStart": 74.8,
+      "speechStart": 75.4,
+      "maxSpeech": 5.0,
+      "text": "La facturation, dans le même écran : les retards sont nommés.",
+      "measuredSpeech": 3.57
+    },
+    {
+      "index": 9,
+      "scene": "bilan",
+      "sceneStart": 80.8,
+      "speechStart": 81.4,
+      "maxSpeech": 10.0,
+      "text": "Le temps rendu à la dirigeante : environ neuf heures quinze par semaine, selon son propre décompte. Il reste à le mesurer chez vous.",
+      "measuredSpeech": 7.73
+    }
+  ],
+  "takesDir": "recordings/voice/elena",
+  "generated": "2026-09-04, text2speech_v2 / elevenlabs, voix Elena, prises take00 à take09, converties en WAV 24 kHz mono avec la queue coupée de 30 ms, mots vérifiés par transcription"
+}
