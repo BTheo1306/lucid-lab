@@ -189,7 +189,7 @@ const content: Record<Locale, SecondBrainContent> = {
       video: {
         label: '// Démo',
         title: 'Une journée à l’atelier, en vidéo',
-        caption: 'Reconstitution du système livré, dans un atelier fictif et avec des données fictives. Trois minutes, sans son : tout est écrit à l’écran.',
+        caption: 'Reconstitution du système livré, dans un atelier fictif et avec des données fictives. Trois minutes, commentées en français, et tout est aussi écrit à l’écran.',
       },
     },
     faq: {
@@ -340,7 +340,7 @@ const content: Record<Locale, SecondBrainContent> = {
       video: {
         label: '// Demo',
         title: 'A day at the workshop, on video',
-        caption: 'A faithful reconstruction of the delivered system, with a fictional workshop and fictional data. Three minutes, no sound, in French: everything is written on screen.',
+        caption: 'A faithful reconstruction of the delivered system, with a fictional workshop and fictional data. Three minutes, narrated in French, with everything also written on screen.',
       },
     },
     faq: {
@@ -832,7 +832,7 @@ function Proof({ lang }: { lang: Locale }) {
           poster="/videos/demo-atelier-film-poster.jpg"
           aria-label={t.video.title}
         >
-          <source src="/videos/demo-atelier-film.mp4" type="video/mp4" />
+          <source src="/videos/demo-atelier-film-voix.mp4" type="video/mp4" />
         </video>
         <figcaption className="flex flex-col gap-3 border-t px-5 py-4 md:flex-row md:items-center md:justify-between" style={{ borderColor: GRAY_200 }}>
           <div>
