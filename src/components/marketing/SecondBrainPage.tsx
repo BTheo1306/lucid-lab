@@ -63,6 +63,7 @@ type SecondBrainContent = {
     imageAlt: string
     impactLabel: string
     items: { title: string; body: string; metric: string }[]
+    video: { label: string; title: string; caption: string }
   }
   faq: {
     title: string
@@ -185,6 +186,11 @@ const content: Record<Locale, SecondBrainContent> = {
           metric: 'un quart de poste',
         },
       ],
+      video: {
+        label: '// Démo',
+        title: 'Une journée à l’atelier, en vidéo',
+        caption: 'Reconstitution du système livré, dans un atelier fictif et avec des données fictives. Trois minutes, sans son : tout est écrit à l’écran.',
+      },
     },
     faq: {
       title: 'Questions fréquentes.',
@@ -331,6 +337,11 @@ const content: Record<Locale, SecondBrainContent> = {
           metric: 'a quarter position',
         },
       ],
+      video: {
+        label: '// Demo',
+        title: 'A day at the workshop, on video',
+        caption: 'A faithful reconstruction of the delivered system, with a fictional workshop and fictional data. Three minutes, no sound, in French: everything is written on screen.',
+      },
     },
     faq: {
       title: 'Frequent questions.',
@@ -804,6 +815,33 @@ function Proof({ lang }: { lang: Locale }) {
           ))}
         </div>
       </div>
+
+      <motion.figure
+        className="mt-12 overflow-hidden rounded-[12px] border bg-white shadow-sm"
+        style={{ borderColor: GRAY_200 }}
+        initial={{ opacity: 0, y: 15 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.5 }}
+      >
+        <video
+          className="aspect-video w-full bg-[#0A0A0A]"
+          controls
+          playsInline
+          preload="none"
+          poster="/videos/demo-atelier-film-poster.jpg"
+          aria-label={t.video.title}
+        >
+          <source src="/videos/demo-atelier-film.mp4" type="video/mp4" />
+        </video>
+        <figcaption className="flex flex-col gap-3 border-t px-5 py-4 md:flex-row md:items-center md:justify-between" style={{ borderColor: GRAY_200 }}>
+          <div>
+            <div className="font-mono text-[10px] uppercase tracking-[0.14em] text-[#8a8276]">{t.video.label}</div>
+            <p className="mt-1 text-[15px] font-bold tracking-tight text-stone-900">{t.video.title}</p>
+          </div>
+          <p className="text-[13px] leading-relaxed text-stone-600 md:max-w-[52ch] md:text-right">{t.video.caption}</p>
+        </figcaption>
+      </motion.figure>
     </Section>
   )
 }
