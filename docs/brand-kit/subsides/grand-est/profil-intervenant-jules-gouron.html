@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lucid-Lab · Profil intervenant · Jules Gouron</title>
+<link rel="stylesheet" href="../../styles.css">
+<link rel="stylesheet" href="../../templates/_doc-base.css">
+<style>
+  @page { size: A4; margin: 9mm 10mm; }
+  .sheet { min-height: 1160px; }
+  .id { display: grid; grid-template-columns: 92px 1fr; gap: 18px; align-items: center; margin-top: 18px; }
+  .id img { width: 92px; height: 92px; border-radius: var(--radius-md); object-fit: cover; display: block; border: 1px solid var(--border-default); }
+  .id .name { font-family: var(--font-display); font-weight: 700; font-size: 28px; letter-spacing: -0.02em; line-height: 1.05; margin: 0; }
+  .id .title { font-size: 15px; color: var(--text-accent); font-weight: 600; margin: 6px 0 0; }
+  .id .lines { font-family: var(--font-mono); font-size: 11.5px; color: var(--text-secondary); line-height: 1.8; margin-top: 8px; }
+  .lead { font-size: 12.5px; line-height: 1.55; color: var(--text-secondary); margin: 12px 0 0; }
+  .lead b { color: var(--text-primary); font-weight: 600; }
+  .sec-lbl { font-family: var(--font-mono); font-size: 10.5px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--text-muted); margin: 14px 0 7px; display: block; }
+  .phases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+  .phase { border: 1px solid var(--border-default); border-radius: var(--radius-md); background: var(--color-white); padding: 10px 12px 11px; }
+  .phase .pn { font-family: var(--font-mono); font-size: 11px; font-weight: 600; color: var(--text-accent); letter-spacing: 0.04em; }
+  .phase h3 { font-family: var(--font-display); font-weight: 700; font-size: 13px; margin: 7px 0 5px; line-height: 1.2; }
+  .phase p { font-size: 11px; line-height: 1.45; color: var(--text-secondary); margin: 0; }
+  table.refs { width: 100%; border-collapse: collapse; font-size: 11px; }
+  table.refs th { font-family: var(--font-mono); font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--text-muted); text-align: left; padding: 0 8px 7px; border-bottom: 1px solid var(--border-strong); font-weight: 500; }
+  table.refs td { padding: 5px 8px; border-bottom: 1px solid var(--border-default); vertical-align: top; line-height: 1.4; color: var(--text-secondary); }
+  table.refs td.c { font-weight: 600; color: var(--text-primary); white-space: nowrap; }
+  table.refs td.p { font-family: var(--font-mono); font-size: 10.5px; white-space: nowrap; }
+  .cols { display: grid; grid-template-columns: 1fr 1fr; gap: 9px 22px; }
+  .cols h4 { font-family: var(--font-display); font-weight: 700; font-size: 12.5px; margin: 0 0 4px; }
+  .cols p { font-size: 11px; line-height: 1.5; color: var(--text-secondary); margin: 0; }
+  .todo { background: var(--color-ember-tint); color: var(--text-accent); border-radius: 3px; padding: 0 4px; font-weight: 600; }
+  .doc-foot { margin-top: auto; }
+  @media print { body { padding: 0; background: #fff; } .sheet { border: 0; border-radius: 0; margin: 0; padding: 22px 30px 26px; min-height: 0; width: 100%; } .doc-foot { margin-top: 16px; } }
+</style>
+</head>
+<body>
+
+<section class="sheet">
+
+  <header class="doc-head">
+    <div class="brand">
+      <img src="../../assets/logo.png" alt="">
+      <div><b>LUCID-LAB</b><small>Agence IA · Paris</small></div>
+    </div>
+    <div class="doc-type">
+      <h1>Profil intervenant</h1>
+      <div class="meta">Annexe 1 · Module transformant Data/IA<br>Région Grand Est · septembre 2026</div>
+    </div>
+  </header>
+
+  <div class="id">
+    <img src="../../pitch-deck/assets/team/jules.png" alt="Jules Gouron" onerror="this.style.display='none'">
+    <div>
+      <h2 class="name">Jules Gouron</h2>
+      <p class="title">Directeur des opérations (COO), cofondateur et associé de Lucid-Lab</p>
+      <div class="lines">Paris <span class="todo">[à confirmer : Paris et Tours ?]</span> · <span class="todo">[jules@lucid-lab.fr ?]</span> · <span class="todo">[téléphone]</span><br>linkedin.com/in/jules-gouron-455b58300 · Français (langue maternelle), anglais professionnel <span class="todo">[niveau à préciser]</span></div>
+    </div>
+  </div>
+
+  <p class="lead">Pilote les missions Lucid-Lab de bout en bout, du <b>cadrage métier</b> à la <b>mise en production</b> : état des lieux du système d'information et des données, priorisation des cas d'usage, construction des outils et des agents, formation des équipes et transfert de propriété. Interlocuteur du dirigeant sur toute la durée de la mission, sur site et à distance.</p>
+
+  <span class="sec-lbl">Rôle proposé sur les trois phases du module</span>
+  <div class="phases">
+    <div class="phase"><div class="pn">PHASE 1</div><h3>Montée en compétences</h3><p>Animation des ateliers dirigeant et équipes, mise à niveau sur la donnée et l'IA, détection des premiers cas d'usage, première version de la feuille de route.</p></div>
+    <div class="phase"><div class="pn">PHASE 2</div><h3>Diagnostic technique avancé</h3><p>Inventaire du SI et des sources de données, maturité de la collecte et de l'usage par les métiers, avant-projet sommaire : visualisation, automatisation ou IA selon la valeur démontrée.</p></div>
+    <div class="phase"><div class="pn">PHASE 3</div><h3>Ingénierie et avant-projet détaillé</h3><p>Structuration et gouvernance des données, cahier des charges chiffré, comparaison des offreurs sur les cas réels, cadrage et construction du POC.</p></div>
+  </div>
+
+  <span class="sec-lbl">Références des 18 derniers mois (missions Lucid-Lab, 2026)</span>
+  <table class="refs">
+    <thead><tr><th>Client et secteur</th><th>Mission et livrables</th><th>Période</th></tr></thead>
+    <tbody>
+      <tr><td class="c">PME de production<br>(bâches, stores, sellerie, Indre-et-Loire)<br><span class="todo">[nommer BSP37 avec l'accord écrit de la cliente]</span></td><td>Système de pilotage d'atelier : postes et notes de production en base, boîte du matin, comptes rendus d'appels, tableau de bord dirigeant. Refonte du site et des formulaires clients (Next.js, Vercel, Supabase). Maintenance et suivi mensuels.</td><td class="p">juin 2026 à ce jour</td></tr>
+      <tr><td class="c">Axone Avocats<br>(cabinet d'avocats, Tours)</td><td>Audit et cadrage Data/IA, 9 jours : état des lieux du SI, cas d'usage priorisés, feuille de route chiffrée, cahier des charges. Lancement sur site le 10/09/2026.</td><td class="p">sept. à oct. 2026</td></tr>
+      <tr><td class="c">Le Jardin d'Eden<br>(crèche privée, Bruxelles)</td><td>Automatisation des inscriptions et de l'administratif : audit du fichier de gestion, transposition en base structurée, trois workflows n8n (documents entrants, extraction IA, relances), guide utilisateur.</td><td class="p">juin à juil. 2026</td></tr>
+      <tr><td class="c">We Drive for Charity<br>(association, Vienne)</td><td>Second Brain : Claude et Obsidian installés, connecteurs messagerie, Drive et site branchés, historique structuré en base de connaissances.</td><td class="p">août 2026</td></tr>
+      <tr><td class="c">Consulteis<br>(conseil, PACA) <span class="todo">[préciser]</span></td><td>Installation Claude pour l'équipe, base de connaissances et procédures. <span class="todo">[périmètre exact à préciser]</span></td><td class="p">août 2026</td></tr>
+      <tr><td class="c">Maison Hébrant<br>(hôtellerie, Var)</td><td>Système de réservation et de relation client sur mesure, conçu avec la famille dirigeante.</td><td class="p">sept. 2026, en cours</td></tr>
+      <tr><td class="c">Banque privée européenne<br>(confidentiel)</td><td>Gouvernance de l'IA et catégorisation des cas d'usage. <span class="todo">[rôle de Jules sur cette mission à préciser]</span></td><td class="p">2026</td></tr>
+      <tr><td class="c">Lucid OS<br>(système interne)</td><td>Plateforme de pilotage de l'agence : CRM, prospection, agents IA, automatisations, portail client et journal d'audit (Next.js, Supabase, Vercel AI SDK). Sert de banc d'essai à ce que nous livrons.</td><td class="p">2026, continu</td></tr>
+    </tbody>
+  </table>
+
+  <span class="sec-lbl">Compétences</span>
+  <div class="cols">
+    <div><h4>Données</h4><p>Structuration de données de gestion (Postgres et Supabase, sécurité par lignes, Google Sheets), tableaux de bord de pilotage technique et commercial, qualité et gouvernance, RGPD (accords de traitement, registre, procédure de violation).</p></div>
+    <div><h4>Intelligence artificielle</h4><p>Cas d'usage à retour mesurable, assistants et agents (Claude, Vercel AI SDK), recherche documentaire assistée, extraction de documents, automatisation de processus (n8n), points de validation humaine, règlement européen sur l'IA.</p></div>
+    <div><h4>Intégration</h4><p>Next.js et TypeScript, Supabase, Vercel, Railway, n8n, Shopify, WordPress ; API Google Workspace, Microsoft 365, outils de réunion et de facturation.</p></div>
+    <div><h4>Conduite de mission</h4><p>Cadrage, devis et contrats, pilotage de la livraison, formation des équipes, documentation et transfert de propriété au client.</p></div>
+  </div>
+
+  <span class="sec-lbl">Formation et parcours antérieur</span>
+  <p class="lead" style="margin-top:0"><span class="todo">[À COMPLÉTER : diplôme(s) et établissement(s), années ; expériences avant Lucid-Lab avec dates ; toute expérience en industrie, logistique ou BTP, qui compte double pour ce jury]</span></p>
+
+  <footer class="doc-foot">
+    <div>LUCID-LAB SAS · 47 rue Vivienne, 75002 Paris<br>SIRET&nbsp;104&nbsp;672&nbsp;050&nbsp;00010 · lucid-lab.fr · contact@lucid-lab.fr</div>
+    <div class="right">Référencement module Data/IA<br>Région Grand Est</div>
+  </footer>
+
+</section>
+
+</body>
+</html>

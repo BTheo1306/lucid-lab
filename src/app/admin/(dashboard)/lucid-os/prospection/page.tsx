@@ -30,6 +30,7 @@ const SECTORS = [
   { value: 'creches', label: 'Crèches' },
   { value: 'banques-privees', label: 'Banques privées' },
   { value: 'dsi-industrie-sud', label: 'DSI industrie (Sud)' },
+  { value: 'prescripteurs-grand-est', label: 'Prescripteurs Grand Est' },
 ];
 
 const STATUSES = [

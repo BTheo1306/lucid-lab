@@ -607,8 +607,11 @@ export type ProspectionImportRow = {
 };
 
 /**
- * Charge une liste de cibles. Idempotent par nom et secteur pour qu'un
- * rechargement de la même liste ne crée pas de doublons.
+ * Charge une liste de cibles. Idempotent par nom, tous secteurs confondus :
+ * une société n'est qu'une seule cible d'appel, même si elle figure dans deux
+ * listes. Sinon un cabinet basculé d'une liste à l'autre (les experts-comptables
+ * du Grand Est passés en prescripteurs, par exemple) serait recréé dans son
+ * ancien secteur au rechargement suivant, avec un historique d'appel vide.
  */
 export async function importProspectionTargets(rows: ProspectionImportRow[]): Promise<{ created: number; skipped: number }> {
   const workspaceId = await ensureWorkspaceId();
@@ -621,7 +624,7 @@ export async function importProspectionTargets(rows: ProspectionImportRow[]): Pr
       .select('id')
       .eq('workspace_id', workspaceId)
       .eq('name', row.name)
-      .eq('industry', row.sector)
+      .limit(1)
       .maybeSingle();
 
     if (existing) {

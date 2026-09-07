@@ -5,8 +5,9 @@
  *   NODE_OPTIONS=--conditions=react-server npx tsx scripts/import-prospection.ts --dry
  *   NODE_OPTIONS=--conditions=react-server npx tsx scripts/import-prospection.ts
  *
- * Idempotent : importProspectionTargets ignore une cible déjà présente pour le
- * même nom et le même secteur, donc relancer le script ne crée pas de doublons.
+ * Idempotent : importProspectionTargets ignore une cible déjà présente sous le
+ * même nom, quel que soit son secteur, donc relancer le script ne crée pas de
+ * doublons, y compris quand une cible a changé de liste entre deux passages.
  * Aucune fiche client n'est créée ici : une cible n'entre dans le CRM qu'au
  * moment où elle répond ou pose un rendez-vous.
  */
@@ -312,6 +313,50 @@ function dsiIndustrieSudRows(): ProspectionImportRow[] {
   });
 }
 
+/**
+ * Prescripteurs Grand Est : cabinets d'avocats et d'expertise comptable des dix
+ * départements du Grand Est, appelés comme prescripteurs du module Data/IA de
+ * la Région (50 % de la prestation pris en charge, plafond 10 000 € HT) vers
+ * leurs clients de production, de logistique ou du BTP. Les cabinets ne sont
+ * pas éligibles eux-mêmes : l'accroche le rappelle, avec la clientèle que leur
+ * site affiche, puisque c'est le critère qui a fait entrer la cible dans la liste.
+ */
+function prescripteursGrandEstRows(): ProspectionImportRow[] {
+  const rows = parseCsv('docs/prospection/liste-prescripteurs-grand-est.csv').slice(1);
+  return rows.map((cells) => {
+    const type = clean(cells[2]);
+    const priorite = clean(cells[6]);
+    const clientele = clean(cells[7]);
+    const siren = clean(cells[13]);
+    const reseau = clean(cells[14]);
+    const notes = clean(cells[17]);
+    return {
+      name: cells[0].trim(),
+      sector: 'prescripteurs-grand-est',
+      city: clean(cells[3]),
+      country: 'France',
+      employeeCount: parseHeadcount(clean(cells[5])),
+      contactName: clean(cells[8]),
+      contactTitle: clean(cells[9]),
+      contactPhone: clean(cells[10]),
+      contactEmail: clean(cells[11]),
+      websiteUrl: clean(cells[12]),
+      sourceUrl: clean(cells[15]),
+      hook: [
+        "Prescripteur Grand Est : une fois Lucid-Lab référencé, ses clients de production, de logistique ou du BTP ont 50 % de l'accompagnement Data/IA pris en charge par la Région, jusqu'à 10 000 € HT. Le cabinet n'est pas éligible lui-même.",
+        priorite === 'B' ? "Priorité B : le site n'affiche pas de clientèle industrielle, à qualifier à l'appel." : null,
+        clientele ? `Clientèle affichée : ${clientele}` : null,
+        type ? `Type : ${type}.` : null,
+        reseau ? `Réseau : ${reseau}.` : null,
+        siren ? `SIREN ${siren}.` : null,
+        notes,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    };
+  });
+}
+
 async function main(): Promise<void> {
   const groups: Array<{ label: string; rows: ProspectionImportRow[] }> = [
     { label: 'Experts-comptables France', rows: franceRows() },
@@ -320,6 +365,7 @@ async function main(): Promise<void> {
     { label: 'Avocats France', rows: avocatsRows() },
     { label: 'Crèches France', rows: crechesRows() },
     { label: 'DSI industrie Sud', rows: dsiIndustrieSudRows() },
+    { label: 'Prescripteurs Grand Est', rows: prescripteursGrandEstRows() },
   ];
 
   for (const group of groups) {
