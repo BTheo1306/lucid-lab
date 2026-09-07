@@ -894,7 +894,7 @@ Oui, via Obsidian Sync (partage inclus dans l'abonnement standard, jusqu'à 20 c
 | feuille de route | plan d'action IA, roadmap IA |
 | Noms de clients réels (BSP37, etc.) | des cas anonymisés (« une artisane en signalétique ») |
 
-**Le cadre de l'offre dans lequel s'insère le cours** : l'installation type se déroule en 14 jours (état des lieux, installation et connexion aux outils, remplissage de la base et premières automatisations, formation et passage de relais). La formation des équipes est la brique 5 de l'offre : une personne interne est formée pour faire vivre le système, avec un guide écrit. Ce cours est précisément ce guide, en version développée.
+**Le cadre de l'offre dans lequel s'insère le cours** : l'installation type se déroule en 2 jours, à distance, après un entretien d'une heure en visio (état des lieux des outils et choix des deux automatisations). Jour 1 : installation de Claude, connexion aux outils, remplissage de la base. Jour 2 : automatisations sur les dossiers du client, formation des équipes et passage de relais. La formation des équipes est la brique 5 de l'offre : une personne interne est formée pour faire vivre le système, avec un guide écrit. Ce cours est précisément ce guide, en version développée.
 
 # Annexe E : Sources compilées dans ce document
 

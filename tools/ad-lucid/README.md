@@ -37,6 +37,6 @@ Le mixage baisse la musique sur les deux dernières secondes.
 
 ## Règles
 
-- Seuls des chiffres vrais et vérifiables : moins d'une minute pour la réponse automatique, 14 jours d'installation (promesse du site), base stockée dans les outils du client (FAQ du site). Aucun chiffre inventé.
+- Seuls des chiffres vrais et vérifiables : moins d'une minute pour la réponse automatique, 2 jours d'installation, à distance (promesse du site), base stockée dans les outils du client (FAQ du site). Aucun chiffre inventé.
 - Vocabulaire contrôlé par `npm run demo:check` à la racine du dépôt (tirets longs, noms réels, expressions bannies).
 - Licence Remotion : gratuite pour les entreprises de trois personnes ou moins ; à revoir si l'équipe grandit.

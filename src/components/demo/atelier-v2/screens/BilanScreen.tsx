@@ -83,6 +83,14 @@ export function BilanScreen() {
             <p className="mt-4 text-[15.5px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.72)' }}>
               Un audit flash de trente minutes, sur votre boîte mail et vos devis à vous, dit ce que le même système donnerait dans votre atelier.
             </p>
+            <div className="mt-6 flex items-baseline gap-3">
+              <span className="text-[34px] font-bold leading-none tracking-[-0.02em]" style={{ color: EMBER }}>
+                2 jours
+              </span>
+              <span className="font-mono text-[11.5px] uppercase tracking-[0.14em]" style={{ color: 'rgba(255,255,255,0.6)' }}>
+                d&rsquo;installation, à distance
+              </span>
+            </div>
             <Link href="/audit-flash" className="mt-7 inline-flex h-12 items-center gap-2.5 rounded-[6px] px-5 text-[15px] font-semibold" style={{ background: EMBER, color: WHITE }}>
               Réserver un audit flash
               <ArrowRight size={16} aria-hidden="true" />

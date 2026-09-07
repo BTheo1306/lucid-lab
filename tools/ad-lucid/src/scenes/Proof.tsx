@@ -8,7 +8,7 @@ import { SceneFrame } from './SceneFrame'
 
 const TILES = [
   { value: (t: number) => `${Math.round(60 - t * 59)} s`, final: '< 1 min', label: 'pour répondre à chaque demande entrante', at: 34 },
-  { value: (t: number) => `${Math.round(t * 14)} jours`, final: '14 jours', label: 'pour installer votre Second Brain', at: 50 },
+  { value: () => '2 jours', final: '2 jours', label: 'pour installer votre Second Brain, à distance', at: 50 },
   { value: (t: number) => `${Math.round(t * 100)} %`, final: '100 %', label: 'votre propriété : la base vit dans vos outils', at: 66 },
 ]
 
