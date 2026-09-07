@@ -118,6 +118,14 @@ export function Scene09Bilan() {
           <p className="mt-2 text-[13px] leading-relaxed" style={{ color: 'rgba(255,255,255,0.75)' }}>
             Un audit flash de 30 minutes, sur votre boîte mail et vos devis à vous, dit ce que le même système donnerait dans votre atelier.
           </p>
+          <div className="mt-3 flex items-baseline gap-2">
+            <span className="text-[22px] font-bold leading-none tracking-[-0.01em]" style={{ color: EMBER }}>
+              2 jours
+            </span>
+            <span className="text-[12px]" style={{ color: 'rgba(255,255,255,0.7)' }}>
+              d&rsquo;installation, à distance
+            </span>
+          </div>
           <Link href="/audit-flash" className="mt-4 inline-flex h-10 items-center gap-2 rounded-[6px] px-4 text-[13.5px] font-semibold" style={{ background: EMBER, color: WHITE }}>
             Voir ce que ça donnerait chez vous
             <ArrowRight size={15} aria-hidden="true" />
