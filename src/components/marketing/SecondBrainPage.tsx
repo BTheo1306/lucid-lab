@@ -79,7 +79,7 @@ const content: Record<Locale, SecondBrainContent> = {
       titleLine2: 'pour votre entreprise.',
       subtitle:
         'On installe Claude et on le connecte à ce que votre entreprise sait déjà : **vos offres, vos process, vos clients**. Vos équipes n’ont plus à tout réexpliquer à chaque conversation.',
-      subtitleLine2: 'Installé en 14 jours. Tout reste **votre propriété**.',
+      subtitleLine2: 'Installé en 2 jours, à distance. Tout reste **votre propriété**.',
       ctaPrimary: 'Réserver un audit IA',
       ctaPrimaryHref: '#booking',
       ctaSecondary: 'Voir la méthode',
@@ -154,13 +154,12 @@ const content: Record<Locale, SecondBrainContent> = {
       ],
     },
     timeline: {
-      title: 'Installé en 14 jours.',
-      subtitle: 'Le déroulé est le même pour chaque installation, du premier entretien à l’autonomie de vos équipes.',
+      title: 'Installé en 2 jours, à distance.',
+      subtitle: 'Le déroulé est le même pour chaque installation : un entretien avant, deux jours en visio avec vos équipes, et vous êtes autonomes.',
       steps: [
-        'Jours 1 à 3 : état des lieux de vos outils et choix des deux automatisations',
-        'Jours 4 à 8 : installation de Claude et connexion à vos outils',
-        'Jours 9 à 12 : la base se remplit, les automatisations démarrent',
-        'Jours 13 et 14 : formation des équipes et passage de relais',
+        'Avant : un entretien d’une heure, en visio, pour faire l’état des lieux de vos outils et choisir les deux automatisations',
+        'Jour 1 : installation de Claude, connexion à vos outils, la base se remplit avec vos offres, vos process et vos clients',
+        'Jour 2 : les deux automatisations tournent sur vos dossiers, formation des équipes et passage de relais',
       ],
     },
     proof: {
@@ -214,7 +213,7 @@ const content: Record<Locale, SecondBrainContent> = {
         {
           question: 'Combien de temps prend l’installation ?',
           answer:
-            '14 jours entre le premier entretien et la fin de la formation, en suivant le déroulé décrit plus haut. De votre côté : quelques entretiens courts et deux sessions de formation.',
+            'Deux jours, à distance, précédés d’un entretien d’une heure pour préparer l’installation. Tout se passe en visio et en partage d’écran, sans déplacement. De votre côté : cet entretien, les accès à vos outils, et deux sessions de formation le deuxième jour, une pour les équipes et une pour la personne qui fera vivre la base.',
         },
         {
           question: 'Et après l’installation ?',
@@ -230,7 +229,7 @@ const content: Record<Locale, SecondBrainContent> = {
       titleLine2: 'for your company.',
       subtitle:
         'We install Claude and connect it to what your company already knows: **your offers, your processes, your clients**. Your teams stop re-explaining the company in every conversation.',
-      subtitleLine2: 'Installed in 14 days. Everything stays **your property**.',
+      subtitleLine2: 'Installed in 2 days, remotely. Everything stays **your property**.',
       ctaPrimary: 'Book an AI audit',
       ctaPrimaryHref: '#booking',
       ctaSecondary: 'See the method',
@@ -305,13 +304,12 @@ const content: Record<Locale, SecondBrainContent> = {
       ],
     },
     timeline: {
-      title: 'Installed in 14 days.',
-      subtitle: 'The sequence is the same for every install, from the first interview to your teams’ autonomy.',
+      title: 'Installed in 2 days, remotely.',
+      subtitle: 'The sequence is the same for every install: one interview beforehand, two days over video with your teams, and you are autonomous.',
       steps: [
-        'Days 1 to 3: review of your tools and choice of the two automations',
-        'Days 4 to 8: Claude install and connection to your tools',
-        'Days 9 to 12: the base fills up, the automations start',
-        'Days 13 and 14: team training and handover',
+        'Before: a one-hour video call to review your tools and choose the two automations',
+        'Day 1: Claude install, connection to your tools, the base fills up with your offers, processes and clients',
+        'Day 2: the two automations run on your files, team training and handover',
       ],
     },
     proof: {
@@ -365,7 +363,7 @@ const content: Record<Locale, SecondBrainContent> = {
         {
           question: 'How long does the install take?',
           answer:
-            '14 days from the first interview to the end of training, following the sequence described above. On your side: a few short interviews and two training sessions.',
+            'Two days, remotely, preceded by a one-hour interview to prepare the install. Everything happens over video and screen sharing, with no travel. On your side: that interview, access to your tools, and two training sessions on the second day, one for the teams and one for the person who will maintain the base.',
         },
         {
           question: 'What happens after the install?',
@@ -724,7 +722,7 @@ function Timeline({ lang }: { lang: Locale }) {
   const t = content[lang].timeline
 
   return (
-    <Section id="quatorze-jours">
+    <Section id="deux-jours">
       <div className="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-center">
         <SectionTitle>{t.title}</SectionTitle>
         <SectionLede>{t.subtitle}</SectionLede>

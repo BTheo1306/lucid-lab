@@ -313,8 +313,8 @@ export default async function RootLayout({
                         "@type": "Offer",
                         name: isEn ? "Second Brain install" : "Installation Second Brain",
                         description: isEn
-                          ? "Claude installed and connected to company knowledge: structured context, connectors, two proof automations, training. In 14 days."
-                          : "Claude installé et branché sur la connaissance de l’entreprise : contexte structuré, connecteurs, deux automatisations de preuve, formation. En 14 jours.",
+                          ? "Claude installed and connected to company knowledge: structured context, connectors, two proof automations, training. In 2 days, remotely."
+                          : "Claude installé et branché sur la connaissance de l’entreprise : contexte structuré, connecteurs, deux automatisations de preuve, formation. En 2 jours, à distance.",
                       },
                       {
                         "@type": "Offer",
