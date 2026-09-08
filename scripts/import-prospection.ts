@@ -38,6 +38,24 @@ function parseHeadcount(value: string | null): number | null {
   return match ? Number(match[0]) : null;
 }
 
+/**
+ * Region administrative du siege, par libelle de ville exactement tel qu'il est
+ * ecrit dans les listes. La table vit dans docs/prospection/villes-regions.csv,
+ * construite depuis le referentiel officiel des communes (geo.api.gouv.fr) et
+ * completee a la main pour l'etranger. Elle est partagee par toutes les listes :
+ * une seule table a tenir a jour plutot qu'une colonne Region dans chaque fichier.
+ */
+function chargerRegions(): Map<string, string> {
+  const rows = parseCsv('docs/prospection/villes-regions.csv').slice(1);
+  const map = new Map<string, string>();
+  for (const [ville, , region] of rows) {
+    const cle = ville.trim();
+    const valeur = (region ?? '').trim();
+    if (cle && valeur) map.set(cle, valeur);
+  }
+  return map;
+}
+
 function parseCsv(path: string): string[][] {
   const rows: string[][] = [];
   const text = readFileSync(path, 'utf8');
@@ -368,9 +386,27 @@ async function main(): Promise<void> {
     { label: 'Prescripteurs Grand Est', rows: prescripteursGrandEstRows() },
   ];
 
+  // La region est posee ici plutot que dans chaque fonction de liste : le
+  // rapprochement se fait sur la ville, qui est le seul champ commun aux six listes.
+  const regions = chargerRegions();
+  const villesSansRegion = new Set<string>();
+  for (const group of groups) {
+    for (const row of group.rows) {
+      const region = row.city ? regions.get(row.city) : undefined;
+      if (region) row.region = region;
+      else if (row.city) villesSansRegion.add(row.city);
+    }
+  }
+  if (villesSansRegion.size > 0) {
+    console.log(`Villes sans region (a ajouter dans villes-regions.csv) : ${[...villesSansRegion].join(' | ')}`);
+  }
+
   for (const group of groups) {
     const named = group.rows.filter((row) => row.contactName).length;
-    console.log(`${group.label} : ${group.rows.length} lignes, ${named} avec un contact nommé`);
+    const withRegion = group.rows.filter((row) => row.region).length;
+    console.log(
+      `${group.label} : ${group.rows.length} lignes, ${named} avec un contact nommé, ${withRegion} avec une région`,
+    );
 
     if (DRY_RUN) {
       console.log('  exemple :', JSON.stringify(group.rows[0], null, 2));

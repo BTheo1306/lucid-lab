@@ -187,4 +187,5 @@ Les scripts `scripts/avocats.md` et `scripts/experts-comptables.md` ne s'appliqu
 ## Fichiers
 
 - `liste-prescripteurs-grand-est.csv` : la liste d'appel, avec en plus la raison sociale, le réseau, la preuve de clientèle (URL) et les notes ; c'est ce fichier qu'importe `scripts/import-prospection.ts` (secteur `prescripteurs-grand-est`, onglet Prospection de Lucid OS, filtre « Prescripteurs Grand Est »).
+- Dans le CRM, le filtre **Région > Grand Est** remonte les 51 cibles de la région toutes listes confondues : les 40 prescripteurs, plus les cabinets alsaciens des listes nationales et les entreprises du Grand Est de la liste DSI. La région vient de `villes-regions.csv`, table commune à toutes les listes, construite depuis le référentiel officiel des communes (geo.api.gouv.fr) et complétée à la main pour l'étranger.
 - Dossier de référencement (cahier des charges, formulaire, dossier de candidature et note méthodologique signés le 07/09/2026) : Drive partagé `Lucid-Lab/Subsides/Région Grand Est`.
