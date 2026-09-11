@@ -22,8 +22,8 @@ export default async function CollectedDetailPage() {
       </Link>
       <LucidOsHeader
         eyebrow="Métriques"
-        title={`Encaissé — ${eur(kpis.revenueCollectedEur)}`}
-        description="Détail des factures payées synchronisées depuis Dougs."
+        title={`Encaissé (HT) : ${eur(kpis.revenueCollectedEur)}`}
+        description="Détail des factures payées synchronisées depuis Dougs, hors TVA. Les avoirs et les factures qu'ils annulent sont exclus."
         icon={Activity}
       />
 
@@ -35,7 +35,7 @@ export default async function CollectedDetailPage() {
             <tr className="border-b border-zinc-200 text-left text-[11px] font-semibold uppercase tracking-[0.1em] text-zinc-500">
               <th className="pb-3 pr-6">Client</th>
               <th className="pb-3 pr-6">Référence</th>
-              <th className="pb-3 pr-6 text-right">Montant TTC</th>
+              <th className="pb-3 pr-6 text-right">Montant HT</th>
               <th className="pb-3 text-right">Date paiement</th>
             </tr>
           </thead>
@@ -44,7 +44,7 @@ export default async function CollectedDetailPage() {
               <tr key={i} className="border-b border-zinc-100 last:border-0">
                 <td className="py-3 pr-6 font-medium text-zinc-900">{row.clientName}</td>
                 <td className="py-3 pr-6 text-zinc-500">{row.dougsRef ?? '-'}</td>
-                <td className="py-3 pr-6 text-right tabular-nums text-zinc-900">{eur(row.amountTtcEur)}</td>
+                <td className="py-3 pr-6 text-right tabular-nums text-zinc-900">{eur(row.amountHtEur)}</td>
                 <td className="py-3 text-right text-zinc-500">{formatAdminDate(row.occurredAt)}</td>
               </tr>
             ))}

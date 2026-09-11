@@ -22,7 +22,7 @@ export default async function PipelineDetailPage() {
       </Link>
       <LucidOsHeader
         eyebrow="Métriques"
-        title={`Pipeline ouvert — ${eur(kpis.openPipelineEur)}`}
+        title={`Pipeline ouvert : ${eur(kpis.openPipelineEur)}`}
         description="Détail des opportunités en cours, triées par valeur estimée."
         icon={FolderKanban}
       />

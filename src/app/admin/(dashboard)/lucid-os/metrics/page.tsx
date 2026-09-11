@@ -25,10 +25,10 @@ export default async function LucidOsMetricsPage() {
       />
 
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="MRR (HT)" value={eur(kpis.mrrEurHt)} hint="Récurrent mensuel signé" icon={BarChart3} href={`${base}/lucid-os/metrics/mrr`} />
+        <StatCard label="MRR (HT)" value={eur(kpis.mrrEurHt)} hint="Récurrent mensuel, clients actifs" icon={BarChart3} href={`${base}/lucid-os/metrics/mrr`} />
         <StatCard label="Clients actifs" value={kpis.activeClients} hint="En cours de mission" icon={Users} />
         <StatCard label="Pipeline ouvert" value={eur(kpis.openPipelineEur)} hint="Opportunités en cours" icon={FolderKanban} href={`${base}/lucid-os/metrics/pipeline`} />
-        <StatCard label="Encaissé" value={eur(kpis.revenueCollectedEur)} hint="Factures payées (Dougs)" icon={Activity} href={`${base}/lucid-os/metrics/collected`} />
+        <StatCard label="Encaissé (HT)" value={eur(kpis.revenueCollectedEur)} hint="Factures payées, hors TVA (Dougs)" icon={Activity} href={`${base}/lucid-os/metrics/collected`} />
       </div>
 
       <div className="grid gap-6 xl:grid-cols-[minmax(0,1.4fr)_minmax(300px,0.6fr)]">
