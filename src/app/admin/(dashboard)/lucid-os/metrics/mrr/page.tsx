@@ -22,8 +22,8 @@ export default async function MrrDetailPage() {
       </Link>
       <LucidOsHeader
         eyebrow="Métriques"
-        title={`MRR — ${eur(kpis.mrrEurHt)} / mois HT`}
-        description="Détail des opportunités gagnées contribuant au revenu récurrent mensuel."
+        title={`MRR : ${eur(kpis.mrrEurHt)} / mois HT`}
+        description="Opportunités gagnées des clients actifs. Les missions en pause ou terminées n'y figurent plus."
         icon={BarChart3}
       />
 

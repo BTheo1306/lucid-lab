@@ -16,7 +16,7 @@ export type PipelinePoint = { stage: string; label: string; valueEur: number; co
 export type StatusPoint = { status: string; label: string; count: number };
 
 export type MrrRow = { clientName: string; monthlyValueEur: number; closedAt: string | null };
-export type CollectedRow = { clientName: string; amountTtcEur: number; occurredAt: string | null; dougsRef: string | null };
+export type CollectedRow = { clientName: string; amountHtEur: number; occurredAt: string | null; dougsRef: string | null };
 export type PipelineRow = { clientName: string; stage: string; stageLabel: string; valueEstimateEur: number };
 
 export type AgencyMetrics = {
@@ -90,7 +90,7 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
       .eq('organization_id', organizationId),
     supabase
       .from('client_billing_events')
-      .select('billing_status,amount_ttc_eur,occurred_at,metadata,client_id')
+      .select('billing_status,amount_ht_eur,amount_ttc_eur,occurred_at,metadata,client_id')
       .eq('organization_id', organizationId),
   ]);
 
@@ -105,6 +105,7 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
   }>;
   const billing = (billingRes.data ?? []) as Array<{
     billing_status: string | null;
+    amount_ht_eur: number | string | null;
     amount_ttc_eur: number | string | null;
     occurred_at: string | null;
     metadata: Record<string, unknown> | null;
@@ -112,17 +113,24 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
   }>;
 
   const clientById = new Map(clients.map((c) => [c.id, c.name]));
+  const activeClientIds = new Set(clients.filter((c) => c.status === 'active').map((c) => c.id));
 
-  const wonOpps = opps.filter((o) => o.status === 'won');
+  // A won opportunity stays in the CRM for good, so the MRR has to be scoped to
+  // clients whose mission is still running. Without this, a stopped engagement
+  // (Sinibaldi en pause, Turismo en contentieux) keeps billing every month.
+  const wonOpps = opps.filter(
+    (o) => o.status === 'won' && o.client_id !== null && activeClientIds.has(o.client_id)
+  );
   const paidBilling = billing.filter((b) => b.billing_status === 'paid');
 
   const kpis: MetricsKpis = {
     mrrEurHt: wonOpps.reduce((sum, o) => sum + toNumber(o.monthly_value_eur), 0),
-    activeClients: clients.filter((c) => c.status === 'active').length,
+    activeClients: activeClientIds.size,
     openPipelineEur: opps
       .filter((o) => o.status === 'open')
       .reduce((sum, o) => sum + toNumber(o.value_estimate_eur), 0),
-    revenueCollectedEur: paidBilling.reduce((sum, b) => sum + toNumber(b.amount_ttc_eur), 0),
+    // HT, like the MRR: collected VAT is owed to the state, it is not revenue.
+    revenueCollectedEur: paidBilling.reduce((sum, b) => sum + toNumber(b.amount_ht_eur), 0),
   };
 
   // Monthly buckets (oldest -> current), cumulative MRR + revenue collected in-month.
@@ -137,14 +145,17 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
   for (const b of paidBilling) {
     if (!b.occurred_at) continue;
     const key = monthKey(new Date(b.occurred_at));
-    collectedByMonth.set(key, (collectedByMonth.get(key) ?? 0) + toNumber(b.amount_ttc_eur));
+    collectedByMonth.set(key, (collectedByMonth.get(key) ?? 0) + toNumber(b.amount_ht_eur));
   }
 
   const revenueByMonth: RevenuePoint[] = months.map((m) => ({
     month: m.key,
     label: m.label,
+    // A won opportunity with no closed_at counts in every bucket: the mission is
+    // running, only the signature date is missing. Dropping it made the last bar
+    // disagree with the MRR card above it.
     mrr: wonOpps
-      .filter((o) => o.closed_at && new Date(o.closed_at) < m.end)
+      .filter((o) => !o.closed_at || new Date(o.closed_at) < m.end)
       .reduce((sum, o) => sum + toNumber(o.monthly_value_eur), 0),
     collected: collectedByMonth.get(m.key) ?? 0,
   }));
@@ -181,7 +192,7 @@ export async function getAgencyMetrics(monthsBack = 6): Promise<AgencyMetrics> {
   const collectedDetail: CollectedRow[] = paidBilling
     .map((b) => ({
       clientName: clientById.get(b.client_id ?? '') ?? 'Client inconnu',
-      amountTtcEur: toNumber(b.amount_ttc_eur),
+      amountHtEur: toNumber(b.amount_ht_eur),
       occurredAt: b.occurred_at,
       dougsRef: (b.metadata?.dougs_reference as string | null) ?? null,
     }))

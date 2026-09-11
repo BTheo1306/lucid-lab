@@ -3,10 +3,15 @@
 import { useEffect, useMemo, useState, useTransition } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Trash2 } from 'lucide-react';
 import type { DashboardTask } from '@/lib/admin/client-tasks';
 import { cn } from '@/lib/utils';
-import { setClientTaskVisibilityAction, updateAnyClientTaskStatus } from './task-actions';
+import {
+  clearDoneClientTasksAction,
+  deleteClientTaskAction,
+  setClientTaskVisibilityAction,
+  updateAnyClientTaskStatus,
+} from './task-actions';
 
 type ColStatus = 'todo' | 'in_progress' | 'done';
 
@@ -89,6 +94,38 @@ export function AllClientsTaskBoard({
     });
   }
 
+  function deleteTask(task: DashboardTask) {
+    if (!window.confirm(`Supprimer définitivement « ${task.title} » ?`)) return;
+    const prev = tasks;
+    setError(null);
+    setTasks((curr) => curr.filter((t) => t.id !== task.id));
+    startTransition(async () => {
+      try {
+        await deleteClientTaskAction(task.id);
+        router.refresh();
+      } catch (err) {
+        setTasks(prev);
+        setError(err instanceof Error ? err.message : String(err));
+      }
+    });
+  }
+
+  function clearDone(count: number) {
+    if (!window.confirm(`Supprimer définitivement les ${count} tâches finies ?`)) return;
+    const prev = tasks;
+    setError(null);
+    setTasks((curr) => curr.filter((t) => toCol(t.status) !== 'done'));
+    startTransition(async () => {
+      try {
+        await clearDoneClientTasksAction();
+        router.refresh();
+      } catch (err) {
+        setTasks(prev);
+        setError(err instanceof Error ? err.message : String(err));
+      }
+    });
+  }
+
   if (initialTasks.length === 0) {
     return (
       <div className="border border-dashed border-zinc-200 px-4 py-10 text-center text-sm text-zinc-600">
@@ -120,7 +157,19 @@ export function AllClientsTaskBoard({
           >
             <div className="mb-3 flex items-center justify-between gap-3">
               <h3 className="text-sm font-semibold text-zinc-900">{col.label}</h3>
-              <span className="text-xs text-zinc-600">{grouped[col.status].length}</span>
+              <div className="flex items-center gap-2">
+                {col.status === 'done' && grouped.done.length > 0 ? (
+                  <button
+                    type="button"
+                    disabled={isPending}
+                    onClick={() => clearDone(grouped.done.length)}
+                    className="text-xs font-medium text-zinc-500 transition-colors hover:text-rose-700 disabled:opacity-50"
+                  >
+                    Vider
+                  </button>
+                ) : null}
+                <span className="text-xs text-zinc-600">{grouped[col.status].length}</span>
+              </div>
             </div>
             <div className="grid gap-2">
               {grouped[col.status].length === 0 ? (
@@ -150,20 +199,33 @@ export function AllClientsTaskBoard({
                       ) : (
                         <span className="text-[10px] font-semibold uppercase tracking-[0.1em] text-zinc-600">Interne</span>
                       )}
-                      {task.clientId ? (
-                        <button
-                          type="button"
-                          disabled={isPending}
-                          onClick={() => toggleVisibility(task.id, !task.clientVisible)}
-                          title={task.clientVisible ? 'Visible sur le portail client. Cliquer pour masquer.' : 'Masquée du portail client. Cliquer pour publier.'}
-                          className={cn(
-                            'shrink-0 rounded p-1 transition',
-                            task.clientVisible ? 'text-blue-600 hover:bg-blue-50' : 'text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600',
-                          )}
-                        >
-                          {task.clientVisible ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
-                        </button>
-                      ) : null}
+                      <div className="flex shrink-0 items-center gap-1">
+                        {task.clientId ? (
+                          <button
+                            type="button"
+                            disabled={isPending}
+                            onClick={() => toggleVisibility(task.id, !task.clientVisible)}
+                            title={task.clientVisible ? 'Visible sur le portail client. Cliquer pour masquer.' : 'Masquée du portail client. Cliquer pour publier.'}
+                            className={cn(
+                              'rounded p-1 transition',
+                              task.clientVisible ? 'text-blue-600 hover:bg-blue-50' : 'text-zinc-400 hover:bg-zinc-100 hover:text-zinc-600',
+                            )}
+                          >
+                            {task.clientVisible ? <Eye className="size-4" /> : <EyeOff className="size-4" />}
+                          </button>
+                        ) : null}
+                        {col.status === 'done' ? (
+                          <button
+                            type="button"
+                            disabled={isPending}
+                            onClick={() => deleteTask(task)}
+                            title="Supprimer définitivement cette tâche."
+                            className="rounded p-1 text-zinc-400 transition hover:bg-rose-50 hover:text-rose-700"
+                          >
+                            <Trash2 className="size-4" />
+                          </button>
+                        ) : null}
+                      </div>
                     </div>
                     <p className="mt-1 text-sm font-semibold leading-5 text-zinc-950">{task.title}</p>
                     {task.description ? (

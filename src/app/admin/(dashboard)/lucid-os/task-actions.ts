@@ -2,6 +2,7 @@
 
 import { revalidatePath } from 'next/cache';
 import { requireAdmin } from '@/lib/admin/auth';
+import { recordLucidAuditEvent } from '@/lib/admin/lucid-os';
 import { setTaskClientVisibility } from '@/lib/admin/portal';
 import { supabase } from '@/lib/bot/db/supabase';
 
@@ -22,11 +23,83 @@ export async function updateAnyClientTaskStatus(taskId: string, status: string):
 
   const { error } = await supabase
     .from('client_tasks')
-    .update({ status })
+    .update({
+      status,
+      // Sans cette date, impossible de savoir depuis quand une tâche est finie
+      // ni de purger les plus anciennes.
+      completed_at: status === 'done' ? new Date().toISOString() : null,
+    })
     .eq('id', taskId);
 
   if (error) throw new Error(error.message);
   revalidatePath('/admin/lucid-os');
+}
+
+/** Corbeille d'une carte du tableau. Suppression définitive. */
+export async function deleteClientTaskAction(taskId: string): Promise<void> {
+  await requireAdmin();
+
+  const { data, error } = await supabase
+    .from('client_tasks')
+    .delete()
+    .eq('id', taskId)
+    .select('id,title,client_id')
+    .maybeSingle();
+
+  if (error) throw new Error(error.message);
+  if (!data) throw new Error('Tâche introuvable.');
+
+  await recordLucidAuditEvent({
+    clientId: data.client_id ? String(data.client_id) : undefined,
+    actorType: 'admin',
+    eventType: 'client_task_deleted',
+    targetTable: 'client_tasks',
+    targetId: String(data.id),
+    summary: `Tâche supprimée : ${String(data.title)}`,
+  });
+
+  revalidatePath('/admin/lucid-os');
+}
+
+/**
+ * Vide la colonne « Fini » d'un coup. Sans clientId, vide tout le tableau de
+ * bord ; avec, seulement la fiche du client. Retourne le nombre supprimé.
+ */
+export async function clearDoneClientTasksAction(clientId?: string): Promise<number> {
+  await requireAdmin();
+
+  const { data: org } = await supabase
+    .from('organizations')
+    .select('id')
+    .eq('slug', ORG_SLUG)
+    .maybeSingle();
+
+  if (!org) throw new Error('Organisation introuvable.');
+
+  let query = supabase
+    .from('client_tasks')
+    .delete()
+    .eq('organization_id', (org as { id: string }).id)
+    .eq('status', 'done');
+
+  if (clientId) query = query.eq('client_id', clientId);
+
+  const { data, error } = await query.select('id');
+
+  if (error) throw new Error(error.message);
+  const deleted = (data ?? []).length;
+
+  await recordLucidAuditEvent({
+    clientId: clientId ?? undefined,
+    actorType: 'admin',
+    eventType: 'client_tasks_done_cleared',
+    targetTable: 'client_tasks',
+    summary: `Colonne Fini vidée : ${deleted} tâche(s) supprimée(s)`,
+    details: { deleted, scope: clientId ? 'client' : 'dashboard' },
+  });
+
+  revalidatePath('/admin/lucid-os');
+  return deleted;
 }
 
 export async function createClientTaskAction(formData: FormData): Promise<void> {

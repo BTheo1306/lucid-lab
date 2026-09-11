@@ -14,6 +14,7 @@ export const dynamic = 'force-dynamic';
 
 type ProspectionSearchParams = {
   secteur?: string | string[];
+  region?: string | string[];
   statut?: string | string[];
   qui?: string | string[];
   rappels?: string | string[];
@@ -30,6 +31,7 @@ const SECTORS = [
   { value: 'creches', label: 'Crèches' },
   { value: 'banques-privees', label: 'Banques privées' },
   { value: 'dsi-industrie-sud', label: 'DSI industrie (Sud)' },
+  { value: 'prescripteurs-grand-est', label: 'Prescripteurs Grand Est' },
 ];
 
 const STATUSES = [
@@ -72,12 +74,13 @@ export default async function ProspectionPage({
 }) {
   const resolved = searchParams ? await searchParams : {};
   const sector = firstParam(resolved.secteur);
+  const region = firstParam(resolved.region);
   const status = firstParam(resolved.statut);
   const owner = firstParam(resolved.qui);
   const callbackDue = firstParam(resolved.rappels) === '1';
 
   const [targets, allTargets] = await Promise.all([
-    listProspectionTargets({ sector, status, owner, callbackDue }),
+    listProspectionTargets({ sector, region, status, owner, callbackDue }),
     listProspectionTargets(),
   ]);
 
@@ -85,10 +88,13 @@ export default async function ProspectionPage({
   // "[object Promise]/lucid-os/prospection" et chaque filtre mene a une page blanche.
   const adminBase = await adminBasePath();
   const base = `${adminBase}/lucid-os/prospection`;
-  const buildHref = (patch: Partial<Record<'secteur' | 'statut' | 'qui' | 'rappels', string | null>>): string => {
+  const buildHref = (
+    patch: Partial<Record<'secteur' | 'region' | 'statut' | 'qui' | 'rappels', string | null>>,
+  ): string => {
     const params = new URLSearchParams();
     const next = {
       secteur: patch.secteur !== undefined ? patch.secteur : sector,
+      region: patch.region !== undefined ? patch.region : region,
       statut: patch.statut !== undefined ? patch.statut : status,
       qui: patch.qui !== undefined ? patch.qui : owner,
       rappels: patch.rappels !== undefined ? patch.rappels : callbackDue ? '1' : null,
@@ -104,6 +110,10 @@ export default async function ProspectionPage({
   // "jamais appeles" sur l'absence de trace faisait apparaitre deux fois les
   // cibles heritees du moteur de leads, deja marquees contactees sans qu'aucun
   // appel n'ait ete enregistre ici.
+  const regions = [...new Set(allTargets.map((target) => target.region).filter(Boolean))].sort((a, b) =>
+    (a as string).localeCompare(b as string, 'fr'),
+  ) as string[];
+
   const toCall = allTargets.filter((target) => estAAppeler(target.status)).length;
   const contacted = allTargets.filter((target) => target.status === 'contacted').length;
   const promoted = allTargets.filter((target) => estAuCrm(target.status)).length;
@@ -158,6 +168,19 @@ export default async function ProspectionPage({
               </FilterLink>
             ))}
           </div>
+          {regions.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-2">
+              <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-500">Région</span>
+              <FilterLink href={buildHref({ region: null })} active={!region}>
+                Toutes
+              </FilterLink>
+              {regions.map((item) => (
+                <FilterLink key={item} href={buildHref({ region: item })} active={region === item}>
+                  {item}
+                </FilterLink>
+              ))}
+            </div>
+          ) : null}
           <div className="flex flex-wrap items-center gap-2">
             <span className="text-[11px] font-semibold uppercase tracking-[0.08em] text-zinc-500">Statut</span>
             <FilterLink href={buildHref({ statut: null })} active={!status}>

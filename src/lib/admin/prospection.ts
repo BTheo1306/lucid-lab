@@ -88,6 +88,7 @@ export type ProspectionTarget = {
   companyId: string;
   name: string;
   city: string | null;
+  region: string | null;
   country: string | null;
   sector: string | null;
   employeeCount: number | null;
@@ -143,6 +144,8 @@ export type ProspectionFilters = {
   sector?: string | null;
   status?: string | null;
   owner?: string | null;
+  /** Région administrative du siège, telle qu'importée depuis villes-regions.csv. */
+  region?: string | null;
   /** Ne remonte que les rappels arrivés à échéance. */
   callbackDue?: boolean;
 };
@@ -164,7 +167,7 @@ export async function listProspectionTargets(filters: ProspectionFilters = {}): 
 
   let query = supabase
     .from('prospect_companies')
-    .select('id,name,city,country,industry,employee_count,website_url,owner_label,status,raw_data')
+    .select('id,name,city,region,country,industry,employee_count,website_url,owner_label,status,raw_data')
     .eq('workspace_id', workspaceId)
     // L'onglet ne montre que les cibles issues des listes de prospection.
     // La table est partagee avec le moteur de leads (TheirStack, API gouv) et
@@ -175,6 +178,7 @@ export async function listProspectionTargets(filters: ProspectionFilters = {}): 
     .order('name', { ascending: true });
 
   if (filters.sector) query = query.eq('industry', filters.sector);
+  if (filters.region) query = query.eq('region', filters.region);
   if (filters.status === FILTRE_A_APPELER) query = query.in('status', STATUTS_A_APPELER);
   else if (filters.status === FILTRE_AU_CRM) query = query.in('status', STATUTS_AU_CRM);
   else if (filters.status) query = query.eq('status', filters.status);
@@ -187,17 +191,20 @@ export async function listProspectionTargets(filters: ProspectionFilters = {}): 
   }
   if (!companies || companies.length === 0) return [];
 
-  const companyIds = companies.map((row) => String(row.id));
-
+  // Contacts et historique sont demandés par espace de travail, pas par liste
+  // d'identifiants. Un `.in('company_id', ...)` passe les identifiants dans
+  // l'URL : à 450 cibles la requête dépassait la taille acceptée et remontait
+  // un « fetch failed » qui vidait tout l'écran. Le tri par société se fait
+  // ci-dessous, sur les seules cibles affichées.
   const [{ data: people }, { data: touches, error: touchesError }] = await Promise.all([
     supabase
       .from('prospect_people')
       .select('id,company_id,full_name,title,phone,email,linkedin_url')
-      .in('company_id', companyIds),
+      .eq('workspace_id', workspaceId),
     supabase
       .from('prospection_touches')
       .select('id,company_id,channel,outcome,notes,owner_label,occurred_at,callback_at')
-      .in('company_id', companyIds)
+      .eq('workspace_id', workspaceId)
       .order('occurred_at', { ascending: false }),
   ]);
 
@@ -253,6 +260,7 @@ export async function listProspectionTargets(filters: ProspectionFilters = {}): 
       name: String(company.name),
       city: asText(company.city),
       country: asText(company.country),
+      region: asText(company.region),
       sector: asText(company.industry),
       employeeCount: typeof company.employee_count === 'number' ? company.employee_count : null,
       websiteUrl: asText(company.website_url),
@@ -593,6 +601,7 @@ export type ProspectionImportRow = {
   name: string;
   sector: string;
   city?: string | null;
+  region?: string | null;
   country?: string | null;
   employeeCount?: number | null;
   websiteUrl?: string | null;
@@ -607,8 +616,11 @@ export type ProspectionImportRow = {
 };
 
 /**
- * Charge une liste de cibles. Idempotent par nom et secteur pour qu'un
- * rechargement de la même liste ne crée pas de doublons.
+ * Charge une liste de cibles. Idempotent par nom, tous secteurs confondus :
+ * une société n'est qu'une seule cible d'appel, même si elle figure dans deux
+ * listes. Sinon un cabinet basculé d'une liste à l'autre (les experts-comptables
+ * du Grand Est passés en prescripteurs, par exemple) serait recréé dans son
+ * ancien secteur au rechargement suivant, avec un historique d'appel vide.
  */
 export async function importProspectionTargets(rows: ProspectionImportRow[]): Promise<{ created: number; skipped: number }> {
   const workspaceId = await ensureWorkspaceId();
@@ -621,7 +633,7 @@ export async function importProspectionTargets(rows: ProspectionImportRow[]): Pr
       .select('id')
       .eq('workspace_id', workspaceId)
       .eq('name', row.name)
-      .eq('industry', row.sector)
+      .limit(1)
       .maybeSingle();
 
     if (existing) {
@@ -636,6 +648,7 @@ export async function importProspectionTargets(rows: ProspectionImportRow[]): Pr
         name: row.name,
         industry: row.sector,
         city: row.city ?? null,
+        region: row.region ?? null,
         country: row.country ?? null,
         employee_count: row.employeeCount ?? null,
         website_url: row.websiteUrl ?? null,

@@ -334,25 +334,10 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       else interactionId = interactionRow ? String(interactionRow.id) : null;
     }
 
-    // Create tasks for each action item
-    let tasksCreated = 0;
-    if (actionItems.length > 0) {
-      const { error: insertError } = await supabase.from('client_tasks').insert(
-        actionItems.map((item) => ({
-          organization_id: ORG_ID,
-          client_id: clientId,
-          title: item.title,
-          description: `Action item extrait de la réunion "${transcript.title}" (${transcript.dateString ?? ''})`,
-          owner_label: item.owner,
-          priority: item.priority,
-          due_at: item.dueDate,
-          status: 'todo',
-          client_visible: clientPresent,
-        })),
-      );
-      if (!insertError) tasksCreated = actionItems.length;
-      else console.error('[fireflies-webhook] task insert error:', insertError.message);
-    }
+    // Les action items ne créent plus de tâches : le tableau de bord se
+    // remplissait d'un todo par point de réunion. Ils restent consultables
+    // dans la synthèse de l'interaction et dans details.action_items de
+    // l'audit ci-dessous. Une tâche se crée à la main depuis le tableau.
 
     await supabase.from('audit_events').insert({
       organization_id: ORG_ID,
@@ -360,7 +345,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
       event_type: 'fireflies_webhook',
       target_table: 'client_tasks',
       risk_level: 'low',
-      summary: `Réunion Fireflies : ${transcript.title} — ${tasksCreated} tâche(s) créée(s)`,
+      summary: `Réunion Fireflies : ${transcript.title} — ${actionItems.length} action item(s) relevé(s)`,
       details: {
         source: 'fireflies_webhook',
         fireflies_id: meetingId,
@@ -376,7 +361,7 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
     const WEBHOOK_EMAIL_ENABLED: boolean = false;
     if (WEBHOOK_EMAIL_ENABLED) await sendDigest(transcript, synthesis);
 
-    return NextResponse.json({ ok: true, meetingId, tasksCreated, clientId });
+    return NextResponse.json({ ok: true, meetingId, actionItems: actionItems.length, clientId });
   } catch (error) {
     const message = error instanceof Error ? error.message : 'Erreur webhook';
     console.error('[fireflies-webhook]', meetingId, message);

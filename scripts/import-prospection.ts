@@ -5,8 +5,9 @@
  *   NODE_OPTIONS=--conditions=react-server npx tsx scripts/import-prospection.ts --dry
  *   NODE_OPTIONS=--conditions=react-server npx tsx scripts/import-prospection.ts
  *
- * Idempotent : importProspectionTargets ignore une cible déjà présente pour le
- * même nom et le même secteur, donc relancer le script ne crée pas de doublons.
+ * Idempotent : importProspectionTargets ignore une cible déjà présente sous le
+ * même nom, quel que soit son secteur, donc relancer le script ne crée pas de
+ * doublons, y compris quand une cible a changé de liste entre deux passages.
  * Aucune fiche client n'est créée ici : une cible n'entre dans le CRM qu'au
  * moment où elle répond ou pose un rendez-vous.
  */
@@ -35,6 +36,24 @@ function parseHeadcount(value: string | null): number | null {
   if (!value) return null;
   const match = value.match(/\d+/);
   return match ? Number(match[0]) : null;
+}
+
+/**
+ * Region administrative du siege, par libelle de ville exactement tel qu'il est
+ * ecrit dans les listes. La table vit dans docs/prospection/villes-regions.csv,
+ * construite depuis le referentiel officiel des communes (geo.api.gouv.fr) et
+ * completee a la main pour l'etranger. Elle est partagee par toutes les listes :
+ * une seule table a tenir a jour plutot qu'une colonne Region dans chaque fichier.
+ */
+function chargerRegions(): Map<string, string> {
+  const rows = parseCsv('docs/prospection/villes-regions.csv').slice(1);
+  const map = new Map<string, string>();
+  for (const [ville, , region] of rows) {
+    const cle = ville.trim();
+    const valeur = (region ?? '').trim();
+    if (cle && valeur) map.set(cle, valeur);
+  }
+  return map;
 }
 
 function parseCsv(path: string): string[][] {
@@ -312,6 +331,50 @@ function dsiIndustrieSudRows(): ProspectionImportRow[] {
   });
 }
 
+/**
+ * Prescripteurs Grand Est : cabinets d'avocats et d'expertise comptable des dix
+ * départements du Grand Est, appelés comme prescripteurs du module Data/IA de
+ * la Région (50 % de la prestation pris en charge, plafond 10 000 € HT) vers
+ * leurs clients de production, de logistique ou du BTP. Les cabinets ne sont
+ * pas éligibles eux-mêmes : l'accroche le rappelle, avec la clientèle que leur
+ * site affiche, puisque c'est le critère qui a fait entrer la cible dans la liste.
+ */
+function prescripteursGrandEstRows(): ProspectionImportRow[] {
+  const rows = parseCsv('docs/prospection/liste-prescripteurs-grand-est.csv').slice(1);
+  return rows.map((cells) => {
+    const type = clean(cells[2]);
+    const priorite = clean(cells[6]);
+    const clientele = clean(cells[7]);
+    const siren = clean(cells[13]);
+    const reseau = clean(cells[14]);
+    const notes = clean(cells[17]);
+    return {
+      name: cells[0].trim(),
+      sector: 'prescripteurs-grand-est',
+      city: clean(cells[3]),
+      country: 'France',
+      employeeCount: parseHeadcount(clean(cells[5])),
+      contactName: clean(cells[8]),
+      contactTitle: clean(cells[9]),
+      contactPhone: clean(cells[10]),
+      contactEmail: clean(cells[11]),
+      websiteUrl: clean(cells[12]),
+      sourceUrl: clean(cells[15]),
+      hook: [
+        "Prescripteur Grand Est : une fois Lucid-Lab référencé, ses clients de production, de logistique ou du BTP ont 50 % de l'accompagnement Data/IA pris en charge par la Région, jusqu'à 10 000 € HT. Le cabinet n'est pas éligible lui-même.",
+        priorite === 'B' ? "Priorité B : le site n'affiche pas de clientèle industrielle, à qualifier à l'appel." : null,
+        clientele ? `Clientèle affichée : ${clientele}` : null,
+        type ? `Type : ${type}.` : null,
+        reseau ? `Réseau : ${reseau}.` : null,
+        siren ? `SIREN ${siren}.` : null,
+        notes,
+      ]
+        .filter(Boolean)
+        .join(' '),
+    };
+  });
+}
+
 async function main(): Promise<void> {
   const groups: Array<{ label: string; rows: ProspectionImportRow[] }> = [
     { label: 'Experts-comptables France', rows: franceRows() },
@@ -320,11 +383,30 @@ async function main(): Promise<void> {
     { label: 'Avocats France', rows: avocatsRows() },
     { label: 'Crèches France', rows: crechesRows() },
     { label: 'DSI industrie Sud', rows: dsiIndustrieSudRows() },
+    { label: 'Prescripteurs Grand Est', rows: prescripteursGrandEstRows() },
   ];
+
+  // La region est posee ici plutot que dans chaque fonction de liste : le
+  // rapprochement se fait sur la ville, qui est le seul champ commun aux six listes.
+  const regions = chargerRegions();
+  const villesSansRegion = new Set<string>();
+  for (const group of groups) {
+    for (const row of group.rows) {
+      const region = row.city ? regions.get(row.city) : undefined;
+      if (region) row.region = region;
+      else if (row.city) villesSansRegion.add(row.city);
+    }
+  }
+  if (villesSansRegion.size > 0) {
+    console.log(`Villes sans region (a ajouter dans villes-regions.csv) : ${[...villesSansRegion].join(' | ')}`);
+  }
 
   for (const group of groups) {
     const named = group.rows.filter((row) => row.contactName).length;
-    console.log(`${group.label} : ${group.rows.length} lignes, ${named} avec un contact nommé`);
+    const withRegion = group.rows.filter((row) => row.region).length;
+    console.log(
+      `${group.label} : ${group.rows.length} lignes, ${named} avec un contact nommé, ${withRegion} avec une région`,
+    );
 
     if (DRY_RUN) {
       console.log('  exemple :', JSON.stringify(group.rows[0], null, 2));

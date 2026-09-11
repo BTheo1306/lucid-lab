@@ -15,7 +15,11 @@ function isAuthorized(req: Request): boolean {
 
 /**
  * GET /api/cron/dougs-sync
- * Fetches paid invoices from Dougs and upserts them into client_billing_events.
+ * Fetches finalized invoices from Dougs and upserts them into client_billing_events:
+ * paid ones as payment_received/paid, unpaid ones as invoice_generated/due or
+ * payment_overdue/overdue, and avoirs as credit_note/cancelled so they stay out
+ * of the collected-revenue KPI. Rows already cancelled by a human are left alone,
+ * and unresolved avoirs come back in creditNotesForReview.
  * Runs every 3 days via Vercel cron (schedule: 0 9 *\/3 * *).
  * Requires DOUGS_SESSION_COOKIE and DOUGS_COMPANY_ID env vars.
  * If the session expires, update DOUGS_SESSION_COOKIE in Vercel env vars
@@ -30,7 +34,7 @@ export async function GET(req: Request) {
   const result = await syncDougsInvoices();
 
   if (result.sessionExpired) {
-    console.error('[dougs-sync] Session expired — update DOUGS_SESSION_COOKIE in Vercel env vars');
+    console.error('[dougs-sync] Session expired: update DOUGS_SESSION_COOKIE in Vercel env vars');
     return NextResponse.json({ ok: false, reason: 'dougs_session_expired', ...result });
   }
 

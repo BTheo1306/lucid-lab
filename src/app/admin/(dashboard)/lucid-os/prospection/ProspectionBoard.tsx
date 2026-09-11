@@ -29,6 +29,7 @@ export type BoardTarget = {
   companyId: string;
   name: string;
   city: string | null;
+  region: string | null;
   sector: string | null;
   employeeCount: number | null;
   websiteUrl: string | null;
@@ -183,7 +184,7 @@ export function ProspectionBoard({ targets }: { targets: BoardTarget[] }) {
               <div className="min-w-0">
                 <h3 className="text-sm font-semibold text-zinc-950">{target.name}</h3>
                 <p className="mt-0.5 text-xs text-zinc-500">
-                  {[target.city, target.employeeCount ? `${target.employeeCount} salariés` : null, target.sector]
+                  {[target.city, target.region, target.employeeCount ? `${target.employeeCount} salariés` : null, target.sector]
                     .filter(Boolean)
                     .join(' · ')}
                 </p>
